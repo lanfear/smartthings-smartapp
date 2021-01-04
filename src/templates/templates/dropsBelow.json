@@ -1,0 +1,15 @@
+{
+    "name": "Drops Below",
+    "actions": [
+        {
+            "if": {
+                "dropsBelow": {
+                    "left": {},
+                    "right": {}
+                },
+                "then": [],
+                "else": []
+            }
+        }
+    ]
+}

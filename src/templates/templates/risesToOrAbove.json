@@ -1,0 +1,15 @@
+{
+    "name": "Rises To Or Above",
+    "actions": [
+        {
+            "if": {
+                "risesToOrAbove": {
+                    "left": {},
+                    "right": {}
+                },
+                "then": [],
+                "else": []
+            }
+        }
+    ]
+}

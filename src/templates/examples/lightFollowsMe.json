@@ -1,0 +1,64 @@
+{
+  "name": "If motion, turn on - wait 1 minute - if no motion, turn off",
+  "actions": [
+    {
+      "if": {
+        "equals": {
+          "left": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+              "capability": "motionSensor",
+              "attribute": "motion"
+            }
+          },
+          "right": {
+            "string": "active"
+          }
+        },
+        "then": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "on"
+                }
+              ]
+            }
+          },
+          {
+            "sleep": {
+              "duration": {
+                "value": {
+                  "integer": 60
+                },
+                "unit": "Second"
+              }
+            }
+          },
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "off"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "Close garage door when not present",
+  "actions": [
+    {
+      "if": {
+        "equals": {
+          "right": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+              "capability": "presenceSensor",
+              "attribute": "presence"
+            }
+          },
+          "left": {
+            "string": "not present"
+          }
+        },
+        "then": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "doorControl",
+                  "command": "close"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

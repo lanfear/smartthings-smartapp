@@ -1,0 +1,57 @@
+{
+  "name": "If temperature is 72°F or less, turn on switch, else turn switch off",
+  "actions": [
+    {
+      "if": {
+        "lessThan": {
+          "right": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+              "capability": "temperatureMeasurement",
+              "attribute": "temperature"
+            }
+          },
+          "left": {
+            "integer": 72
+          }
+        },
+        "then": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "on"
+                }
+              ]
+            }
+          }
+        ],
+        "else": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "off",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

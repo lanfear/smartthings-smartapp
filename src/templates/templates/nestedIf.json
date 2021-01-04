@@ -1,0 +1,25 @@
+{
+	"name": "If (L == R) -> Then If (L < R)",
+	"actions": [
+		{
+			"if": {
+				"equals": {
+					"left": {},
+					"right": {}
+				},
+				"then": [
+                    {
+                        "if": {
+                            "lessThan": {
+                                "left": {},
+                                "right": {}
+							},
+							"then": []
+                        }
+                    }
+				],
+				"else": []
+			}
+		}
+	]
+}

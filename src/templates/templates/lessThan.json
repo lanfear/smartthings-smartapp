@@ -1,0 +1,15 @@
+{
+	"name": "If (L < R) -> Then (x) -> Else (y)",
+	"actions": [
+		{
+			"if": {
+				"lessThan": {
+					"left": {},
+					"right": {}
+				},
+				"then": [],
+				"else": []
+			}
+		}
+	]
+}
