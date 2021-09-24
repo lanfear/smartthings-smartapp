@@ -1,0 +1,66 @@
+{
+    "name": "Daylight Routine with delayed action",
+    "actions": [
+        {
+            "if": {
+                "between": {
+                    "value": {
+                        "time": {
+                            "reference": "Now"
+                        }
+                    },
+                    "start": {
+                        "time": {
+                            "reference": "Sunrise"
+                        }
+                    },
+                    "end": {
+                        "reference": "Sunset"
+                    }
+                },
+                "then": [
+                    {
+                        "if": {
+                            "equals": {
+                                "left": {
+                                    "device": {
+                                        "devices": [
+                                            "{{ deviceId }}"
+                                        ],
+                                        "component": "{{ componentId }}",
+                                        "capability": "{{ capabilityId }}",
+                                        "attribute": "{{ attributeName }}"
+                                    }
+                                },
+                                "right": {
+                                    "{{ string | integer}}": "{{ value }}"
+                                }
+                            },
+                            "then": [
+                                {
+                                    "sleep": {
+                                        "duration": {
+                                            "value": {
+                                                "integer": "{{ timeValue }}"
+                                            },
+                                            "unit": "{{ timeUnit }}"
+                                        }
+                                    }
+                                },
+                                {
+                                    "command": {
+                                        "devices": [
+                                            "{{ deviceId }}"
+                                        ],
+                                        "commands": []
+                                    }
+                                }
+                            ],
+                            "else": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

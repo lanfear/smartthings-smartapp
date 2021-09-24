@@ -1,0 +1,40 @@
+{
+  "name": "If motion is detected, turn on a light",
+  "actions": [
+    {
+      "if": {
+        "equals": {
+          "left": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+              "capability": "motionSensor",
+              "attribute": "motion"
+            }
+          },
+          "right": {
+            "string": "active"
+          }
+        },
+        "then": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "on"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

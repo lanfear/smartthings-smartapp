@@ -1,0 +1,58 @@
+{
+	"name": "If door is open, turn on light, else turn off light",
+	"actions": [
+		{
+			"if": {
+				"equals": {
+					"right": {
+						"device": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"component": "main",
+							"capability": "contactSensor",
+							"attribute": "contact"
+						}
+					},
+					"left": {
+						"string": "open"
+					}
+				},
+				"then": [
+					{
+						"command": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"commands": [
+								{
+									"component": "main",
+									"capability": "switch",
+									"command": "on",
+									"arguments": []
+								}
+							]
+						}
+					}
+				],
+				"else": [
+					{
+						"command": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"commands": [
+								{
+									"component": "main",
+									"capability": "switch",
+									"command": "off",
+									"arguments": []
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}

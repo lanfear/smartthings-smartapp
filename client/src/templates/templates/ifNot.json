@@ -1,0 +1,17 @@
+{
+	"name": "If (!L == R) -> Then (x) -> Else (y)",
+	"actions": [
+		{
+			"if": {
+				"not": {
+					"equals": {
+						"left": {},
+						"right": {}
+					}
+				},
+				"then": [],
+				"else": []
+			}
+		}
+	]
+}
