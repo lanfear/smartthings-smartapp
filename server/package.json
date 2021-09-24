@@ -10,7 +10,8 @@
     "typescript": "^4.4.3"
   },
   "scripts": {
-    "server-start": "node --loader ts-node/esm ./server.ts"
+    "start": "node --loader ts-node/esm ./server.ts",
+    "tunnel": "ngrok http 9190"
   },
   "eslintConfig": {
   },

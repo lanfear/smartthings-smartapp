@@ -3,12 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "concurrently": "^6.2.1"
   },
   "scripts": {
     "client-start": "cd client && yarn client-start",
     "client-build": "cd client && yarn client-build",
     "client-test": "cd client && yarn client-test",
     "client-eject": "cd client && yarn client-eject",
-    "server-start": "cd server && yarn-server-start"
+    "server-start": "concurrently -n \"server:tunnel,server:host\" -c \"blue,cyan\" \"cd server && yarn tunnel\" \"cd server && yarn start\"",
+    "killNodeWin": "taskkill -F -IM node.exe",
+    "killNodeLinux": "killall .node.bin"
   }
 }
