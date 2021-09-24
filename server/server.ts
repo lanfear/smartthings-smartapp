@@ -6,7 +6,7 @@ import smartApp from './smartapp'
 
 
 const server = express();
-const PORT = process.env.PORT || 9788;
+const PORT = process.env.PORT || 9190;
 
 /* Configure Express to handle JSON lifecycle event calls from SmartThings */
 server.use(express.json());
