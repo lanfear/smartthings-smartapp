@@ -1,0 +1,57 @@
+{
+  "name": "If button is pushed turn on device.",
+  "actions": [
+    {
+      "if": {
+        "equals": {
+          "right": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+              "capability": "button",
+              "attribute": "button"
+            }
+          },
+          "left": {
+            "string": "pushed"
+          }
+        },
+        "then": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "on"
+                }
+              ]
+            }
+          }
+        ],
+        "else": [
+          {
+            "command": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "commands": [
+                {
+                  "component": "main",
+                  "capability": "switch",
+                  "command": "off",
+                  "arguments": []
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+	"name": "If dimmer Rises Above 75%, and location mode is X, turn on",
+	"actions": [
+		{
+			"if": {
+				"and": [
+					{
+						"risesAbove": {
+							"left": {
+								"device": {
+									"devices": [
+										"{{ deviceId }}"
+									],
+									"component": "main",
+									"capability": "switchLevel",
+									"attribute": "level"
+								}
+							},
+							"right": {
+								"integer": 75
+							}
+						}
+					},
+					{
+						"equals": {
+							"left": {
+								"location": {
+									"attribute": "Mode"
+								}
+							},
+							"right": {
+								"string": "{{ locationModeId }}"
+							}
+						}
+					}
+				],
+				"then": [
+					{
+						"command": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"commands": [
+								{
+									"component": "main",
+									"capability": "switch",
+									"command": "on"
+								}
+							]
+						}
+					}
+				],
+				"else": []
+			}
+		}
+	]
+}

@@ -1,0 +1,34 @@
+{
+	"name": "Turn on a switch at sunset",
+	"actions": [
+		{
+			"every": {
+				"specific": {
+					"reference": "Sunset",
+					"offset": {
+						"value": {
+							"integer": 0
+						},
+						"unit": "Minute"
+					}
+				},
+				"actions": [
+					{
+						"command": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"commands": [
+								{
+									"component": "main",
+									"capability": "switch",
+									"command": "on"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}

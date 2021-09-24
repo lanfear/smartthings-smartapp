@@ -1,0 +1,16 @@
+{
+	"name": "If (x < 10 && x > 0) -> Then (y)",
+	"actions": [
+		{
+			"if": {
+				"between": {
+					"value": {},
+					"start": {},
+					"end": {}
+				},
+				"then": [],
+				"else": []
+			}
+		}
+	]
+}

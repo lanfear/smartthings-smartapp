@@ -1,0 +1,20 @@
+{
+    "name": "Trigger device command",
+    "actions": [
+        {
+            "command": {
+                "devices": [
+                    "{{ deviceId }}"
+                ],
+                "commands": [
+                    {
+                        "component": "{{ componentId }}",
+                        "capability": "{{ capabilityId }}",
+                        "command": "{{ commandName }}",
+                        "arguments": []
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Drops To Or Below",
+    "actions": [
+        {
+            "if": {
+                "dropsToOrBelow": {
+                    "left": [],
+                    "right": []
+                },
+                "then": [],
+                "else": []
+            }
+        }
+    ]
+}
