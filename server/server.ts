@@ -1,6 +1,7 @@
 // eslint-disable-next-line
 import { SceneSummary, Device, Rule } from '@smartthings/core-sdk';
 import express from 'express';
+import cors from 'cors';
 import path from 'path';
 import process from './provider/env';
 import smartApp from './provider/smartapp';
@@ -10,6 +11,7 @@ import sse from './provider/sse';
 const server = express();
 const PORT = process.env.PORT || 3001;
 
+server.use(cors()); // TODO: this could be improved
 server.use(express.json());
 // server.use(express.static(path.join(__dirname, '../public')));
 // server.set('views', path.join(__dirname, '../views'))

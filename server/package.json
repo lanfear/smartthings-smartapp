@@ -6,6 +6,7 @@
     "@smartthings/file-context-store": "^0.0.1",
     "@smartthings/smartapp": "^2.6.0",
     "@types/express": "^4.17.1",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-rate-limit": "^5.2.6",
     "express-slow-down": "^1.4.0",
@@ -18,8 +19,7 @@
     "start": "node --loader ts-node/esm ./server.ts",
     "tunnel": "ngrok http 9190"
   },
-  "eslintConfig": {
-  },
+  "eslintConfig": {},
   "browserslist": {
     "production": [
       ">0.2%",
@@ -31,5 +31,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12"
   }
 }
