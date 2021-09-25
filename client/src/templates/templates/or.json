@@ -1,0 +1,25 @@
+{
+	"name": "If (a > b || x < y) -> Then(z) -> Else(w)",
+	"actions": [
+		{
+			"if": {
+				"or": [
+					{
+						"greaterThan": {
+							"left": {},
+							"right": {}
+						}
+					},
+					{
+						"lessThan": {
+							"left": {},
+							"right": {}
+						}
+					}
+				],
+				"then": [],
+				"else": []
+			}
+		}
+	]
+}

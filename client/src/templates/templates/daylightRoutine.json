@@ -1,0 +1,48 @@
+{
+	"name": "Daylight Routine",
+	"actions": [
+		{
+			"every": {
+				"interval": {
+					"value": {
+						"integer": "{{ timeValue }}"
+					},
+					"unit": "{{ timeUnit }}"
+				},
+				"actions": [
+					{
+						"if": {
+							"between": {
+								"value": {
+									"time": {
+										"reference": "Now"
+									}
+								},
+								"start": {
+									"time": {
+										"reference": "Sunrise"
+									}
+								},
+								"end": {
+									"time": {
+										"reference": "Sunset"
+									}
+								}
+							},
+							"then": [
+								{
+									"command": {
+										"devices": [
+											"{{ deviceId }}"
+										],
+										"commands": []
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}

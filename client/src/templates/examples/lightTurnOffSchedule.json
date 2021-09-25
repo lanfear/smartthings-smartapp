@@ -1,0 +1,34 @@
+{
+	"name": "Turn off a light at 11:00 AM",
+	"actions": [
+		{
+			"every": {
+				"specific": {
+					"reference": "Noon",
+					"offset": {
+						"value": {
+							"integer": -60
+						},
+						"unit": "Minute"
+					}
+				},
+				"actions": [
+					{
+						"command": {
+							"devices": [
+								"{{ deviceId }}"
+							],
+							"commands": [
+								{
+									"component": "main",
+									"capability": "switch",
+									"command": "off"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	]
+}

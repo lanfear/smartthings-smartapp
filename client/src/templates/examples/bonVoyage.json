@@ -1,0 +1,32 @@
+{
+  "name": "If presence is not detected, location mode changes to away.",
+  "actions": [
+    {
+      "if": {
+        "equals": {
+          "right": {
+            "device": {
+              "devices": [
+                "{{ deviceId }}"
+              ],
+              "component": "main",
+                "capability": "presenceSensor",
+                "attribute": "presence"
+              }
+            },
+            "left": {
+              "string": "not present"
+            }
+          },
+          "then": [
+            {
+              "location": {
+                "mode": "{{ deviceId }}"
+              }
+            }
+          ],
+          "else": []
+        }
+      }
+    ]
+  }
