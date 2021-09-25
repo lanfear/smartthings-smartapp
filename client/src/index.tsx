@@ -4,10 +4,11 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter as Router } from "react-router-dom";
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import initLocale from './operations/initLocale';
 // App component
 import App from './App';
 
-
+initLocale();
 
 ReactDOM.render(
   <Router>
