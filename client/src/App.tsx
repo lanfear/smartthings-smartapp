@@ -11,23 +11,23 @@ import { Link  } from "react-router-dom";
 function App() {
   return (
     <div>
-      <nav class="navbar ">
-        <div class="container">
-        <div class="navbar-brand">
-          <a class="navbar-item" href="/">
+      <nav className="navbar ">
+        <div className="container">
+        <div className="navbar-brand">
+          <a className="navbar-item" href="/">
             Rule Helper
           </a>
 
 
-          <div class="navbar-burger burger" data-target="navMenubd-example">
+          <div className="navbar-burger burger" data-target="navMenubd-example">
             <span></span>
             <span></span>
             <span></span>
           </div>
         </div>
 
-        <div id="navMenubd-example" class="navbar-menu">
-          <div class="navbar-start">
+        <div id="navMenubd-example" className="navbar-menu">
+          <div className="navbar-start">
             <Link className="navbar-item" to="/rule-examples">
                   Rule Examples
             </Link>
@@ -39,10 +39,10 @@ function App() {
             </Link>
           </div>
 
-          <div class="navbar-end">
-            <a class="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank">
-              <span class="icon">
-                <i class="fa fa-github"></i>
+          <div className="navbar-end">
+            <a className="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank">
+              <span className="icon">
+                <i className="fa fa-github"></i>
               </span>
             </a>
           </div>
