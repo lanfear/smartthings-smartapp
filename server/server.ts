@@ -74,7 +74,8 @@ server.get('/isa/:id', async (req, res) => {
         }))
     }
 
-    res.render('isa', options)
+    //res.render('isa', options)
+    res.send(options);
 })
 
 /* Execute a scene */
