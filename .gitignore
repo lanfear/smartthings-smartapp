@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 # dependencies
 node_modules/
+server/data/
 /.pnp
 .pnp.js
 
@@ -37,3 +38,4 @@ yarn-error.log*
 .vscode/
 
 # config
+server/provider/env.ts

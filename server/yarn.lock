@@ -26,6 +26,11 @@
     sshpk "^1.16.1"
     underscore "^1.10.2"
 
+"@smartthings/file-context-store@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@smartthings/file-context-store/-/file-context-store-0.0.1.tgz#7bab8d2a6309da1eb134d9d10648415fab3c45d7"
+  integrity sha512-GOD5KD/VKgNaCI9jzcdp1BaY0qWNQK8/HUTTw9FGGrQ0VkB/jFa6QZFtcNFRJbhtPhRpmOdt4N/0wtaWSPtO0A==
+
 "@smartthings/smartapp@^2.6.0":
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/@smartthings/smartapp/-/smartapp-2.6.0.tgz#028466847cb5823644c9573a425eada82d0a2296"
@@ -243,6 +248,11 @@ clone@2.x:
   resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
   integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
 
+clone@^1.0.2:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/clone/-/clone-1.0.4.tgz#da309cc263df15994c688ca902179ca3c7cd7c7e"
+  integrity sha1-2jCcwmPfFZlMaIypAheco8fNfH4=
+
 color-convert@^1.9.1:
   version "1.9.3"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
@@ -347,6 +357,13 @@ debug@2.6.9:
   dependencies:
     ms "2.0.0"
 
+defaults@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/defaults/-/defaults-1.0.3.tgz#c656051e9817d9ff08ed881477f3fe4019f3ef7d"
+  integrity sha1-xlYFHpgX2f8I7YgUd/P+QBnz730=
+  dependencies:
+    clone "^1.0.2"
+
 depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
@@ -410,6 +427,23 @@ etag@~1.8.1:
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
+
+express-rate-limit@^5.2.6:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/express-rate-limit/-/express-rate-limit-5.3.0.tgz#e7b9d3c2e09ece6e0406a869b2ce00d03fe48aea"
+  integrity sha512-qJhfEgCnmteSeZAeuOKQ2WEIFTX5ajrzE0xS6gCOBCoRQcU+xEzQmgYQQTpzCcqUAAzTEtu4YEih4pnLfvNtew==
+
+express-slow-down@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/express-slow-down/-/express-slow-down-1.4.0.tgz#89e0aef6c3bb3602b70f06e0824889bd2362cc21"
+  integrity sha512-Tw5aa0plPj2STiuc2SyMw2VSjMvBgLGQHHoPhkIL4iPQcFZDueWBaiLxFZ3SrwrJhiu3b3sHNcsP6lXeWnbwAw==
+  dependencies:
+    defaults "^1.0.3"
+
+express-sse-ts@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/express-sse-ts/-/express-sse-ts-1.0.2.tgz#9a00a59209f607a5775e57d02adc7bfd7854d9d3"
+  integrity sha512-GDy6yEW8phqfXPJwgE2iRQIlnKoZHF0DSnnKDh1g/8if6OX7CxBYlEW1yxRjLwB1crALcb7aEa7bElDXu7cQmA==
 
 express@^4.17.1:
   version "4.17.1"
@@ -536,6 +570,11 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
+
+helmet@^4.4.1:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/helmet/-/helmet-4.6.0.tgz#579971196ba93c5978eb019e4e8ec0e50076b4df"
+  integrity sha512-HVqALKZlR95ROkrnesdhbbZJFi/rIVSoNq6f3jA/9u6MIbTsPh3xZwihjeI5+DO/2sOV6HMHooXcEOuwskHpTg==
 
 http-errors@1.7.2:
   version "1.7.2"
