@@ -21,13 +21,6 @@ server/data/
 .env.production.local
 */.env.local
 */.env.*.local
-*/.env
-
-# misc
-.DS_Store
-
-# lint
-*/.eslintcache
 
 # log
 npm-debug.log*
