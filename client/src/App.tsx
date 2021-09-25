@@ -6,6 +6,7 @@ import Home from "./components/Home";
 import RuleExamples from "./components/RuleExamples";
 import BasicTemplates from "./components/BasicTemplates";
 import AdvancedTemplates from "./components/AdvancedTemplates";
+import SmartApps from "./components/SmartApps";
 import { Link  } from "react-router-dom";
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
         <Route path='/rule-examples' component={RuleExamples} exact/>
         <Route path='/basic-templates' component={BasicTemplates} exact/>
         <Route path='/advanced-templates' component={AdvancedTemplates} exact/>
+        <Route path='/smartapps' component={SmartApps} exact/>
       </Switch>
       </section>
       
