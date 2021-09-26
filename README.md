@@ -1,5 +1,12 @@
 # Rule Helper
 
+## RUNNING DEV ENVIRONMENT
+
+1) yarn server/tunnel
+2) modify https://smartthings.developer.samsung.com/workspace/projects/ with the url reported in the output of above
+3) yarn server/server
+4) yarn client/client-start
+
 ## Introduction
 If you are automating Devices and Connected Services on the SmartThings Cloud and do not want to create a standalone application, creating an _Automations_ is a great place to start. [Rules](https://smartthings.developer.samsung.com/docs/api-ref/st-api.html#tag/rules) are a versatile tool, enabling you to create a wide range of Automations that operate on the SmartThings Platform.
 
