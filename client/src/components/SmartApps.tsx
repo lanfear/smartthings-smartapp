@@ -53,9 +53,9 @@ const SmartApps: React.FC<SmartAppProps> = () => {
             {Object.values(smartAppData).map(sa => (<>
                 <Link to={`/dashboard/${sa.installedAppId}`} >
                     <div>{t('smartapp.label')}: {sa.installedAppId}</div>
-                    <div>{t('smartapp.scenes')}: {sa.scenes.length}</div>
-                    <div>{t('smartapp.switches')}: {sa.switches.length}</div>
-                    <div>{t('smartapp.locks')}: {sa.locks.length}</div>
+                    <div>{t('smartapp.sceneCount')}: {sa.scenes.length}</div>
+                    <div>{t('smartapp.switchCount')}: {sa.switches.length}</div>
+                    <div>{t('smartapp.lockCount')}: {sa.locks.length}</div>
                 </Link>
             </>))}
         </SmartAppGrid>
