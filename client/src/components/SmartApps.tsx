@@ -26,7 +26,6 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     useEffect(() => {
         const getSmartApps = () => {
             setSmartApps(getInstalledSmartApps());
-            console.log('getting sa', getInstalledSmartApps());
         }
     
         getSmartApps();
@@ -34,11 +33,8 @@ const SmartApps: React.FC<SmartAppProps> = () => {
 
     useEffect(() => {
         const getSmartApp = async (isaId: string) => {
-            debugger;
-            console.log('getting sa data')
             const updatedSmartAppData = Object.assign([], smartAppData);
             updatedSmartAppData[isaId] = await getInstalledSmartApp(isaId);
-            console.log('setting sa data', updatedSmartAppData);
             setSmartAppData(updatedSmartAppData);
         }
     
@@ -46,7 +42,8 @@ const SmartApps: React.FC<SmartAppProps> = () => {
         smartApps.forEach( sa => {
             void getSmartApp(sa);
         })
-    }, [smartApps])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [smartApps]) // ignore smartAppData
 
     return (
         <SmartAppGrid>

@@ -46,7 +46,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
 
         void getDashboard(installedAppId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, []) // ignore installedAppId
 
     return (<>
         <DashboardTitle>{dashboardData.installedAppId}</DashboardTitle>
