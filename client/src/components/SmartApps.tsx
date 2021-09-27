@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link  } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
@@ -50,10 +51,12 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     return (
         <SmartAppGrid>
             {Object.values(smartAppData).map(sa => (<>
-                <div>{t('smartapp.label')}: {sa.installedAppId}</div>
-                <div>{t('smartapp.scenes')}: {sa.scenes.length}</div>
-                <div>{t('smartapp.switches')}: {sa.switches.length}</div>
-                <div>{t('smartapp.locks')}: {sa.locks.length}</div>
+                <Link to={`/dashboard/${sa.installedAppId}`} >
+                    <div>{t('smartapp.label')}: {sa.installedAppId}</div>
+                    <div>{t('smartapp.scenes')}: {sa.scenes.length}</div>
+                    <div>{t('smartapp.switches')}: {sa.switches.length}</div>
+                    <div>{t('smartapp.locks')}: {sa.locks.length}</div>
+                </Link>
             </>))}
         </SmartAppGrid>
     )
