@@ -8,6 +8,7 @@ import BasicTemplates from "./components/BasicTemplates";
 import AdvancedTemplates from "./components/AdvancedTemplates";
 import SmartApps from "./components/SmartApps";
 import { Link  } from "react-router-dom";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -38,6 +39,9 @@ function App() {
             <Link className="navbar-item" to="/advanced-templates">
                   Advanced Templates
             </Link>
+            <Link className="navbar-item" to="/smartapps">
+                  Installed Apps
+            </Link>
           </div>
 
           <div className="navbar-end">
@@ -58,6 +62,7 @@ function App() {
         <Route path='/basic-templates' component={BasicTemplates} exact/>
         <Route path='/advanced-templates' component={AdvancedTemplates} exact/>
         <Route path='/smartapps' component={SmartApps} exact/>
+        <Route path='/dashboard/:installedAppId' component={Dashboard}/>
       </Switch>
       </section>
       
