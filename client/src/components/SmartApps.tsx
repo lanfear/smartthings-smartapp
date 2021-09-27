@@ -53,6 +53,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
                     <div>{t('smartapp.sceneCount')}: {sa.scenes.length}</div>
                     <div>{t('smartapp.switchCount')}: {sa.switches.length}</div>
                     <div>{t('smartapp.lockCount')}: {sa.locks.length}</div>
+                    <div>{t('smartapp.motionCount')}: {sa.motion.length}</div>
                 </Link>
             </>))}
         </SmartAppGrid>
