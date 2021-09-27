@@ -45,7 +45,7 @@ function App() {
           </div>
 
           <div className="navbar-end">
-            <a className="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank">
+            <a className="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank" rel="noreferrer">
               <span className="icon">
                 <i className="fa fa-github"></i>
               </span>
