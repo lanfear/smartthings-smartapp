@@ -7,6 +7,8 @@
 	"pages.mainPage.settings.switches.description": "",
 	"pages.mainPage.settings.locks.name": "Control Locks",
 	"pages.mainPage.settings.locks.description": "",
+	"pages.mainPage.settings.motion.name": "Motion Sensors",
+	"pages.mainPage.settings.motion.description": "",
 	"pages.mainPage.settings.rules.name": "Control Rules",
 	"pages.mainPage.settings.rules.description": ""
 }

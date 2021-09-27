@@ -38,11 +38,12 @@ server.get('/', (req, res) => {
 server.get('/isa/:id', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
 
-    const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[] } = {
+    const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[], motion: Device[] } = {
         installedAppId: req.params.id,
         scenes: [],
         switches: [],
-        locks: []
+        locks: [],
+        motion: []
     }
 
     if (context.configBooleanValue('scenes')) {
@@ -72,6 +73,20 @@ server.get('/isa/:id', async (req, res) => {
                 deviceId: it.deviceId,
                 label: it.label,
                 value: state.lock.value
+            };
+        }))
+    }
+
+    if (context.configBooleanValue('motion')) {
+        // @ts-ignore
+        options.motion = await Promise.all((await context.api.devices.list({capability: 'motionSensor'})).map(async it => {
+            // @ts-ignore
+            console.log('motion', it);
+            const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
+            return {
+                deviceId: it.deviceId,
+                label: it.label,
+                value: state.motion.value
             };
         }))
     }
