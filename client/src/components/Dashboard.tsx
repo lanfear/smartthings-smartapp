@@ -87,6 +87,17 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
                 <span>{s.value}</span>
             </React.Fragment>))}
         </DashboardDeviceGrid>
+        <DashboardSubTitle>{t('dashboard.motion.sectionName')}</DashboardSubTitle>
+        <DashboardDeviceGrid>
+            <DashboardGridColumnHeader>{t('dashboard.motion.header.label')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.motion.header.deviceId')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.motion.header.value')}</DashboardGridColumnHeader>
+            {dashboardData && dashboardData.motion?.map(s => (<React.Fragment key={`locks-${s.deviceId}`}>
+                <span>{s.label}</span>
+                <span>{s.deviceId}</span>
+                <span>{s.value}</span>
+            </React.Fragment>))}
+        </DashboardDeviceGrid>
         </>
     )
 }

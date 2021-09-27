@@ -4,7 +4,7 @@ const getInstalledSmartApps = (): IResponseSmartApps => {
     // const responseBody = await response.json();
     // return responseBody;
     return [
-        '75e51574-a8fe-40ad-97a7-e46d577ac2c7'
+        '597ef1ac-cb15-4e10-a354-9a94849b6c15'
     ];
 };
 

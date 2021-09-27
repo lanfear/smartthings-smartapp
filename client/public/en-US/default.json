@@ -31,6 +31,14 @@
                 "deviceId": "Device ID",
                 "value": "Status"
             }
+        },
+        "motion": {
+            "sectionName":  "Motion Sensors",
+            "header": {
+                "label": "Name",
+                "deviceId": "Device ID",
+                "value": "Status"
+            }
         }
     }
 }

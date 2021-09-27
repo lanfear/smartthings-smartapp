@@ -10,7 +10,8 @@ export interface IResponseSmartApp {
     installedAppId: string;
     scenes: ISceneResponse[];
     switches: IDeviceResponse[];
-    locks: any[]; // TODO ??
+    locks: IDeviceResponse[];
+    motion: IDeviceResponse[];
 }
 
 export default getInstalledSmartApp;
