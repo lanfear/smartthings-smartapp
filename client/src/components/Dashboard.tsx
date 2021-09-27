@@ -50,7 +50,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
 
     return (<>
         <DashboardTitle>{dashboardData.installedAppId}</DashboardTitle>
-        <DashboardSubTitle>{t('dashboard.sceneSection')}</DashboardSubTitle>
+        <DashboardSubTitle>{t('dashboard.scene.sectionName')}</DashboardSubTitle>
         <DashboardSceneGrid>
             <DashboardGridColumnHeader>{t('dashboard.scene.header.sceneName')}</DashboardGridColumnHeader>
             <DashboardGridColumnHeader>{t('dashboard.scene.header.sceneId')}</DashboardGridColumnHeader>
@@ -65,22 +65,22 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
                 <span>{s.lastExecutedDate}</span>
             </React.Fragment>))}
         </DashboardSceneGrid>
-        <DashboardSubTitle>{t('dashboard.switchSection')}</DashboardSubTitle>
+        <DashboardSubTitle>{t('dashboard.switch.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
-            <DashboardGridColumnHeader>{t('dashboard.switches.header.label')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.switches.header.deviceId')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.switches.header.value')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.switch.header.label')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.switch.header.deviceId')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.switch.header.value')}</DashboardGridColumnHeader>
             {dashboardData && dashboardData?.switches?.map(s => (<React.Fragment key={`switches-${s.deviceId}`}>
                 <span>{s.label}</span>
                 <span>{s.deviceId}</span>
                 <span>{s.value}</span>
             </React.Fragment>))}
         </DashboardDeviceGrid>
-        <DashboardSubTitle>{t('dashboard.lockSection')}</DashboardSubTitle>
+        <DashboardSubTitle>{t('dashboard.lock.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
-            <DashboardGridColumnHeader>{t('dashboard.locks.header.label')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.locks.header.deviceId')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.locks.header.value')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.lock.header.label')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.lock.header.deviceId')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.lock.header.value')}</DashboardGridColumnHeader>
             {dashboardData && dashboardData.locks?.map(s => (<React.Fragment key={`locks-${s.deviceId}`}>
                 <span>{s.label}</span>
                 <span>{s.deviceId}</span>

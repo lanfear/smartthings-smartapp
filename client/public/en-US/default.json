@@ -1,0 +1,36 @@
+{
+    "smartapp": {
+        "label":  "App ID",
+        "sceneCount": "Scene Count",
+        "switchCount": "Switch Count",
+        "lockCount": "Lock Count"
+    },
+    "dashboard": {
+        "scene": {
+            "sectionName":  "Scenes",
+            "header": {
+                "sceneName": "Scene Name",
+                "sceneId": "Scene ID",
+                "createdBy": "Created By",
+                "createdDate": "Created Date",
+                "lastExecutedDate": "Last Executed"
+            }
+        },
+        "switch": {
+            "sectionName":  "Switches",
+            "header": {
+                "label": "Name",
+                "deviceId": "Device ID",
+                "value": "Status"
+            }
+        },
+        "lock": {
+            "sectionName":  "Switches",
+            "header": {
+                "label": "Name",
+                "deviceId": "Device ID",
+                "value": "Status"
+            }
+        }
+    }
+}
