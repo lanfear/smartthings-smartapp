@@ -22,6 +22,11 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const [smartApps, setSmartApps] = useState<IResponseSmartApps>([]);
     const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
+    const addRule = async (isaId: string) => {
+        const response = await fetch(`http://localhost:9190/isa/${isaId}/rule/add`, {method: 'PUT'});
+        const responseBody = await response.json();
+        console.log(responseBody);
+    };
 
     useEffect(() => {
         const getSmartApps = () => {
@@ -55,6 +60,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
                     <div>{t('smartapp.lockCount')}: {sa.locks.length}</div>
                     <div>{t('smartapp.motionCount')}: {sa.motion.length}</div>
                 </Link>
+                <button onClick={void addRule(sa.installedAppId)}>Add The Rule</button>
             </>))}
         </SmartAppGrid>
     )
