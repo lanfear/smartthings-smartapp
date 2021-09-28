@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
+import { IDeviceResponse, ISceneResponse } from "../types/apiResponses";
 
 const DashboardTitle = styled.h2`
     font-weight: 600;
@@ -39,9 +40,26 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
     const routeInfo = useParams();
     installedAppId = routeInfo.installedAppId;
 
+    const sortLabel = (r: IDeviceResponse, l: IDeviceResponse) => {
+        var rName = r.label.toUpperCase(); // ignore upper and lowercase
+        var lName = l.label.toUpperCase(); // ignore upper and lowercase
+        return rName < lName ? -1 : rName > lName ? 1 : 0;
+    };
+
+    const sortScene = (r: ISceneResponse, l: ISceneResponse) => {
+        var rName = r.sceneName.toUpperCase(); // ignore upper and lowercase
+        var lName = l.sceneName.toUpperCase(); // ignore upper and lowercase
+        return rName < lName ? -1 : rName > lName ? 1 : 0;
+    };
+
     useEffect(() => {
         const getDashboard = async (isaId: string) => {
-            setDashboardData(await getInstalledSmartApp(isaId));
+            const smartAppData = await getInstalledSmartApp(isaId);
+            smartAppData.scenes = smartAppData.scenes?.sort(sortScene) ?? [];
+            smartAppData.switches = smartAppData.switches?.sort(sortLabel) ?? [];
+            smartAppData.locks = smartAppData.locks?.sort(sortLabel) ?? [];
+            smartAppData.motion = smartAppData.motion?.sort(sortLabel) ?? [];
+            setDashboardData(smartAppData);
         }
 
         void getDashboard(installedAppId);
