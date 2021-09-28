@@ -20,3 +20,16 @@ export interface IDeviceResponse {
     label: string,
     value: string  // 'on' or 'off'?
 }
+
+export interface IRuleResponse {
+    name: string,
+    actions: object,
+    id: string,
+    status: string,
+    executionLocation: string,
+    ownerType: string,
+    ownerId: string,
+    creator: string,
+    dateCreated: Date,
+    dateUpdated: Date
+}

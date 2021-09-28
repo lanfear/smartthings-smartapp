@@ -27,6 +27,13 @@ const DashboardDeviceGrid = styled.div`
     grid-auto-rows: minmax(100px, auto);
 `;
 
+const DashboardRuleGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+`;
+
 const DashboardGridColumnHeader = styled.span`
     display: flex;
     justify-content: center;
@@ -116,6 +123,18 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
                 <span>{s.value}</span>
             </React.Fragment>))}
         </DashboardDeviceGrid>
+        <DashboardRuleGrid>
+            <DashboardGridColumnHeader>{t('dashboard.rule.header.name')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.rule.header.ruleId')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.rule.header.status')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.rule.header.ownerId')}</DashboardGridColumnHeader>
+            {dashboardData && dashboardData.rules?.map(s => (<React.Fragment key={`rules-${s.id}`}>
+                <span>{s.name}</span>
+                <span>{s.id}</span>
+                <span>{s.status}</span>
+                <span>{s.ownerId}</span>
+            </React.Fragment>))}
+        </DashboardRuleGrid>
         </>
     )
 }

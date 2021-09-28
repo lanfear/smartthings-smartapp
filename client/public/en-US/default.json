@@ -39,6 +39,15 @@
                 "deviceId": "Device ID",
                 "value": "Status"
             }
+        },
+        "rule": {
+            "sectionName":  "Rules",
+            "header": {
+                "name": "Name",
+                "ruleId": "Device ID",
+                "status": "Status",
+                "ownerId": "Owner"
+            }
         }
     }
 }
