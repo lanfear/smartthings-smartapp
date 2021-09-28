@@ -38,12 +38,13 @@ server.get('/', (req, res) => {
 server.get('/isa/:id', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
 
-    const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[], motion: Device[] } = {
+    const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[], motion: Device[], rules: Rule[] } = {
         installedAppId: req.params.id,
         scenes: [],
         switches: [],
         locks: [],
-        motion: []
+        motion: [],
+        rules: []
     }
 
     if (context.configBooleanValue('scenes')) {
@@ -91,6 +92,13 @@ server.get('/isa/:id', async (req, res) => {
         }))
     }
 
+    if (context.configBooleanValue('rules')) {
+        options.rules = await Promise.all((await context.api.rules.list()).map(async it => {
+            console.log('rule', it);
+            return it;
+        }));
+    }
+
     //res.render('isa', options)
     res.send(options);
 })
@@ -109,6 +117,63 @@ server.post('/isa/:id/devices/:deviceId', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
     const result = await context.api.devices.executeCommand(req.params.deviceId, req.body)
     res.send(result)
+});
+
+
+server.put('/isa/:id/rule/add', async(req, res) => {
+    const testRule = {
+        name: "If motion is detected, turn on a light",
+        actions: [
+            {
+                if: {
+                    equals: {
+                        left: {
+                            device: {
+                                devices: [
+                                    process.env.RULE_MOTION_DEVICEID
+                                ],
+                                component: "main",
+                                capability: "motionSensor",
+                                attribute: "motion"
+                            }
+                        },
+                        right: {
+                            string: "active"
+                        }
+                    },
+                    then: [
+                        {
+                            command: {
+                                devices: [
+                                    process.env.RULE_SWITCH_DEVICEID
+                                ],
+                                commands: [
+                                    {
+                                        component: "main",
+                                        capability: "switch",
+                                        command: "on"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    };
+
+    const context = await smartApp.withContext(req.params.id);
+    const result = await context.api.rules.create(testRule);
+    console.log('result', result);
+    res.send(result);
+});
+
+server.delete('/isa/:id/rule/:ruleId', async(req, res) => {
+    const context = await smartApp.withContext(req.params.id);
+    const result = await context.api.rules.delete(req.params.ruleId);
+    console.log('result', result);
+    res.statusCode = 204; //no content
+    res.send();
 });
 
 /**

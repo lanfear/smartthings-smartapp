@@ -29,6 +29,7 @@ export default new SmartApp()
 			section.booleanSetting('switches')
 			section.booleanSetting('locks')
 			section.booleanSetting('motion')
+			section.booleanSetting('rules')
 		});
 	})
 
