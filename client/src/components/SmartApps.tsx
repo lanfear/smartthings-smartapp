@@ -60,7 +60,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
                     <div>{t('smartapp.lockCount')}: {sa.locks.length}</div>
                     <div>{t('smartapp.motionCount')}: {sa.motion.length}</div>
                 </Link>
-                <button onClick={void addRule(sa.installedAppId)}>Add The Rule</button>
+                <button onClick={() => addRule(sa.installedAppId)}>Add The Rule</button>
             </>))}
         </SmartAppGrid>
     )
