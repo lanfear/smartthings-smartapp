@@ -1,7 +1,7 @@
 import { IDeviceResponse, IRuleResponse, ISceneResponse } from "../types/apiResponses";
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
-    const response = await fetch(`http://localhost:9190/isa/${isaId}`);
+    const response = await fetch(`http://localhost:9190/app/${isaId}`);
     const responseBody = await response.json();
     return responseBody as IResponseSmartApp;
 };
