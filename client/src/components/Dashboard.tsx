@@ -29,7 +29,7 @@ const DashboardDeviceGrid = styled.div`
 
 const DashboardRuleGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     grid-auto-rows: minmax(100px, auto);
 `;
@@ -72,6 +72,11 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
         void getDashboard(installedAppId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []) // ignore installedAppId
+
+    const deleteRule = async (isaId: string, ruleId: string) => {
+        const response = await fetch(`http://localhost:9190/isa/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
+        console.log('delete status', response.status);
+    };
 
     return (<>
         <DashboardTitle>{dashboardData.installedAppId}</DashboardTitle>
@@ -128,11 +133,13 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
             <DashboardGridColumnHeader>{t('dashboard.rule.header.ruleId')}</DashboardGridColumnHeader>
             <DashboardGridColumnHeader>{t('dashboard.rule.header.status')}</DashboardGridColumnHeader>
             <DashboardGridColumnHeader>{t('dashboard.rule.header.ownerId')}</DashboardGridColumnHeader>
+            <DashboardGridColumnHeader>{t('dashboard.rule.header.manage')}</DashboardGridColumnHeader>
             {dashboardData && dashboardData.rules?.map(s => (<React.Fragment key={`rules-${s.id}`}>
                 <span>{s.name}</span>
                 <span>{s.id}</span>
                 <span>{s.status}</span>
                 <span>{s.ownerId}</span>
+                <button onClick={() => deleteRule(installedAppId, s.id)}>DELETE</button>
             </React.Fragment>))}
         </DashboardRuleGrid>
         </>
