@@ -14,8 +14,6 @@ const PORT = process.env.PORT || 3001;
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
 // server.use(express.static(path.join(__dirname, '../public')));
-// server.set('views', path.join(__dirname, '../views'))
-// server.set('view engine', 'ejs')
 
 /* Handle lifecycle event calls from SmartThings */
 server.post('/smartapp', (req, res) => {
@@ -23,11 +21,11 @@ server.post('/smartapp', (req, res) => {
 });
 
 /**
- * Render the home page listing installed app instances
+ * list installed apps registered in the db
  */
-server.get('/', (req, res) => {
+server.get('/app', (_, res) => {
     const installedAppIds = db.listInstalledApps()
-    res.render('index', {installedAppIds})
+    res.send(installedAppIds);
 })
 
 /**
@@ -35,7 +33,7 @@ server.get('/', (req, res) => {
  */
 // would be neat to fix this, but appears handler for express cannot be async... but this functions as expected
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.get('/isa/:id', async (req, res) => {
+server.get('/app/:id', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
 
     const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[], motion: Device[], rules: Rule[] } = {
@@ -105,7 +103,7 @@ server.get('/isa/:id', async (req, res) => {
 
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/isa/:id/scenes/:sceneId', async (req, res) => {
+server.post('/app/:id/scenes/:sceneId', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
     const result = await context.api.scenes.execute(req.params.sceneId)
     res.send(result)
@@ -113,14 +111,14 @@ server.post('/isa/:id/scenes/:sceneId', async (req, res) => {
 
 /* Execute a device command */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/isa/:id/devices/:deviceId', async (req, res) => {
+server.post('/app/:id/devices/:deviceId', async (req, res) => {
     const context = await smartApp.withContext(req.params.id)
     const result = await context.api.devices.executeCommand(req.params.deviceId, req.body)
     res.send(result)
 });
 
 
-server.put('/isa/:id/rule/add', async(req, res) => {
+server.put('/app/:id/rule/add', async(req, res) => {
     const testRule = {
         name: "If motion is detected, turn on a light",
         actions: [
@@ -169,7 +167,7 @@ server.put('/isa/:id/rule/add', async(req, res) => {
     res.send(result);
 });
 
-server.delete('/isa/:id/rule/:ruleId', async(req, res) => {
+server.delete('/app/:id/rule/:ruleId', async(req, res) => {
     const context = await smartApp.withContext(req.params.id);
     const result = await context.api.rules.delete(req.params.ruleId);
     console.log('result', result);
