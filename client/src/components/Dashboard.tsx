@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
-import { IDeviceResponse, ISceneResponse } from "../types/apiResponses";
+import { SceneSummary } from "@smartthings/core-sdk";
+import { IDevice } from "../types/smartthingsExtensions";
 
 const DashboardTitle = styled.h2`
     font-weight: 600;
@@ -47,15 +48,15 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
     const routeInfo = useParams();
     installedAppId = routeInfo.installedAppId;
 
-    const sortLabel = (r: IDeviceResponse, l: IDeviceResponse) => {
+    const sortLabel = (r: IDevice, l: IDevice) => {
         var rName = r.label.toUpperCase(); // ignore upper and lowercase
         var lName = l.label.toUpperCase(); // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 
-    const sortScene = (r: ISceneResponse, l: ISceneResponse) => {
-        var rName = r.sceneName.toUpperCase(); // ignore upper and lowercase
-        var lName = l.sceneName.toUpperCase(); // ignore upper and lowercase
+    const sortScene = (r: SceneSummary, l: SceneSummary) => {
+        var rName = r.sceneName?.toUpperCase() || ''; // ignore upper and lowercase
+        var lName = l.sceneName?.toUpperCase() || ''; // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 

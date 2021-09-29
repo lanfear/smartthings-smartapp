@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { SceneSummary, Device, Rule } from '@smartthings/core-sdk';
+import { SceneSummary, Device, Rule, CapabilityStatus } from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -46,46 +46,30 @@ server.get('/app/:id', async (req, res) => {
     }
 
     if (context.configBooleanValue('scenes')) {
-        // @ts-ignore
         options.scenes = await context.api.scenes?.list() || [];
     }
 
     if (context.configBooleanValue('switches')) {
-        // @ts-ignore
-        options.switches = await Promise.all((await context.api.devices?.list({capability: 'switch'}) || []).map(async it => {
-            // @ts-ignore
+        options.switches = await Promise.all((await context.api.devices?.list({capability: 'switch'}) || []).map(async (it: DeviceState) => {
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
-            return {
-                deviceId: it.deviceId,
-                label: it.label,
-                value: state.switch.value
-            };
+            it.value = state.switch.value as string;
+            return it;
         }))
     }
 
     if (context.configBooleanValue('locks')) {
-        // @ts-ignore
-        options.locks = await Promise.all((await context.api.devices?.list({capability: 'lock'}) || []).map(async it => {
-            // @ts-ignore
+        options.locks = await Promise.all((await context.api.devices?.list({capability: 'lock'}) || []).map(async (it: DeviceState) => {
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
-            return {
-                deviceId: it.deviceId,
-                label: it.label,
-                value: state.lock.value
-            };
+            it.value = state.lock.value as string;
+            return it;
         }))
     }
 
     if (context.configBooleanValue('motion')) {
-        // @ts-ignore
-        options.motion = await Promise.all((await context.api.devices?.list({capability: 'motionSensor'}) || []).map(async it => {
-            // @ts-ignore
+        options.motion = await Promise.all((await context.api.devices?.list({capability: 'motionSensor'}) || []).map(async (it: DeviceState) => {
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
-            return {
-                deviceId: it.deviceId,
-                label: it.label,
-                value: state.motion.value
-            };
+            it.value = state.motion.value as string;
+            return it;
         }))
     }
 
@@ -180,5 +164,7 @@ server.get('/events', sse.init);
 server.listen(PORT, () => {
     console.log(`Server is up and running at http://localhost:${PORT}`)
 });
+
+export type DeviceState = Device & { value: string };
 
 export default server;
