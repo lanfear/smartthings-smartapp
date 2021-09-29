@@ -29,11 +29,11 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     };
 
     useEffect(() => {
-        const getSmartApps = () => {
-            setSmartApps(getInstalledSmartApps());
+        const getSmartApps = async () => {
+            setSmartApps(await getInstalledSmartApps());
         }
     
-        getSmartApps();
+        void getSmartApps();
     }, [])
 
     useEffect(() => {
