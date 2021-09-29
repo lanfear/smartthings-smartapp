@@ -49,12 +49,12 @@ server.get('/isa/:id', async (req, res) => {
 
     if (context.configBooleanValue('scenes')) {
         // @ts-ignore
-        options.scenes = await context.api.scenes.list()
+        options.scenes = await context.api.scenes?.list() || [];
     }
 
     if (context.configBooleanValue('switches')) {
         // @ts-ignore
-        options.switches = await Promise.all((await context.api.devices.list({capability: 'switch'})).map(async it => {
+        options.switches = await Promise.all((await context.api.devices?.list({capability: 'switch'}) || []).map(async it => {
             // @ts-ignore
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
             return {
@@ -67,7 +67,7 @@ server.get('/isa/:id', async (req, res) => {
 
     if (context.configBooleanValue('locks')) {
         // @ts-ignore
-        options.locks = await Promise.all((await context.api.devices.list({capability: 'lock'})).map(async it => {
+        options.locks = await Promise.all((await context.api.devices?.list({capability: 'lock'}) || []).map(async it => {
             // @ts-ignore
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
             return {
@@ -80,7 +80,7 @@ server.get('/isa/:id', async (req, res) => {
 
     if (context.configBooleanValue('motion')) {
         // @ts-ignore
-        options.motion = await Promise.all((await context.api.devices.list({capability: 'motionSensor'})).map(async it => {
+        options.motion = await Promise.all((await context.api.devices?.list({capability: 'motionSensor'}) || []).map(async it => {
             // @ts-ignore
             console.log('motion', it);
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
@@ -93,7 +93,7 @@ server.get('/isa/:id', async (req, res) => {
     }
 
     if (context.configBooleanValue('rules')) {
-        options.rules = await Promise.all((await context.api.rules.list()).map(async it => {
+        options.rules = await Promise.all((await context.api.rules?.list() || []).map(async it => {
             console.log('rule', it);
             return it;
         }));
@@ -150,9 +150,10 @@ server.put('/isa/:id/rule/add', async(req, res) => {
                                 commands: [
                                     {
                                         component: "main",
-                                        capability: "switch",
-                                        command: "on"
-                                    }
+                                        capability: "switchLevel",
+                                        command: "setLevel",
+                                        arguments: [{ "integer": 33 }, { "integer": 20 }]
+                                    },
                                 ]
                             }
                         }
