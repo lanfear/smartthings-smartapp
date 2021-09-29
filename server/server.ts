@@ -80,7 +80,6 @@ server.get('/app/:id', async (req, res) => {
         // @ts-ignore
         options.motion = await Promise.all((await context.api.devices?.list({capability: 'motionSensor'}) || []).map(async it => {
             // @ts-ignore
-            console.log('motion', it);
             const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
             return {
                 deviceId: it.deviceId,
@@ -92,7 +91,6 @@ server.get('/app/:id', async (req, res) => {
 
     if (context.configBooleanValue('rules')) {
         options.rules = await Promise.all((await context.api.rules?.list() || []).map(async it => {
-            console.log('rule', it);
             return it;
         }));
     }
@@ -163,14 +161,12 @@ server.put('/app/:id/rule/add', async(req, res) => {
 
     const context = await smartApp.withContext(req.params.id);
     const result = await context.api.rules.create(testRule);
-    console.log('result', result);
     res.send(result);
 });
 
 server.delete('/app/:id/rule/:ruleId', async(req, res) => {
     const context = await smartApp.withContext(req.params.id);
     const result = await context.api.rules.delete(req.params.ruleId);
-    console.log('result', result);
     res.statusCode = 204; //no content
     res.send();
 });
