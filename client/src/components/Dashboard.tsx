@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
 import { SceneSummary } from "@smartthings/core-sdk";
 import { IDevice } from "../types/smartthingsExtensions";
+import Device from "./Device";
 
 const DashboardTitle = styled.h2`
     font-weight: 600;
@@ -49,14 +50,14 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
     installedAppId = routeInfo.installedAppId;
 
     const sortLabel = (r: IDevice, l: IDevice) => {
-        var rName = r.label.toUpperCase(); // ignore upper and lowercase
-        var lName = l.label.toUpperCase(); // ignore upper and lowercase
+        var rName = r.label?.toUpperCase() ?? ''; // ignore upper and lowercase
+        var lName = l.label?.toUpperCase() ?? ''; // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 
     const sortScene = (r: SceneSummary, l: SceneSummary) => {
-        var rName = r.sceneName?.toUpperCase() || ''; // ignore upper and lowercase
-        var lName = l.sceneName?.toUpperCase() || ''; // ignore upper and lowercase
+        var rName = r.sceneName?.toUpperCase() ?? ''; // ignore upper and lowercase
+        var lName = l.sceneName?.toUpperCase() ?? ''; // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 
@@ -100,11 +101,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
             <DashboardGridColumnHeader>{t('dashboard.switch.header.label')}</DashboardGridColumnHeader>
             <DashboardGridColumnHeader>{t('dashboard.switch.header.deviceId')}</DashboardGridColumnHeader>
             <DashboardGridColumnHeader>{t('dashboard.switch.header.value')}</DashboardGridColumnHeader>
-            {dashboardData && dashboardData?.switches?.map(s => (<React.Fragment key={`switches-${s.deviceId}`}>
-                <span>{s.label}</span>
-                <span>{s.deviceId}</span>
-                <span>{s.value}</span>
-            </React.Fragment>))}
+            {dashboardData && dashboardData?.switches?.map(s => (<Device key={`switches-${s.deviceId}`} device={s} />))}
         </DashboardDeviceGrid>
         <DashboardSubTitle>{t('dashboard.lock.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
