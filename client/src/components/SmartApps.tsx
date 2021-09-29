@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
 import getInstalledSmartApps, { IResponseSmartApps } from "../operations/getInstalledSmartApps";
+import { Rule } from "@smartthings/core-sdk";
 
 const SmartAppGrid = styled.div`
     display: grid;
@@ -23,9 +24,9 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
     const addRule = async (isaId: string) => {
-        const response = await fetch(`http://localhost:9190/isa/${isaId}/rule/add`, {method: 'PUT'});
-        const responseBody = await response.json();
-        console.log(responseBody);
+        const response = await fetch(`http://localhost:9190/app/${isaId}/rule/add`, {method: 'PUT'});
+        const responseBody = await response.json() as Rule;
+        return responseBody;
     };
 
     useEffect(() => {
