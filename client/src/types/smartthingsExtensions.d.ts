@@ -1,3 +1,5 @@
+import { Device } from "@smartthings/core-sdk";
+
 export type IDevice = Device & { value: string };
 
 export type IRule = Rule & {
