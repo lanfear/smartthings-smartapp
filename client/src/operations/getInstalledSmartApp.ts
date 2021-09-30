@@ -1,4 +1,4 @@
-import { Device, Rule, SceneSummary } from "@smartthings/core-sdk";
+import { SceneSummary } from "@smartthings/core-sdk";
 import { IDevice, IRule } from "../types/smartthingsExtensions";
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
