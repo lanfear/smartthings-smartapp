@@ -98,32 +98,15 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
         </DashboardSceneGrid>
         <DashboardSubTitle>{t('dashboard.switch.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
-            <DashboardGridColumnHeader>{t('dashboard.switch.header.label')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.switch.header.deviceId')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.switch.header.value')}</DashboardGridColumnHeader>
-            {dashboardData && dashboardData?.switches?.map(s => (<Device key={`switches-${s.deviceId}`} device={s} />))}
+            {dashboardData && dashboardData?.switches?.map(s => (<Device key={`switches-${s.deviceId}`} device={s} deviceType={'Switch'} />))}
         </DashboardDeviceGrid>
         <DashboardSubTitle>{t('dashboard.lock.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
-            <DashboardGridColumnHeader>{t('dashboard.lock.header.label')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.lock.header.deviceId')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.lock.header.value')}</DashboardGridColumnHeader>
-            {dashboardData && dashboardData.locks?.map(s => (<React.Fragment key={`locks-${s.deviceId}`}>
-                <span>{s.label}</span>
-                <span>{s.deviceId}</span>
-                <span>{s.value}</span>
-            </React.Fragment>))}
+            {dashboardData && dashboardData?.locks?.map(s => (<Device key={`locks-${s.deviceId}`} device={s} deviceType={'Lock'} />))}
         </DashboardDeviceGrid>
         <DashboardSubTitle>{t('dashboard.motion.sectionName')}</DashboardSubTitle>
         <DashboardDeviceGrid>
-            <DashboardGridColumnHeader>{t('dashboard.motion.header.label')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.motion.header.deviceId')}</DashboardGridColumnHeader>
-            <DashboardGridColumnHeader>{t('dashboard.motion.header.value')}</DashboardGridColumnHeader>
-            {dashboardData && dashboardData.motion?.map(s => (<React.Fragment key={`locks-${s.deviceId}`}>
-                <span>{s.label}</span>
-                <span>{s.deviceId}</span>
-                <span>{s.value}</span>
-            </React.Fragment>))}
+            {dashboardData && dashboardData?.motion?.map(s => (<Device key={`motion-${s.deviceId}`} device={s} deviceType={'Motion'} />))}
         </DashboardDeviceGrid>
         <DashboardRuleGrid>
             <DashboardGridColumnHeader>{t('dashboard.rule.header.name')}</DashboardGridColumnHeader>
