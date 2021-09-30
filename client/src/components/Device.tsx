@@ -17,7 +17,7 @@ const DeviceContainer = styled.div`
     flex-direction: column;
     align-content: center;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
     border: 1px solid gray;
     border-radius: 4px;
 `;
