@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { IDevice } from "../types/smartthingsExtensions";
 
@@ -40,8 +39,6 @@ const MotionContainer = styled(DeviceContainer)<{isActive: boolean}>`
 `;
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType}) => {
-    const {t} = useTranslation();
-
     console.log('d', device);
 
     return (
