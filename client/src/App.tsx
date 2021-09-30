@@ -6,7 +6,9 @@ import Home from "./components/Home";
 import RuleExamples from "./components/RuleExamples";
 import BasicTemplates from "./components/BasicTemplates";
 import AdvancedTemplates from "./components/AdvancedTemplates";
+import SmartApps from "./components/SmartApps";
 import { Link  } from "react-router-dom";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   return (
@@ -37,10 +39,13 @@ function App() {
             <Link className="navbar-item" to="/advanced-templates">
                   Advanced Templates
             </Link>
+            <Link className="navbar-item" to="/smartapps">
+                  Installed Apps
+            </Link>
           </div>
 
           <div className="navbar-end">
-            <a className="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank">
+            <a className="navbar-item is-hidden-desktop-only" href="https://github.com/jgthms/bulma" target="_blank" rel="noreferrer">
               <span className="icon">
                 <i className="fa fa-github"></i>
               </span>
@@ -56,6 +61,8 @@ function App() {
         <Route path='/rule-examples' component={RuleExamples} exact/>
         <Route path='/basic-templates' component={BasicTemplates} exact/>
         <Route path='/advanced-templates' component={AdvancedTemplates} exact/>
+        <Route path='/smartapps' component={SmartApps} exact/>
+        <Route path='/dashboard/:installedAppId' component={Dashboard}/>
       </Switch>
       </section>
       
