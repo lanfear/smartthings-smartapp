@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-import { SceneSummary, Device, Rule, CapabilityStatus } from '@smartthings/core-sdk';
+import { SceneSummary, Device, Rule, RuleRequest, IntervalUnit, TimeReference } from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -100,27 +100,60 @@ server.post('/app/:id/devices/:deviceId', async (req, res) => {
 });
 
 
-server.put('/app/:id/rule/add', async(req, res) => {
-    const testRule = {
+server.put('/app/:id/rule/add', async (req, res) => {
+    const testRule: RuleRequest = {
         name: "If motion is detected, turn on a light",
         actions: [
             {
                 if: {
-                    equals: {
-                        left: {
-                            device: {
-                                devices: [
-                                    process.env.RULE_MOTION_DEVICEID
-                                ],
-                                component: "main",
-                                capability: "motionSensor",
-                                attribute: "motion"
+                    and: [{
+                        between: {
+                            value: {
+                                time: {
+                                    reference: TimeReference.Now
+                                }
+                            },
+                            start: {
+                                time: {
+                                    reference: TimeReference.Noon,
+                                    offset: {
+                                        value: {
+                                            integer: process.env.RULE_START_TIME_OFFSET
+                                        },
+                                        unit: IntervalUnit.Minute
+                                    }
+                                },
+                            },
+                            end: {
+                                time: {
+                                    reference: TimeReference.Noon,
+                                    offset: {
+                                        value: {
+                                            integer: process.env.RULE_END_TIME_OFFSET
+                                        },
+                                        unit: IntervalUnit.Minute
+                                    }
+                                },
                             }
-                        },
-                        right: {
-                            string: "active"
                         }
                     },
+                    {
+                        equals: {
+                            left: {
+                                device: {
+                                    devices: [
+                                        process.env.RULE_MOTION_DEVICEID
+                                    ],
+                                    component: "main",
+                                    capability: "motionSensor",
+                                    attribute: "motion"
+                                }
+                            },
+                            right: {
+                                string: "active"
+                            }
+                        }
+                    }],
                     then: [
                         {
                             command: {
