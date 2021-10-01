@@ -4,7 +4,8 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import process from './provider/env';
-import smartApp from './provider/smartapp';
+import smartAppControl from './provider/smartappControl';
+import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
 //require('dotenv').config();
@@ -16,8 +17,12 @@ server.use(express.json());
 // server.use(express.static(path.join(__dirname, '../public')));
 
 /* Handle lifecycle event calls from SmartThings */
-server.post('/smartapp', (req, res) => {
-    void smartApp.handleHttpCallback(req, res);
+server.post('/smartapp/control', (req, res) => {
+    void smartAppControl.handleHttpCallback(req, res);
+});
+
+server.post('/smartapp/rule', (req, res) => {
+    void smartAppRule.handleHttpCallback(req, res);
 });
 
 /**
@@ -34,7 +39,7 @@ server.get('/app', (_, res) => {
 // would be neat to fix this, but appears handler for express cannot be async... but this functions as expected
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.get('/app/:id', async (req, res) => {
-    const context = await smartApp.withContext(req.params.id)
+    const context = await smartAppControl.withContext(req.params.id)
 
     const options:{ installedAppId: string, scenes: SceneSummary[], switches: Device[], locks: Device[], motion: Device[], rules: Rule[] } = {
         installedAppId: req.params.id,
@@ -86,7 +91,7 @@ server.get('/app/:id', async (req, res) => {
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/scenes/:sceneId', async (req, res) => {
-    const context = await smartApp.withContext(req.params.id)
+    const context = await smartAppControl.withContext(req.params.id)
     const result = await context.api.scenes.execute(req.params.sceneId)
     res.send(result)
 });
@@ -94,21 +99,21 @@ server.post('/app/:id/scenes/:sceneId', async (req, res) => {
 /* Execute a device command */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/devices/:deviceId', async (req, res) => {
-    const context = await smartApp.withContext(req.params.id)
+    const context = await smartAppControl.withContext(req.params.id)
     const result = await context.api.devices.executeCommand(req.params.deviceId, req.body)
     res.send(result)
 });
 
 
 server.post('/app/:id/rule', async (req, res) => {
-    const context = await smartApp.withContext(req.params.id);
+    const context = await smartAppControl.withContext(req.params.id);
     console.log('body', req.body, req.body.name);
     const result = await context.api.rules.create(req.body);
     res.send(result);
 });
 
 server.delete('/app/:id/rule/:ruleId', async(req, res) => {
-    const context = await smartApp.withContext(req.params.id);
+    const context = await smartAppControl.withContext(req.params.id);
     await context.api.rules.delete(req.params.ruleId);
     res.statusCode = 204; //no content
     res.send();
