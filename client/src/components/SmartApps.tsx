@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
 import getInstalledSmartApps, { IResponseSmartApps } from "../operations/getInstalledSmartApps";
-import { Rule } from "@smartthings/core-sdk";
+import { Rule, RuleRequest } from "@smartthings/core-sdk";
+import { generateActionSwitchLevel, generateConditionBetween, generateConditionMotion } from "../factories/ruleFactory";
 
 const SmartAppGrid = styled.div`
     display: grid;
@@ -23,8 +24,34 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const [smartApps, setSmartApps] = useState<IResponseSmartApps>([]);
     const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
+    const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? ''), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? ''));
+    const motionCondition = generateConditionMotion(process.env.REACT_APP_RULE_MOTION_DEVICEID ?? '');
+    const switchAction = generateActionSwitchLevel(process.env.REACT_APP_RULE_SWITCH_DEVICEID ?? '', 75);
+    const newRule: RuleRequest = {
+        name: "Motion Family Room",
+        actions: [
+            {
+                if: {
+                    and: [
+                        betweenCondition, 
+                        motionCondition
+                    ],
+                    then: [
+                        switchAction
+                    ]
+                }
+            }
+        ]
+    };
+
     const addRule = async (isaId: string) => {
-        const response = await fetch(`http://localhost:9190/app/${isaId}/rule/add`, {method: 'PUT'});
+        const response = await fetch(`http://localhost:9190/app/${isaId}/rule`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newRule)
+        });
         const responseBody = await response.json() as Rule;
         return responseBody;
     };

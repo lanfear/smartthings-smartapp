@@ -100,57 +100,16 @@ server.post('/app/:id/devices/:deviceId', async (req, res) => {
 });
 
 
-server.put('/app/:id/rule/add', async(req, res) => {
-    const testRule = {
-        name: "If motion is detected, turn on a light",
-        actions: [
-            {
-                if: {
-                    equals: {
-                        left: {
-                            device: {
-                                devices: [
-                                    process.env.RULE_MOTION_DEVICEID
-                                ],
-                                component: "main",
-                                capability: "motionSensor",
-                                attribute: "motion"
-                            }
-                        },
-                        right: {
-                            string: "active"
-                        }
-                    },
-                    then: [
-                        {
-                            command: {
-                                devices: [
-                                    process.env.RULE_SWITCH_DEVICEID
-                                ],
-                                commands: [
-                                    {
-                                        component: "main",
-                                        capability: "switchLevel",
-                                        command: "setLevel",
-                                        arguments: [{ "integer": 33 }, { "integer": 20 }]
-                                    },
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-    };
-
+server.post('/app/:id/rule', async (req, res) => {
     const context = await smartApp.withContext(req.params.id);
-    const result = await context.api.rules.create(testRule);
+    console.log('body', req.body, req.body.name);
+    const result = await context.api.rules.create(req.body);
     res.send(result);
 });
 
 server.delete('/app/:id/rule/:ruleId', async(req, res) => {
     const context = await smartApp.withContext(req.params.id);
-    const result = await context.api.rules.delete(req.params.ruleId);
+    await context.api.rules.delete(req.params.ruleId);
     res.statusCode = 204; //no content
     res.send();
 });
