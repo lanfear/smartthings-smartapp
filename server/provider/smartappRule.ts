@@ -14,10 +14,10 @@ const contextStore: any = new FileContextStore(db.dataDirectory)
 export default new SmartApp()
     .enableEventLogging()
     .configureI18n()
-    .permissions(['r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
-    .appId(process.env.APP_ID)
-    .clientId(process.env.CLIENT_ID)
-    .clientSecret(process.env.CLIENT_SECRET)
+    .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
+    .appId(process.env.RULE_APP_ID)
+    .clientId(process.env.RULE_CLIENT_ID)
+    .clientSecret(process.env.RULE_CLIENT_SECRET)
     .contextStore(contextStore)
 
 	// Configuration page definition
@@ -25,7 +25,6 @@ export default new SmartApp()
 
 		// prompts user to select a contact sensor
 		page.section('types', section => {
-			section.booleanSetting('scenes')
 			section.booleanSetting('switches')
 			section.booleanSetting('locks')
 			section.booleanSetting('motion')
