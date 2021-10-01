@@ -10,5 +10,29 @@
 	"pages.mainPage.settings.motion.name": "Motion Sensors",
 	"pages.mainPage.settings.motion.description": "",
 	"pages.mainPage.settings.rules.name": "Control Rules",
-	"pages.mainPage.settings.rules.description": ""
+	"pages.mainPage.settings.rules.description": "",
+
+	"pages.rulesMainPage.sections.types.name": "Integration Options",
+	"pages.rulesMainPage.sections.types.description": "These settings dont really do anything",
+	"pages.rulesMainPage.sections.sensors.name": "Sensors",
+	"pages.rulesMainPage.sections.sensors.description": "Choose the motion detector to activate triggers",
+	"pages.rulesMainPage.sections.switches.name": "Switches",
+	"pages.rulesMainPage.sections.switches.description": "Choose the affected switches",
+	"pages.rulesMainPage.sections.switches.dayControlSwitch.name": "Daylight Control Switch",
+	"pages.rulesMainPage.sections.switches.dayControlSwitch.description": "If this switch is off, trigger Daylight switches to on",
+	"pages.rulesMainPage.sections.switches.dayActiveSwitches.name": "Daylight Active Switches",
+	"pages.rulesMainPage.sections.switches.dayActiveSwitches.description": "When Daylight trigger activates, all these switches (plus control switch) wll be affected",
+	"pages.rulesMainPage.sections.switches.nightControlSwitch.name": "Nigthlight Control Switch",
+	"pages.rulesMainPage.sections.switches.nightControlSwitch.description": "If this switch is off, trigger Nigthlight switches to on",
+	"pages.rulesMainPage.sections.switches.nightActiveSwitches.name": "Nigthlight Active Switches",
+	"pages.rulesMainPage.sections.switches.nightActiveSwitches.description": "When Nigthlight trigger activates, all these switches (plus control switch) wll be affected",
+	
+	"pages.rulesMainPage.sections.timings.name": "Timings",
+	"pages.rulesMainPage.sections.timings.description": "Adjust offsets from the default time ranges",
+	"pages.rulesMainPage.sections.timings.dayStartOffset.name": "Start of Day Offset",
+	"pages.rulesMainPage.sections.timings.dayStartOffset.description": "Minutes +/- 8:00AM",
+	"pages.rulesMainPage.sections.timings.dayNightOffset.name": "Day --> Night Offset",
+	"pages.rulesMainPage.sections.timings.dayNightOffset.description": "Minutes +/- 8:00PM",
+	"pages.rulesMainPage.sections.timings.nightEndOffset.name": "End of Day Offset",
+	"pages.rulesMainPage.sections.timings.nightEndOffset.description": "Minutes +/- 12:00AM"
 }
