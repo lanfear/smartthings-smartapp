@@ -1,5 +1,5 @@
 import FileContextStore from '@smartthings/file-context-store';
-import { SmartApp } from '@smartthings/smartapp';
+import { NumberStyle, SmartApp } from '@smartthings/smartapp';
 import process from './env';
 import db from './db';
 import sse from './sse';
@@ -21,7 +21,7 @@ export default new SmartApp()
     .contextStore(contextStore)
 
 	// Configuration page definition
-	.page('mainPage', (context, page, configData) => {
+	.page('rulesMainPage', (context, page, configData) => {
 
 		// prompts user to select a contact sensor
 		page.section('types', section => {
@@ -30,54 +30,69 @@ export default new SmartApp()
 			section.booleanSetting('motion')
 			section.booleanSetting('rules')
 		});
-	})
 
-	// Handler called whenever app is installed or updated
-	// Called for both INSTALLED and UPDATED lifecycle events if there is
-	// no separate installed() handler
-	.updated(async (context, updateData) => {
-		await context.api.subscriptions.delete()
-		if (context.configBooleanValue('switches')) {
-			await context.api.subscriptions.subscribeToCapability('switch', 'switch', 'switchHandler')
-		}
-		if (context.configBooleanValue('locks')) {
-			await context.api.subscriptions.subscribeToCapability('lock', 'lock', 'lockHandler')
-		}
-		if (context.configBooleanValue('motionSensor')) {
-			await context.api.subscriptions.subscribeToCapability('motionSensor', 'motionSensor', 'motionSensorHandler')
-		}
-	})
+		page.section('sensors', section => {
+			section
+				.deviceSetting('motionSensor')
+				.capabilities(['motionSensor'])
+				.required(true)
+		});
 
-	// Handler called when the status of a switch changes
-	.subscribedEventHandler('switchHandler', (__context, event) => {
-		if (event.componentId === 'main') {
-			sse.send(JSON.stringify({
-				deviceId: event.deviceId,
-				value: event.value
-			}))
-		}
-	})
+		page.section('switches', section => {
+			section
+				.deviceSetting('dayControlSwitch')
+				.capabilities(['switch'])
+				.required(true)
+				.permissions('rx');
 
-	// Handler called when the status of a lock changes
-	.subscribedEventHandler('lockHandler', (__context, event) => {
-		if (event.componentId === 'main') {
-			sse.send(JSON.stringify({
-				deviceId: event.deviceId,
-				value: event.value
-			}))
-		}
-	})
+			section
+				.deviceSetting('dayActiveSwitches')
+				.capabilities(['switch'])
+				.required(true)
+				.multiple(true)
+				.permissions('rx');
 
-	// Handler called when the status of a lock changes
-	.subscribedEventHandler('motionSensorHandler', (__context, event) => {
-		if (event.componentId === 'main') {
-			sse.send(JSON.stringify({
-				deviceId: event.deviceId,
-				value: event.value
-			}))
-		}
-	});
-	
+			section
+				.deviceSetting('nightControlSwitch')
+				.capabilities(['switch'])
+				.required(true)
+				.permissions('rx');
+
+			section
+				.deviceSetting('nightActiveSwitches')
+				.capabilities(['switch'])
+				.required(true)
+				.multiple(true)
+				.permissions('rx');
+		});
+
+		page.section('timings', section => {
+			// from 8AM
+			section.numberSetting("dayStartOffset")
+				.min(-720)
+				.max(720)
+				.step(15)
+				// @ts-ignore
+				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+
+			// from 8PM
+			section.numberSetting("dayNightOffset")
+				.min(-720)
+				.max(720)
+				.step(15)
+				// @ts-ignore
+				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+
+			// from 12A
+			section.numberSetting("nightEndOffset")
+				.min(-720)
+				.max(720)
+				.step(15)
+				// @ts-ignore
+				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+
+		});
+	})
 	// // Configuration page definition
 	// .page('mainPage', (_, page) => {
 
