@@ -1,14 +1,82 @@
 import FileContextStore from '@smartthings/file-context-store';
-import { NumberStyle, SmartApp } from '@smartthings/smartapp';
+import { ContextStore, SmartApp } from '@smartthings/smartapp';
+import { RuleRequest } from "@smartthings/core-sdk";
+import { ISmartAppRuleConfig } from '../types/index';
 import process from './env';
 import db from './db';
 import sse from './sse';
+import JSONdb from 'simple-json-db';
+import { generateConditionBetween, generateConditionMotion, generateActionSwitchLevel, generateConditionDeviceOff, generateActionSwitchOn } from '../factories/ruleFactory';
+
+const offset8AM = 60 * -4;
+const offset8PM = 60 * 8;
 
 /*
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
-const contextStore: any = new FileContextStore(db.dataDirectory)
+const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, { asyncWrite: true });
+
+const createRuleFromConfig = ( 
+	ruleLabel: string,
+	dayStartOffset: number,
+	dayNightOffset: number,
+	nightEndOffset: number,
+	motionControlDeviceId: string,
+	dayControlDeviceId: string,
+	dayActiveSwitchLevelDeviceIds: string[],
+	dayActiveSwitchOnDeviceIds: string[],
+	nightControlDeviceId: string,
+	nightActiveSwitchLevelDeviceIds: string[],
+	nightActiveSwitchOnDeviceIds: string[]
+	) => {
+		const dayBetweenCondition = generateConditionBetween(offset8AM + dayStartOffset, offset8PM + dayNightOffset);
+		const nightBetweenCondition = generateConditionBetween(offset8PM + dayNightOffset, nightEndOffset);
+		const motionCondition = generateConditionMotion(motionControlDeviceId);
+		const dayControlSwitchCondition = generateConditionDeviceOff(dayControlDeviceId);
+		const nightControlSwitchCondition = generateConditionDeviceOff(nightControlDeviceId);
+		const daySwitchDimmableActions = dayActiveSwitchLevelDeviceIds.map( s => {
+			return generateActionSwitchLevel(s, 50);
+		});
+		const daySwitchOnActions = dayActiveSwitchOnDeviceIds.map( s => {
+			return generateActionSwitchOn(s);
+		});
+		const nightSwitchDimmableActions = nightActiveSwitchLevelDeviceIds.map( s => {
+			return generateActionSwitchLevel(s, 15);
+		});
+		const nightSwitchOnActions = nightActiveSwitchOnDeviceIds.map( s => {
+			return generateActionSwitchOn(s);
+		});
+
+		const newRule: RuleRequest = {
+			name: `Motion ${ruleLabel}`,
+			actions: [
+				{
+					if: {
+						and: [
+							dayBetweenCondition, 
+							motionCondition,
+							dayControlSwitchCondition
+						],
+						then: daySwitchDimmableActions.concat(daySwitchOnActions)
+					}
+				},
+				{
+					if: {
+						and: [
+							nightBetweenCondition, 
+							motionCondition,
+							nightControlSwitchCondition
+						],
+						then: nightSwitchDimmableActions.concat(nightSwitchOnActions)
+					}
+				}
+			]
+		};
+
+		return newRule;
+
+} 
 
 /* Define the SmartApp */
 export default new SmartApp()
@@ -93,6 +161,57 @@ export default new SmartApp()
 
 		});
 	})
+
+	.updated(async (context, updateData) => {
+		const appKey = `app-${updateData.installedApp.installedAppId}`;
+		const existingRuleInfo: RuleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
+		console.log('existing store data', existingRuleInfo);
+		if (existingRuleInfo && existingRuleInfo.mainRuleId) {
+			console.log('deleting existing rules', existingRuleInfo.mainRuleId);
+			await Promise.all((await context.api.rules.list()).map(async r => await context.api.rules.delete(r.id)));
+			//await context.api.rules.delete(existingRuleInfo.mainRuleId);
+		}
+
+		//await Promise.all((await context.api.devices?.list({capability: 'switch'}) || [])
+		//await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
+
+		const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
+
+		const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+		const daySwitches = newConfig.dayControlSwitch.concat(newConfig.dayActiveSwitches);
+		const nightSwitches = newConfig.nightControlSwitch.concat(newConfig.nightActiveSwitches);
+
+		const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
+		const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
+		const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
+		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
+
+		console.log('config stuff', dayDimmableSwitches, dayNonDimmableSwitches, nightDimmableSwitches, nightNonDimmableSwitches)
+
+		const newRule = createRuleFromConfig(
+			'Family Room Rule',
+			parseInt(newConfig.dayStartOffset[0].stringConfig.value),
+			parseInt(newConfig.dayNightOffset[0].stringConfig.value),
+			parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+			newConfig.motionSensor[0].deviceConfig.deviceId,
+			newConfig.dayControlSwitch[0].deviceConfig.deviceId,
+			dayDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
+			nightDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
+		)
+
+		console.log('new rule', newRule);
+
+		const newRuleInfo: RuleStoreInfo = {};
+		const newRuleResponse = await context.api.rules.create(newRule);
+		newRuleInfo.mainRuleId = newRuleResponse.id;
+		ruleStore.set(appKey, newRuleInfo);
+
+		console.log('rules', await context.api.rules.list());
+	})
+
 	// // Configuration page definition
 	// .page('mainPage', (_, page) => {
 
@@ -129,3 +248,8 @@ export default new SmartApp()
 	// 	const value = event.value === 'open' ? 'on' : 'off'
 	// 	await context.api.devices.sendCommands(context.config.lights, 'switch', value)
 	// })
+
+
+interface RuleStoreInfo {
+	mainRuleId?: string
+}
