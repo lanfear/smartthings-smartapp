@@ -49,7 +49,7 @@ const createRuleFromConfig = (
 		});
 
 		const newRule: RuleRequest = {
-			name: `Motion ${ruleLabel}`,
+			name: `${ruleLabel}`,
 			actions: [
 				{
 					if: {
@@ -165,13 +165,6 @@ export default new SmartApp()
 	.updated(async (context, updateData) => {
 		const appKey = `app-${updateData.installedApp.installedAppId}`;
 		const existingRuleInfo: RuleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
-		console.log('existing store data', existingRuleInfo);
-		if (existingRuleInfo && existingRuleInfo.mainRuleId) {
-			console.log('deleting existing rules', existingRuleInfo.mainRuleId);
-			await Promise.all((await context.api.rules.list()).map(async r => await context.api.rules.delete(r.id)));
-			//await context.api.rules.delete(existingRuleInfo.mainRuleId);
-		}
-
 		//await Promise.all((await context.api.devices?.list({capability: 'switch'}) || [])
 		//await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
 
@@ -186,10 +179,8 @@ export default new SmartApp()
 		const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
 		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 
-		console.log('config stuff', dayDimmableSwitches, dayNonDimmableSwitches, nightDimmableSwitches, nightNonDimmableSwitches)
-
 		const newRule = createRuleFromConfig(
-			'Family Room Rule',
+			`${appKey}-main`,
 			parseInt(newConfig.dayStartOffset[0].stringConfig.value),
 			parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			parseInt(newConfig.nightEndOffset[0].stringConfig.value),
@@ -202,7 +193,10 @@ export default new SmartApp()
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
 		)
 
-		console.log('new rule', newRule);
+		await Promise.all(
+			(await context.api.rules.list())
+			.filter( r => r.name.indexOf(appKey) !== -1 )
+			.map(async r => await context.api.rules.delete(r.id)));
 
 		const newRuleInfo: RuleStoreInfo = {};
 		const newRuleResponse = await context.api.rules.create(newRule);
