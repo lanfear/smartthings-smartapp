@@ -10,6 +10,7 @@ import { generateConditionBetween, generateConditionMotion, generateActionSwitch
 
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
+const offset12AM = 60 * 12;
 
 /*
  * Persistent storage of SmartApp tokens and configuration data in local files
@@ -31,7 +32,7 @@ const createRuleFromConfig = (
 	nightActiveSwitchOnDeviceIds: string[]
 	) => {
 		const dayBetweenCondition = generateConditionBetween(offset8AM + dayStartOffset, offset8PM + dayNightOffset);
-		const nightBetweenCondition = generateConditionBetween(offset8PM + dayNightOffset, nightEndOffset);
+		const nightBetweenCondition = generateConditionBetween(offset8PM + dayNightOffset, offset12AM + nightEndOffset);
 		const motionCondition = generateConditionMotion(motionControlDeviceId);
 		const dayControlSwitchCondition = generateConditionDeviceOff(dayControlDeviceId);
 		const nightControlSwitchCondition = generateConditionDeviceOff(nightControlDeviceId);
