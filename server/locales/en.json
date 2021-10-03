@@ -41,6 +41,13 @@
 	"pages.rulesMainPage.settings.nightActiveSwitches.name": "Nigthlight Active Switches",
 	"pages.rulesMainPage.settings.nightActiveSwitches.description": "When Nigthlight trigger activates, all these switches (plus control switch) wll be affected",
 	
+	"pages.rulesMainPage.sections.levels.name": "Levels",
+	"pages.rulesMainPage.sections.levels.description": "Adjust the Daylight and Nightlight levels",
+	"pages.rulesMainPage.settings.dayDimmerLevel.name": "Daylight Dimming Level",
+	"pages.rulesMainPage.settings.dayDimmerLevel.description": "",
+	"pages.rulesMainPage.settings.nightDimmerLevel.name": "Nightlight Dimming Level",
+	"pages.rulesMainPage.settings.nightDimmerLevel.description": "",
+	
 	"pages.rulesMainPage.sections.timings.name": "Timings",
 	"pages.rulesMainPage.sections.timings.description": "Adjust offsets from the default time ranges",
 	"pages.rulesMainPage.settings.dayStartOffset.name": "Start of Day Offset",
@@ -48,5 +55,8 @@
 	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset",
 	"pages.rulesMainPage.settings.dayNightOffset.description": "Minutes +/- 8:00PM",
 	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset",
-	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 12:00AM"
+	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 12:00AM",
+
+	"pages.rulesMainPage.sections.overrides.name": "Overrides",
+	"pages.rulesMainPage.sections.overrides.description": "Override dimming level for specific devices"
 }
