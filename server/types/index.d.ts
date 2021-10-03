@@ -31,3 +31,8 @@ export interface ISmartAppRuleConfig {
     nightActiveSwitches: ISmartAppRuleSwitch [],
     motionSensor: ISmartAppRuleMotion [] // should be only 1, but it's an array
 }
+
+export interface RuleStoreInfo {
+	dayRuleId?: string
+	nightRuleId?: string
+}
