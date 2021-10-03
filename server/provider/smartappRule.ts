@@ -115,6 +115,7 @@ export default new SmartApp()
 				.min(-720)
 				.max(720)
 				.step(15)
+				.defaultValue(0)
 				// @ts-ignore
 				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
@@ -123,6 +124,7 @@ export default new SmartApp()
 				.min(-720)
 				.max(720)
 				.step(15)
+				.defaultValue(0)
 				// @ts-ignore
 				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
@@ -131,6 +133,7 @@ export default new SmartApp()
 				.min(-720)
 				.max(720)
 				.step(15)
+				.defaultValue(0)
 				// @ts-ignore
 				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
