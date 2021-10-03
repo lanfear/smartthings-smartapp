@@ -107,10 +107,11 @@ export default new SmartApp()
 
 		const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
 
-		// TODO: somewhere around here need to filter out fact that the 'controlSwitch' could also be selected amongst the 'activeSwitches', so add simple filter for duplicate device
 		const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-		const daySwitches = newConfig.dayControlSwitch.concat(newConfig.dayActiveSwitches);
-		const nightSwitches = newConfig.nightControlSwitch.concat(newConfig.nightActiveSwitches);
+		const daySwitches = newConfig.dayControlSwitch.concat(newConfig.dayActiveSwitches) // next line filters out duplicate device ids between the 2 arrays
+			.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+		const nightSwitches = newConfig.nightControlSwitch.concat(newConfig.nightActiveSwitches) // next line filters out duplicate device ids between the 2 arrays
+			.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
 
 		const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
 		const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
