@@ -1,7 +1,7 @@
 import FileContextStore from '@smartthings/file-context-store';
 import { ContextStore, SmartApp } from '@smartthings/smartapp';
 import JSONdb from 'simple-json-db';
-import { ISmartAppRuleConfig } from '../types/index';
+import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel } from '../types/index';
 import process from './env';
 import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
@@ -108,7 +108,7 @@ export default new SmartApp()
 
 		});
 
-		page.section('levels', async section => {
+		await page.section('levels', async section => {
 			const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
 			const daySwitches = (await context.configDevices('dayControlSwitch')).concat(await context.configDevices('dayActiveSwitches'))
 				.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
@@ -118,7 +118,7 @@ export default new SmartApp()
 			const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
 
 			dayDimmableSwitches.forEach(s => {
-				section.numberSetting(`DayLevel${s.deviceId}`)
+				section.numberSetting(`dayLevel${s.deviceId}`)
 					.name(`${s.label} Day Dimming Level`)
 					.min(10)
 					.max(100)
@@ -129,7 +129,7 @@ export default new SmartApp()
 			});
 			
 			nightDimmableSwitches.forEach(s => {
-				section.numberSetting(`NightLevel${s.deviceId}`)
+				section.numberSetting(`nightLevel${s.deviceId}`)
 					.name(`${s.label} Night Dimming Level`)
 					.min(10)
 					.max(100)
@@ -153,8 +153,10 @@ export default new SmartApp()
 			.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
 
 		const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
+		const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: parseInt(((newConfig[`dayLevel${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value) } as IRuleSwitchLevelInfo });
 		const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 		const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
+		const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: parseInt(((newConfig[`nightLevel${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value) } as IRuleSwitchLevelInfo });
 		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 
 		const newDayRule = createRuleFromConfig(
@@ -163,7 +165,7 @@ export default new SmartApp()
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			newConfig.motionSensor[0].deviceConfig.deviceId,
 			newConfig.dayControlSwitch[0].deviceConfig.deviceId,
-			dayDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			dayDimmableSwitchLevels,
 			dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
 		);
 
@@ -173,7 +175,7 @@ export default new SmartApp()
 			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
 			newConfig.motionSensor[0].deviceConfig.deviceId,
 			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
-			nightDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			nightDimmableSwitchLevels,
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
 		);
 
