@@ -108,34 +108,7 @@ export default new SmartApp()
 
 		});
 
-		page.section('levels', section => {
-			// from 8AM
-			section.numberSetting("dayDimmerLevel")
-				.min(10)
-				.max(90)
-				.step(5)
-				.defaultValue(defaultDayLevel)
-				.submitOnChange(true)
-				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-
-			// from 8PM
-			section.numberSetting("nightDimmerLevel")
-				.min(10)
-				.max(90)
-				.step(5)
-				.defaultValue(defaultNightLevel)
-				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-		});
-
-		await page.section('overrides', async section => {
-			// section is complicated and unnecessary in simpler setups
-			// (i.e., for nightime settings in one room, i want 
-			//     - one device(s) to go to default level of 15%, 
-			//     - the other 2 device(s) to go to dimmer level of 30% instead)
-			// so i need the ability to override each switch level optionally
-
+		page.section('levels', async section => {
 			const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
 			const daySwitches = (await context.configDevices('dayControlSwitch')).concat(await context.configDevices('dayActiveSwitches'))
 				.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
@@ -143,27 +116,25 @@ export default new SmartApp()
 				.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
 			const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
 			const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
-			const dayDimmerLevel = context.configNumberValue('dayDimmerLevel');
-			const nightDimmerLevel = context.configNumberValue('nightDimmerLevel');
 
 			dayDimmableSwitches.forEach(s => {
-				section.numberSetting(`DayLevelOverride${s.deviceId}`)
-					.name(`${s.label} Day Level Override`)
+				section.numberSetting(`DayLevel${s.deviceId}`)
+					.name(`${s.label} Day Dimming Level`)
 					.min(10)
-					.max(90)
+					.max(100)
 					.step(5)
-					.defaultValue(dayDimmerLevel)
+					.defaultValue(defaultDayLevel)
 					// @ts-ignore
 					.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 			});
 			
 			nightDimmableSwitches.forEach(s => {
-				section.numberSetting(`NightLevelOverride${s.deviceId}`)
-					.name(`${s.label} Night Level Override`)
+				section.numberSetting(`NightLevel${s.deviceId}`)
+					.name(`${s.label} Night Dimming Level`)
 					.min(10)
-					.max(90)
+					.max(100)
 					.step(5)
-					.defaultValue(nightDimmerLevel)
+					.defaultValue(defaultNightLevel)
 					// @ts-ignore
 					.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 			});
