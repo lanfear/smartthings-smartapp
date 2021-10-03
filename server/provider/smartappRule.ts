@@ -4,7 +4,6 @@ import { RuleRequest } from "@smartthings/core-sdk";
 import { ISmartAppRuleConfig } from '../types/index';
 import process from './env';
 import db from './db';
-import sse from './sse';
 import JSONdb from 'simple-json-db';
 import { generateConditionBetween, generateConditionMotion, generateActionSwitchLevel, generateConditionDeviceOff, generateActionSwitchOn } from '../factories/ruleFactory';
 
@@ -12,40 +11,25 @@ const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
 const offset12AM = 60 * 12;
 
-/*
- * Persistent storage of SmartApp tokens and configuration data in local files
- */
 const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, { asyncWrite: true });
 
 const createRuleFromConfig = ( 
 	ruleLabel: string,
-	dayStartOffset: number,
-	dayNightOffset: number,
-	nightEndOffset: number,
+	startOffset: number,
+	endOffset: number,
 	motionControlDeviceId: string,
-	dayControlDeviceId: string,
-	dayActiveSwitchLevelDeviceIds: string[],
-	dayActiveSwitchOnDeviceIds: string[],
-	nightControlDeviceId: string,
-	nightActiveSwitchLevelDeviceIds: string[],
-	nightActiveSwitchOnDeviceIds: string[]
+	controlDeviceId: string,
+	activeSwitchLevelDeviceIds: string[],
+	activeSwitchOnDeviceIds: string[]
 	) => {
-		const dayBetweenCondition = generateConditionBetween(offset8AM + dayStartOffset, offset8PM + dayNightOffset);
-		const nightBetweenCondition = generateConditionBetween(offset8PM + dayNightOffset, offset12AM + nightEndOffset);
+		const betweenCondition = generateConditionBetween(startOffset, endOffset);
 		const motionCondition = generateConditionMotion(motionControlDeviceId);
-		const dayControlSwitchCondition = generateConditionDeviceOff(dayControlDeviceId);
-		const nightControlSwitchCondition = generateConditionDeviceOff(nightControlDeviceId);
-		const daySwitchDimmableActions = dayActiveSwitchLevelDeviceIds.map( s => {
+		const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
+		const switchDimmableActions = activeSwitchLevelDeviceIds.map( s => {
 			return generateActionSwitchLevel(s, 50);
 		});
-		const daySwitchOnActions = dayActiveSwitchOnDeviceIds.map( s => {
-			return generateActionSwitchOn(s);
-		});
-		const nightSwitchDimmableActions = nightActiveSwitchLevelDeviceIds.map( s => {
-			return generateActionSwitchLevel(s, 15);
-		});
-		const nightSwitchOnActions = nightActiveSwitchOnDeviceIds.map( s => {
+		const switchOnActions = activeSwitchOnDeviceIds.map( s => {
 			return generateActionSwitchOn(s);
 		});
 
@@ -55,21 +39,11 @@ const createRuleFromConfig = (
 				{
 					if: {
 						and: [
-							dayBetweenCondition, 
+							betweenCondition, 
 							motionCondition,
-							dayControlSwitchCondition
+							controlSwitchCondition
 						],
-						then: daySwitchDimmableActions.concat(daySwitchOnActions)
-					}
-				},
-				{
-					if: {
-						and: [
-							nightBetweenCondition, 
-							motionCondition,
-							nightControlSwitchCondition
-						],
-						then: nightSwitchDimmableActions.concat(nightSwitchOnActions)
+						then: switchDimmableActions.concat(switchOnActions)
 					}
 				}
 			]
@@ -166,8 +140,6 @@ export default new SmartApp()
 	.updated(async (context, updateData) => {
 		const appKey = `app-${updateData.installedApp.installedAppId}`;
 		const existingRuleInfo: RuleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
-		//await Promise.all((await context.api.devices?.list({capability: 'switch'}) || [])
-		//await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
 
 		const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
 
@@ -180,15 +152,22 @@ export default new SmartApp()
 		const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
 		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 
-		const newRule = createRuleFromConfig(
-			`${appKey}-main`,
-			parseInt(newConfig.dayStartOffset[0].stringConfig.value),
-			parseInt(newConfig.dayNightOffset[0].stringConfig.value),
-			parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+		//offset8AM + dayStartOffset, offset8PM + dayNightOffset
+		const newDayRule = createRuleFromConfig(
+			`${appKey}-daylight`,
+			offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value),
+			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			newConfig.motionSensor[0].deviceConfig.deviceId,
 			newConfig.dayControlSwitch[0].deviceConfig.deviceId,
 			dayDimmableSwitches.map(s => s.deviceConfig.deviceId),
 			dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
+		)
+
+		const newNightRule = createRuleFromConfig(
+			`${appKey}-nightlight`,
+			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
+			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+			newConfig.motionSensor[0].deviceConfig.deviceId,
 			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
 			nightDimmableSwitches.map(s => s.deviceConfig.deviceId),
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
@@ -200,8 +179,10 @@ export default new SmartApp()
 			.map(async r => await context.api.rules.delete(r.id)));
 
 		const newRuleInfo: RuleStoreInfo = {};
-		const newRuleResponse = await context.api.rules.create(newRule);
-		newRuleInfo.mainRuleId = newRuleResponse.id;
+		const newDayRuleResponse = await context.api.rules.create(newDayRule);
+		const newNightRuleResponse = await context.api.rules.create(newNightRule);
+		newRuleInfo.dayRuleId = newDayRuleResponse.id;
+		newRuleInfo.nightRuleId = newNightRuleResponse.id;
 		ruleStore.set(appKey, newRuleInfo);
 
 		console.log('rules', await context.api.rules.list());
@@ -246,5 +227,6 @@ export default new SmartApp()
 
 
 interface RuleStoreInfo {
-	mainRuleId?: string
+	dayRuleId?: string
+	nightRuleId?: string
 }
