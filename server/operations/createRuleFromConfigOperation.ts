@@ -1,5 +1,11 @@
 import { RuleRequest } from "@smartthings/core-sdk";
-import { generateConditionDeviceOff,generateActionSwitchOn, generateActionSwitchLevel, generateConditionMotion, generateConditionBetween } from "../factories/ruleFactory";
+import { 
+    generateConditionDeviceOff, 
+    generateConditionMotion, 
+    generateConditionBetween,
+    generateActionSwitchOn,
+    generateActionSwitchLevel,
+} from "../factories/ruleFactory";
 import { IRuleSwitchLevelInfo } from "../types";
 
 const createRuleFromConfig = ( 

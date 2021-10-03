@@ -5,8 +5,10 @@ import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel, Ru
 import process from './env';
 import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
+import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import { RuleRequest } from '@smartthings/core-sdk';
+import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
 
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
@@ -180,13 +182,30 @@ export default new SmartApp()
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
 		);
 
-		if (rulesAreModified(appKey, newDayRule, newNightRule)) {
+		const newIdleRule = createIdleRuleFromConfig(
+			`${appKey}-idle`,
+			newConfig.motionSensor[0].deviceConfig.deviceId,
+			daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
+			15
+		);
+
+		const newTransitionRule = createTransitionRuleFromConfig(
+			`${appKey}-trans`,
+			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
+			daySwitches.map(s => s.deviceConfig.deviceId),
+			nightDimmableSwitchLevels,
+			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
+		);
+
+		if (rulesAreModified(appKey, newDayRule, newNightRule, newIdleRule, newTransitionRule)) {
 			await submitRulesForSmartAppOperation(
 				context.api,
 				ruleStore,
 				appKey,
 				newDayRule,
-				newNightRule
+				newNightRule,
+				newIdleRule,
+				newTransitionRule
 			);
 		} else {
 			console.log('Rules not modified, nothing to update');
@@ -230,9 +249,11 @@ export default new SmartApp()
 	// 	await context.api.devices.sendCommands(context.config.lights, 'switch', value)
 	// })
 
-const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest) => {
+const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest, newIdleRule: RuleRequest, newTransitionRule: RuleRequest) => {
 	const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
 	return (!existingRules || 
 		JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
-		JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule))
+		JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
+		JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
+		JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule))
 };
