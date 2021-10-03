@@ -8,7 +8,10 @@ const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLo
         .filter( r => r.name.indexOf(smartAppLookupKey) !== -1 )
         .map(async r => await api.rules.delete(r.id)));
 
-    const newRuleInfo: RuleStoreInfo = {};
+    const newRuleInfo: RuleStoreInfo = {
+        dayLightRule: dayRule,
+        nightLightRule: nightRule
+    };
     const newDayRuleResponse = await api.rules.create(dayRule);
     const newNightRuleResponse = await api.rules.create(nightRule);
     newRuleInfo.dayRuleId = newDayRuleResponse.id;

@@ -1,11 +1,12 @@
 import FileContextStore from '@smartthings/file-context-store';
 import { ContextStore, SmartApp } from '@smartthings/smartapp';
 import JSONdb from 'simple-json-db';
-import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel } from '../types/index';
+import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel, RuleStoreInfo } from '../types/index';
 import process from './env';
 import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
+import { RuleRequest } from '@smartthings/core-sdk';
 
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
@@ -179,13 +180,17 @@ export default new SmartApp()
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
 		);
 
-		await submitRulesForSmartAppOperation(
-			context.api,
-			ruleStore,
-			appKey,
-			newDayRule,
-			newNightRule
-		);
+		if (rulesAreModified(appKey, newDayRule, newNightRule)) {
+			await submitRulesForSmartAppOperation(
+				context.api,
+				ruleStore,
+				appKey,
+				newDayRule,
+				newNightRule
+			);
+		} else {
+			console.log('Rules not modified, nothing to update');
+		}
 	})
 
 	// // Configuration page definition
@@ -225,4 +230,9 @@ export default new SmartApp()
 	// 	await context.api.devices.sendCommands(context.config.lights, 'switch', value)
 	// })
 
-
+const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest) => {
+	const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
+	return (!existingRules || 
+		JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
+		JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule))
+};
