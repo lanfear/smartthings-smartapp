@@ -1,3 +1,5 @@
+import { RuleRequest } from "@smartthings/core-sdk";
+
 export interface ISmartAppRuleMotion {
     valueType: string, //STValueType?
     deviceConfig: {
@@ -43,6 +45,8 @@ export interface ISmartAppRuleConfig {
 export interface RuleStoreInfo {
 	dayRuleId?: string
 	nightRuleId?: string
+    dayLightRule?: RuleRequest,
+    nightLightRule?: RuleRequest
 }
 
 export interface IRuleSwitchLevelInfo {
