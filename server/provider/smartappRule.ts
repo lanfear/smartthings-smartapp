@@ -1,5 +1,6 @@
 import FileContextStore from '@smartthings/file-context-store';
 import { ContextStore, SmartApp } from '@smartthings/smartapp';
+import { IntervalUnit, RuleRequest } from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
 import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel, RuleStoreInfo } from '../types/index';
 import process from './env';
@@ -7,7 +8,6 @@ import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
-import { RuleRequest } from '@smartthings/core-sdk';
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
 
 const offset8AM = 60 * -4;
@@ -45,7 +45,15 @@ export default new SmartApp()
 			section
 				.deviceSetting('motionSensor')
 				.capabilities(['motionSensor'])
-				.required(true)
+				.required(true);
+
+			section.numberSetting("motionIdleTimeout")
+				.min(0)
+				.max(360)
+				.step(5)
+				.defaultValue(0);
+
+			section.booleanSetting('motionIdleTimeoutUnit')	
 		});
 
 		page.section('switches', section => {
@@ -186,7 +194,9 @@ export default new SmartApp()
 			`${appKey}-idle`,
 			newConfig.motionSensor[0].deviceConfig.deviceId,
 			daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
-			15
+			parseInt(newConfig.motionIdleTimeout[0].stringConfig.value),
+			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Second : IntervalUnit.Minute
+
 		);
 
 		const newTransitionRule = createTransitionRuleFromConfig(
