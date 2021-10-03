@@ -45,8 +45,12 @@ export interface ISmartAppRuleConfig {
 export interface RuleStoreInfo {
 	dayRuleId?: string
 	nightRuleId?: string
+	idleRuleId?: string
+    transitionRuleId?: string,
     dayLightRule?: RuleRequest,
     nightLightRule?: RuleRequest
+    idleRule?: RuleRequest
+    transitionRule?: RuleRequest
 }
 
 export interface IRuleSwitchLevelInfo {
