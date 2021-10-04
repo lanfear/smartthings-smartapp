@@ -53,10 +53,10 @@
 	
 	"pages.rulesMainPage.sections.timings.name": "Timings",
 	"pages.rulesMainPage.sections.timings.description": "Adjust offsets from the default time ranges",
-	"pages.rulesMainPage.settings.dayStartOffset.name": "Start of Day Offset",
+	"pages.rulesMainPage.settings.dayStartOffset.name": "Start of Day Offset (Minutes +/- 8:00AM)",
 	"pages.rulesMainPage.settings.dayStartOffset.description": "Minutes +/- 8:00AM",
-	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset",
+	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset (Minutes +/- 8:00PM)",
 	"pages.rulesMainPage.settings.dayNightOffset.description": "Minutes +/- 8:00PM",
-	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset",
+	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 12:00AM)",
 	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 12:00AM"
 }
