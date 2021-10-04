@@ -67,7 +67,6 @@ export default new SmartApp()
 			section
 				.deviceSetting('dayActiveSwitches')
 				.capabilities(['switch'])
-				.required(true)
 				.multiple(true)
 				.permissions('rx')
 				.submitOnChange(true);
@@ -82,7 +81,6 @@ export default new SmartApp()
 			section
 				.deviceSetting('nightActiveSwitches')
 				.capabilities(['switch'])
-				.required(true)
 				.multiple(true)
 				.permissions('rx')
 				.submitOnChange(true);
