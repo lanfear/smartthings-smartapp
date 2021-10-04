@@ -1,8 +1,8 @@
 import FileContextStore from '@smartthings/file-context-store';
 import { ContextStore, SmartApp } from '@smartthings/smartapp';
-import { IntervalUnit, RuleRequest } from '@smartthings/core-sdk';
+import { Device, IntervalUnit, RuleRequest } from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
-import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitchLevel, RuleStoreInfo } from '../types/index';
+import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo } from '../types/index';
 import process from './env';
 import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
@@ -120,35 +120,39 @@ export default new SmartApp()
 		});
 
 		await page.section('levels', async section => {
-			const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-			const daySwitches = (await context.configDevices('dayControlSwitch')).concat(await context.configDevices('dayActiveSwitches'))
-				.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-			const nightSwitches = (await context.configDevices('nightControlSwitch')).concat(await context.configDevices('nightActiveSwitches'))
-				.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-			const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
-			const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
-
-			dayDimmableSwitches.forEach(s => {
-				section.numberSetting(`dayLevel${s.deviceId}`)
-					.name(`${s.label} Day Dimming Level`)
-					.min(10)
-					.max(100)
-					.step(5)
-					.defaultValue(defaultDayLevel)
-					// @ts-ignore
-					.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-			});
-			
-			nightDimmableSwitches.forEach(s => {
-				section.numberSetting(`nightLevel${s.deviceId}`)
-					.name(`${s.label} Night Dimming Level`)
-					.min(10)
-					.max(100)
-					.step(5)
-					.defaultValue(defaultNightLevel)
-					// @ts-ignore
-					.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-			});
+			try {
+				const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+				const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
+					.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
+				const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
+					.filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
+				const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
+				const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId ));
+	
+				dayDimmableSwitches.forEach(s => {
+					section.numberSetting(`dayLevel${s.deviceId}`)
+						.name(`${s.label} Day Dimming Level`)
+						.min(10)
+						.max(100)
+						.step(5)
+						.defaultValue(defaultDayLevel)
+						// @ts-ignore
+						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				});
+				
+				nightDimmableSwitches.forEach(s => {
+					section.numberSetting(`nightLevel${s.deviceId}`)
+						.name(`${s.label} Night Dimming Level`)
+						.min(10)
+						.max(100)
+						.step(5)
+						.defaultValue(defaultNightLevel)
+						// @ts-ignore
+						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				});
+			} catch {
+				// this happens on app installation, you have not authorized any scopes yet, so the api calls implicit above will fail
+			}
 		});
 	})
 
@@ -157,17 +161,31 @@ export default new SmartApp()
 
 		const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
 
-		const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-		const daySwitches = newConfig.dayControlSwitch.concat(newConfig.dayActiveSwitches) // next line filters out duplicate device ids between the 2 arrays
-			.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
-		const nightSwitches = newConfig.nightControlSwitch.concat(newConfig.nightActiveSwitches) // next line filters out duplicate device ids between the 2 arrays
-			.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+		let allDimmableSwitches: Device[];
+		let daySwitches: ISmartAppRuleSwitch[];
+		let nightSwitches: ISmartAppRuleSwitch[];
+		try {
+			allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+			daySwitches = (newConfig.dayControlSwitch ?? []).concat(newConfig.dayActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
+				.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+			nightSwitches = (newConfig.nightControlSwitch ?? []).concat(newConfig.nightActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
+				.filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+		} catch {
+			// this also happens before you have authorized scopes in the app during initial installation
+			return;
+		}
 
+		const getSwitchLevel = (s: ISmartAppRuleSwitch, configPrefix: string, defaultLevel: number): number => {
+			if (!newConfig[`dayLevel${s.deviceConfig.deviceId}`]) {
+				return defaultLevel;
+			}
+			return parseInt(((newConfig[`${configPrefix}${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value);
+		}
 		const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
-		const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: parseInt(((newConfig[`dayLevel${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value) } as IRuleSwitchLevelInfo });
+		const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'dayLevel', defaultDayLevel) } as IRuleSwitchLevelInfo });
 		const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 		const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId ));
-		const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: parseInt(((newConfig[`nightLevel${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value) } as IRuleSwitchLevelInfo });
+		const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'nightLevel', defaultNightLevel) } as IRuleSwitchLevelInfo });
 		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 
 		const newDayRule = createRuleFromConfig(
