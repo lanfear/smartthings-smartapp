@@ -211,7 +211,7 @@ export default new SmartApp()
 			newConfig.motionSensor[0].deviceConfig.deviceId,
 			daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
 			parseInt(newConfig.motionIdleTimeout[0].stringConfig.value),
-			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Second : IntervalUnit.Minute
+			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second
 
 		);
 
