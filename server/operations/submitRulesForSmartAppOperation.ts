@@ -14,14 +14,15 @@ const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLo
         idleRule: idleRule,
         transitionRule: transitionRule
     };
-    const newDayRuleResponse = await api.rules.create(dayRule);
-    const newNightRuleResponse = await api.rules.create(nightRule);
-    const newIdleRuleResponse = await api.rules.create(idleRule);
-    const newTransitionRuleResponse = await api.rules.create(transitionRule);
-    newRuleInfo.dayRuleId = newDayRuleResponse.id;
-    newRuleInfo.nightRuleId = newNightRuleResponse.id;
-    newRuleInfo.idleRuleId = newIdleRuleResponse.id;
-    newRuleInfo.transitionRuleId = newTransitionRuleResponse.id;
+    
+    const newDayRuleResponse = dayRule && await api.rules.create(dayRule) || null;
+    const newNightRuleResponse = nightRule && await api.rules.create(nightRule) || null;
+    const newIdleRuleResponse = idleRule && await api.rules.create(idleRule) || null;
+    const newTransitionRuleResponse = transitionRule && await api.rules.create(transitionRule) || null;
+    newRuleInfo.dayRuleId = newDayRuleResponse?.id;
+    newRuleInfo.nightRuleId = newNightRuleResponse?.id;
+    newRuleInfo.idleRuleId = newIdleRuleResponse?.id;
+    newRuleInfo.transitionRuleId = newTransitionRuleResponse?.id;
     ruleStore.set(smartAppLookupKey, newRuleInfo);
 
     console.log('rules', await api.rules.list());

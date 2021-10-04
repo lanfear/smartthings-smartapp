@@ -1,5 +1,5 @@
 import FileContextStore from '@smartthings/file-context-store';
-import { ContextStore, SmartApp } from '@smartthings/smartapp';
+import { BooleanSetting, ContextStore, SmartApp } from '@smartthings/smartapp';
 import { Device, IntervalUnit, RuleRequest } from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
 import { IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo } from '../types/index';
@@ -35,10 +35,10 @@ export default new SmartApp()
 
 		// prompts user to select a contact sensor
 		page.section('types', section => {
-			section.booleanSetting('switches')
-			section.booleanSetting('locks')
-			section.booleanSetting('motion')
-			section.booleanSetting('rules')
+			section.booleanSetting('enableAllRules').defaultValue('true')
+			section.booleanSetting('enableDaylightRule').defaultValue('true')
+			section.booleanSetting('enableNightlightRule').defaultValue('true')
+			section.booleanSetting('enableIdleRule').defaultValue('true')
 		});
 
 		page.section('sensors', section => {
@@ -189,7 +189,12 @@ export default new SmartApp()
 		const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => { return { deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'nightLevel', defaultNightLevel) } as IRuleSwitchLevelInfo });
 		const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
 
-		const newDayRule = createRuleFromConfig(
+		const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
+		const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
+		const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
+		const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
+
+		const newDayRule = dayRuleEnabled && createRuleFromConfig(
 			`${appKey}-daylight`,
 			offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value),
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
@@ -198,9 +203,9 @@ export default new SmartApp()
 			dayDimmableSwitchLevels,
 			dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
 			context.configBooleanValue('motionMultipleAll')
-		);
+		) || null;
 
-		const newNightRule = createRuleFromConfig(
+		const newNightRule = nightRuleEnabled && createRuleFromConfig(
 			`${appKey}-nightlight`,
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
@@ -209,24 +214,24 @@ export default new SmartApp()
 			nightDimmableSwitchLevels,
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
 			context.configBooleanValue('motionMultipleAll')
-		);
+		) || null;
 
-		const newIdleRule = createIdleRuleFromConfig(
+		const newIdleRule = idleRuleEnabled && createIdleRuleFromConfig(
 			`${appKey}-idle`,
 			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
 			parseInt(newConfig.motionIdleTimeout[0].stringConfig.value),
 			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
 			!context.configBooleanValue('motionMultipleAll') // you invert this setting for the idle case
-		);
+		) || null;
 
-		const newTransitionRule = createTransitionRuleFromConfig(
+		const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
 			`${appKey}-trans`,
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			daySwitches.map(s => s.deviceConfig.deviceId),
 			nightDimmableSwitchLevels,
 			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
-		);
+		) || null;
 
 		if (rulesAreModified(appKey, newDayRule, newNightRule, newIdleRule, newTransitionRule)) {
 			await submitRulesForSmartAppOperation(
