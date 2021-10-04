@@ -1,54 +1,54 @@
-import { IntervalUnit, RuleRequest } from "@smartthings/core-sdk";
-import { 
-    generateConditionNoMotion, 
+import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
+import {
+    generateConditionNoMotion,
     generateActionSwitchOff,
     generateActionSleep
-} from "../factories/ruleFactory";
+} from '../factories/ruleFactory';
 
-const createIdleRuleFromConfig = ( 
-	ruleLabel: string,
-	motionControlDeviceIds: string[],
-	activeSwitchDeviceIds: string[],
+const createIdleRuleFromConfig = (
+    ruleLabel: string,
+    motionControlDeviceIds: string[],
+    activeSwitchDeviceIds: string[],
     idleTimeoutDelay: number,
     idleTimeoutUnit: IntervalUnit,
     motionMultipleAll: boolean
-	) => {
-        const idleCondition = generateConditionNoMotion(motionControlDeviceIds, motionMultipleAll);
-        const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit)
+) => {
+    const idleCondition = generateConditionNoMotion(motionControlDeviceIds, motionMultipleAll);
+    const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit);
     
-        if (idleTimeoutDelay <= 0) {
-            return {
-                name: `${ruleLabel}`,
-                actions: [{
-                    if: { 
-                        and: [idleCondition],
-                        then: [generateActionSwitchOff(activeSwitchDeviceIds)]
-                    }
-                }]
-            } as RuleRequest;
-        }
+    if (idleTimeoutDelay <= 0) {
+        return {
+            name: `${ruleLabel}`,
+            actions: [{
+                if: {
+                    and: [idleCondition],
+                    then: [generateActionSwitchOff(activeSwitchDeviceIds)]
+                }
+            }]
+        } as RuleRequest;
+    }
 
-		const newRule: RuleRequest = {
-			name: `${ruleLabel}`,
-			actions: [
-				{
-					if: { 
-                        and: [idleCondition],
-                        then: [
-                            sleepAction,
-                            { 
-                                if: { 
-                                    and: [idleCondition],
-                                    then: [generateActionSwitchOff(activeSwitchDeviceIds)]
-                                }
+    const newRule: RuleRequest = {
+        name: `${ruleLabel}`,
+        actions: [
+            {
+                if: {
+                    and: [idleCondition],
+                    then: [
+                        sleepAction,
+                        {
+                            if: {
+                                and: [idleCondition],
+                                then: [generateActionSwitchOff(activeSwitchDeviceIds)]
                             }
-                        ]
-                    }
-				}
-			]
-		};
+                        }
+                    ]
+                }
+            }
+        ]
+    };
 
-		return newRule;
+    return newRule;
 };
 
 export default createIdleRuleFromConfig;

@@ -1,12 +1,12 @@
-import { RuleRequest, SmartThingsClient } from "@smartthings/core-sdk";
-import JSONdb from "simple-json-db";
-import { RuleStoreInfo } from "../types";
+import {RuleRequest, SmartThingsClient} from '@smartthings/core-sdk';
+import JSONdb from 'simple-json-db';
+import {RuleStoreInfo} from '../types';
 
 const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLookupKey: string, dayRule: RuleRequest, nightRule: RuleRequest, idleRule: RuleRequest, transitionRule: RuleRequest) => {
     await Promise.all(
         (await api.rules?.list() || [])
-        .filter( r => r.name.indexOf(smartAppLookupKey) !== -1 )
-        .map(async r => await api.rules.delete(r.id)));
+            .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
+            .map(async r => await api.rules.delete(r.id)));
 
     const newRuleInfo: RuleStoreInfo = {
         dayLightRule: dayRule,
@@ -26,6 +26,6 @@ const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLo
     ruleStore.set(smartAppLookupKey, newRuleInfo);
 
     console.log('rules', await api.rules.list());
-}
+};
 
 export default submitRules;
