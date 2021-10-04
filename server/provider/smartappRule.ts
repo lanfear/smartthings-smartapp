@@ -35,6 +35,7 @@ export default new SmartApp()
 
 		// prompts user to select a contact sensor
 		page.section('types', section => {
+			section.hideable(true);
 			section.booleanSetting('enableAllRules').defaultValue('true')
 			section.booleanSetting('enableDaylightRule').defaultValue('true')
 			section.booleanSetting('enableNightlightRule').defaultValue('true')
@@ -42,6 +43,7 @@ export default new SmartApp()
 		});
 
 		page.section('sensors', section => {
+			section.hideable(true);
 			section
 				.deviceSetting('motionSensor')
 				.capabilities(['motionSensor'])
@@ -60,6 +62,7 @@ export default new SmartApp()
 		});
 
 		page.section('switches', section => {
+			section.hideable(true);
 			section
 				.deviceSetting('dayControlSwitch')
 				.capabilities(['switch'])
@@ -90,6 +93,7 @@ export default new SmartApp()
 		});
 
 		page.section('timings', section => {
+			section.hideable(true);
 			// from 8AM
 			section.numberSetting("dayStartOffset")
 				.min(-720)
@@ -123,6 +127,7 @@ export default new SmartApp()
 		});
 
 		await page.section('levels', async section => {
+			section.hideable(true);
 			try {
 				const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
 				const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
