@@ -12,7 +12,6 @@ import createTransitionRuleFromConfig from '../operations/createTransitionRuleFr
 
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
-const offset12AM = 60 * 12;
 const defaultDayLevel = 50;
 const defaultNightLevel = 15;
 
@@ -108,7 +107,7 @@ export default new SmartApp()
 				// @ts-ignore
 				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
-			// from 12A
+			// from 8AM
 			section.numberSetting("nightEndOffset")
 				.min(-720)
 				.max(720)
@@ -208,7 +207,7 @@ export default new SmartApp()
 		const newNightRule = nightRuleEnabled && createRuleFromConfig(
 			`${appKey}-nightlight`,
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
-			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+			offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
 			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
 			nightDimmableSwitchLevels,
