@@ -45,6 +45,7 @@ export default new SmartApp()
 			section
 				.deviceSetting('motionSensor')
 				.capabilities(['motionSensor'])
+				.multiple(true)
 				.required(true);
 
 			section.numberSetting("motionIdleTimeout")
@@ -54,6 +55,8 @@ export default new SmartApp()
 				.defaultValue(0);
 
 			section.booleanSetting('motionIdleTimeoutUnit')	
+
+			section.booleanSetting('motionMultipleAll')	
 		});
 
 		page.section('switches', section => {
@@ -190,29 +193,31 @@ export default new SmartApp()
 			`${appKey}-daylight`,
 			offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value),
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
-			newConfig.motionSensor[0].deviceConfig.deviceId,
+			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			newConfig.dayControlSwitch[0].deviceConfig.deviceId,
 			dayDimmableSwitchLevels,
 			dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			context.configBooleanValue('motionMultipleAll')
 		);
 
 		const newNightRule = createRuleFromConfig(
 			`${appKey}-nightlight`,
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
 			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
-			newConfig.motionSensor[0].deviceConfig.deviceId,
+			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
 			nightDimmableSwitchLevels,
-			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
+			nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
+			context.configBooleanValue('motionMultipleAll')
 		);
 
 		const newIdleRule = createIdleRuleFromConfig(
 			`${appKey}-idle`,
-			newConfig.motionSensor[0].deviceConfig.deviceId,
+			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
 			parseInt(newConfig.motionIdleTimeout[0].stringConfig.value),
-			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second
-
+			context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
+			!context.configBooleanValue('motionMultipleAll') // you invert this setting for the idle case
 		);
 
 		const newTransitionRule = createTransitionRuleFromConfig(

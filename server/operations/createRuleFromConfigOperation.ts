@@ -12,13 +12,14 @@ const createRuleFromConfig = (
 	ruleLabel: string,
 	startOffset: number,
 	endOffset: number,
-	motionControlDeviceId: string,
+	motionControlDeviceIds: string[],
 	controlDeviceId: string,
 	activeSwitchLevelDeviceLevelMap: IRuleSwitchLevelInfo[],
-	activeSwitchOnDeviceIds: string[]
+	activeSwitchOnDeviceIds: string[],
+	motionMultipleAll: boolean
 	) => {
 		const betweenCondition = generateConditionBetween(startOffset, endOffset);
-		const motionCondition = generateConditionMotion(motionControlDeviceId);
+		const motionCondition = generateConditionMotion(motionControlDeviceIds, motionMultipleAll);
 		const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
 		const switchDimmableActions = activeSwitchLevelDeviceLevelMap.map( s => {
 			return generateActionSwitchLevel(s.deviceId, s.switchLevel, 20);
