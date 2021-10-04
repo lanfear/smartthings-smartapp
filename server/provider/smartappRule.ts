@@ -94,28 +94,30 @@ export default new SmartApp()
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
 			// from 8PM
 			section.numberSetting("dayNightOffset")
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
 			// from 8AM
 			section.numberSetting("nightEndOffset")
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
-				.submitOnChange(true)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
 		});
 
@@ -135,9 +137,10 @@ export default new SmartApp()
 						.min(10)
 						.max(100)
 						.step(5)
-						.defaultValue(defaultDayLevel)
+						.defaultValue(defaultDayLevel);
+						// slider would be nice, but UI provides no numerical feedback, so worthless =\
 						// @ts-ignore
-						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+						//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 				});
 				
 				nightDimmableSwitches.forEach(s => {
@@ -146,10 +149,11 @@ export default new SmartApp()
 						.min(10)
 						.max(100)
 						.step(5)
-						.defaultValue(defaultNightLevel)
+						.defaultValue(defaultNightLevel);
+						// slider would be nice, but UI provides no numerical feedback, so worthless =\
 						// @ts-ignore
-						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-				});
+						//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+					});
 			} catch {
 				// this happens on app installation, you have not authorized any scopes yet, so the api calls implicit above will fail
 			}
