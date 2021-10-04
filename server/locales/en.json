@@ -34,6 +34,9 @@
 	"pages.rulesMainPage.settings.motionIdleTimeout.description": "Number of Seconds/Minutes before all lights will turn off",
 	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.name": "Seconds <==> Minutes",
 	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.description": "Toggle 'off' to make timeout value above in seconds, toggle 'on' to make it in minutes",
+	"pages.rulesMainPage.settings.motionMultipleAll.name": "Require ALL for trigger (multiple sensors selected)",
+	"pages.rulesMainPage.settings.motionMultipleAll.description": "With multiple motion sensors selected, If 'on', ALL sensors will be required to be 'active' to trigger, default 'off' means ANY",
+
 	"pages.rulesMainPage.sections.switches.name": "Switches",
 	"pages.rulesMainPage.sections.switches.description": "Choose the affected switches",
 	"pages.rulesMainPage.settings.dayControlSwitch.name": "Daylight Control Switch",

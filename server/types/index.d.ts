@@ -38,7 +38,7 @@ export interface ISmartAppRuleConfig {
     dayActiveSwitches: ISmartAppRuleSwitch [],
     nightControlSwitch: ISmartAppRuleSwitch [], // should be only 1, but it's an array
     nightActiveSwitches: ISmartAppRuleSwitch [],
-    motionSensor: ISmartAppRuleMotion [], // should be only 1, but it's an array
+    motionSensor: ISmartAppRuleMotion [],
     motionIdleTimeout: ISmartAppRuleTimeOffset [],
     [switchLevel: string]: ISmartAppRuleSwitchLevel[] | ISmartAppRuleSwitch [] | ISmartAppRuleMotion []
 }

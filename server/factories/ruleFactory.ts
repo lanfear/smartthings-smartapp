@@ -52,44 +52,52 @@ export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd:
     }
 };
 
-export const generateConditionMotion = (motionDeviceId: string): Condition => {
-    return {
-        equals: {
-            left: {
-                device: {
-                    devices: [
-                        motionDeviceId
-                    ],
-                    component: "main",
-                    capability: "motionSensor",
-                    attribute: "motion"
+export const generateConditionMotion = (motionDeviceIds: string[], andMultiple: boolean): Condition => {
+    const motionConditions: Condition[] = motionDeviceIds.map(d => {
+        return {
+            equals: {
+                left: {
+                    device: {
+                        devices: [
+                            d
+                        ],
+                        component: "main",
+                        capability: "motionSensor",
+                        attribute: "motion"
+                    }
+                },
+                right: {
+                    string: "active"
                 }
-            },
-            right: {
-                string: "active"
             }
         }
-    }
+    });
+
+    return andMultiple ? { and: motionConditions} : { or: motionConditions };
 }
 
-export const generateConditionNoMotion = (motionDeviceId: string): Condition => {
-    return {
-        equals: {
-            left: {
-                device: {
-                    devices: [
-                        motionDeviceId
-                    ],
-                    component: "main",
-                    capability: "motionSensor",
-                    attribute: "motion"
+export const generateConditionNoMotion = (motionDeviceIds: string[], andMultiple: boolean): Condition => {
+    const motionConditions: Condition[] = motionDeviceIds.map(d => {
+        return {
+            equals: {
+                left: {
+                    device: {
+                        devices: [
+                            d
+                        ],
+                        component: "main",
+                        capability: "motionSensor",
+                        attribute: "motion"
+                    }
+                },
+                right: {
+                    string: "inactive"
                 }
-            },
-            right: {
-                string: "inactive"
             }
         }
-    }
+    });
+
+    return andMultiple ? { and: motionConditions} : { or: motionConditions };
 }
 
 export const generateConditionDeviceOff = (switchDeviceId: string): Condition => {

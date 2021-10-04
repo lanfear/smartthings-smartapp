@@ -7,12 +7,13 @@ import {
 
 const createIdleRuleFromConfig = ( 
 	ruleLabel: string,
-	motionControlDeviceId: string,
+	motionControlDeviceIds: string[],
 	activeSwitchDeviceIds: string[],
     idleTimeoutDelay: number,
-    idleTimeoutUnit: IntervalUnit
+    idleTimeoutUnit: IntervalUnit,
+    motionMultipleAll: boolean
 	) => {
-        const idleCondition = generateConditionNoMotion(motionControlDeviceId);
+        const idleCondition = generateConditionNoMotion(motionControlDeviceIds, motionMultipleAll);
         const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit)
     
         if (idleTimeoutDelay <= 0) {
