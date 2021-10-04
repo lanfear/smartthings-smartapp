@@ -18,6 +18,7 @@
   },
   "scripts": {
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
+    "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "start": "node --loader ts-node/esm ./server.ts",
     "tunnel": "ngrok http 9190"
   },
@@ -59,7 +60,8 @@
       }
     ],
     "parserOptions": {
-      "ecmaVersion": 2020
+      "ecmaVersion": 2020,
+      "project": "./server/tsconfig.json"
     }
   },
   "browserslist": {
