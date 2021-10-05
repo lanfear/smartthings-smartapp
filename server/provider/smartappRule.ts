@@ -12,7 +12,6 @@ import createTransitionRuleFromConfig from '../operations/createTransitionRuleFr
 
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
-const offset12AM = 60 * 12;
 const defaultDayLevel = 50;
 const defaultNightLevel = 15;
 
@@ -35,6 +34,7 @@ export default new SmartApp()
 
 		// prompts user to select a contact sensor
 		page.section('types', section => {
+			section.hideable(true);
 			section.booleanSetting('enableAllRules').defaultValue('true')
 			section.booleanSetting('enableDaylightRule').defaultValue('true')
 			section.booleanSetting('enableNightlightRule').defaultValue('true')
@@ -42,6 +42,7 @@ export default new SmartApp()
 		});
 
 		page.section('sensors', section => {
+			section.hideable(true);
 			section
 				.deviceSetting('motionSensor')
 				.capabilities(['motionSensor'])
@@ -60,6 +61,7 @@ export default new SmartApp()
 		});
 
 		page.section('switches', section => {
+			section.hideable(true);
 			section
 				.deviceSetting('dayControlSwitch')
 				.capabilities(['switch'])
@@ -90,37 +92,41 @@ export default new SmartApp()
 		});
 
 		page.section('timings', section => {
+			section.hideable(true);
 			// from 8AM
 			section.numberSetting("dayStartOffset")
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
 			// from 8PM
 			section.numberSetting("dayNightOffset")
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
-			// from 12A
+			// from 8AM
 			section.numberSetting("nightEndOffset")
 				.min(-720)
 				.max(720)
 				.step(15)
-				.defaultValue(0)
-				.submitOnChange(true)
+				.defaultValue(0);
+				// slider would be nice, but UI provides no numerical feedback, so worthless =\
 				// @ts-ignore
-				.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+				//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
 		});
 
 		await page.section('levels', async section => {
+			section.hideable(true);
 			try {
 				const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
 				const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
@@ -136,9 +142,10 @@ export default new SmartApp()
 						.min(10)
 						.max(100)
 						.step(5)
-						.defaultValue(defaultDayLevel)
+						.defaultValue(defaultDayLevel);
+						// slider would be nice, but UI provides no numerical feedback, so worthless =\
 						// @ts-ignore
-						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+						//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 				});
 				
 				nightDimmableSwitches.forEach(s => {
@@ -147,10 +154,11 @@ export default new SmartApp()
 						.min(10)
 						.max(100)
 						.step(5)
-						.defaultValue(defaultNightLevel)
+						.defaultValue(defaultNightLevel);
+						// slider would be nice, but UI provides no numerical feedback, so worthless =\
 						// @ts-ignore
-						.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-				});
+						//.style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+					});
 			} catch {
 				// this happens on app installation, you have not authorized any scopes yet, so the api calls implicit above will fail
 			}
@@ -208,7 +216,7 @@ export default new SmartApp()
 		const newNightRule = nightRuleEnabled && createRuleFromConfig(
 			`${appKey}-nightlight`,
 			offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
-			offset12AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+			offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
 			newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
 			newConfig.nightControlSwitch[0].deviceConfig.deviceId,
 			nightDimmableSwitchLevels,
