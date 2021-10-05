@@ -40,7 +40,8 @@ export interface ISmartAppRuleConfig {
   nightControlSwitch: ISmartAppRuleSwitch []; // should be only 1, but it's an array
   nightActiveSwitches: ISmartAppRuleSwitch [];
   motionSensor: ISmartAppRuleMotion [];
-  motionIdleTimeout: ISmartAppRuleTimeOffset [];
+  motionIdleTimeout: ISmartAppRuleTimeOffset[];
+  motionDurationDelay: ISmartAppRuleTimeOffset[];
 }
 
 export interface RuleStoreInfo {

@@ -28,6 +28,8 @@
 	"pages.rulesMainPage.sections.sensors.description": "Choose the motion detector to activate triggers",
 	"pages.rulesMainPage.settings.motionSensor.name": "Motion Sensor",
 	"pages.rulesMainPage.settings.motionSensor.description": "Choose the motion detector to activate triggers",
+	"pages.rulesMainPage.settings.motionDurationDelay.name": "Motion required for X seconds activating triggers",
+	"pages.rulesMainPage.settings.motionDurationDelay.description": "Number of seconds before configured lights will turn on",
 	"pages.rulesMainPage.settings.motionIdleTimeout.name": "Idle/Off Timeout in Seconds/Minutes",
 	"pages.rulesMainPage.settings.motionIdleTimeout.description": "Number of Seconds/Minutes before all lights will turn off",
 	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.name": "Seconds <==> Minutes",
