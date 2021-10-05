@@ -40,44 +40,44 @@ const MotionContainer = styled(DeviceContainer)<{isActive: boolean}>`
 `;
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType}) => (
-    deviceType === 'Switch' ? (
-        <LightContainer isLightOn={device.value === 'on'}>
-            <DeviceTitle>
-                {device.label}
-            </DeviceTitle>
-            {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
-            <DeviceStatus>
-                {device.value}
-            </DeviceStatus>
-        </LightContainer>
-    ) : deviceType === 'Lock' ? (
-        <DeviceContainer>
-            <DeviceTitle>
-                {device.label}
-            </DeviceTitle>
-            {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
-            <DeviceStatus>
-                {device.value}
-            </DeviceStatus>
-        </DeviceContainer>
-    ) : (
-        <MotionContainer isActive={device.value === 'active'}>
-            <DeviceTitle>
-                {device.label}
-            </DeviceTitle>
-            {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
-            <DeviceStatus>
-                {device.value}
-            </DeviceStatus>
-        </MotionContainer>
-    )
+  deviceType === 'Switch' ? (
+    <LightContainer isLightOn={device.value === 'on'}>
+      <DeviceTitle>
+        {device.label}
+      </DeviceTitle>
+      {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceStatus>
+        {device.value}
+      </DeviceStatus>
+    </LightContainer>
+  ) : deviceType === 'Lock' ? (
+    <DeviceContainer>
+      <DeviceTitle>
+        {device.label}
+      </DeviceTitle>
+      {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceStatus>
+        {device.value}
+      </DeviceStatus>
+    </DeviceContainer>
+  ) : (
+    <MotionContainer isActive={device.value === 'active'}>
+      <DeviceTitle>
+        {device.label}
+      </DeviceTitle>
+      {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceStatus>
+        {device.value}
+      </DeviceStatus>
+    </MotionContainer>
+  )
 );
 
 export type DeviceType = 'Switch' | 'Lock' | 'Motion';
 
 export interface IDeviceProps {
-    device: IDevice;
-    deviceType: DeviceType;
+  device: IDevice;
+  deviceType: DeviceType;
 }
 
 export default Device;

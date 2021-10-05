@@ -11,10 +11,10 @@ import App from './App';
 void initLocale();
 
 ReactDOM.render(
-    <Router>
-        <App />
-    </Router>,
-    document.getElementById('root')
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById('root')
 );
 
 

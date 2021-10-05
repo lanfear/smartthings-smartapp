@@ -1,7 +1,7 @@
 export default {
-    rule: {
-        default: {
-            switchLevelRate: 20
-        }
+  rule: {
+    default: {
+      switchLevelRate: 20
     }
+  }
 };
