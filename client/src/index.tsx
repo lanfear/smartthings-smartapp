@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { BrowserRouter as Router } from "react-router-dom";
+import {BrowserRouter as Router} from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import initLocale from './operations/initLocale';
@@ -11,10 +11,10 @@ import App from './App';
 initLocale();
 
 ReactDOM.render(
-  <Router>
-    <App/>
-  </Router>,
-  document.getElementById('root')
+    <Router>
+        <App />
+    </Router>,
+    document.getElementById('root')
 );
 
 
