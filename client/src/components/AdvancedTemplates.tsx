@@ -6,7 +6,7 @@ import '../App.scss';
 // Rule Templates
 import {AdvancedTemp} from '../templates/ruleTemplates';
 
-function AdvancedTemplates() {
+const AdvancedTemplates: React.FC = () => {
     const [rule, setRule] = useState('{}');
     return (
         <div className="App">
@@ -15,12 +15,13 @@ function AdvancedTemplates() {
                     <div className="column is-one-third">
                         <div className="left-menu">
                             <div className="block">
-                                {AdvancedTemp.map(rule => (
+                                {AdvancedTemp.map(r => (
                                     <button
+                                        key={`rule-${r.label}`}
                                         className="button"
-                                        onClick={() => setRule(JSON.stringify(rule.value, null, 2))}
+                                        onClick={() => setRule(JSON.stringify(r.value, null, 2))}
                                     >
-                                        {rule.label}
+                                        {r.label}
                                     </button>
                                 ))}
                             </div>
@@ -36,7 +37,7 @@ function AdvancedTemplates() {
                                 name="textarea"
                                 value={rule}
                                 editorProps={{$blockScrolling: true}}
-	            setOptions={{fontSize: 15}}
+                                setOptions={{fontSize: 15}}
                             />
                         </div>
                     </div>
@@ -44,6 +45,6 @@ function AdvancedTemplates() {
             </div>
         </div>
     );
-}
+};
 
 export default AdvancedTemplates;

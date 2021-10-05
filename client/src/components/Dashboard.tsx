@@ -46,23 +46,23 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
 
     const [dashboardData, setDashboardData] = useState<IResponseSmartApp>({} as IResponseSmartApp);
 
-    const routeInfo = useParams();
+    const routeInfo = useParams<{installedAppId: string}>();
     installedAppId = routeInfo.installedAppId;
 
-    const sortLabel = (r: IDevice, l: IDevice) => {
+    const sortLabel = (r: IDevice, l: IDevice): 1 | -1 | 0 => {
         const rName = r.label?.toUpperCase() ?? ''; // ignore upper and lowercase
         const lName = l.label?.toUpperCase() ?? ''; // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 
-    const sortScene = (r: SceneSummary, l: SceneSummary) => {
+    const sortScene = (r: SceneSummary, l: SceneSummary): 1 | -1 | 0 => {
         const rName = r.sceneName?.toUpperCase() ?? ''; // ignore upper and lowercase
         const lName = l.sceneName?.toUpperCase() ?? ''; // ignore upper and lowercase
         return rName < lName ? -1 : rName > lName ? 1 : 0;
     };
 
     useEffect(() => {
-        const getDashboard = async (isaId: string) => {
+        const getDashboard = async (isaId: string): Promise<void> => {
             const smartAppData = await getInstalledSmartApp(isaId);
             smartAppData.scenes = smartAppData.scenes?.sort(sortScene) ?? [];
             smartAppData.switches = smartAppData.switches?.sort(sortLabel) ?? [];
@@ -75,7 +75,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // ignore installedAppId
 
-    const deleteRule = async (isaId: string, ruleId: string) => {
+    const deleteRule = async (isaId: string, ruleId: string): Promise<void> => {
         await fetch(`http://localhost:9190/app/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
     };
 
@@ -104,7 +104,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
                     {t('dashboard.scene.header.lastExecutedDate')}
                 </DashboardGridColumnHeader>
                 {dashboardData && dashboardData?.scenes?.map(s => (
-                    <React.Fragment key={`scene-${s.sceneId}`}>
+                    <React.Fragment key={`scene-${s.sceneId as string}`}>
                         <span>
                             {s.sceneName}
                         </span>
@@ -129,7 +129,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
             <DashboardDeviceGrid>
                 {dashboardData && dashboardData?.switches?.map(s => (
                     <Device
-                        key={`switches-${s.deviceId}`}
+                        key={`switches-${s.deviceId as string}`}
                         device={s}
                         deviceType="Switch"
                     />
@@ -141,7 +141,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
             <DashboardDeviceGrid>
                 {dashboardData && dashboardData?.locks?.map(s => (
                     <Device
-                        key={`locks-${s.deviceId}`}
+                        key={`locks-${s.deviceId as string}`}
                         device={s}
                         deviceType="Lock"
                     />
@@ -153,7 +153,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
             <DashboardDeviceGrid>
                 {dashboardData && dashboardData?.motion?.map(s => (
                     <Device
-                        key={`motion-${s.deviceId}`}
+                        key={`motion-${s.deviceId as string}`}
                         device={s}
                         deviceType="Motion"
                     />
@@ -184,13 +184,13 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
                             {s.id}
                         </span>
                         <span>
-                            {s.status}
+                            {s.executionLocation}
                         </span>
                         <span>
                             {s.ownerId}
                         </span>
                         <button onClick={() => deleteRule(installedAppId, s.id)}>
-DELETE
+                            DELETE
                         </button>
                     </React.Fragment>
                 ))}

@@ -6,7 +6,7 @@ import '../App.scss';
 // Rules
 import Examples from '../templates/ruleExamples';
 
-function RuleExamples() {
+const RuleExamples: React.FC = () => {
     const [rule, setRule] = useState('{}');
     return (
         <div className="App">
@@ -15,13 +15,13 @@ function RuleExamples() {
                     <div className="column">
                         <aside className="menu left-menu">
                             <ul className="menu-list">
-                                {Examples.map(rule => (
-                                    <li>
+                                {Examples.map(r => (
+                                    <li key={`r-${r.label}`}>
                                         <button
                                             className="button"
-                                            onClick={() => setRule(JSON.stringify(rule.value, null, 2))}
+                                            onClick={() => setRule(JSON.stringify(r.value, null, 2))}
                                         >
-                                            {rule.label}
+                                            {r.label}
                                         </button>
                                     </li>
                                 ))}
@@ -31,8 +31,8 @@ function RuleExamples() {
                     <div className="column">
                         <div id="example">
                             <AceEditor
-	              height="800px"
-	              width="1024px"
+                                height="800px"
+                                width="1024px"
                                 mode="json"
                                 theme="monokai"
                                 name="textarea"
@@ -46,6 +46,6 @@ function RuleExamples() {
             </div>
         </div>
     );
-}
+};
 
 export default RuleExamples;

@@ -1,4 +1,5 @@
 import {Action, Condition, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
+import global from '../constants/global';
 
 export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): Condition => ({
     between: {
@@ -45,12 +46,13 @@ export const generateConditionMotion = (motionDeviceId: string): Condition => ({
             }
         },
         right: {
+            // eslint-disable-next-line id-denylist, id-blacklist
             string: 'active'
         }
     }
 });
 
-export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = 20): Action => ({
+export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): Action => ({
     command: {
         devices: [
             motionDeviceId
