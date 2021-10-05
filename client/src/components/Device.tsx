@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { IDevice } from "../types/smartthingsExtensions";
+import styled from 'styled-components';
+import {IDevice} from '../types/smartthingsExtensions';
 
 const DeviceTitle = styled.div`
     font-size: larger;
@@ -42,24 +42,39 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType}) => {
     console.log('d', device);
 
     return (
-        deviceType === 'Switch' ?
+        deviceType === 'Switch' ? (
             <LightContainer isLightOn={device.value === 'on'}>
-                <DeviceTitle>{device.label}</DeviceTitle>
+                <DeviceTitle>
+                    {device.label}
+                </DeviceTitle>
                 {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
-                <DeviceStatus>{device.value}</DeviceStatus>
+                <DeviceStatus>
+                    {device.value}
+                </DeviceStatus>
             </LightContainer>
-        : deviceType === 'Lock' ?
-            <DeviceContainer>
-                <DeviceTitle>{device.label}</DeviceTitle>
-                {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
-                <DeviceStatus>{device.value}</DeviceStatus>
-            </DeviceContainer>
-        :
-            <MotionContainer isActive={device.value === 'active'}>
-                <DeviceTitle>{device.label}</DeviceTitle>
-                {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
-                <DeviceStatus>{device.value}</DeviceStatus>
-            </MotionContainer>
+        )
+            : deviceType === 'Lock' ? (
+                <DeviceContainer>
+                    <DeviceTitle>
+                        {device.label}
+                    </DeviceTitle>
+                    {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
+                    <DeviceStatus>
+                        {device.value}
+                    </DeviceStatus>
+                </DeviceContainer>
+            )
+                : (
+                    <MotionContainer isActive={device.value === 'active'}>
+                        <DeviceTitle>
+                            {device.label}
+                        </DeviceTitle>
+                        {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
+                        <DeviceStatus>
+                            {device.value}
+                        </DeviceStatus>
+                    </MotionContainer>
+                )
     );
 };
 
@@ -68,6 +83,6 @@ export type DeviceType = 'Switch' | 'Lock' | 'Motion';
 export interface IDeviceProps {
     device: IDevice;
     deviceType: DeviceType;
-};
+}
 
 export default Device;
