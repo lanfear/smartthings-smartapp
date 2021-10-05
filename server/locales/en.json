@@ -55,6 +55,6 @@
 	"pages.rulesMainPage.settings.dayStartOffset.description": "Minutes +/- 8:00AM",
 	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset (Minutes +/- 8:00PM)",
 	"pages.rulesMainPage.settings.dayNightOffset.description": "Minutes +/- 8:00PM",
-	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 12:00AM)",
-	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 12:00AM"
+	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 8:00AM Next Day)",
+	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 8:00AM (Next Day)"
 }
