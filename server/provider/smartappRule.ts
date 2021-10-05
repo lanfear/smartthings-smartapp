@@ -5,7 +5,7 @@ import JSONdb from 'simple-json-db';
 import {IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo} from '../types/index';
 import process from './env';
 import db from './db';
-import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
+import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConfigOperation';
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
@@ -62,6 +62,12 @@ export default new SmartApp()
         .capabilities(['motionSensor'])
         .multiple(true)
         .required(true);
+
+      section.numberSetting('motionDurationDelay')
+        .min(0)
+        .max(60)
+        .step(increment5)
+        .defaultValue(0);
 
       section.numberSetting('motionIdleTimeout')
         .min(0)
@@ -223,7 +229,7 @@ export default new SmartApp()
     const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
 
     /* eslint-disable no-mixed-operators */
-    const newDayRule = dayRuleEnabled && createRuleFromConfig(
+    const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-daylight`,
       offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value, 10),
       offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
@@ -231,10 +237,11 @@ export default new SmartApp()
       newConfig.dayControlSwitch[0].deviceConfig.deviceId,
       dayDimmableSwitchLevels,
       dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
-      context.configBooleanValue('motionMultipleAll')
+      context.configBooleanValue('motionMultipleAll'),
+      parseInt(newConfig.motionDurationDelay[0].stringConfig.value, 10)
     ) || null;
 
-    const newNightRule = nightRuleEnabled && createRuleFromConfig(
+    const newNightRule = nightRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-nightlight`,
       offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
       offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value, 10),
@@ -242,7 +249,8 @@ export default new SmartApp()
       newConfig.nightControlSwitch[0].deviceConfig.deviceId,
       nightDimmableSwitchLevels,
       nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
-      context.configBooleanValue('motionMultipleAll')
+      context.configBooleanValue('motionMultipleAll'),
+      parseInt(newConfig.motionDurationDelay[0].stringConfig.value, 10)
     ) || null;
 
     const newIdleRule = idleRuleEnabled && createIdleRuleFromConfig(
