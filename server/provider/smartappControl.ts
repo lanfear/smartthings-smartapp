@@ -11,73 +11,73 @@ const contextStore: any = new FileContextStore(db.dataDirectory);
 
 /* Define the SmartApp */
 export default new SmartApp()
-    .enableEventLogging()
-    .configureI18n()
-    .permissions(['r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
-    .appId(process.env.CONTROL_APP_ID)
-    .clientId(process.env.CONTROL_CLIENT_ID)
-    .clientSecret(process.env.CONTROL_CLIENT_SECRET)
-    .contextStore(contextStore)
+  .enableEventLogging()
+  .configureI18n()
+  .permissions(['r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
+  .appId(process.env.CONTROL_APP_ID)
+  .clientId(process.env.CONTROL_CLIENT_ID)
+  .clientSecret(process.env.CONTROL_CLIENT_SECRET)
+  .contextStore(contextStore)
 
-    .page('mainPage', (_, page) => {
-        // prompts user to select a contact sensor
-        page.section('types', section => {
-            section.booleanSetting('scenes');
-            section.booleanSetting('switches');
-            section.booleanSetting('locks');
-            section.booleanSetting('motion');
-            section.booleanSetting('rules');
-        });
-    })
-
-    // Handler called whenever app is installed or updated
-    // Called for both INSTALLED and UPDATED lifecycle events if there is
-    // no separate installed() handler
-    .updated(async context => {
-        await context.api.subscriptions.delete();
-        if (context.configBooleanValue('switches')) {
-            await context.api.subscriptions.subscribeToCapability('switch', 'switch', 'switchHandler');
-        }
-        if (context.configBooleanValue('locks')) {
-            await context.api.subscriptions.subscribeToCapability('lock', 'lock', 'lockHandler');
-        }
-        if (context.configBooleanValue('motionSensor')) {
-            await context.api.subscriptions.subscribeToCapability('motionSensor', 'motionSensor', 'motionSensorHandler');
-        }
-    })
-
-    // Handler called when the status of a switch changes
-    .subscribedEventHandler('switchHandler', (__context, event) => {
-        if (event.componentId === 'main') {
-            sse.send(JSON.stringify({
-                deviceId: event.deviceId,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                value: event.value
-            }));
-        }
-    })
-
-    // Handler called when the status of a lock changes
-    .subscribedEventHandler('lockHandler', (__context, event) => {
-        if (event.componentId === 'main') {
-            sse.send(JSON.stringify({
-                deviceId: event.deviceId,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                value: event.value
-            }));
-        }
-    })
-
-    // Handler called when the status of a lock changes
-    .subscribedEventHandler('motionSensorHandler', (__context, event) => {
-        if (event.componentId === 'main') {
-            sse.send(JSON.stringify({
-                deviceId: event.deviceId,
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                value: event.value
-            }));
-        }
+  .page('mainPage', (_, page) => {
+    // prompts user to select a contact sensor
+    page.section('types', section => {
+      section.booleanSetting('scenes');
+      section.booleanSetting('switches');
+      section.booleanSetting('locks');
+      section.booleanSetting('motion');
+      section.booleanSetting('rules');
     });
+  })
+
+// Handler called whenever app is installed or updated
+// Called for both INSTALLED and UPDATED lifecycle events if there is
+// no separate installed() handler
+  .updated(async context => {
+    await context.api.subscriptions.delete();
+    if (context.configBooleanValue('switches')) {
+      await context.api.subscriptions.subscribeToCapability('switch', 'switch', 'switchHandler');
+    }
+    if (context.configBooleanValue('locks')) {
+      await context.api.subscriptions.subscribeToCapability('lock', 'lock', 'lockHandler');
+    }
+    if (context.configBooleanValue('motionSensor')) {
+      await context.api.subscriptions.subscribeToCapability('motionSensor', 'motionSensor', 'motionSensorHandler');
+    }
+  })
+
+// Handler called when the status of a switch changes
+  .subscribedEventHandler('switchHandler', (__context, event) => {
+    if (event.componentId === 'main') {
+      sse.send(JSON.stringify({
+        deviceId: event.deviceId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        value: event.value
+      }));
+    }
+  })
+
+// Handler called when the status of a lock changes
+  .subscribedEventHandler('lockHandler', (__context, event) => {
+    if (event.componentId === 'main') {
+      sse.send(JSON.stringify({
+        deviceId: event.deviceId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        value: event.value
+      }));
+    }
+  })
+
+// Handler called when the status of a lock changes
+  .subscribedEventHandler('motionSensorHandler', (__context, event) => {
+    if (event.componentId === 'main') {
+      sse.send(JSON.stringify({
+        deviceId: event.deviceId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        value: event.value
+      }));
+    }
+  });
     
 // // Configuration page definition
 // .page('mainPage', (_, page) => {

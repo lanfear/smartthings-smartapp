@@ -23,33 +23,33 @@ import morningSchedule from './templates/morningSchedule.json';
 
 
 const BasicTemp = [
-    {label: 'And operator', value: and},
-    {label: 'Between', value: between},
-    {label: 'Command', value: command},
-    {label: 'Drops Below', value: dropsBelow},
-    {label: 'Drops To Or Below', value: dropsToOrBelow},
-    {label: 'If Else', value: ifElse},
-    {label: 'If Greater Than', value: ifGreaterThan},
-    {label: 'If Greater Than or Equals', value: ifGreaterThanOrEquals},
-    {label: 'If less Than', value: lessThan},
-    {label: 'If less Than or Equals', value: lessThanOrEquals},
-    {label: 'If Not', value: ifNot},
-    {label: 'Or operator', value: or},
-    {label: 'Rises Above', value: risesAbove},
-    {label: 'Rises To Or Above', value: risesToOrAbove},
-    {label: 'Set Location Mode', value: setLocationMode}
+  {label: 'And operator', value: and},
+  {label: 'Between', value: between},
+  {label: 'Command', value: command},
+  {label: 'Drops Below', value: dropsBelow},
+  {label: 'Drops To Or Below', value: dropsToOrBelow},
+  {label: 'If Else', value: ifElse},
+  {label: 'If Greater Than', value: ifGreaterThan},
+  {label: 'If Greater Than or Equals', value: ifGreaterThanOrEquals},
+  {label: 'If less Than', value: lessThan},
+  {label: 'If less Than or Equals', value: lessThanOrEquals},
+  {label: 'If Not', value: ifNot},
+  {label: 'Or operator', value: or},
+  {label: 'Rises Above', value: risesAbove},
+  {label: 'Rises To Or Above', value: risesToOrAbove},
+  {label: 'Set Location Mode', value: setLocationMode}
 ];
 
 const AdvancedTemp = [
-    {label: 'Daylight Routine', value: daylightRoutine},
-    {label: 'Daylight Routine Delayed', value: daylightRoutineDelayed},
-    {label: 'Delayed command', value: delayedCommand},
-    {label: 'Nested If Condition', value: nestedIf},
-    {label: 'Morning Routine At Location', value: morningSchedule}
+  {label: 'Daylight Routine', value: daylightRoutine},
+  {label: 'Daylight Routine Delayed', value: daylightRoutineDelayed},
+  {label: 'Delayed command', value: delayedCommand},
+  {label: 'Nested If Condition', value: nestedIf},
+  {label: 'Morning Routine At Location', value: morningSchedule}
 ];
 
 
 export {
-    BasicTemp,
-    AdvancedTemp
+  BasicTemp,
+  AdvancedTemp
 };
