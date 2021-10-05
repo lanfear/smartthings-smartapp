@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Link  } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import styled from "styled-components";
-import getInstalledSmartApp, { IResponseSmartApp } from "../operations/getInstalledSmartApp";
-import getInstalledSmartApps, { IResponseSmartApps } from "../operations/getInstalledSmartApps";
-import { Rule, RuleRequest } from "@smartthings/core-sdk";
-import { generateActionSwitchLevel, generateConditionBetween, generateConditionMotion } from "../factories/ruleFactory";
+import React, {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {useTranslation} from 'react-i18next';
+import styled from 'styled-components';
+import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
+import getInstalledSmartApps, {IResponseSmartApps} from '../operations/getInstalledSmartApps';
+import {Rule, RuleRequest} from '@smartthings/core-sdk';
+import {generateActionSwitchLevel, generateConditionBetween, generateConditionMotion} from '../factories/ruleFactory';
 
 const SmartAppGrid = styled.div`
     display: grid;
@@ -15,7 +15,7 @@ const SmartAppGrid = styled.div`
 `;
 
 interface ISmartAppData {
-    [isaId: string]: IResponseSmartApp
+    [isaId: string]: IResponseSmartApp;
 }
 
 const SmartApps: React.FC<SmartAppProps> = () => {
@@ -24,16 +24,17 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const [smartApps, setSmartApps] = useState<IResponseSmartApps>([]);
     const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
-    const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? ''), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? ''));
+    const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? '', 10), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? '', 10));
     const motionCondition = generateConditionMotion(process.env.REACT_APP_RULE_MOTION_DEVICEID ?? '');
+    // eslint-disable-next-line no-magic-numbers
     const switchAction = generateActionSwitchLevel(process.env.REACT_APP_RULE_SWITCH_DEVICEID ?? '', 75);
     const newRule: RuleRequest = {
-        name: "Motion Family Room",
+        name: 'Motion Family Room',
         actions: [
             {
                 if: {
                     and: [
-                        betweenCondition, 
+                        betweenCondition,
                         motionCondition
                     ],
                     then: [
@@ -44,7 +45,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
         ]
     };
 
-    const addRule = async (isaId: string) => {
+    const addRule = async (isaId: string): Promise<Rule> => {
         const response = await fetch(`http://localhost:9190/app/${isaId}/rule`, {
             method: 'POST',
             headers: {
@@ -57,43 +58,73 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     };
 
     useEffect(() => {
-        const getSmartApps = async () => {
+        const getSmartApps = async (): Promise<void> => {
             setSmartApps(await getInstalledSmartApps());
-        }
+        };
     
         void getSmartApps();
-    }, [])
+    }, []);
 
     useEffect(() => {
-        const getSmartApp = async (isaId: string) => {
+        const getSmartApp = async (isaId: string): Promise<void> => {
             const updatedSmartAppData = Object.assign([], smartAppData);
             updatedSmartAppData[isaId] = await getInstalledSmartApp(isaId);
             setSmartAppData(updatedSmartAppData);
-        }
+        };
     
-            // TODO: this is dumb, do them in batch or something
-        smartApps.forEach( sa => {
+        // TODO: this is dumb, do them in batch or something
+        smartApps.forEach(sa => {
             void getSmartApp(sa);
-        })
+        });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [smartApps]) // ignore smartAppData
+    }, [smartApps]); // ignore smartAppData
 
     return (
         <SmartAppGrid>
-            {Object.values(smartAppData).map(sa => (<>
-                <Link to={`/dashboard/${sa.installedAppId}`} >
-                    <div>{t('smartapp.label')}: {sa.installedAppId}</div>
-                    <div>{t('smartapp.sceneCount')}: {sa.scenes.length}</div>
-                    <div>{t('smartapp.switchCount')}: {sa.switches.length}</div>
-                    <div>{t('smartapp.lockCount')}: {sa.locks.length}</div>
-                    <div>{t('smartapp.motionCount')}: {sa.motion.length}</div>
-                </Link>
-                <button onClick={() => addRule(sa.installedAppId)}>Add The Rule</button>
-            </>))}
+            {Object.values(smartAppData).map(sa => (
+                <>
+                    <Link to={`/dashboard/${sa.installedAppId}`}>
+                        <div>
+                            {t('smartapp.label')}
+:
+                            {' '}
+                            {sa.installedAppId}
+                        </div>
+                        <div>
+                            {t('smartapp.sceneCount')}
+:
+                            {' '}
+                            {sa.scenes.length}
+                        </div>
+                        <div>
+                            {t('smartapp.switchCount')}
+:
+                            {' '}
+                            {sa.switches.length}
+                        </div>
+                        <div>
+                            {t('smartapp.lockCount')}
+:
+                            {' '}
+                            {sa.locks.length}
+                        </div>
+                        <div>
+                            {t('smartapp.motionCount')}
+:
+                            {' '}
+                            {sa.motion.length}
+                        </div>
+                    </Link>
+                    <button onClick={() => addRule(sa.installedAppId)}>
+Add The Rule
+                    </button>
+                </>
+            ))}
         </SmartAppGrid>
-    )
-}
+    );
+};
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmartAppProps {
 }
 

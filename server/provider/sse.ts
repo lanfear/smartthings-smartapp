@@ -1,5 +1,5 @@
-import SSE from 'express-sse-ts'
+import SSE from 'express-sse-ts';
 
-const sse = new SSE(999);
+const sse = new SSE();
 
 export default sse;
