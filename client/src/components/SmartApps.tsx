@@ -24,8 +24,9 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const [smartApps, setSmartApps] = useState<IResponseSmartApps>([]);
     const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
-    const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? ''), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? ''));
+    const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? '', 10), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? '', 10));
     const motionCondition = generateConditionMotion(process.env.REACT_APP_RULE_MOTION_DEVICEID ?? '');
+    // eslint-disable-next-line no-magic-numbers
     const switchAction = generateActionSwitchLevel(process.env.REACT_APP_RULE_SWITCH_DEVICEID ?? '', 75);
     const newRule: RuleRequest = {
         name: 'Motion Family Room',
@@ -44,7 +45,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
         ]
     };
 
-    const addRule = async (isaId: string) => {
+    const addRule = async (isaId: string): Promise<Rule> => {
         const response = await fetch(`http://localhost:9190/app/${isaId}/rule`, {
             method: 'POST',
             headers: {
@@ -57,7 +58,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     };
 
     useEffect(() => {
-        const getSmartApps = async () => {
+        const getSmartApps = async (): Promise<void> => {
             setSmartApps(await getInstalledSmartApps());
         };
     
@@ -65,7 +66,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     }, []);
 
     useEffect(() => {
-        const getSmartApp = async (isaId: string) => {
+        const getSmartApp = async (isaId: string): Promise<void> => {
             const updatedSmartAppData = Object.assign([], smartAppData);
             updatedSmartAppData[isaId] = await getInstalledSmartApp(isaId);
             setSmartAppData(updatedSmartAppData);
@@ -123,6 +124,7 @@ Add The Rule
     );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmartAppProps {
 }
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 import {IDevice} from '../types/smartthingsExtensions';
 
@@ -38,45 +39,39 @@ const MotionContainer = styled(DeviceContainer)<{isActive: boolean}>`
     ` : ''}
 `;
 
-const Device: React.FC<IDeviceProps> = ({device, deviceType}) => {
-    console.log('d', device);
-
-    return (
-        deviceType === 'Switch' ? (
-            <LightContainer isLightOn={device.value === 'on'}>
-                <DeviceTitle>
-                    {device.label}
-                </DeviceTitle>
-                {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
-                <DeviceStatus>
-                    {device.value}
-                </DeviceStatus>
-            </LightContainer>
-        )
-            : deviceType === 'Lock' ? (
-                <DeviceContainer>
-                    <DeviceTitle>
-                        {device.label}
-                    </DeviceTitle>
-                    {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
-                    <DeviceStatus>
-                        {device.value}
-                    </DeviceStatus>
-                </DeviceContainer>
-            )
-                : (
-                    <MotionContainer isActive={device.value === 'active'}>
-                        <DeviceTitle>
-                            {device.label}
-                        </DeviceTitle>
-                        {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
-                        <DeviceStatus>
-                            {device.value}
-                        </DeviceStatus>
-                    </MotionContainer>
-                )
-    );
-};
+const Device: React.FC<IDeviceProps> = ({device, deviceType}) => (
+    deviceType === 'Switch' ? (
+        <LightContainer isLightOn={device.value === 'on'}>
+            <DeviceTitle>
+                {device.label}
+            </DeviceTitle>
+            {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
+            <DeviceStatus>
+                {device.value}
+            </DeviceStatus>
+        </LightContainer>
+    ) : deviceType === 'Lock' ? (
+        <DeviceContainer>
+            <DeviceTitle>
+                {device.label}
+            </DeviceTitle>
+            {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
+            <DeviceStatus>
+                {device.value}
+            </DeviceStatus>
+        </DeviceContainer>
+    ) : (
+        <MotionContainer isActive={device.value === 'active'}>
+            <DeviceTitle>
+                {device.label}
+            </DeviceTitle>
+            {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
+            <DeviceStatus>
+                {device.value}
+            </DeviceStatus>
+        </MotionContainer>
+    )
+);
 
 export type DeviceType = 'Switch' | 'Lock' | 'Motion';
 
