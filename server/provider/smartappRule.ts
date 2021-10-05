@@ -3,7 +3,6 @@ import {ContextStore, SmartApp} from '@smartthings/smartapp';
 import {Device, IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
 import {IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo} from '../types/index';
-import process from './env';
 import db from './db';
 import createRuleFromConfig from '../operations/createRuleFromConfigOperation';
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
