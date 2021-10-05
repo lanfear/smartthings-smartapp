@@ -17,14 +17,15 @@
     "web-vitals": "^0.2.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
     "@types/i18next": "^13.0.0",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
     "@types/react-i18next": "^8.1.0",
+    "@types/react-router-dom": "^5.3.0",
     "@types/styled-components": "^5.1.14",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3"
   },
@@ -46,6 +47,7 @@
       "techsmith/react"
     ],
     "rules": {
+      "no-nested-ternary": "off",
       "indent": [
         "error",
         4,
@@ -65,6 +67,7 @@
           "techsmith/react-ts"
         ],
         "rules": {
+          "no-nested-ternary": "off",
           "indent": "off",
           "@typescript-eslint/indent": [
             "error",
