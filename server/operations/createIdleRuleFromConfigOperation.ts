@@ -12,7 +12,7 @@ const createIdleRuleFromConfig = (
     idleTimeoutDelay: number,
     idleTimeoutUnit: IntervalUnit,
     motionMultipleAll: boolean
-) => {
+): RuleRequest => {
     const idleCondition = generateConditionNoMotion(motionControlDeviceIds, motionMultipleAll);
     const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit);
     

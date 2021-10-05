@@ -1,4 +1,6 @@
+/* eslint-disable id-blacklist, id-denylist */
 import {Action, Condition, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
+import global from '../constants/global';
 
 export const generateConditionTrigger = (noonOffsetTime: number, actions: Action[]): Action => ({
     every: {
@@ -139,7 +141,7 @@ export const generateActionSleep = (sleepDuration: number, sleepUnit: IntervalUn
     }
 });
 
-export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = 20): Action => ({
+export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): Action => ({
     command: {
         devices: [
             motionDeviceId

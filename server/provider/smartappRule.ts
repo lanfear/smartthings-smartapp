@@ -1,5 +1,5 @@
 import FileContextStore from '@smartthings/file-context-store';
-import {BooleanSetting, ContextStore, SmartApp} from '@smartthings/smartapp';
+import {ContextStore, SmartApp} from '@smartthings/smartapp';
 import {Device, IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
 import {IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo} from '../types/index';
@@ -10,14 +10,29 @@ import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOper
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
 
+/* eslint-disable no-magic-numbers */
 const offset8AM = 60 * -4;
 const offset8PM = 60 * 8;
+const offset6Hours = 360;
+const offset12Hours = 720;
 const defaultDayLevel = 50;
 const defaultNightLevel = 15;
+const increment5 = 5;
+const increment15 = 15;
+/* eslint-enable no-magic-numbers */
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
 
+const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest, newIdleRule: RuleRequest, newTransitionRule: RuleRequest): boolean => {
+    const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
+    return (!existingRules ||
+        JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
+        JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
+        JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
+        JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule));
+};
 
 /* Define the SmartApp */
 export default new SmartApp()
@@ -30,7 +45,7 @@ export default new SmartApp()
     .contextStore(contextStore)
 
 // Configuration page definition
-    .page('rulesMainPage', async (context, page, configData) => {
+    .page('rulesMainPage', async (context, page /* , configData */) => {
         // prompts user to select a contact sensor
         page.section('types', section => {
             section.hideable(true);
@@ -50,8 +65,8 @@ export default new SmartApp()
 
             section.numberSetting('motionIdleTimeout')
                 .min(0)
-                .max(360)
-                .step(5)
+                .max(offset6Hours)
+                .step(increment5)
                 .defaultValue(0);
 
             section.booleanSetting('motionIdleTimeoutUnit');
@@ -94,35 +109,40 @@ export default new SmartApp()
             section.hideable(true);
             // from 8AM
             section.numberSetting('dayStartOffset')
-                .min(-720)
-                .max(720)
-                .step(15)
+                .min(-offset12Hours)
+                .max(offset12Hours)
+                .step(increment15)
                 .defaultValue(0);
             // slider would be nice, but UI provides no numerical feedback, so worthless =\
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
             // from 8PM
             section.numberSetting('dayNightOffset')
-                .min(-720)
-                .max(720)
-                .step(15)
+                .min(-offset12Hours)
+                .max(offset12Hours)
+                .step(increment15)
                 .defaultValue(0);
             // slider would be nice, but UI provides no numerical feedback, so worthless =\
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
 
             // from 8AM
             section.numberSetting('nightEndOffset')
-                .min(-720)
-                .max(720)
-                .step(15)
+                .min(-offset12Hours)
+                .max(offset12Hours)
+                .step(increment15)
                 .defaultValue(0);
             // slider would be nice, but UI provides no numerical feedback, so worthless =\
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
         });
 
+        // i know this does something, even though apparently the typedefs say otherwise
+        // eslint-disable-next-line @typescript-eslint/await-thenable
         await page.section('levels', async section => {
             section.hideable(true);
             try {
@@ -133,27 +153,29 @@ export default new SmartApp()
                     .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
                 const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
                 const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
-	
+    
                 dayDimmableSwitches.forEach(s => {
                     section.numberSetting(`dayLevel${s.deviceId}`)
                         .name(`${s.label} Day Dimming Level`)
                         .min(10)
                         .max(100)
-                        .step(5)
+                        .step(increment5)
                         .defaultValue(defaultDayLevel);
                     // slider would be nice, but UI provides no numerical feedback, so worthless =\
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
                 });
-				
+                
                 nightDimmableSwitches.forEach(s => {
                     section.numberSetting(`nightLevel${s.deviceId}`)
                         .name(`${s.label} Night Dimming Level`)
                         .min(10)
                         .max(100)
-                        .step(5)
+                        .step(increment5)
                         .defaultValue(defaultNightLevel);
                     // slider would be nice, but UI provides no numerical feedback, so worthless =\
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     // @ts-ignore
                     // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
                 });
@@ -186,24 +208,25 @@ export default new SmartApp()
             if (!newConfig[`dayLevel${s.deviceConfig.deviceId}`]) {
                 return defaultLevel;
             }
-            return parseInt(((newConfig[`${configPrefix}${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value);
+            return parseInt(((newConfig[`${configPrefix}${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value, 10);
         };
         const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId));
         const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'dayLevel', defaultDayLevel)} as IRuleSwitchLevelInfo));
-        const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
+        const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId === ss.deviceConfig.deviceId));
         const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId));
         const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'nightLevel', defaultNightLevel)} as IRuleSwitchLevelInfo));
-        const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId == ss.deviceConfig.deviceId));
+        const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId === ss.deviceConfig.deviceId));
 
         const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
         const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
         const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
         const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
 
+        /* eslint-disable no-mixed-operators */
         const newDayRule = dayRuleEnabled && createRuleFromConfig(
             `${appKey}-daylight`,
-            offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value),
-            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
+            offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value, 10),
+            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
             newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
             newConfig.dayControlSwitch[0].deviceConfig.deviceId,
             dayDimmableSwitchLevels,
@@ -213,8 +236,8 @@ export default new SmartApp()
 
         const newNightRule = nightRuleEnabled && createRuleFromConfig(
             `${appKey}-nightlight`,
-            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
-            offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value),
+            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
+            offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value, 10),
             newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
             newConfig.nightControlSwitch[0].deviceConfig.deviceId,
             nightDimmableSwitchLevels,
@@ -226,18 +249,19 @@ export default new SmartApp()
             `${appKey}-idle`,
             newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
             daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
-            parseInt(newConfig.motionIdleTimeout[0].stringConfig.value),
+            parseInt(newConfig.motionIdleTimeout[0].stringConfig.value, 10),
             context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
             !context.configBooleanValue('motionMultipleAll') // you invert this setting for the idle case
         ) || null;
 
         const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
             `${appKey}-trans`,
-            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value),
+            offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
             daySwitches.map(s => s.deviceConfig.deviceId),
             nightDimmableSwitchLevels,
             nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
         ) || null;
+        /* eslint-enable no-mixed-operators */
 
         if (rulesAreModified(appKey, newDayRule, newNightRule, newIdleRule, newTransitionRule)) {
             await submitRulesForSmartAppOperation(
@@ -250,52 +274,7 @@ export default new SmartApp()
                 newTransitionRule
             );
         } else {
+            // eslint-disable-next-line no-console
             console.log('Rules not modified, nothing to update');
         }
     });
-
-// // Configuration page definition
-// .page('mainPage', (_, page) => {
-
-// 	// prompts user to select a contact sensor
-// 	page.section('sensors', section => {
-// 		section
-// 			.deviceSetting('contactSensor')
-// 			.capabilities(['contactSensor'])
-// 			.required(true)
-// 	})
-
-// 	// prompts users to select one or more switch devices
-// 	page.section('lights', section => {
-// 		section
-// 			.deviceSetting('lights')
-// 			.capabilities(['switch'])
-// 			.required(true)
-// 			.multiple(true)
-// 			.permissions('rx')
-// 	})
-// })
-
-// // Handler called whenever app is installed or updated
-// // Called for both INSTALLED and UPDATED lifecycle events if there is
-// // no separate installed() handler
-// .updated(async (context) => {
-// 	await context.api.subscriptions.delete()
-// 	await context.api.subscriptions.subscribeToDevices(context.config.contactSensor,
-// 		'contactSensor', 'contact', 'openCloseHandler')
-// })
-
-// // Handler called when the configured open/close sensor opens or closes
-// .subscribedEventHandler('openCloseHandler', async (context, event) => {
-// 	const value = event.value === 'open' ? 'on' : 'off'
-// 	await context.api.devices.sendCommands(context.config.lights, 'switch', value)
-// })
-
-const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest, newIdleRule: RuleRequest, newTransitionRule: RuleRequest) => {
-    const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
-    return (!existingRules ||
-		JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
-		JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
-		JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
-		JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule));
-};

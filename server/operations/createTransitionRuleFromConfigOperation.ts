@@ -1,5 +1,6 @@
 import {RuleRequest} from '@smartthings/core-sdk';
 import {IRuleSwitchLevelInfo} from '../types';
+import global from '../constants/global';
 import {
     generateConditionTrigger,
     generateConditionDeviceOn,
@@ -17,7 +18,7 @@ const createTransitionRuleFromConfig = (
 ): RuleRequest => {
     const switchOnConditions = dayActiveSwitchDeviceIds.map(s => generateConditionDeviceOn(s));
     const switchOffActions = generateActionSwitchOff(dayActiveSwitchDeviceIds);
-    const switchDimmableActions = nightActiveSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, 20));
+    const switchDimmableActions = nightActiveSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, global.rule.default.switchLevelRate));
     const switchOnActions = nightActiveSwitchOnDeviceIds.map(s => generateActionSwitchOn(s));
 
     const triggerActions = [{
