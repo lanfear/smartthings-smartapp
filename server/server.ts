@@ -1,16 +1,20 @@
-// eslint-disable-next-line
-import { SceneSummary, Device, Rule, CapabilityStatus } from '@smartthings/core-sdk';
+import fs from 'fs';
+import * as dotenv from 'dotenv';
+dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
+import {SceneSummary, Device, Rule} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import process from './provider/env';
+// import process from './provider/env';
 import smartAppControl from './provider/smartappControl';
 import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
-// require('dotenv').config();
+import {StatusCodes} from 'http-status-codes';
+
+const defaultPort = 3001;
+
 const server = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || defaultPort;
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -79,7 +83,7 @@ server.get('/app/:id', async (req, res) => {
     }
 
     if (context.configBooleanValue('rules')) {
-        options.rules = await Promise.all((await context.api.rules?.list() || []).map(async it => it));
+        options.rules = await Promise.all((await context.api.rules?.list() || []));
     }
 
     // res.render('isa', options)
@@ -105,7 +109,6 @@ server.post('/app/:id/devices/:deviceId', async (req, res) => {
 
 server.post('/app/:id/rule', async (req, res) => {
     const context = await smartAppControl.withContext(req.params.id);
-    console.log('body', req.body, req.body.name);
     const result = await context.api.rules.create(req.body);
     res.send(result);
 });
@@ -113,7 +116,7 @@ server.post('/app/:id/rule', async (req, res) => {
 server.delete('/app/:id/rule/:ruleId', async (req, res) => {
     const context = await smartAppControl.withContext(req.params.id);
     await context.api.rules.delete(req.params.ruleId);
-    res.statusCode = 204; // no content
+    res.statusCode = StatusCodes.NO_CONTENT;
     res.send();
 });
 
@@ -124,6 +127,7 @@ server.get('/events', sse.init);
 
 /* Start listening at your defined PORT */
 server.listen(PORT, () => {
+    // eslint-disable-next-line no-console
     console.log(`Server is up and running at http://localhost:${PORT}`);
 });
 

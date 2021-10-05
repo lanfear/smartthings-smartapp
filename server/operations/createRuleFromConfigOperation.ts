@@ -1,4 +1,5 @@
 import {RuleRequest} from '@smartthings/core-sdk';
+import global from '../constants/global';
 import {
     generateConditionDeviceOff,
     generateConditionMotion,
@@ -17,11 +18,11 @@ const createRuleFromConfig = (
     activeSwitchLevelDeviceLevelMap: IRuleSwitchLevelInfo[],
     activeSwitchOnDeviceIds: string[],
     motionMultipleAll: boolean
-) => {
+): RuleRequest => {
     const betweenCondition = generateConditionBetween(startOffset, endOffset);
     const motionCondition = generateConditionMotion(motionControlDeviceIds, motionMultipleAll);
     const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
-    const switchDimmableActions = activeSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, 20));
+    const switchDimmableActions = activeSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, global.rule.default.switchLevelRate));
     const switchOnActions = activeSwitchOnDeviceIds.map(s => generateActionSwitchOn(s));
 
     const newRule: RuleRequest = {

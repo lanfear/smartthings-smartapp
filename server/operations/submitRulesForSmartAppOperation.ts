@@ -1,8 +1,9 @@
+/* eslint-disable no-mixed-operators */
 import {RuleRequest, SmartThingsClient} from '@smartthings/core-sdk';
 import JSONdb from 'simple-json-db';
 import {RuleStoreInfo} from '../types';
 
-const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLookupKey: string, dayRule: RuleRequest, nightRule: RuleRequest, idleRule: RuleRequest, transitionRule: RuleRequest) => {
+const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLookupKey: string, dayRule: RuleRequest, nightRule: RuleRequest, idleRule: RuleRequest, transitionRule: RuleRequest): Promise<void> => {
     await Promise.all(
         (await api.rules?.list() || [])
             .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
@@ -25,6 +26,7 @@ const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLo
     newRuleInfo.transitionRuleId = newTransitionRuleResponse?.id;
     ruleStore.set(smartAppLookupKey, newRuleInfo);
 
+    // eslint-disable-next-line no-console
     console.log('rules', await api.rules.list());
 };
 

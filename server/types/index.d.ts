@@ -31,6 +31,7 @@ export interface ISmartAppRuleSwitchLevel {
 }
 
 export interface ISmartAppRuleConfig {
+    [switchLevel: string]: ISmartAppRuleSwitchLevel[] | ISmartAppRuleSwitch [] | ISmartAppRuleMotion [];
     dayNightOffset: ISmartAppRuleTimeOffset [];
     nightEndOffset: ISmartAppRuleTimeOffset [];
     dayStartOffset: ISmartAppRuleTimeOffset [];
@@ -40,7 +41,6 @@ export interface ISmartAppRuleConfig {
     nightActiveSwitches: ISmartAppRuleSwitch [];
     motionSensor: ISmartAppRuleMotion [];
     motionIdleTimeout: ISmartAppRuleTimeOffset [];
-    [switchLevel: string]: ISmartAppRuleSwitchLevel[] | ISmartAppRuleSwitch [] | ISmartAppRuleMotion [];
 }
 
 export interface RuleStoreInfo {
