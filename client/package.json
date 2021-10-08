@@ -40,7 +40,8 @@
   "eslintConfig": {
     "ignorePatterns": [
       "node_modules/",
-      "data/"
+      "data/",
+      "build/"
     ],
     "extends": [
       "techsmith/es6",
