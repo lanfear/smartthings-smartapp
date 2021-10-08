@@ -28,6 +28,8 @@
 	"pages.rulesMainPage.sections.sensors.description": "Choose the motion detector to activate triggers",
 	"pages.rulesMainPage.settings.motionSensor.name": "Motion Sensor",
 	"pages.rulesMainPage.settings.motionSensor.description": "Choose the motion detector to activate triggers",
+	"pages.rulesMainPage.settings.motionDurationDelay.name": "Motion required for X seconds activating triggers",
+	"pages.rulesMainPage.settings.motionDurationDelay.description": "Number of seconds before configured lights will turn on",
 	"pages.rulesMainPage.settings.motionIdleTimeout.name": "Idle/Off Timeout in Seconds/Minutes",
 	"pages.rulesMainPage.settings.motionIdleTimeout.description": "Number of Seconds/Minutes before all lights will turn off",
 	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.name": "Seconds <==> Minutes",
@@ -55,6 +57,6 @@
 	"pages.rulesMainPage.settings.dayStartOffset.description": "Minutes +/- 8:00AM",
 	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset (Minutes +/- 8:00PM)",
 	"pages.rulesMainPage.settings.dayNightOffset.description": "Minutes +/- 8:00PM",
-	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 12:00AM)",
-	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 12:00AM"
+	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 8:00AM Next Day)",
+	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 8:00AM (Next Day)"
 }
