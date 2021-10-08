@@ -29,6 +29,8 @@
   "scripts": {
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
+    "build": "tsc",
+    "prod": "node build/server.js",
     "start": "node --loader ts-node/esm ./server.ts",
     "tunnel": "ngrok http 9190"
   },
