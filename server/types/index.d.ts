@@ -1,4 +1,5 @@
-import {RuleRequest} from '@smartthings/core-sdk';
+import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
+import {DeviceContext} from '@smartthings/smartapp';
 
 export interface ISmartAppRuleMotion {
   valueType: string; // STValueType?
@@ -42,6 +43,26 @@ export interface ISmartAppRuleConfig {
   motionSensor: ISmartAppRuleMotion [];
   motionIdleTimeout: ISmartAppRuleTimeOffset[];
   motionDurationDelay: ISmartAppRuleTimeOffset[];
+}
+
+export interface ISmartAppRuleConfigValues {
+  // [switchLevel: string]: ISmartAppRuleSwitchLevel[] | ISmartAppRuleSwitch [] | ISmartAppRuleMotion [];
+  enableAllRules: boolean;
+  enableDaylightRule: boolean;
+  enableNightlightRule: boolean;
+  enableIdleRule: boolean;
+  motionSensors: DeviceContext[];
+  motionMultipleAll: boolean;
+  motionIdleTimeout: number;
+  motionIdleTimeoutUnit: IntervalUnit;
+  motionDurationDelay: number;
+  dayControlSwitch: DeviceContext; // should be only 1, but it's an array
+  dayActiveSwitches: DeviceContext[];
+  nightControlSwitch: DeviceContext; // should be only 1, but it's an array
+  nightActiveSwitches: DeviceContext[];
+  dayNightOffset: number;
+  nightEndOffset: number;
+  dayStartOffset: number;
 }
 
 export interface RuleStoreInfo {
