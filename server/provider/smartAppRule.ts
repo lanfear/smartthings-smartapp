@@ -9,6 +9,8 @@ import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConf
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
+import readConfigFromContext from '../operations/readConfigFromContext';
+import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 
 /* eslint-disable no-magic-numbers */
 const offset8AM = 60 * -4;
@@ -28,10 +30,10 @@ const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
 const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest, newIdleRule: RuleRequest, newTransitionRule: RuleRequest): boolean => {
   const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
   return (!existingRules ||
-        JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
-        JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
-        JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
-        JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule));
+    JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
+    JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
+    JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
+    JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule));
 };
 
 /* Define the SmartApp */
@@ -46,7 +48,55 @@ export default new SmartApp()
 
 // Configuration page definition
   .page('rulesMainPage', async (context, page /* , configData */) => {
-    // prompts user to select a contact sensor
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    await page.section('description', async section => {
+      const config = await readConfigFromContext(context);
+      const uniqueDaySwitches = uniqueDeviceFactory([config.dayControlSwitch].concat(config.dayActiveSwitches));
+      const uniqueNightSwitches = uniqueDeviceFactory([config.nightControlSwitch].concat(config.nightActiveSwitches));
+      const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
+      const motionSensorNames = config.motionSensors.map(s => s.label).join(config.motionMultipleAll ? ' AND ' : ' OR ');
+      const idleMotionSensorNames = config.motionSensors.map(s => s.label).join(!config.motionMultipleAll ? ' AND ' : ' OR ');
+      const daylightRuleDescription = `When [${motionSensorNames}}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
+        `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] ` +
+        'will turn ON.';
+      const daylightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule ? 'ENABLED' : 'DISABLED'}`;
+
+      const nightlightRuleDescription = `When [${motionSensorNames}}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
+        `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] ` +
+        'will turn ON.';
+      const nightlightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
+
+      const idleRuleDescription = `When [${idleMotionSensorNames}}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] ` +
+        `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] ` +
+        'will turn OFF.';
+      const idleRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableIdleRule ? 'ENABLED' : 'DISABLED'}`;
+
+      const transitionRuleDescription = `At [${config.dayNightOffset} (translate to time)] ` +
+        `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] ` +
+        `will turn OFF and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON.`;
+      const transitionRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
+
+      section
+        .paragraphSetting('daylightRuleSummary')
+        .name(daylightRuleDescription)
+        .description(daylightRuleEnabledDesc);
+
+      section
+        .paragraphSetting('nightlightRuleSummary')
+        .name(nightlightRuleDescription)
+        .description(nightlightRuleEnabledDesc);
+
+      section
+        .paragraphSetting('idleRuleSummary')
+        .name(idleRuleDescription)
+        .description(idleRuleEnabledDesc);
+
+      section
+        .paragraphSetting('transitionRuleSummary')
+        .name(transitionRuleDescription)
+        .description(transitionRuleEnabledDesc);
+    });
+
     page.section('types', section => {
       section.hideable(true);
       section.booleanSetting('enableAllRules').defaultValue('true');
