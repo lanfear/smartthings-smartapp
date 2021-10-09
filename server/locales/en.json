@@ -13,6 +13,10 @@
 	"pages.mainPage.settings.rules.description": "",
 
 	"pages.rulesMainPage.name": "Single Room Daylight/Nightlight Controller",
+
+	"pages.rulesMainPage.sections.description.name": "Current Rule Descriptions (Updated On Save)",
+	"pages.rulesMainPage.sections.description.description": "",
+
 	"pages.rulesMainPage.sections.types.name": "Control Options",
 	"pages.rulesMainPage.sections.types.description": "Enable/Disable All Or Part Of Rules",
 	"pages.rulesMainPage.settings.enableAllRules.name": "Disable All Rules",
