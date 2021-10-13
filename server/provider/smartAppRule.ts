@@ -178,66 +178,65 @@ export default new SmartApp()
     // i know this does something, even though apparently the typedefs say otherwise
     // eslint-disable-next-line @typescript-eslint/await-thenable
     await page.section('levels', async section => {
-      section.hideable(true);
-      try {
-        const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-        const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
-          .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-        const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
-          .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-        const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
-        const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
-    
-        dayDimmableSwitches.forEach(s => {
-          section.numberSetting(`dayLevel${s.deviceId}`)
-            .name(`${s.label} Day Dimming Level`)
-            .min(10)
-            .max(100)
-            .step(increment5)
-            .defaultValue(defaultDayLevel);
-          // slider would be nice, but UI provides no numerical feedback, so worthless =\
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-        });
-                
-        nightDimmableSwitches.forEach(s => {
-          section.numberSetting(`nightLevel${s.deviceId}`)
-            .name(`${s.label} Night Dimming Level`)
-            .min(10)
-            .max(100)
-            .step(increment5)
-            .defaultValue(defaultNightLevel);
-          // slider would be nice, but UI provides no numerical feedback, so worthless =\
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
-        });
-      } catch {
-        // this happens on app installation, you have not authorized any scopes yet, so the api calls implicit above will fail
+      if (!context.isAuthenticated()) {
+        // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
+        return;
       }
+
+      section.hideable(true);
+      
+      const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+      const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
+        .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
+      const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
+        .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
+      const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+      const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+  
+      dayDimmableSwitches.forEach(s => {
+        section.numberSetting(`dayLevel${s.deviceId}`)
+          .name(`${s.label} Day Dimming Level`)
+          .min(10)
+          .max(100)
+          .step(increment5)
+          .defaultValue(defaultDayLevel);
+        // slider would be nice, but UI provides no numerical feedback, so worthless =\
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+      });
+              
+      nightDimmableSwitches.forEach(s => {
+        section.numberSetting(`nightLevel${s.deviceId}`)
+          .name(`${s.label} Night Dimming Level`)
+          .min(10)
+          .max(100)
+          .step(increment5)
+          .defaultValue(defaultNightLevel);
+        // slider would be nice, but UI provides no numerical feedback, so worthless =\
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+      });
     });
   })
 
   .updated(async (context, updateData) => {
+    if (!context.isAuthenticated()) {
+      // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
+      return;
+    }
+    
     const appKey = `app-${updateData.installedApp.installedAppId}`;
 
     const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
     const newConfigParsed = await readConfigFromContext(context);
 
-    let allDimmableSwitches: Device[];
-    let daySwitches: ISmartAppRuleSwitch[];
-    let nightSwitches: ISmartAppRuleSwitch[];
-    try {
-      allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-      daySwitches = (newConfig.dayControlSwitch ?? []).concat(newConfig.dayActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
-        .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
-      nightSwitches = (newConfig.nightControlSwitch ?? []).concat(newConfig.nightActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
-        .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
-    } catch {
-      // this also happens before you have authorized scopes in the app during initial installation
-      return;
-    }
+    const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+    const daySwitches = (newConfig.dayControlSwitch ?? []).concat(newConfig.dayActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
+      .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+    const nightSwitches = (newConfig.nightControlSwitch ?? []).concat(newConfig.nightActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
+      .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
 
     const getSwitchLevel = (s: ISmartAppRuleSwitch, configPrefix: string, defaultLevel: number): number => {
       if (!newConfig[`dayLevel${s.deviceConfig.deviceId}`]) {
