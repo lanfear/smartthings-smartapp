@@ -7,10 +7,10 @@
     "type": "git",
     "url": "https://github.com/lanfear/smartthings-smartapp.git"
   },
-	"description": "JavaScript/TypeScript library for using SmartThings APIs",
-	"author": "Joseph M. Deming",
-	"homepage": "https://github.com/lanfear/smartthings-smartapp",
-	"bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
+  "description": "JavaScript/TypeScript library for using SmartThings APIs",
+  "author": "Joseph M. Deming",
+  "homepage": "https://github.com/lanfear/smartthings-smartapp",
+  "bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
     "@smartthings/file-context-store": "^0.0.1",
     "@smartthings/smartapp": "^2.6.0",
@@ -90,7 +90,7 @@
     ],
     "parserOptions": {
       "ecmaVersion": 2020,
-      "project": "./tsconfig.json"
+      "project": "/server/tsconfig.json"
     },
     "globals": {
       "process": "readonly"
