@@ -1,24 +1,47 @@
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
 import {IntervalUnit} from '@smartthings/core-sdk';
-import {SmartAppContext} from '@smartthings/smartapp';
+import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
 import {ISmartAppRuleConfigValues} from '../types';
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+
+const getDeviceConfigIfAuthenticated = async (context: SmartAppContext, configId: string): Promise<DeviceContext[] | null> => {
+  if (!context.isAuthenticated()) {
+    return null;
+  }
+  return await context.configDevices(configId);
+};
+
+const getMinuteOffsetFromNoon = (timeString: string): number => {
+  if (!timeString || timeString === '') {
+    return 0;
+  }
+  const configDate = dayjs.utc(timeString, 'HH:mm A');
+  // eslint-disable-next-line no-magic-numbers
+  const noonDate = configDate.hour(12).minute(0).second(0).millisecond(0);
+  return configDate.diff(noonDate, 'minute');
+};
 
 const readConfigFromContext = async (context: SmartAppContext): Promise<ISmartAppRuleConfigValues> => ({
   enableAllRules: context.configBooleanValue('enableAllRules')?.valueOf(),
   enableDaylightRule: context.configBooleanValue('enableDaylightRule')?.valueOf(),
   enableNightlightRule: context.configBooleanValue('enableNightlightRule')?.valueOf(),
   enableIdleRule: context.configBooleanValue('enableIdleRule')?.valueOf(),
-  motionSensors: context.isAuthenticated() && await context.configDevices('motionSensor') || [],
+  motionSensors: await getDeviceConfigIfAuthenticated(context, 'motionSensor') ?? [],
   motionMultipleAll: context.configBooleanValue('motionMultipleAll')?.valueOf(),
   motionIdleTimeout: context.configNumberValue('motionIdleTimeout')?.valueOf(),
   motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
   motionDurationDelay: context.configNumberValue('motionDurationDelay')?.valueOf(),
-  dayControlSwitch: (context.isAuthenticated() && await context.configDevices('dayControlSwitch') || [null])[0],
-  dayActiveSwitches: context.isAuthenticated() && await context.configDevices('dayActiveSwitches') || [],
-  nightControlSwitch: (context.isAuthenticated() && await context.configDevices('nightControlSwitch') || [null])[0],
-  nightActiveSwitches: context.isAuthenticated() && await context.configDevices('nightActiveSwitches') || [],
-  dayNightOffset: context.configNumberValue('dayNightOffset')?.valueOf(),
-  nightEndOffset: context.configNumberValue('nightEndOffset')?.valueOf(),
-  dayStartOffset: context.configNumberValue('dayStartOffset')?.valueOf()
+  dayControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'dayControlSwitch') ?? [null])[0],
+  dayActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'dayActiveSwitches') ?? [],
+  nightControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'nightControlSwitch') ?? [null])[0],
+  nightActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'nightActiveSwitches') ?? [],
+  dayNightOffset: getMinuteOffsetFromNoon(context.configTimeString('dayNightOffsetTime')?.valueOf()),
+  nightEndOffset: getMinuteOffsetFromNoon(context.configTimeString('nightEndOffsetTime')?.valueOf()),
+  dayStartOffset: getMinuteOffsetFromNoon(context.configTimeString('dayStartOffsetTime')?.valueOf())
 });
 
 export default readConfigFromContext;

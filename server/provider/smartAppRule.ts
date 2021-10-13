@@ -11,16 +11,13 @@ import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAp
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
 import readConfigFromContext from '../operations/readConfigFromContext';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
+import dayjs from 'dayjs';
 
 /* eslint-disable no-magic-numbers */
-const offset8AM = 60 * -4;
-const offset8PM = 60 * 8;
 const offset6Hours = 360;
-const offset12Hours = 720;
 const defaultDayLevel = 50;
 const defaultNightLevel = 15;
 const increment5 = 5;
-const increment15 = 15;
 /* eslint-enable no-magic-numbers */
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
@@ -164,37 +161,19 @@ export default new SmartApp()
     page.section('timings', section => {
       section.hideable(true);
       // from 8AM
-      section.numberSetting('dayStartOffset')
-        .min(-offset12Hours)
-        .max(offset12Hours)
-        .step(increment15)
-        .defaultValue(0);
-      // slider would be nice, but UI provides no numerical feedback, so worthless =\
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+      section.timeSetting('dayStartOffsetTime')
+        // eslint-disable-next-line no-magic-numbers
+        .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8PM
-      section.numberSetting('dayNightOffset')
-        .min(-offset12Hours)
-        .max(offset12Hours)
-        .step(increment15)
-        .defaultValue(0);
-      // slider would be nice, but UI provides no numerical feedback, so worthless =\
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+      section.timeSetting('dayNightOffsetTime')
+        // eslint-disable-next-line no-magic-numbers
+        .defaultValue(dayjs().hour(20).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8AM
-      section.numberSetting('nightEndOffset')
-        .min(-offset12Hours)
-        .max(offset12Hours)
-        .step(increment15)
-        .defaultValue(0);
-      // slider would be nice, but UI provides no numerical feedback, so worthless =\
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
+      section.timeSetting('nightEndOffsetTime')
+        // eslint-disable-next-line no-magic-numbers
+        .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
     });
 
     // i know this does something, even though apparently the typedefs say otherwise
@@ -245,6 +224,7 @@ export default new SmartApp()
     const appKey = `app-${updateData.installedApp.installedAppId}`;
 
     const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
+    const newConfigParsed = await readConfigFromContext(context);
 
     let allDimmableSwitches: Device[];
     let daySwitches: ISmartAppRuleSwitch[];
@@ -281,8 +261,8 @@ export default new SmartApp()
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-daylight`,
-      offset8AM + parseInt(newConfig.dayStartOffset[0].stringConfig.value, 10),
-      offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
+      newConfigParsed.dayStartOffset,
+      newConfigParsed.dayNightOffset,
       newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
       newConfig.dayControlSwitch[0].deviceConfig.deviceId,
       dayDimmableSwitchLevels,
@@ -293,8 +273,8 @@ export default new SmartApp()
 
     const newNightRule = nightRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-nightlight`,
-      offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
-      offset8AM + parseInt(newConfig.nightEndOffset[0].stringConfig.value, 10),
+      newConfigParsed.dayNightOffset,
+      newConfigParsed.nightEndOffset,
       newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
       newConfig.nightControlSwitch[0].deviceConfig.deviceId,
       nightDimmableSwitchLevels,
@@ -314,7 +294,7 @@ export default new SmartApp()
 
     const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
       `${appKey}-trans`,
-      offset8PM + parseInt(newConfig.dayNightOffset[0].stringConfig.value, 10),
+      newConfigParsed.dayNightOffset,
       daySwitches.map(s => s.deviceConfig.deviceId),
       nightDimmableSwitchLevels,
       nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
