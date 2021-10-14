@@ -1,21 +1,20 @@
 import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {Device, IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
+import {RuleRequest} from '@smartthings/core-sdk';
+import dayjs from 'dayjs';
 import JSONdb from 'simple-json-db';
-import {IRuleSwitchLevelInfo, ISmartAppRuleConfig, ISmartAppRuleSwitch, ISmartAppRuleSwitchLevel, RuleStoreInfo} from '../types/index';
+import {IRuleSwitchLevelInfo, RuleStoreInfo} from '../types/index';
+import global from '../constants/global';
 import db from './db';
 import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConfigOperation';
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
-import readConfigFromContext from '../operations/readConfigFromContext';
+import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
-import dayjs from 'dayjs';
 
 /* eslint-disable no-magic-numbers */
 const offset6Hours = 360;
-const defaultDayLevel = 50;
-const defaultNightLevel = 15;
 const increment5 = 5;
 /* eslint-enable no-magic-numbers */
 
@@ -184,7 +183,7 @@ export default new SmartApp()
       }
 
       section.hideable(true);
-      
+
       const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
       const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
@@ -199,7 +198,7 @@ export default new SmartApp()
           .min(10)
           .max(100)
           .step(increment5)
-          .defaultValue(defaultDayLevel);
+          .defaultValue(global.rule.default.switchDayLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -212,7 +211,7 @@ export default new SmartApp()
           .min(10)
           .max(100)
           .step(increment5)
-          .defaultValue(defaultNightLevel);
+          .defaultValue(global.rule.default.switchNightLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -229,27 +228,21 @@ export default new SmartApp()
     
     const appKey = `app-${updateData.installedApp.installedAppId}`;
 
-    const newConfig: ISmartAppRuleConfig = context.config as unknown as ISmartAppRuleConfig;
-    const newConfigParsed = await readConfigFromContext(context);
+    const newConfig = await readConfigFromContext(context);
 
     const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
-    const daySwitches = (newConfig.dayControlSwitch ?? []).concat(newConfig.dayActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
-      .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
-    const nightSwitches = (newConfig.nightControlSwitch ?? []).concat(newConfig.nightActiveSwitches ?? []) // next line filters out duplicate device ids between the 2 arrays
-      .filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i);
+    const uniqueDaySwitches = uniqueDeviceFactory([newConfig.dayControlSwitch].concat(newConfig.dayActiveSwitches));
+    const uniqueNightSwitches = uniqueDeviceFactory([newConfig.nightControlSwitch].concat(newConfig.nightActiveSwitches));
+    const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
+    
+    const allConfigSwitchLevels = readDeviceLevelConfigFromContext(context, uniqueSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId)));
+    const dayDimmableSwitches = uniqueDaySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+    const nightDimmableSwitches = uniqueNightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+    const dayNonDimmableSwitches = uniqueDaySwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+    const nightNonDimmableSwitches = uniqueNightSwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
 
-    const getSwitchLevel = (s: ISmartAppRuleSwitch, configPrefix: string, defaultLevel: number): number => {
-      if (!newConfig[`dayLevel${s.deviceConfig.deviceId}`]) {
-        return defaultLevel;
-      }
-      return parseInt(((newConfig[`${configPrefix}${s.deviceConfig.deviceId}`][0]) as ISmartAppRuleSwitchLevel).stringConfig.value, 10);
-    };
-    const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId));
-    const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'dayLevel', defaultDayLevel)} as IRuleSwitchLevelInfo));
-    const dayNonDimmableSwitches = daySwitches.filter(s => !dayDimmableSwitches.find(ss => s.deviceConfig.deviceId === ss.deviceConfig.deviceId));
-    const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceConfig.deviceId));
-    const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceConfig.deviceId, switchLevel: getSwitchLevel(s, 'nightLevel', defaultNightLevel)} as IRuleSwitchLevelInfo));
-    const nightNonDimmableSwitches = nightSwitches.filter(s => !nightDimmableSwitches.find(ss => s.deviceConfig.deviceId === ss.deviceConfig.deviceId));
+    const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchDayLevel} as IRuleSwitchLevelInfo));
+    const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchNightLevel} as IRuleSwitchLevelInfo));
 
     const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
     const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
@@ -259,43 +252,43 @@ export default new SmartApp()
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-daylight`,
-      newConfigParsed.dayStartOffset,
-      newConfigParsed.dayNightOffset,
-      newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
-      newConfig.dayControlSwitch[0].deviceConfig.deviceId,
+      newConfig.dayStartOffset,
+      newConfig.dayNightOffset,
+      newConfig.motionSensors.map(d => d.deviceId),
+      newConfig.dayControlSwitch.deviceId,
       dayDimmableSwitchLevels,
-      dayNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
-      context.configBooleanValue('motionMultipleAll'),
-      parseInt(newConfig.motionDurationDelay[0].stringConfig.value, 10)
+      dayNonDimmableSwitches.map(s => s.deviceId),
+      newConfig.motionMultipleAll,
+      newConfig.motionDurationDelay
     ) || null;
 
     const newNightRule = nightRuleEnabled && createTriggerRuleFromConfig(
       `${appKey}-nightlight`,
-      newConfigParsed.dayNightOffset,
-      newConfigParsed.nightEndOffset,
-      newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
-      newConfig.nightControlSwitch[0].deviceConfig.deviceId,
+      newConfig.dayNightOffset,
+      newConfig.nightEndOffset,
+      newConfig.motionSensors.map(d => d.deviceId),
+      newConfig.nightControlSwitch.deviceId,
       nightDimmableSwitchLevels,
-      nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId),
-      context.configBooleanValue('motionMultipleAll'),
-      parseInt(newConfig.motionDurationDelay[0].stringConfig.value, 10)
+      nightNonDimmableSwitches.map(s => s.deviceId),
+      newConfig.motionMultipleAll,
+      newConfig.motionDurationDelay
     ) || null;
 
     const newIdleRule = idleRuleEnabled && createIdleRuleFromConfig(
       `${appKey}-idle`,
-      newConfig.motionSensor.map(m => m.deviceConfig.deviceId),
-      daySwitches.concat(nightSwitches).filter((s, i, self) => self.findIndex(c => c.deviceConfig.deviceId === s.deviceConfig.deviceId) === i).map(s => s.deviceConfig.deviceId),
-      parseInt(newConfig.motionIdleTimeout[0].stringConfig.value, 10),
-      context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
-      !context.configBooleanValue('motionMultipleAll') // you invert this setting for the idle case
+      newConfig.motionSensors.map(d => d.deviceId),
+      uniqueSwitches.map(d => d.deviceId),
+      newConfig.motionIdleTimeout,
+      newConfig.motionIdleTimeoutUnit,
+      !newConfig.motionMultipleAll // you invert this setting for the idle case
     ) || null;
 
     const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
       `${appKey}-trans`,
-      newConfigParsed.dayNightOffset,
-      daySwitches.map(s => s.deviceConfig.deviceId),
+      newConfig.dayNightOffset,
+      uniqueDaySwitches.map(s => s.deviceId),
       nightDimmableSwitchLevels,
-      nightNonDimmableSwitches.map(s => s.deviceConfig.deviceId)
+      nightNonDimmableSwitches.map(s => s.deviceId)
     ) || null;
     /* eslint-enable no-mixed-operators */
 
