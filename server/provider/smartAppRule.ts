@@ -61,24 +61,24 @@ export default new SmartApp()
       const nightEndTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.nightEndOffset, 'minutes').format('hh:mm A');
 
       // these strings are not localized because i'm unsure how to use the built-in I18n mechanics with dynamic config-driven values interpolated
-      const daylightRuleDescription = `Between [${dayStartTime}] and [${dayNightTime}] ` +
+      const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] ` +
         `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
         `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] ` +
         'will turn ON.';
       const daylightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const nightlightRuleDescription = `Between [${dayNightTime}] and [${nightEndTime}] ` +
+      const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] ` +
         `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
         `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] ` +
         'will turn ON.';
       const nightlightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const idleRuleDescription = `When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] ` +
+      const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] ` +
         `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] ` +
         'will turn OFF.';
       const idleRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableIdleRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const transitionRuleDescription = `At [${dayNightTime}] ` +
+      const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] ` +
         `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) ` +
         `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
       const transitionRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
