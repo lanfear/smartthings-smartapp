@@ -3,7 +3,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import {IntervalUnit} from '@smartthings/core-sdk';
 import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
-import {ISmartAppRuleConfigValues} from '../types';
+import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig} from '../types';
+import global from '../constants/global';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -43,5 +44,11 @@ const readConfigFromContext = async (context: SmartAppContext): Promise<ISmartAp
   nightEndOffset: getMinuteOffsetFromNoon(context.configTimeString('nightEndOffsetTime')?.valueOf()),
   dayStartOffset: getMinuteOffsetFromNoon(context.configTimeString('dayStartOffsetTime')?.valueOf())
 });
+
+export const readDeviceLevelConfigFromContext = (context: SmartAppContext, devices: DeviceContext[]): ISmartAppRuleSwitchLevelConfig[] => devices.map(d => ({
+  deviceId: d.deviceId,
+  switchDayLevel: context.configNumberValue(`dayLevel${d.deviceId}`) ?? global.rule.default.switchDayLevel,
+  switchNightLevel: context.configNumberValue(`nightLevel${d.deviceId}`) ?? global.rule.default.switchNightLevel
+}));
 
 export default readConfigFromContext;
