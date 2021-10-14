@@ -4,6 +4,14 @@ import JSONdb from 'simple-json-db';
 import {RuleStoreInfo} from '../types';
 
 const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLookupKey: string, dayRule: RuleRequest, nightRule: RuleRequest, idleRule: RuleRequest, transitionRule: RuleRequest): Promise<void> => {
+  /* eslint-disable no-console */
+  console.log('Submitting Rules');
+  console.log('DayRule', JSON.stringify(dayRule));
+  console.log('NightRule', JSON.stringify(nightRule));
+  console.log('IdleRule', JSON.stringify(idleRule));
+  console.log('TransitionRule', JSON.stringify(transitionRule));
+  /* eslint-enable no-console */
+
   await Promise.all(
     (await api.rules?.list() || [])
       .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
