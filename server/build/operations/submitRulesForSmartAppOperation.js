@@ -11,6 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const submitRules = (api, ruleStore, smartAppLookupKey, dayRule, nightRule, idleRule, transitionRule) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    /* eslint-disable no-console */
+    console.log('Submitting Rules');
+    console.log('DayRule', JSON.stringify(dayRule));
+    console.log('NightRule', JSON.stringify(nightRule));
+    console.log('IdleRule', JSON.stringify(idleRule));
+    console.log('TransitionRule', JSON.stringify(transitionRule));
+    /* eslint-enable no-console */
     yield Promise.all(((yield ((_a = api.rules) === null || _a === void 0 ? void 0 : _a.list())) || [])
         .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
         .map((r) => __awaiter(void 0, void 0, void 0, function* () { return yield api.rules.delete(r.id); })));

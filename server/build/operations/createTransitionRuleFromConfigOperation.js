@@ -7,15 +7,15 @@ const global_1 = __importDefault(require("../constants/global"));
 const ruleFactory_1 = require("../factories/ruleFactory");
 const createTransitionRuleFromConfig = (ruleLabel, transitionOffset, dayActiveSwitchDeviceIds, nightActiveSwitchLevelDeviceLevelMap, nightActiveSwitchOnDeviceIds) => {
     // get active day switches that are not also night switches
-    const dayOnlyActiveSwitchId = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
+    const dayOnlyActiveSwitchIds = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
     const switchOnConditions = dayActiveSwitchDeviceIds.map(s => (0, ruleFactory_1.generateConditionDeviceOn)(s));
-    const switchOffActions = (0, ruleFactory_1.generateActionSwitchOff)(dayOnlyActiveSwitchId);
+    const switchOffActions = dayOnlyActiveSwitchIds.length > 0 ? [(0, ruleFactory_1.generateActionSwitchOff)(dayOnlyActiveSwitchIds)] : [];
     const switchDimmableActions = nightActiveSwitchLevelDeviceLevelMap.map(s => (0, ruleFactory_1.generateActionSwitchLevel)(s.deviceId, s.switchLevel, global_1.default.rule.default.switchLevelRate));
     const switchOnActions = nightActiveSwitchOnDeviceIds.map(s => (0, ruleFactory_1.generateActionSwitchOn)(s));
     const triggerActions = [{
             if: {
                 or: switchOnConditions,
-                then: [switchOffActions].concat(switchDimmableActions).concat(switchOnActions)
+                then: switchOffActions.concat(switchDimmableActions).concat(switchOnActions)
             }
         }];
     return {
