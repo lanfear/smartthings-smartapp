@@ -117,4 +117,4 @@ exports.default = new smartapp_1.SmartApp()
 //     const value = event.value === 'open' ? 'on' : 'off'
 //     await context.api.devices.sendCommands(context.config.lights, 'switch', value)
 // })
-//# sourceMappingURL=smartappControl.js.map
+//# sourceMappingURL=smartAppControl.js.map
