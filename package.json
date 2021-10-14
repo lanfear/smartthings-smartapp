@@ -1,17 +1,24 @@
 {
-  "name": "rule-helper",
-  "version": "0.1.0",
+  "name": "smartthings-smartapp",
+  "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lanfear/smartthings-smartapp.git"
+  },
+	"description": "JavaScript/TypeScript library for using SmartThings APIs",
+	"author": "Joseph M. Deming",
+	"homepage": "https://github.com/lanfear/smartthings-smartapp",
+	"bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
     "concurrently": "^6.2.1"
   },
   "scripts": {
-    "client-start": "cd client && yarn client-start",
-    "client-build": "cd client && yarn client-build",
-    "client-test": "cd client && yarn client-test",
-    "client-eject": "cd client && yarn client-eject",
-    "server-start": "concurrently -n \"server:tunnel,server:host\" -c \"blue,cyan\" \"cd server && yarn tunnel\" \"cd server && yarn start\"",
-    "killNodeWin": "taskkill -F -IM node.exe",
-    "killNodeLinux": "killall .node.bin"
+    "inst": "concurrently -n \"client:install,server:install\" -c \"red,magenta\" \"cd client && yarn\" \"cd server && yarn\"",
+    "lint": "concurrently -n \"client:lint,server:lint\" -c \"white,gray\" \"cd client && yarn lint\" \"cd server && yarn lint\"",
+    "start": "concurrently -n \"server:tunnel,server:host,client:start\" -c \"blue,cyan,green\" \"cd server && yarn tunnel\" \"cd server && yarn start\" \"cd client && yarn start\"",
+    "kill-node-win": "taskkill -F -IM node.exe",
+    "kill-node-linux": "killall .node.bin"
   }
 }

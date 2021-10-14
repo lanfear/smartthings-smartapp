@@ -1,7 +1,16 @@
 {
-  "name": "rule-helper",
-  "version": "0.1.0",
+  "name": "smartthings-smartapp",
+  "version": "1.0.0",
   "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lanfear/smartthings-smartapp.git"
+  },
+	"description": "JavaScript/TypeScript library for using SmartThings APIs",
+	"author": "Joseph M. Deming",
+	"homepage": "https://github.com/lanfear/smartthings-smartapp",
+	"bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
     "@smartthings/core-sdk": "^1.10.0",
     "ace-builds": "^1.4.12",
@@ -36,17 +45,18 @@
     "eslint-plugin-prefer-arrow": "^1.2.3"
   },
   "scripts": {
-    "client-start": "react-scripts start",
-    "client-build": "react-scripts build",
-    "client-test": "react-scripts test",
-    "client-eject": "react-scripts eject",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix"
   },
   "eslintConfig": {
     "ignorePatterns": [
       "node_modules/",
-      "data/"
+      "data/",
+      "build/"
     ],
     "extends": [
       "techsmith/es6",

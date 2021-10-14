@@ -13,16 +13,20 @@
 	"pages.mainPage.settings.rules.description": "",
 
 	"pages.rulesMainPage.name": "Single Room Daylight/Nightlight Controller",
+
+	"pages.rulesMainPage.sections.description.name": "Current Rule Descriptions (Updated On Save)",
+	"pages.rulesMainPage.sections.description.description": "",
+
 	"pages.rulesMainPage.sections.types.name": "Control Options",
 	"pages.rulesMainPage.sections.types.description": "Enable/Disable All Or Part Of Rules",
-	"pages.rulesMainPage.settings.enableAllRules.name": "Disable All Rules",
-	"pages.rulesMainPage.settings.enableAllRules.description": "Requires settings still applicable even if rules disabled",
-	"pages.rulesMainPage.settings.enableDaylightRule.name": "Disable The Daylight Rule Associated With The Config",
-	"pages.rulesMainPage.settings.enableDaylightRule.description": "Disabling Daylight or Nightlight rule will also disable transition rule",
-	"pages.rulesMainPage.settings.enableNightlightRule.name": "Disable The Nightlight Rule Associated With The Config",
-	"pages.rulesMainPage.settings.enableNightlightRule.description": "Disabling Daylight or Nightlight rule will also disable transition rule",
-	"pages.rulesMainPage.settings.enableIdleRule.name": "Disable The Idle Rule Associated With The Config",
-	"pages.rulesMainPage.settings.enableIdleRule.description": "Disables 'Turn of after no motion for XXX time' rule",
+	"pages.rulesMainPage.settings.enableAllRules.name": "Disable ⇔ Enable — All Rules",
+	"pages.rulesMainPage.settings.enableAllRules.description": "Required configuration settings below still must be configured even if rules disabled",
+	"pages.rulesMainPage.settings.enableDaylightRule.name": "Disable ⇔ Enable — The Daylight Rule",
+	"pages.rulesMainPage.settings.enableDaylightRule.description": "Disabling Daylight Rule will also disable Transition Rule",
+	"pages.rulesMainPage.settings.enableNightlightRule.name": "Disable ⇔ Enable — The Nightlight Rule",
+	"pages.rulesMainPage.settings.enableNightlightRule.description": "Disabling Nightlight Rule will also disable Transition Rule",
+	"pages.rulesMainPage.settings.enableIdleRule.name": "Disable ⇔ Enable — The Idle Rule",
+	"pages.rulesMainPage.settings.enableIdleRule.description": "Enables/Disables 'Turn off if no motion' rule",
 
 	"pages.rulesMainPage.sections.sensors.name": "Sensors",
 	"pages.rulesMainPage.sections.sensors.description": "Choose the motion detector to activate triggers",
@@ -32,7 +36,7 @@
 	"pages.rulesMainPage.settings.motionDurationDelay.description": "Number of seconds before configured lights will turn on",
 	"pages.rulesMainPage.settings.motionIdleTimeout.name": "Idle/Off Timeout in Seconds/Minutes",
 	"pages.rulesMainPage.settings.motionIdleTimeout.description": "Number of Seconds/Minutes before all lights will turn off",
-	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.name": "Seconds <==> Minutes",
+	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.name": "Seconds ⇔ Minutes",
 	"pages.rulesMainPage.settings.motionIdleTimeoutUnit.description": "Toggle 'off' to make timeout value above in seconds, toggle 'on' to make it in minutes",
 	"pages.rulesMainPage.settings.motionMultipleAll.name": "Require ALL for trigger (multiple sensors selected)",
 	"pages.rulesMainPage.settings.motionMultipleAll.description": "With multiple motion sensors selected, If 'on', ALL sensors will be required to be 'active' to trigger, default 'off' means ANY",
@@ -53,10 +57,13 @@
 	
 	"pages.rulesMainPage.sections.timings.name": "Timings",
 	"pages.rulesMainPage.sections.timings.description": "Adjust offsets from the default time ranges",
-	"pages.rulesMainPage.settings.dayStartOffset.name": "Start of Day Offset (Minutes +/- 8:00AM)",
-	"pages.rulesMainPage.settings.dayStartOffset.description": "Minutes +/- 8:00AM",
-	"pages.rulesMainPage.settings.dayNightOffset.name": "Day --> Night Offset (Minutes +/- 8:00PM)",
-	"pages.rulesMainPage.settings.dayNightOffset.description": "Minutes +/- 8:00PM",
-	"pages.rulesMainPage.settings.nightEndOffset.name": "End of Day Offset (Minutes +/- 8:00AM Next Day)",
-	"pages.rulesMainPage.settings.nightEndOffset.description": "Minutes +/- 8:00AM (Next Day)"
+	"pages.rulesMainPage.settings.dayStartOffsetTime.name": "Start of Day",
+	"pages.rulesMainPage.settings.dayStartOffsetTime.description": "",
+	"pages.rulesMainPage.settings.dayNightOffsetTime.name": "Day ⇨ Night",
+	"pages.rulesMainPage.settings.dayNightOffsetTime.description": "",
+	"pages.rulesMainPage.settings.nightEndOffsetTime.name": "End of Day (Do Not Choose Time >24h From Start)",
+	"pages.rulesMainPage.settings.nightEndOffsetTime.description": "",
+
+	"pages.rulesMainPage.settings.levelNotAuthorized.name": "Until you have saved this app at least once and authorized it's required scopes, this section cannot properly render because we cannot query your selected devices for information.\n\nSave the app and reload it to enable the ability to set specific levels for individual devices.",
+	"pages.rulesMainPage.settings.levelNotAuthorized.description": "This message only shows when the app is not fully authorized"
 }

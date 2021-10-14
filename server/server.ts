@@ -5,7 +5,7 @@ import {SceneSummary, Device, Rule} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 // import process from './provider/env';
-import smartAppControl from './provider/smartappControl';
+import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';

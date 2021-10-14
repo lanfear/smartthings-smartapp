@@ -1,4 +1,5 @@
-import {RuleRequest} from '@smartthings/core-sdk';
+import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
+import {DeviceContext} from '@smartthings/smartapp';
 
 export interface ISmartAppRuleMotion {
   valueType: string; // STValueType?
@@ -30,18 +31,29 @@ export interface ISmartAppRuleSwitchLevel {
   };
 }
 
-export interface ISmartAppRuleConfig {
-  [switchLevel: string]: ISmartAppRuleSwitchLevel[] | ISmartAppRuleSwitch [] | ISmartAppRuleMotion [];
-  dayNightOffset: ISmartAppRuleTimeOffset [];
-  nightEndOffset: ISmartAppRuleTimeOffset [];
-  dayStartOffset: ISmartAppRuleTimeOffset [];
-  dayControlSwitch: ISmartAppRuleSwitch []; // should be only 1, but it's an array
-  dayActiveSwitches: ISmartAppRuleSwitch [];
-  nightControlSwitch: ISmartAppRuleSwitch []; // should be only 1, but it's an array
-  nightActiveSwitches: ISmartAppRuleSwitch [];
-  motionSensor: ISmartAppRuleMotion [];
-  motionIdleTimeout: ISmartAppRuleTimeOffset[];
-  motionDurationDelay: ISmartAppRuleTimeOffset[];
+export interface ISmartAppRuleConfigValues {
+  enableAllRules: boolean;
+  enableDaylightRule: boolean;
+  enableNightlightRule: boolean;
+  enableIdleRule: boolean;
+  motionSensors: DeviceContext[];
+  motionMultipleAll: boolean;
+  motionIdleTimeout: number;
+  motionIdleTimeoutUnit: IntervalUnit;
+  motionDurationDelay: number;
+  dayControlSwitch: DeviceContext; // should be only 1, but it's an array
+  dayActiveSwitches: DeviceContext[];
+  nightControlSwitch: DeviceContext; // should be only 1, but it's an array
+  nightActiveSwitches: DeviceContext[];
+  dayNightOffset: number;
+  nightEndOffset: number;
+  dayStartOffset: number;
+}
+
+export interface ISmartAppRuleSwitchLevelConfig {
+  deviceId: string;
+  switchDayLevel: number;
+  switchNightLevel: number;
 }
 
 export interface RuleStoreInfo {
