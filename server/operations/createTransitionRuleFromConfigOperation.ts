@@ -17,16 +17,16 @@ const createTransitionRuleFromConfig = (
   nightActiveSwitchOnDeviceIds: string[]
 ): RuleRequest => {
   // get active day switches that are not also night switches
-  const dayOnlyActiveSwitchId = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
+  const dayOnlyActiveSwitchIds = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
   const switchOnConditions = dayActiveSwitchDeviceIds.map(s => generateConditionDeviceOn(s));
-  const switchOffActions = generateActionSwitchOff(dayOnlyActiveSwitchId);
+  const switchOffActions = dayOnlyActiveSwitchIds.length > 0 ? [generateActionSwitchOff(dayOnlyActiveSwitchIds)] : [];
   const switchDimmableActions = nightActiveSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, global.rule.default.switchLevelRate));
   const switchOnActions = nightActiveSwitchOnDeviceIds.map(s => generateActionSwitchOn(s));
 
   const triggerActions = [{
     if: {
       or: switchOnConditions,
-      then: [switchOffActions].concat(switchDimmableActions).concat(switchOnActions)
+      then: switchOffActions.concat(switchDimmableActions).concat(switchOnActions)
     }
   }];
 
