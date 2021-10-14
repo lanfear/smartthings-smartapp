@@ -65,6 +65,12 @@ export interface ISmartAppRuleConfigValues {
   dayStartOffset: number;
 }
 
+export interface ISmartAppRuleSwitchLevelConfig {
+  deviceId: string;
+  switchDayLevel: number;
+  switchNightLevel: number;
+}
+
 export interface RuleStoreInfo {
   dayRuleId?: string;
   nightRuleId?: string;
