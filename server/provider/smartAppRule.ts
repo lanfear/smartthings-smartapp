@@ -189,12 +189,14 @@ export default new SmartApp()
     // i know this does something, even though apparently the typedefs say otherwise
     // eslint-disable-next-line @typescript-eslint/await-thenable
     await page.section('levels', async section => {
+      section.hideable(true);
+
       if (!context.isAuthenticated()) {
+        section
+          .paragraphSetting('levelNotAuthorized');
         // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
         return;
       }
-
-      section.hideable(true);
 
       const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
       const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
