@@ -37,7 +37,7 @@ dotenv.config({ path: `./${fs_1.default.existsSync('./.env.local') ? '.env.local
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 // import process from './provider/env';
-const smartappControl_1 = __importDefault(require("./provider/smartappControl"));
+const smartAppControl_1 = __importDefault(require("./provider/smartAppControl"));
 const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
 const db_1 = __importDefault(require("./provider/db"));
 const sse_1 = __importDefault(require("./provider/sse"));
@@ -50,7 +50,7 @@ server.use(express_1.default.json());
 // server.use(express.static(path.join(__dirname, '../public')));
 /* Handle lifecycle event calls from SmartThings */
 server.post('/smartapp/control', (req, res) => {
-    void smartappControl_1.default.handleHttpCallback(req, res);
+    void smartAppControl_1.default.handleHttpCallback(req, res);
 });
 server.post('/smartapp/rule', (req, res) => {
     void smartAppRule_1.default.handleHttpCallback(req, res);
@@ -69,7 +69,7 @@ server.get('/app', (_, res) => {
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.get('/app/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e;
-    const context = yield smartappControl_1.default.withContext(req.params.id);
+    const context = yield smartAppControl_1.default.withContext(req.params.id);
     const options = {
         installedAppId: req.params.id,
         scenes: [],
@@ -111,24 +111,24 @@ server.get('/app/:id', (req, res) => __awaiter(void 0, void 0, void 0, function*
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/scenes/:sceneId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartappControl_1.default.withContext(req.params.id);
+    const context = yield smartAppControl_1.default.withContext(req.params.id);
     const result = yield context.api.scenes.execute(req.params.sceneId);
     res.send(result);
 }));
 /* Execute a device command */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/devices/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartappControl_1.default.withContext(req.params.id);
+    const context = yield smartAppControl_1.default.withContext(req.params.id);
     const result = yield context.api.devices.executeCommand(req.params.deviceId, req.body);
     res.send(result);
 }));
 server.post('/app/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartappControl_1.default.withContext(req.params.id);
+    const context = yield smartAppControl_1.default.withContext(req.params.id);
     const result = yield context.api.rules.create(req.body);
     res.send(result);
 }));
 server.delete('/app/:id/rule/:ruleId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartappControl_1.default.withContext(req.params.id);
+    const context = yield smartAppControl_1.default.withContext(req.params.id);
     yield context.api.rules.delete(req.params.ruleId);
     res.statusCode = http_status_codes_1.StatusCodes.NO_CONTENT;
     res.send();
