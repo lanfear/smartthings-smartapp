@@ -43,7 +43,7 @@
     "build": "tsc",
     "prod": "node build/server.js",
     "start": "node --loader ts-node/esm ./server.ts",
-    "tunnel": "ngrok http 9790 --log=stdout"
+    "tunnel": "ngrok http YOURPORTFROMENVCONFHERE --log=stdout"
   },
   "eslintConfig": {
     "ignorePatterns": [
