@@ -1,0 +1,31 @@
+{
+    "name": "If (L == R) -> (wait x time) -> Execute command",
+    "actions": [
+        {
+            "if": {
+                "equals": {
+                    "left": {},
+                    "right": {}
+                },
+                "then": [
+                    {
+                        "sleep": {
+                            "duration": {
+                                "value": {
+                                    "integer": "{{ timeValue }}"
+                                },
+                                "unit": "{{ timeUnit }}"
+                            }
+                        }
+                    },
+                    {
+                        "command": {
+                            "devices": [],
+                            "commands": []
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

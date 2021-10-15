@@ -1,0 +1,10 @@
+{
+	"name": "Set location mode",
+	"actions": [
+		{
+			"location": {
+				"mode": "{{ locationModeId }}"
+			}
+		}
+	]
+}

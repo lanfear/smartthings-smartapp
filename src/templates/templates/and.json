@@ -1,0 +1,27 @@
+{
+	"name": "If (a == b && !x == y) -> Then(z) -> Else(w)",
+	"actions": [
+		{
+			"if": {
+				"and": [
+					{
+						"equals": {
+							"left": {},
+							"right": {}
+						}
+					},
+					{
+						"not": {
+							"equals": {
+								"left": {},
+								"right": {}
+							}
+						}
+					}
+				],
+				"then": [],
+				"else": []
+			}
+		}
+	]
+}
