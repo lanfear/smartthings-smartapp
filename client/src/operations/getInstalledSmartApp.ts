@@ -2,7 +2,7 @@ import {SceneSummary} from '@smartthings/core-sdk';
 import {IDevice, IRule} from '../types/smartthingsExtensions';
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
-  const response = await fetch(`http://localhost:9190/app/${isaId}`);
+  const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/app/${isaId}`);
   return await response.json() as IResponseSmartApp;
 };
 

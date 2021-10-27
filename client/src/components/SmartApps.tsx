@@ -46,7 +46,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   };
 
   const addRule = async (isaId: string): Promise<Rule> => {
-    const response = await fetch(`http://localhost:9190/app/${isaId}/rule`, {
+    const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/${isaId}/rule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
