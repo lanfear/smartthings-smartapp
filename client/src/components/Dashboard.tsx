@@ -76,7 +76,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
   }, []); // ignore installedAppId
 
   const deleteRule = async (isaId: string, ruleId: string): Promise<void> => {
-    await fetch(`http://localhost:9190/app/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
+    await fetch(`${process.env.REACT_APP_APIHOST as string}/app/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   return (

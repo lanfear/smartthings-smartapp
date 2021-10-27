@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
+import initLocale from './operations/initLocale';
 import {BrowserRouter as Router} from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
