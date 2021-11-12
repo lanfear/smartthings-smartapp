@@ -1,6 +1,8 @@
 import {Room as IRoom} from '@smartthings/core-sdk';
 import React from 'react';
 import styled from 'styled-components';
+import {useLocalStorage} from 'use-hooks';
+import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 
 const RoomTitle = styled.div`
     font-size: larger;
@@ -23,20 +25,29 @@ const RoomContainer = styled.div`
     border-radius: 4px;
 `;
 
-const RoomComponent: React.FC<IRoomProps> = ({Room: RoomProp}) => (
-  <RoomContainer>
-    <RoomTitle>
-      {RoomProp.name}
-    </RoomTitle>
-    {/* <span>{t('dashboard.switch.header.RoomId')}: {Room.RoomId}</span> */}
-    <RoomStatus>
-      {RoomProp.roomId}
-    </RoomStatus>
-  </RoomContainer>
-);
+const Room: React.FC<IRoomProps> = ({room}) => {
+  const [dashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const roomSwitches = dashboardData.switches.filter(d => d.roomId === room.roomId);
+
+  return (
+    <RoomContainer>
+      <RoomTitle>
+        {room.name}
+      </RoomTitle>
+      <RoomStatus>
+        {room.roomId}
+      </RoomStatus>
+      {roomSwitches.map(s => (
+        <span key={`switch-${s.deviceId as string}`}>
+          {s.label}
+        </span>
+      ))}
+    </RoomContainer>
+  );
+};
 
 export interface IRoomProps {
-  Room: IRoom;
+  room: IRoom;
 }
 
-export default RoomComponent;
+export default Room;

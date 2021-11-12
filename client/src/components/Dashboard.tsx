@@ -106,7 +106,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
       <DashboardRoomGrid>
         {dashboardData && dashboardData?.rooms?.map(r => (
           <React.Fragment key={`room-${r.roomId as string}`}>
-            <Room Room={r} />
+            <Room room={r} />
           </React.Fragment>
         ))}
       </DashboardRoomGrid>
