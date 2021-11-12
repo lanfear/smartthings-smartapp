@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import {useParams} from 'react-router-dom';
 import {useLocalStorage} from 'use-hooks';
 import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
-import {SceneSummary} from '@smartthings/core-sdk';
+import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Device from './Device';
+import Room from './Room';
 
 const DashboardTitle = styled.h2`
     font-weight: 600;
@@ -14,6 +15,13 @@ const DashboardTitle = styled.h2`
 
 const DashboardSubTitle = styled.h3`
     font-weight: 600;
+`;
+
+const DashboardRoomGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
 `;
 
 const DashboardSceneGrid = styled.div`
@@ -47,8 +55,14 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
 
   const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
 
-  const routeInfo = useParams<{installedAppId: string}>();
+  const routeInfo = useParams<{ installedAppId: string }>();
   installedAppId = routeInfo.installedAppId;
+
+  const sortRoom = (r: IRoom, l: IRoom): 1 | -1 | 0 => {
+    const rName = r.name?.toUpperCase() ?? ''; // ignore upper and lowercase
+    const lName = l.name?.toUpperCase() ?? ''; // ignore upper and lowercase
+    return rName < lName ? -1 : rName > lName ? 1 : 0;
+  };
 
   const sortLabel = (r: IDevice, l: IDevice): 1 | -1 | 0 => {
     const rName = r.label?.toUpperCase() ?? ''; // ignore upper and lowercase
@@ -65,6 +79,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
   useEffect(() => {
     const getDashboard = async (isaId: string): Promise<void> => {
       const smartAppData = await getInstalledSmartApp(isaId);
+      smartAppData.rooms = smartAppData.rooms?.sort(sortRoom) ?? [];
       smartAppData.scenes = smartAppData.scenes?.sort(sortScene) ?? [];
       smartAppData.switches = smartAppData.switches?.sort(sortLabel) ?? [];
       smartAppData.locks = smartAppData.locks?.sort(sortLabel) ?? [];
@@ -85,6 +100,16 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
       <DashboardTitle>
         {dashboardData.installedAppId}
       </DashboardTitle>
+      <DashboardSubTitle>
+        {t('dashboard.room.sectionName')}
+      </DashboardSubTitle>
+      <DashboardRoomGrid>
+        {dashboardData && dashboardData?.rooms?.map(r => (
+          <React.Fragment key={`room-${r.roomId as string}`}>
+            <Room Room={r} />
+          </React.Fragment>
+        ))}
+      </DashboardRoomGrid>
       <DashboardSubTitle>
         {t('dashboard.scene.sectionName')}
       </DashboardSubTitle>
@@ -191,7 +216,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
               {s.ownerId}
             </span>
             <button onClick={() => deleteRule(installedAppId, s.id)}>
-                            DELETE
+              DELETE
             </button>
           </React.Fragment>
         ))}

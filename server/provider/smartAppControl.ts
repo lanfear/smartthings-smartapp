@@ -13,7 +13,7 @@ const contextStore: any = new FileContextStore(db.dataDirectory);
 export default new SmartApp()
   .enableEventLogging()
   .configureI18n()
-  .permissions(['r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
+  .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
   .appId(process.env.CONTROL_APP_ID)
   .clientId(process.env.CONTROL_CLIENT_ID)
   .clientSecret(process.env.CONTROL_CLIENT_SECRET)
