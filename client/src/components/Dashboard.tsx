@@ -1,7 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 import {useParams} from 'react-router-dom';
+import {useLocalStorage} from 'use-hooks';
 import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
@@ -44,7 +45,7 @@ const DashboardGridColumnHeader = styled.span`
 const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
   const {t} = useTranslation();
 
-  const [dashboardData, setDashboardData] = useState<IResponseSmartApp>({} as IResponseSmartApp);
+  const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
 
   const routeInfo = useParams<{installedAppId: string}>();
   installedAppId = routeInfo.installedAppId;
