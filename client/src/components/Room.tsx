@@ -16,7 +16,7 @@ const RoomContainer = styled.div`
     flex-direction: column;
     align-content: center;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     border: 1px solid gray;
     border-radius: 4px;
 `;
@@ -25,7 +25,8 @@ const RoomDeviceGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 2px;
-    grid-auto-rows: minmax(50px, auto);
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {

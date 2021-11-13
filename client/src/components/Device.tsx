@@ -1,4 +1,5 @@
-import React from 'react';
+import React, {useState} from 'react';
+import {Popover} from 'react-tiny-popover';
 import styled from 'styled-components';
 import {IDevice} from '../types/smartthingsExtensions';
 
@@ -12,7 +13,13 @@ const DeviceStatus = styled.div`
     font-weight: 500;
 `;
 
-const DeviceContainer = styled.div`
+const DeviceIcon = styled.div`
+    font-size: larger;
+`;
+
+const DeviceContainer = styled.button`
+    min-width: 3rem;
+    min-height: 3rem;
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -23,7 +30,7 @@ const DeviceContainer = styled.div`
     border-radius: 4px;
 `;
 
-const LightContainer = styled(DeviceContainer)<{isLightOn: boolean}>`
+const LightContainer = styled(DeviceContainer) <{ isLightOn: boolean }>`
     ${props => props.isLightOn ? `
     box-shadow:
         0px 0px 10px 2px yellow, 
@@ -31,7 +38,7 @@ const LightContainer = styled(DeviceContainer)<{isLightOn: boolean}>`
     ` : ''}
 `;
 
-const MotionContainer = styled(DeviceContainer)<{isActive: boolean}>`
+const MotionContainer = styled(DeviceContainer) <{ isActive: boolean }>`
     ${props => props.isActive ? `
     box-shadow:
         0px 0px 10px 2px lightgreen, 
@@ -39,39 +46,75 @@ const MotionContainer = styled(DeviceContainer)<{isActive: boolean}>`
     ` : ''}
 `;
 
-const Device: React.FC<IDeviceProps> = ({device, deviceType}) => (
-  deviceType === 'Switch' ? (
-    <LightContainer isLightOn={device.value === 'on'}>
-      <DeviceTitle>
-        {device.label}
-      </DeviceTitle>
+const Device: React.FC<IDeviceProps> = ({device, deviceType}) => {
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const deviceComponent = deviceType === 'Switch' ? (
+    <LightContainer
+      onMouseEnter={() => setPopoverOpen(true)}
+      onMouseLeave={() => setPopoverOpen(false)}
+      onTouchStart={() => setPopoverOpen(true)}
+      onTouchEnd={() => setPopoverOpen(false)}
+      isLightOn={device.value === 'on'}
+    >
       {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceIcon>
+        💡
+      </DeviceIcon>
       <DeviceStatus>
         {device.value}
       </DeviceStatus>
     </LightContainer>
   ) : deviceType === 'Lock' ? (
-    <DeviceContainer>
-      <DeviceTitle>
-        {device.label}
-      </DeviceTitle>
+    <DeviceContainer
+      onMouseEnter={() => setPopoverOpen(true)}
+      onMouseLeave={() => setPopoverOpen(false)}
+      onTouchStart={() => setPopoverOpen(true)}
+      onTouchEnd={() => setPopoverOpen(false)}
+    >
       {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceIcon>
+        {device.value === 'locked' ? '🔒' : '🔓'}
+      </DeviceIcon>
       <DeviceStatus>
         {device.value}
       </DeviceStatus>
     </DeviceContainer>
   ) : (
-    <MotionContainer isActive={device.value === 'active'}>
-      <DeviceTitle>
-        {device.label}
-      </DeviceTitle>
+    <MotionContainer
+      onMouseEnter={() => setPopoverOpen(true)}
+      onMouseLeave={() => setPopoverOpen(false)}
+      onTouchStart={() => setPopoverOpen(true)}
+      onTouchEnd={() => setPopoverOpen(false)}
+      isActive={device.value === 'active'}
+    >
       {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
+      <DeviceIcon>
+        {device.value === 'active' ? '🏃' : '🧍'}
+      </DeviceIcon>
       <DeviceStatus>
         {device.value}
       </DeviceStatus>
     </MotionContainer>
-  )
-);
+  );
+
+  return (
+    <Popover
+      isOpen={popoverOpen}
+      positions={['top', 'left']} // if you'd like, you can limit the positions
+      padding={10} // adjust padding here!
+      reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
+      onClickOutside={() => setPopoverOpen(false)} // handle click events outside of the popover/target here!
+      content={() => (
+        <DeviceTitle>
+          {device.label}
+        </DeviceTitle>
+      )}
+    >
+      {deviceComponent}
+    </Popover>
+  );
+};
 
 export type DeviceType = 'Switch' | 'Lock' | 'Motion';
 
