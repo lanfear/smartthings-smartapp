@@ -3,15 +3,11 @@ import React from 'react';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
 import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
+import Device from './Device';
 
 const RoomTitle = styled.div`
     font-size: larger;
     font-weight: 700;
-`;
-
-const RoomStatus = styled.div`
-    font-size: smaller;
-    font-weight: 500;
 `;
 
 const RoomContainer = styled.div`
@@ -25,23 +21,47 @@ const RoomContainer = styled.div`
     border-radius: 4px;
 `;
 
+const RoomDeviceGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    grid-auto-rows: minmax(50px, auto);
+`;
+
 const Room: React.FC<IRoomProps> = ({room}) => {
   const [dashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
   const roomSwitches = dashboardData.switches.filter(d => d.roomId === room.roomId);
+  const roomLocks = dashboardData.locks.filter(d => d.roomId === room.roomId);
+  const roomMotion = dashboardData.motion.filter(d => d.roomId === room.roomId);
 
   return (
     <RoomContainer>
       <RoomTitle>
         {room.name}
       </RoomTitle>
-      <RoomStatus>
-        {room.roomId}
-      </RoomStatus>
-      {roomSwitches.map(s => (
-        <span key={`switch-${s.deviceId as string}`}>
-          {s.label}
-        </span>
-      ))}
+      <RoomDeviceGrid>
+        {roomSwitches.map(s => (
+          <Device
+            key={`switch-${s.deviceId as string}`}
+            device={s}
+            deviceType="Switch"
+          />
+        ))}
+        {roomLocks.map(s => (
+          <Device
+            key={`lock-${s.deviceId as string}`}
+            device={s}
+            deviceType="Lock"
+          />
+        ))}
+        {roomMotion.map(s => (
+          <Device
+            key={`motion-${s.deviceId as string}`}
+            device={s}
+            deviceType="Motion"
+          />
+        ))}
+      </RoomDeviceGrid>
     </RoomContainer>
   );
 };
