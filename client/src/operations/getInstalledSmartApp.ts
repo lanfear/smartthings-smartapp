@@ -1,4 +1,4 @@
-import {SceneSummary} from '@smartthings/core-sdk';
+import {Room, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice, IRule} from '../types/smartthingsExtensions';
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
@@ -8,6 +8,7 @@ const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> =
 
 export interface IResponseSmartApp {
   installedAppId: string;
+  rooms: Room[];
   scenes: SceneSummary[];
   switches: IDevice[];
   locks: IDevice[];

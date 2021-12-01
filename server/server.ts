@@ -1,7 +1,7 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {SceneSummary, Device, Rule} from '@smartthings/core-sdk';
+import {Room, SceneSummary, Device, Rule} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 // import process from './provider/env';
@@ -45,14 +45,17 @@ server.get('/app', (_, res) => {
 server.get('/app/:id', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
 
-  const options: { installedAppId: string; scenes: SceneSummary[]; switches: Device[]; locks: Device[]; motion: Device[]; rules: Rule[] } = {
+  const options: { installedAppId: string; rooms: Room[], scenes: SceneSummary[]; switches: Device[]; locks: Device[]; motion: Device[]; rules: Rule[] } = {
     installedAppId: req.params.id,
+    rooms: [],
     scenes: [],
     switches: [],
     locks: [],
     motion: [],
     rules: []
   };
+
+  options.rooms = await context.api.rooms.list() || [];
 
   if (context.configBooleanValue('scenes')) {
     options.scenes = await context.api.scenes?.list() || [];
