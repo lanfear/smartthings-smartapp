@@ -1,9 +1,11 @@
 import {Room as IRoom} from '@smartthings/core-sdk';
 import React from 'react';
+import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
 import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {IDevice} from '../types/smartthingsExtensions';
+import {ISSEEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 
@@ -68,11 +70,67 @@ const RoomControlDeviceLabel = styled.span`
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {
-  const [dashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IDevice|null);
+
   const roomSwitches = dashboardData.switches.filter(d => d.roomId === room.roomId);
   const roomLocks = dashboardData.locks.filter(d => d.roomId === room.roomId);
   const roomMotion = dashboardData.motion.filter(d => d.roomId === room.roomId);
+
+  const deviceEventSource = useEventSource({
+    source: `${process.env.REACT_APP_APIHOST as string}/events`
+  });
+
+  const handleSwitchDeviceEvent = (eventData: ISSEEvent): void => {
+    const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDashboardData({...dashboardData});
+    }
+  };
+
+  const handleLockDeviceEvent = (eventData: ISSEEvent): void => {
+    const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDashboardData({...dashboardData});
+    }
+  };
+
+  const handleMotionDeviceEvent = (eventData: ISSEEvent): void => {
+    const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDashboardData({...dashboardData});
+    }
+  };
+
+  useEventSourceListener<ISSEEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'lock',
+      listener: ({data}) => handleLockDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
+
+  useEventSourceListener<ISSEEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'motion',
+      listener: ({data}) => handleMotionDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
+
+  useEventSourceListener<ISSEEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'switch',
+      listener: ({data}) => handleSwitchDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
 
   return (
     <RoomContainer>
