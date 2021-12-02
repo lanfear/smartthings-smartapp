@@ -7,6 +7,7 @@ import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalle
 import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
+import {DeviceContextStore} from '../store/DeviceContextStore';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -90,7 +91,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
   };
 
   return (
-    <>
+    <DeviceContextStore value={{deviceData: dashboardData, setDeviceData: setDashboardData}}>
       <DashboardTitle>
         {dashboardData.installedAppId}
       </DashboardTitle>
@@ -179,7 +180,7 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
           </React.Fragment>
         ))}
       </DashboardRuleGrid>
-    </>
+    </DeviceContextStore>
   );
 };
 

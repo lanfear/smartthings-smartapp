@@ -1,13 +1,13 @@
-import {Room as IRoom} from '@smartthings/core-sdk';
 import React from 'react';
+import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
-import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {IDevice} from '../types/smartthingsExtensions';
 import {ISSEEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
+import {useDeviceContext} from '../store/DeviceContextStore';
 
 const RoomContainer = styled.div`
   display: flex;
@@ -70,12 +70,12 @@ const RoomControlDeviceLabel = styled.span`
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {
-  const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IDevice|null);
 
-  const roomSwitches = dashboardData.switches.filter(d => d.roomId === room.roomId);
-  const roomLocks = dashboardData.locks.filter(d => d.roomId === room.roomId);
-  const roomMotion = dashboardData.motion.filter(d => d.roomId === room.roomId);
+  const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
+  const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
+  const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
 
   const deviceEventSource = useEventSource({
     source: `${process.env.REACT_APP_APIHOST as string}/events`
@@ -85,7 +85,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDashboardData({...dashboardData});
+      setDeviceData({...deviceData});
     }
   };
 
@@ -93,7 +93,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDashboardData({...dashboardData});
+      setDeviceData({...deviceData});
     }
   };
 
@@ -101,7 +101,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDashboardData({...dashboardData});
+      setDeviceData({...deviceData});
     }
   };
 
