@@ -45,7 +45,7 @@ server.get('/app', (_, res) => {
 server.get('/app/:id', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
 
-  const options: { installedAppId: string; rooms: Room[], scenes: SceneSummary[]; switches: Device[]; locks: Device[]; motion: Device[]; rules: Rule[] } = {
+  const options: { installedAppId: string; rooms: Room[]; scenes: SceneSummary[]; switches: Device[]; locks: Device[]; motion: Device[]; rules: Rule[] } = {
     installedAppId: req.params.id,
     rooms: [],
     scenes: [],

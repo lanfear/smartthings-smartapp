@@ -1,13 +1,18 @@
 import FileContextStore from '@smartthings/file-context-store';
-import {SmartApp} from '@smartthings/smartapp';
+import {ContextStore, SmartApp} from '@smartthings/smartapp';
 import db from './db';
 import sse from './sse';
+import {ISSEEvent, ISSEEventType} from 'sharedContracts';
 
 /*
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
-const contextStore: any = new FileContextStore(db.dataDirectory);
+const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+
+const sendSSEEvent = (type: ISSEEventType, data: ISSEEvent): void => {
+  sse.send(JSON.stringify(data), type);
+};
 
 /* Define the SmartApp */
 export default new SmartApp()
@@ -41,41 +46,38 @@ export default new SmartApp()
     if (context.configBooleanValue('locks')) {
       await context.api.subscriptions.subscribeToCapability('lock', 'lock', 'lockHandler');
     }
-    if (context.configBooleanValue('motionSensor')) {
-      await context.api.subscriptions.subscribeToCapability('motionSensor', 'motionSensor', 'motionSensorHandler');
+    if (context.configBooleanValue('motion')) {
+      await context.api.subscriptions.subscribeToCapability('motionSensor', 'motion', 'motionSensorHandler');
     }
   })
 
 // Handler called when the status of a switch changes
   .subscribedEventHandler('switchHandler', (__context, event) => {
     if (event.componentId === 'main') {
-      sse.send(JSON.stringify({
+      sendSSEEvent('switch', {
         deviceId: event.deviceId,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value: event.value
-      }));
+        value: event.value as string
+      });
     }
   })
 
 // Handler called when the status of a lock changes
   .subscribedEventHandler('lockHandler', (__context, event) => {
     if (event.componentId === 'main') {
-      sse.send(JSON.stringify({
+      sendSSEEvent('lock', {
         deviceId: event.deviceId,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value: event.value
-      }));
+        value: event.value as string
+      });
     }
   })
 
 // Handler called when the status of a lock changes
   .subscribedEventHandler('motionSensorHandler', (__context, event) => {
     if (event.componentId === 'main') {
-      sse.send(JSON.stringify({
+      sendSSEEvent('motion', {
         deviceId: event.deviceId,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        value: event.value
-      }));
+        value: event.value as string
+      });
     }
   });
     
