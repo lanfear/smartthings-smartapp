@@ -4,7 +4,7 @@ import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
 import {IDevice} from '../types/smartthingsExtensions';
-import {ISSEEvent} from '../types/sharedContracts';
+import {ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import {useDeviceContext} from '../store/DeviceContextStore';
@@ -81,7 +81,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     source: `${process.env.REACT_APP_APIHOST as string}/events`
   });
 
-  const handleSwitchDeviceEvent = (eventData: ISSEEvent): void => {
+  const handleSwitchDeviceEvent = (eventData: ISseEvent): void => {
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
@@ -89,7 +89,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   };
 
-  const handleLockDeviceEvent = (eventData: ISSEEvent): void => {
+  const handleLockDeviceEvent = (eventData: ISseEvent): void => {
     const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
@@ -97,7 +97,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   };
 
-  const handleMotionDeviceEvent = (eventData: ISSEEvent): void => {
+  const handleMotionDeviceEvent = (eventData: ISseEvent): void => {
     const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
@@ -105,7 +105,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   };
 
-  useEventSourceListener<ISSEEvent>({
+  useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
     startOnInit: true,
     event: {
@@ -114,7 +114,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   }, [deviceEventSource]);
 
-  useEventSourceListener<ISSEEvent>({
+  useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
     startOnInit: true,
     event: {
@@ -123,7 +123,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   }, [deviceEventSource]);
 
-  useEventSourceListener<ISSEEvent>({
+  useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
     startOnInit: true,
     event: {
