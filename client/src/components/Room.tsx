@@ -1,11 +1,13 @@
-import {Room as IRoom} from '@smartthings/core-sdk';
 import React from 'react';
+import {Room as IRoom} from '@smartthings/core-sdk';
+import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
-import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {IDevice} from '../types/smartthingsExtensions';
+import {ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
+import {useDeviceContext} from '../store/DeviceContextStore';
 
 const RoomContainer = styled.div`
   display: flex;
@@ -68,11 +70,67 @@ const RoomControlDeviceLabel = styled.span`
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {
-  const [dashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IDevice|null);
-  const roomSwitches = dashboardData.switches.filter(d => d.roomId === room.roomId);
-  const roomLocks = dashboardData.locks.filter(d => d.roomId === room.roomId);
-  const roomMotion = dashboardData.motion.filter(d => d.roomId === room.roomId);
+
+  const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
+  const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
+  const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
+
+  const deviceEventSource = useEventSource({
+    source: `${process.env.REACT_APP_APIHOST as string}/events`
+  });
+
+  const handleSwitchDeviceEvent = (eventData: ISseEvent): void => {
+    const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDeviceData({...deviceData});
+    }
+  };
+
+  const handleLockDeviceEvent = (eventData: ISseEvent): void => {
+    const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDeviceData({...deviceData});
+    }
+  };
+
+  const handleMotionDeviceEvent = (eventData: ISseEvent): void => {
+    const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
+    if (targetDevice) {
+      targetDevice.value = eventData.value;
+      setDeviceData({...deviceData});
+    }
+  };
+
+  useEventSourceListener<ISseEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'lock',
+      listener: ({data}) => handleLockDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
+
+  useEventSourceListener<ISseEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'motion',
+      listener: ({data}) => handleMotionDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
+
+  useEventSourceListener<ISseEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'switch',
+      listener: ({data}) => handleSwitchDeviceEvent(data)
+    }
+  }, [deviceEventSource]);
 
   return (
     <RoomContainer>

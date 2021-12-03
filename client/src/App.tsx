@@ -8,9 +8,10 @@ import BasicTemplates from './components/BasicTemplates';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import SmartApps from './components/SmartApps';
 import Dashboard from './components/Dashboard';
+import {EventSourceProvider} from 'react-sse-hooks';
 
 const App: React.FC = () => (
-  <div>
+  <EventSourceProvider>
     <nav className="navbar ">
       <div className="container">
         <div className="navbar-brand">
@@ -112,7 +113,7 @@ const App: React.FC = () => (
         />
       </Switch>
     </section>
-  </div>
+  </EventSourceProvider>
 );
 
 export default App;
