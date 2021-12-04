@@ -1,4 +1,4 @@
-import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
+import {IntervalUnit, Action} from '@smartthings/core-sdk';
 import global from '../constants/global';
 import {
   generateConditionDeviceOff,
@@ -11,7 +11,6 @@ import {
 import {IRuleSwitchLevelInfo} from '../types';
 
 const createTriggerRuleFromConfig = (
-  ruleLabel: string,
   startOffset: number,
   endOffset: number,
   motionControlDeviceIds: string[],
@@ -20,7 +19,7 @@ const createTriggerRuleFromConfig = (
   activeSwitchOnDeviceIds: string[],
   motionMultipleAll: boolean,
   motionDurationDelay: number
-): RuleRequest => {
+): Action => {
   const betweenCondition = generateConditionBetween(startOffset, endOffset);
   const motionCondition = generateConditionMotion(motionControlDeviceIds, motionMultipleAll);
   const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
@@ -30,43 +29,37 @@ const createTriggerRuleFromConfig = (
 
   if (motionDurationDelay <= 0) {
     return {
-      name: `${ruleLabel}`,
-      actions: [{
-        if: {
-          and: [
-            betweenCondition,
-            motionCondition,
-            controlSwitchCondition
-          ],
-          then: switchDimmableActions.concat(switchOnActions)
-        }
-      }]
-    };
-  }
-
-  return {
-    name: `${ruleLabel}`,
-    actions: [{
       if: {
         and: [
           betweenCondition,
           motionCondition,
           controlSwitchCondition
         ],
-        then: [
-          sleepAction,
-          {
-            if: {
-              and: [
-                motionCondition,
-                controlSwitchCondition
-              ],
-              then: switchDimmableActions.concat(switchOnActions)
-            }
-          }
-        ]
+        then: switchDimmableActions.concat(switchOnActions)
       }
-    }]
+    };
+  }
+
+  return {
+    if: {
+      and: [
+        betweenCondition,
+        motionCondition,
+        controlSwitchCondition
+      ],
+      then: [
+        sleepAction,
+        {
+          if: {
+            and: [
+              motionCondition,
+              controlSwitchCondition
+            ],
+            then: switchDimmableActions.concat(switchOnActions)
+          }
+        }
+      ]
+    }
   };
 };
 
