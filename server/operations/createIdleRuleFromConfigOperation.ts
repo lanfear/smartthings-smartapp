@@ -1,6 +1,6 @@
-import {IntervalUnit, Action} from '@smartthings/core-sdk';
+import {IntervalUnit, Action, IfAction} from '@smartthings/core-sdk';
 import {
-  generateConditionNoMotion,
+  generateConditionsNoMotion,
   generateActionSwitchOff,
   generateActionSleep
 } from '../factories/ruleFactory';
@@ -12,32 +12,41 @@ const createIdleRuleFromConfig = (
   idleTimeoutUnit: IntervalUnit,
   motionMultipleAll: boolean
 ): Action => {
-  const idleCondition = generateConditionNoMotion(motionControlDeviceIds, motionMultipleAll);
+  const idleConditions = generateConditionsNoMotion(motionControlDeviceIds);
   const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit);
+
+  const finalIfAction: IfAction = {
+    then: [generateActionSwitchOff(activeSwitchDeviceIds)]
+  };
+
+  if (motionMultipleAll) {
+    finalIfAction.and = idleConditions;
+  } else {
+    finalIfAction.or = idleConditions;
+  }
     
   if (idleTimeoutDelay <= 0) {
     return {
-      if: {
-        and: [idleCondition],
-        then: [generateActionSwitchOff(activeSwitchDeviceIds)]
-      }
-    } as Action;
+      if: finalIfAction
+    };
   }
 
   const newRule: Action = {
     if: {
-      and: [idleCondition],
       then: [
         sleepAction,
         {
-          if: {
-            and: [idleCondition],
-            then: [generateActionSwitchOff(activeSwitchDeviceIds)]
-          }
+          if: finalIfAction
         }
       ]
     }
   };
+
+  if (motionMultipleAll) {
+    newRule.if.and = idleConditions;
+  } else {
+    newRule.if.or = idleConditions;
+  }
 
   return newRule;
 };
