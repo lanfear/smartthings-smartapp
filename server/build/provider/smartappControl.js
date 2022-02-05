@@ -21,11 +21,14 @@ const sse_1 = __importDefault(require("./sse"));
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
 const contextStore = new file_context_store_1.default(db_1.default.dataDirectory);
+const sendSSEEvent = (type, data) => {
+    sse_1.default.send(JSON.stringify(data), type);
+};
 /* Define the SmartApp */
 exports.default = new smartapp_1.SmartApp()
     .enableEventLogging()
     .configureI18n()
-    .permissions(['r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
+    .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
     .appId(process.env.CONTROL_APP_ID)
     .clientId(process.env.CONTROL_CLIENT_ID)
     .clientSecret(process.env.CONTROL_CLIENT_SECRET)
@@ -51,38 +54,35 @@ exports.default = new smartapp_1.SmartApp()
     if (context.configBooleanValue('locks')) {
         yield context.api.subscriptions.subscribeToCapability('lock', 'lock', 'lockHandler');
     }
-    if (context.configBooleanValue('motionSensor')) {
-        yield context.api.subscriptions.subscribeToCapability('motionSensor', 'motionSensor', 'motionSensorHandler');
+    if (context.configBooleanValue('motion')) {
+        yield context.api.subscriptions.subscribeToCapability('motionSensor', 'motion', 'motionSensorHandler');
     }
 }))
     // Handler called when the status of a switch changes
     .subscribedEventHandler('switchHandler', (__context, event) => {
     if (event.componentId === 'main') {
-        sse_1.default.send(JSON.stringify({
+        sendSSEEvent('switch', {
             deviceId: event.deviceId,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             value: event.value
-        }));
+        });
     }
 })
     // Handler called when the status of a lock changes
     .subscribedEventHandler('lockHandler', (__context, event) => {
     if (event.componentId === 'main') {
-        sse_1.default.send(JSON.stringify({
+        sendSSEEvent('lock', {
             deviceId: event.deviceId,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             value: event.value
-        }));
+        });
     }
 })
     // Handler called when the status of a lock changes
     .subscribedEventHandler('motionSensorHandler', (__context, event) => {
     if (event.componentId === 'main') {
-        sse_1.default.send(JSON.stringify({
+        sendSSEEvent('motion', {
             deviceId: event.deviceId,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             value: event.value
-        }));
+        });
     }
 });
 // // Configuration page definition

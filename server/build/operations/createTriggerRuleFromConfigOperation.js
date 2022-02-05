@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_sdk_1 = require("@smartthings/core-sdk");
 const global_1 = __importDefault(require("../constants/global"));
 const ruleFactory_1 = require("../factories/ruleFactory");
-const createTriggerRuleFromConfig = (ruleLabel, startOffset, endOffset, motionControlDeviceIds, controlDeviceId, activeSwitchLevelDeviceLevelMap, activeSwitchOnDeviceIds, motionMultipleAll, motionDurationDelay) => {
+const _24hours = 24 * 60;
+const createTriggerRuleFromConfig = (startOffset, endOffset, motionControlDeviceIds, controlDeviceId, activeSwitchLevelDeviceLevelMap, activeSwitchOnDeviceIds, motionMultipleAll, motionDurationDelay) => {
+    if (endOffset < startOffset) {
+        endOffset += _24hours;
+    }
     const betweenCondition = (0, ruleFactory_1.generateConditionBetween)(startOffset, endOffset);
     const motionCondition = (0, ruleFactory_1.generateConditionMotion)(motionControlDeviceIds, motionMultipleAll);
     const controlSwitchCondition = (0, ruleFactory_1.generateConditionDeviceOff)(controlDeviceId);
@@ -15,42 +19,36 @@ const createTriggerRuleFromConfig = (ruleLabel, startOffset, endOffset, motionCo
     const sleepAction = (0, ruleFactory_1.generateActionSleep)(motionDurationDelay, core_sdk_1.IntervalUnit.Second);
     if (motionDurationDelay <= 0) {
         return {
-            name: `${ruleLabel}`,
-            actions: [{
+            if: {
+                and: [
+                    betweenCondition,
+                    motionCondition,
+                    controlSwitchCondition
+                ],
+                then: switchDimmableActions.concat(switchOnActions)
+            }
+        };
+    }
+    return {
+        if: {
+            and: [
+                betweenCondition,
+                motionCondition,
+                controlSwitchCondition
+            ],
+            then: [
+                sleepAction,
+                {
                     if: {
                         and: [
-                            betweenCondition,
                             motionCondition,
                             controlSwitchCondition
                         ],
                         then: switchDimmableActions.concat(switchOnActions)
                     }
-                }]
-        };
-    }
-    return {
-        name: `${ruleLabel}`,
-        actions: [{
-                if: {
-                    and: [
-                        betweenCondition,
-                        motionCondition,
-                        controlSwitchCondition
-                    ],
-                    then: [
-                        sleepAction,
-                        {
-                            if: {
-                                and: [
-                                    motionCondition,
-                                    controlSwitchCondition
-                                ],
-                                then: switchDimmableActions.concat(switchOnActions)
-                            }
-                        }
-                    ]
                 }
-            }]
+            ]
+        }
     };
 };
 exports.default = createTriggerRuleFromConfig;

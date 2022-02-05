@@ -1,39 +1,39 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ruleFactory_1 = require("../factories/ruleFactory");
-const createIdleRuleFromConfig = (ruleLabel, motionControlDeviceIds, activeSwitchDeviceIds, idleTimeoutDelay, idleTimeoutUnit, motionMultipleAll) => {
-    const idleCondition = (0, ruleFactory_1.generateConditionNoMotion)(motionControlDeviceIds, motionMultipleAll);
+const createIdleRuleFromConfig = (motionControlDeviceIds, activeSwitchDeviceIds, idleTimeoutDelay, idleTimeoutUnit, motionMultipleAll) => {
+    const idleConditions = (0, ruleFactory_1.generateConditionsNoMotion)(motionControlDeviceIds);
     const sleepAction = (0, ruleFactory_1.generateActionSleep)(idleTimeoutDelay, idleTimeoutUnit);
+    const finalIfAction = {
+        then: [(0, ruleFactory_1.generateActionSwitchOff)(activeSwitchDeviceIds)]
+    };
+    if (motionMultipleAll) {
+        finalIfAction.and = idleConditions;
+    }
+    else {
+        finalIfAction.or = idleConditions;
+    }
     if (idleTimeoutDelay <= 0) {
         return {
-            name: `${ruleLabel}`,
-            actions: [{
-                    if: {
-                        and: [idleCondition],
-                        then: [(0, ruleFactory_1.generateActionSwitchOff)(activeSwitchDeviceIds)]
-                    }
-                }]
+            if: finalIfAction
         };
     }
     const newRule = {
-        name: `${ruleLabel}`,
-        actions: [
-            {
-                if: {
-                    and: [idleCondition],
-                    then: [
-                        sleepAction,
-                        {
-                            if: {
-                                and: [idleCondition],
-                                then: [(0, ruleFactory_1.generateActionSwitchOff)(activeSwitchDeviceIds)]
-                            }
-                        }
-                    ]
+        if: {
+            then: [
+                sleepAction,
+                {
+                    if: finalIfAction
                 }
-            }
-        ]
+            ]
+        }
     };
+    if (motionMultipleAll) {
+        newRule.if.and = idleConditions;
+    }
+    else {
+        newRule.if.or = idleConditions;
+    }
     return newRule;
 };
 exports.default = createIdleRuleFromConfig;

@@ -24,7 +24,14 @@ const getDeviceConfigIfAuthenticated = (context, configId) => __awaiter(void 0, 
     if (!context.isAuthenticated()) {
         return null;
     }
-    return yield context.configDevices(configId);
+    try {
+        return yield context.configDevices(configId);
+    }
+    catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('get config failed even though isAuthenticated', e);
+        return null;
+    }
 });
 const getMinuteOffsetFromNoon = (timeString) => {
     if (!timeString || timeString === '') {

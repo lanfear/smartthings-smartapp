@@ -72,12 +72,14 @@ server.get('/app/:id', (req, res) => __awaiter(void 0, void 0, void 0, function*
     const context = yield smartAppControl_1.default.withContext(req.params.id);
     const options = {
         installedAppId: req.params.id,
+        rooms: [],
         scenes: [],
         switches: [],
         locks: [],
         motion: [],
         rules: []
     };
+    options.rooms = (yield context.api.rooms.list()) || [];
     if (context.configBooleanValue('scenes')) {
         options.scenes = (yield ((_a = context.api.scenes) === null || _a === void 0 ? void 0 : _a.list())) || [];
     }
@@ -119,11 +121,13 @@ server.post('/app/:id/scenes/:sceneId', (req, res) => __awaiter(void 0, void 0, 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/devices/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
+    // someday we can do better than this, TS 4.17+ should support generic for Request type
     const result = yield context.api.devices.executeCommand(req.params.deviceId, req.body);
     res.send(result);
 }));
 server.post('/app/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
+    // someday we can do better than this, TS 4.17+ should support generic for Request type
     const result = yield context.api.rules.create(req.body);
     res.send(result);
 }));

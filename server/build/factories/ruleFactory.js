@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateActionSwitchOff = exports.generateActionSwitchOn = exports.generateActionSwitchLevel = exports.generateActionSleep = exports.generateConditionDeviceOn = exports.generateConditionDeviceOff = exports.generateConditionNoMotion = exports.generateConditionMotion = exports.generateConditionBetween = exports.generateConditionTrigger = void 0;
+exports.generateActionSwitchOff = exports.generateActionSwitchOn = exports.generateActionSwitchLevel = exports.generateActionSleep = exports.generateConditionDeviceOn = exports.generateConditionDeviceOff = exports.generateConditionsNoMotion = exports.generateConditionMotion = exports.generateConditionBetween = exports.generateConditionTrigger = void 0;
 /* eslint-disable id-blacklist, id-denylist */
 const core_sdk_1 = require("@smartthings/core-sdk");
 const global_1 = __importDefault(require("../constants/global"));
@@ -76,27 +76,24 @@ const generateConditionMotion = (motionDeviceIds, andMultiple) => {
     return andMultiple ? { and: motionConditions } : { or: motionConditions };
 };
 exports.generateConditionMotion = generateConditionMotion;
-const generateConditionNoMotion = (motionDeviceIds, andMultiple) => {
-    const motionConditions = motionDeviceIds.map(d => ({
-        equals: {
-            left: {
-                device: {
-                    devices: [
-                        d
-                    ],
-                    component: 'main',
-                    capability: 'motionSensor',
-                    attribute: 'motion'
-                }
-            },
-            right: {
-                string: 'inactive'
+const generateConditionsNoMotion = (motionDeviceIds) => motionDeviceIds.map(d => ({
+    equals: {
+        left: {
+            device: {
+                devices: [
+                    d
+                ],
+                component: 'main',
+                capability: 'motionSensor',
+                attribute: 'motion'
             }
+        },
+        right: {
+            string: 'inactive'
         }
-    }));
-    return andMultiple ? { and: motionConditions } : { or: motionConditions };
-};
-exports.generateConditionNoMotion = generateConditionNoMotion;
+    }
+}));
+exports.generateConditionsNoMotion = generateConditionsNoMotion;
 const generateConditionDeviceOff = (switchDeviceId) => ({
     equals: {
         left: {

@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const global_1 = __importDefault(require("../constants/global"));
 const ruleFactory_1 = require("../factories/ruleFactory");
-const createTransitionRuleFromConfig = (ruleLabel, transitionOffset, dayActiveSwitchDeviceIds, nightActiveSwitchLevelDeviceLevelMap, nightActiveSwitchOnDeviceIds) => {
+const createTransitionRuleFromConfig = (appKey, transitionOffset, dayActiveSwitchDeviceIds, nightActiveSwitchLevelDeviceLevelMap, nightActiveSwitchOnDeviceIds) => {
+    const ruleLabel = `${appKey}-transition-rule`;
     // get active day switches that are not also night switches
     const dayOnlyActiveSwitchIds = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
     const switchOnConditions = dayActiveSwitchDeviceIds.map(s => (0, ruleFactory_1.generateConditionDeviceOn)(s));
