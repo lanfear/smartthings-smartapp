@@ -10,6 +10,8 @@ import {
 } from '../factories/ruleFactory';
 import {IRuleSwitchLevelInfo} from '../types';
 
+const _24hours = 24 * 60;
+
 const createTriggerRuleFromConfig = (
   startOffset: number,
   endOffset: number,
@@ -20,6 +22,9 @@ const createTriggerRuleFromConfig = (
   motionMultipleAll: boolean,
   motionDurationDelay: number
 ): Action => {
+  if (endOffset < startOffset) {
+    endOffset += _24hours;
+  }
   const betweenCondition = generateConditionBetween(startOffset, endOffset);
   const motionCondition = generateConditionMotion(motionControlDeviceIds, motionMultipleAll);
   const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
