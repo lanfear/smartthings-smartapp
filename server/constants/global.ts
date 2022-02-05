@@ -3,7 +3,7 @@ export default {
     default: {
       switchDayLevel: 50,
       switchNightLevel: 15,
-      switchLevelRate: 20
+      switchLevelRate: 5000
     }
   }
 };
