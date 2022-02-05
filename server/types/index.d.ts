@@ -57,8 +57,10 @@ export interface ISmartAppRuleSwitchLevelConfig {
 }
 
 export interface RuleStoreInfo {
-  ruleId?: string;
-  rule: RuleRequest;
+  combinedRuleId?: string;
+  combinedRule: RuleRequest;
+  transitionRuleId?: string;
+  transitionRule: RuleRequest;
 }
 
 export interface IRuleSwitchLevelInfo {

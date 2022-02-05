@@ -1,4 +1,4 @@
-import {Action} from '@smartthings/core-sdk';
+import {RuleRequest} from '@smartthings/core-sdk';
 import {IRuleSwitchLevelInfo} from '../types';
 import global from '../constants/global';
 import {
@@ -10,11 +10,14 @@ import {
 } from '../factories/ruleFactory';
 
 const createTransitionRuleFromConfig = (
+  appKey: string,
   transitionOffset: number,
   dayActiveSwitchDeviceIds: string[],
   nightActiveSwitchLevelDeviceLevelMap: IRuleSwitchLevelInfo[],
   nightActiveSwitchOnDeviceIds: string[]
-): Action => {
+): RuleRequest => {
+  const ruleLabel = `${appKey}-transition-rule`;
+
   // get active day switches that are not also night switches
   const dayOnlyActiveSwitchIds = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
   const switchOnConditions = dayActiveSwitchDeviceIds.map(s => generateConditionDeviceOn(s));
@@ -29,7 +32,10 @@ const createTransitionRuleFromConfig = (
     }
   }];
 
-  return generateConditionTrigger(transitionOffset, triggerActions);
+  return {
+    name: `${ruleLabel}`,
+    actions: [generateConditionTrigger(transitionOffset, triggerActions)]
+  };
 };
 
 export default createTransitionRuleFromConfig;

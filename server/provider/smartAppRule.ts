@@ -1,6 +1,6 @@
 import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {Device, RuleRequest} from '@smartthings/core-sdk';
+import {Device, RuleRequest, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
@@ -29,7 +29,7 @@ const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
 
 const rulesAreModified = (ruleStoreKey: string, newRule: RuleRequest): boolean => {
   const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
-  return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.rule));
+  return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 };
 
 /* Define the SmartApp */
@@ -300,6 +300,7 @@ export default new SmartApp()
     ) || null;
 
     const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
+      appKey,
       newConfig.dayNightOffset,
       uniqueDaySwitches.map(s => s.deviceId),
       nightDimmableSwitchLevels,
@@ -307,20 +308,20 @@ export default new SmartApp()
     ) || null;
     /* eslint-enable no-mixed-operators */
 
-    const combinedRule = createCombinedRuleFromConfig(
+    const newCombinedRule = createCombinedRuleFromConfig(
       appKey,
       newDayRule,
       newNightRule,
-      newIdleRule,
-      newTransitionRule
+      newIdleRule
     );
 
-    if (rulesAreModified(appKey, combinedRule)) {
+    if (rulesAreModified(appKey, newCombinedRule)) {
       await submitRulesForSmartAppOperation(
         context.api,
         ruleStore,
         appKey,
-        combinedRule
+        newCombinedRule,
+        newTransitionRule
       );
     } else {
       // eslint-disable-next-line no-console

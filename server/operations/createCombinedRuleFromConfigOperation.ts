@@ -4,21 +4,16 @@ const createCombinedRuleFromConfig = (
   appKey: string,
   dayTriggerAction: Action,
   nightTriggerAction: Action,
-  idleAction: Action,
-  transitionAction: Action
+  idleAction: Action
 ): RuleRequest => {
   const ruleLabel = `${appKey}-rule`;
 
-  if (!dayTriggerAction && !nightTriggerAction && !idleAction && !transitionAction) {
+  if (!dayTriggerAction && !nightTriggerAction && !idleAction) {
     return null;
   }
 
-  // ugg, annoying, cant think of slicker way to chain these yet
-  const actions: Action[] = [];
-  dayTriggerAction && actions.push(dayTriggerAction);
-  nightTriggerAction && actions.push(nightTriggerAction);
-  idleAction && actions.push(idleAction);
-  transitionAction && actions.push(transitionAction);
+  // array of rules excluding nulls
+  const actions = [dayTriggerAction, nightTriggerAction, idleAction].filter(a => a);
 
   return {
     name: `${ruleLabel}`,
