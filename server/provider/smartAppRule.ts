@@ -1,6 +1,6 @@
 import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {RuleRequest} from '@smartthings/core-sdk';
+import {Device, RuleRequest, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
@@ -14,6 +14,7 @@ import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAp
 import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
+import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -26,13 +27,9 @@ const increment5 = 5;
 const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
 
-const rulesAreModified = (ruleStoreKey: string, newDayRule: RuleRequest, newNightRule: RuleRequest, newIdleRule: RuleRequest, newTransitionRule: RuleRequest): boolean => {
+const rulesAreModified = (ruleStoreKey: string, newRule: RuleRequest): boolean => {
   const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
-  return (!existingRules ||
-    JSON.stringify(newDayRule) !== JSON.stringify(existingRules.dayLightRule) ||
-    JSON.stringify(newNightRule) !== JSON.stringify(existingRules.nightLightRule) ||
-    JSON.stringify(newIdleRule) !== JSON.stringify(existingRules.idleRule) ||
-    JSON.stringify(newTransitionRule) !== JSON.stringify(existingRules.transitionRule));
+  return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 };
 
 /* Define the SmartApp */
@@ -198,7 +195,15 @@ export default new SmartApp()
         return;
       }
 
-      const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+      let allDimmableSwitches: Device[];
+      try {
+        allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('api lookup failed even though isAuthenticated', e);
+        return;
+      }
+      
       const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
       const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
@@ -265,7 +270,6 @@ export default new SmartApp()
 
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
-      `${appKey}-daylight`,
       newConfig.dayStartOffset,
       newConfig.dayNightOffset,
       newConfig.motionSensors.map(d => d.deviceId),
@@ -277,7 +281,6 @@ export default new SmartApp()
     ) || null;
 
     const newNightRule = nightRuleEnabled && createTriggerRuleFromConfig(
-      `${appKey}-nightlight`,
       newConfig.dayNightOffset,
       newConfig.nightEndOffset,
       newConfig.motionSensors.map(d => d.deviceId),
@@ -289,7 +292,6 @@ export default new SmartApp()
     ) || null;
 
     const newIdleRule = idleRuleEnabled && createIdleRuleFromConfig(
-      `${appKey}-idle`,
       newConfig.motionSensors.map(d => d.deviceId),
       uniqueSwitches.map(d => d.deviceId),
       newConfig.motionIdleTimeout,
@@ -298,7 +300,7 @@ export default new SmartApp()
     ) || null;
 
     const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
-      `${appKey}-trans`,
+      appKey,
       newConfig.dayNightOffset,
       uniqueDaySwitches.map(s => s.deviceId),
       nightDimmableSwitchLevels,
@@ -306,14 +308,19 @@ export default new SmartApp()
     ) || null;
     /* eslint-enable no-mixed-operators */
 
-    if (rulesAreModified(appKey, newDayRule, newNightRule, newIdleRule, newTransitionRule)) {
+    const newCombinedRule = createCombinedRuleFromConfig(
+      appKey,
+      newDayRule,
+      newNightRule,
+      newIdleRule
+    );
+
+    if (rulesAreModified(appKey, newCombinedRule)) {
       await submitRulesForSmartAppOperation(
         context.api,
         ruleStore,
         appKey,
-        newDayRule,
-        newNightRule,
-        newIdleRule,
+        newCombinedRule,
         newTransitionRule
       );
     } else {

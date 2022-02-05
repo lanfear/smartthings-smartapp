@@ -1,7 +1,7 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {Room, SceneSummary, Device, Rule} from '@smartthings/core-sdk';
+import {Room, SceneSummary, Device, Rule, Command, RuleRequest} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 // import process from './provider/env';
@@ -105,14 +105,16 @@ server.post('/app/:id/scenes/:sceneId', async (req, res) => {
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/app/:id/devices/:deviceId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
-  const result = await context.api.devices.executeCommand(req.params.deviceId, req.body);
+  // someday we can do better than this, TS 4.17+ should support generic for Request type
+  const result = await context.api.devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
 
 
 server.post('/app/:id/rule', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
-  const result = await context.api.rules.create(req.body);
+  // someday we can do better than this, TS 4.17+ should support generic for Request type
+  const result = await context.api.rules.create(req.body as RuleRequest);
   res.send(result);
 });
 

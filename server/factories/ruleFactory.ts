@@ -72,27 +72,23 @@ export const generateConditionMotion = (motionDeviceIds: string[], andMultiple: 
   return andMultiple ? {and: motionConditions} : {or: motionConditions};
 };
 
-export const generateConditionNoMotion = (motionDeviceIds: string[], andMultiple: boolean): Condition => {
-  const motionConditions: Condition[] = motionDeviceIds.map(d => ({
-    equals: {
-      left: {
-        device: {
-          devices: [
-            d
-          ],
-          component: 'main',
-          capability: 'motionSensor',
-          attribute: 'motion'
-        }
-      },
-      right: {
-        string: 'inactive'
+export const generateConditionsNoMotion = (motionDeviceIds: string[]): Condition[] => motionDeviceIds.map(d => ({
+  equals: {
+    left: {
+      device: {
+        devices: [
+          d
+        ],
+        component: 'main',
+        capability: 'motionSensor',
+        attribute: 'motion'
       }
+    },
+    right: {
+      string: 'inactive'
     }
-  }));
-
-  return andMultiple ? {and: motionConditions} : {or: motionConditions};
-};
+  }
+}));
 
 export const generateConditionDeviceOff = (switchDeviceId: string): Condition => ({
   equals: {

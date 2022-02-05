@@ -13,7 +13,13 @@ const getDeviceConfigIfAuthenticated = async (context: SmartAppContext, configId
   if (!context.isAuthenticated()) {
     return null;
   }
-  return await context.configDevices(configId);
+  try {
+    return await context.configDevices(configId);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log('get config failed even though isAuthenticated', e);
+    return null;
+  }
 };
 
 const getMinuteOffsetFromNoon = (timeString: string): number => {

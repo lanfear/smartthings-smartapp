@@ -10,12 +10,14 @@ import {
 } from '../factories/ruleFactory';
 
 const createTransitionRuleFromConfig = (
-  ruleLabel: string,
+  appKey: string,
   transitionOffset: number,
   dayActiveSwitchDeviceIds: string[],
   nightActiveSwitchLevelDeviceLevelMap: IRuleSwitchLevelInfo[],
   nightActiveSwitchOnDeviceIds: string[]
 ): RuleRequest => {
+  const ruleLabel = `${appKey}-transition-rule`;
+
   // get active day switches that are not also night switches
   const dayOnlyActiveSwitchIds = dayActiveSwitchDeviceIds.filter(ds => ![...nightActiveSwitchOnDeviceIds, ...nightActiveSwitchLevelDeviceLevelMap.map(ns => ns.deviceId)].some(ns => ns === ds));
   const switchOnConditions = dayActiveSwitchDeviceIds.map(s => generateConditionDeviceOn(s));
