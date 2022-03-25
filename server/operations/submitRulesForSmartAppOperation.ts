@@ -27,6 +27,8 @@ const submitRules = async (api: SmartThingsClient, ruleStore: JSONdb, smartAppLo
 
   // eslint-disable-next-line no-console
   console.log('Applied Rules', await api.rules.list());
+
+  ruleStore.set(smartAppLookupKey, newRuleInfo);
 };
 
 export default submitRules;
