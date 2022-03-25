@@ -1,5 +1,5 @@
 import React from 'react';
-import {Switch, Route, Link} from 'react-router-dom';
+import {Routes, Route, Link} from 'react-router-dom';
 import './App.scss';
 // Components
 import Home from './components/Home';
@@ -81,37 +81,32 @@ const App: React.FC = () => (
 
     </nav>
     <section className="container main-content">
-      <Switch>
+      <Routes>
         <Route
           path="/"
-          component={Home}
-          exact
+          element={<Home />}
         />
         <Route
-          path="/rule-examples"
-          component={RuleExamples}
-          exact
+          path="rule-examples"
+          element={<RuleExamples />}
         />
         <Route
-          path="/basic-templates"
-          component={BasicTemplates}
-          exact
+          path="basic-templates"
+          element={<BasicTemplates />}
         />
         <Route
-          path="/advanced-templates"
-          component={AdvancedTemplates}
-          exact
+          path="advanced-templates"
+          element={<AdvancedTemplates />}
         />
         <Route
-          path="/smartapps"
-          component={SmartApps}
-          exact
+          path="smartapps"
+          element={<SmartApps />}
         />
         <Route
-          path="/dashboard/:installedAppId"
-          component={Dashboard}
+          path="dashboard/:installedAppId"
+          element={<Dashboard />}
         />
-      </Switch>
+      </Routes>
     </section>
   </EventSourceProvider>
 );

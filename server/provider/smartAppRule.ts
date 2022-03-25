@@ -1,6 +1,6 @@
 import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {Device, RuleRequest, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
+import {Device, RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';

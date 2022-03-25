@@ -45,13 +45,13 @@ const DashboardGridColumnHeader = styled.span`
     justify-content: center;
 `;
 
-const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
+const Dashboard: React.FC = () => {
   const {t} = useTranslation();
 
   const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
 
   const routeInfo = useParams<{ installedAppId: string }>();
-  installedAppId = routeInfo.installedAppId;
+  const installedAppId = routeInfo.installedAppId ?? '';
 
   const sortRoom = (r: IRoom, l: IRoom): 1 | -1 | 0 => {
     const rName = r.name?.toUpperCase() ?? ''; // ignore upper and lowercase
@@ -183,9 +183,5 @@ const Dashboard: React.FC<IDashboardProps> = ({installedAppId}) => {
     </DeviceContextStore>
   );
 };
-
-export interface IDashboardProps {
-  installedAppId: string;
-}
 
 export default Dashboard;
