@@ -147,7 +147,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         <RoomControlDevices>
           {roomSwitches.map(s => (
             <Device
-              key={`switch-${s.deviceId as string}`}
+              key={`switch-${s.deviceId}`}
               device={s}
               deviceType="Switch"
               setActiveDevice={setActiveDevice}
@@ -155,7 +155,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
           ))}
           {roomLocks.map(s => (
             <Device
-              key={`lock-${s.deviceId as string}`}
+              key={`lock-${s.deviceId}`}
               device={s}
               deviceType="Lock"
               setActiveDevice={setActiveDevice}
@@ -163,7 +163,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
           ))}
           {roomMotion.map(s => (
             <Device
-              key={`motion-${s.deviceId as string}`}
+              key={`motion-${s.deviceId}`}
               device={s}
               deviceType="Motion"
               setActiveDevice={setActiveDevice}
