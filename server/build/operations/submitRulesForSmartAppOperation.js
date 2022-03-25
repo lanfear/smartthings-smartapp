@@ -29,6 +29,7 @@ const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transition
     newRuleInfo.transitionRuleId = newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id;
     // eslint-disable-next-line no-console
     console.log('Applied Rules', yield api.rules.list());
+    ruleStore.set(smartAppLookupKey, newRuleInfo);
 });
 exports.default = submitRules;
 //# sourceMappingURL=submitRulesForSmartAppOperation.js.map
