@@ -40,6 +40,13 @@ const DashboardRuleGrid = styled.div`
     grid-auto-rows: minmax(100px, auto);
 `;
 
+const DashboardAppGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+`;
+
 const DashboardGridColumnHeader = styled.span`
     display: flex;
     justify-content: center;
@@ -181,6 +188,36 @@ const Dashboard: React.FC = () => {
           </React.Fragment>
         ))}
       </DashboardRuleGrid>
+      <DashboardAppGrid>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.name')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ruleId')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.status')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ownerId')}
+        </DashboardGridColumnHeader>
+        {dashboardData && dashboardData.apps?.map(a => (
+          <React.Fragment key={`apps-${a.installedAppId}`}>
+            <span>
+              {a.displayName}
+            </span>
+            <span>
+              {a.appId}
+            </span>
+            <span>
+              {a.installedAppId}
+            </span>
+            <span>
+              {a.lastUpdatedDate}
+            </span>
+          </React.Fragment>
+        ))}
+      </DashboardAppGrid>
     </DeviceContextStore>
   );
 };
