@@ -9,6 +9,7 @@ import AdvancedTemplates from './components/AdvancedTemplates';
 import SmartApps from './components/SmartApps';
 import Dashboard from './components/Dashboard';
 import {EventSourceProvider} from 'react-sse-hooks';
+import Locations from './components/Locations';
 
 const App: React.FC = () => (
   <EventSourceProvider>
@@ -62,6 +63,12 @@ const App: React.FC = () => (
             >
                             Installed Apps
             </Link>
+            <Link
+              className="navbar-item"
+              to="/locations"
+            >
+                            Locations
+            </Link>
           </div>
 
           <div className="navbar-end">
@@ -101,6 +108,10 @@ const App: React.FC = () => (
         <Route
           path="smartapps"
           element={<SmartApps />}
+        />
+        <Route
+          path="locations"
+          element={<Locations />}
         />
         <Route
           path="dashboard/:installedAppId"
