@@ -50,8 +50,8 @@ const Dashboard: React.FC = () => {
 
   const [dashboardData, setDashboardData] = useLocalStorage('locationData', {} as IResponseLocation);
 
-  const routeInfo = useParams<{ installedAppId: string }>();
-  const installedAppId = routeInfo.installedAppId ?? '';
+  const routeInfo = useParams<{locationId: string}>();
+  const locationId = routeInfo.locationId ?? '';
 
   const sortRoom = (r: IRoom, l: IRoom): 1 | -1 | 0 => {
     const rName = r.name?.toUpperCase() ?? ''; // ignore upper and lowercase
@@ -72,8 +72,8 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const getDashboard = async (locationId: string): Promise<void> => {
-      const locationData = await getLocationData(locationId);
+    const getDashboard = async (location: string): Promise<void> => {
+      const locationData = await getLocationData(location);
       locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
       locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
       locationData.switches = locationData.switches?.sort(sortLabel) ?? [];
@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
       setDashboardData(locationData);
     };
 
-    void getDashboard(installedAppId);
+    void getDashboard(locationId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignore installedAppId
 

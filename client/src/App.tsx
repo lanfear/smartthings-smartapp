@@ -114,7 +114,7 @@ const App: React.FC = () => (
           element={<Locations />}
         />
         <Route
-          path="dashboard/:installedAppId"
+          path="dashboard/:locationId"
           element={<Dashboard />}
         />
       </Routes>
