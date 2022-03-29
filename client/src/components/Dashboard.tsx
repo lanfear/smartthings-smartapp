@@ -7,7 +7,7 @@ import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
 import {DeviceContextStore} from '../store/DeviceContextStore';
-import getLocationData, {IResponseLocation} from '../operations/getLocationData';
+import getLocationData, {IResponseLocation} from '../operations/getLocation';
 
 const filteredRooms = ['DO NOT USE'];
 

@@ -1,6 +1,6 @@
 // src/theme-context.js
 import React, {createContext, useContext} from 'react';
-import {IResponseLocation} from '../operations/getLocationData';
+import {IResponseLocation} from '../operations/getLocation';
 
 // create context
 const DeviceContext = createContext({} as IDeviceContextStore);
