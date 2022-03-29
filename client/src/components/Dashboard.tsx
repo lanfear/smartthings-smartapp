@@ -7,7 +7,7 @@ import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
 import {DeviceContextStore} from '../store/DeviceContextStore';
-import getLocationData, {IResponseLocation} from '../operations/getLocation';
+import getLocation, {IResponseLocation} from '../operations/getLocation';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const getDashboard = async (location: string): Promise<void> => {
-      const locationData = await getLocationData(location);
+      const locationData = await getLocation(location);
       locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
       locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
       locationData.switches = locationData.switches?.sort(sortLabel) ?? [];
@@ -86,8 +86,9 @@ const Dashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignore installedAppId
 
-  const deleteRule = async (isaId: string, ruleId: string): Promise<void> => {
-    await fetch(`${process.env.REACT_APP_APIHOST as string}/app/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
+  const deleteRule = async (location: string, ruleId: string): Promise<void> => {
+    // TODO: remove the app/id/rule/id delete endpoint and add one that takes location
+    await fetch(`${process.env.REACT_APP_APIHOST as string}/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   return (
@@ -174,7 +175,7 @@ const Dashboard: React.FC = () => {
             <span>
               {s.ownerId}
             </span>
-            <button onClick={() => deleteRule(installedAppId, s.id)}>
+            <button onClick={() => deleteRule(locationId, s.id)}>
               DELETE
             </button>
           </React.Fragment>

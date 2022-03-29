@@ -1,7 +1,7 @@
 import {InstalledApp, Room, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice, IRule} from '../types/smartthingsExtensions';
 
-const getLocationData = async (locationId: string): Promise<IResponseLocation> => {
+const getLocation = async (locationId: string): Promise<IResponseLocation> => {
   const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/location/${locationId}`);
   return await response.json() as IResponseLocation;
 };
@@ -17,4 +17,4 @@ export interface IResponseLocation {
   apps: InstalledApp[];
 }
 
-export default getLocationData;
+export default getLocation;
