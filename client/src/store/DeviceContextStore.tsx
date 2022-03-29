@@ -1,6 +1,6 @@
 // src/theme-context.js
 import React, {createContext, useContext} from 'react';
-import {IResponseSmartApp} from '../operations/getInstalledSmartApp';
+import {IResponseLocation} from '../operations/getLocationData';
 
 // create context
 const DeviceContext = createContext({} as IDeviceContextStore);
@@ -16,8 +16,8 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({value, c
 export const useDeviceContext = (): IDeviceContextStore => useContext(DeviceContext);
 
 export interface IDeviceContextStore {
-  deviceData: IResponseSmartApp;
-  setDeviceData: (value: IResponseSmartApp) => void;
+  deviceData: IResponseLocation;
+  setDeviceData: (value: IResponseLocation) => void;
 }
 
 export interface IDeviceContextStoreProps {

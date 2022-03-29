@@ -3,11 +3,11 @@ import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 import {useParams} from 'react-router-dom';
 import {useLocalStorage} from 'use-hooks';
-import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
 import {DeviceContextStore} from '../store/DeviceContextStore';
+import getLocationData, {IResponseLocation} from '../operations/getLocationData';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -48,7 +48,7 @@ const DashboardGridColumnHeader = styled.span`
 const Dashboard: React.FC = () => {
   const {t} = useTranslation();
 
-  const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const [dashboardData, setDashboardData] = useLocalStorage('locationData', {} as IResponseLocation);
 
   const routeInfo = useParams<{ installedAppId: string }>();
   const installedAppId = routeInfo.installedAppId ?? '';
@@ -72,14 +72,14 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const getDashboard = async (isaId: string): Promise<void> => {
-      const smartAppData = await getInstalledSmartApp(isaId);
-      smartAppData.rooms = smartAppData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
-      smartAppData.scenes = smartAppData.scenes?.sort(sortScene) ?? [];
-      smartAppData.switches = smartAppData.switches?.sort(sortLabel) ?? [];
-      smartAppData.locks = smartAppData.locks?.sort(sortLabel) ?? [];
-      smartAppData.motion = smartAppData.motion?.sort(sortLabel) ?? [];
-      setDashboardData(smartAppData);
+    const getDashboard = async (locationId: string): Promise<void> => {
+      const locationData = await getLocationData(locationId);
+      locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
+      locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
+      locationData.switches = locationData.switches?.sort(sortLabel) ?? [];
+      locationData.locks = locationData.locks?.sort(sortLabel) ?? [];
+      locationData.motion = locationData.motion?.sort(sortLabel) ?? [];
+      setDashboardData(locationData);
     };
 
     void getDashboard(installedAppId);
@@ -93,7 +93,7 @@ const Dashboard: React.FC = () => {
   return (
     <DeviceContextStore value={{deviceData: dashboardData, setDeviceData: setDashboardData}}>
       <DashboardTitle>
-        {dashboardData.installedAppId}
+        {dashboardData.locationId}
       </DashboardTitle>
       <DashboardSubTitle>
         {t('dashboard.room.sectionName')}
