@@ -5,6 +5,10 @@
         "switchCount": "Switch Count",
         "lockCount": "Lock Count"
     },
+    "location": {
+        "identifier":  "Location ID",
+        "name": "Location Name"
+    },
     "dashboard": {
         "scene": {
             "sectionName":  "Scenes",

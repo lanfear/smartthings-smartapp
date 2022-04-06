@@ -3,11 +3,11 @@ import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 import {useParams} from 'react-router-dom';
 import {useLocalStorage} from 'use-hooks';
-import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
 import {DeviceContextStore} from '../store/DeviceContextStore';
+import getLocation, {IResponseLocation} from '../operations/getLocation';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -40,6 +40,13 @@ const DashboardRuleGrid = styled.div`
     grid-auto-rows: minmax(100px, auto);
 `;
 
+const DashboardAppGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+`;
+
 const DashboardGridColumnHeader = styled.span`
     display: flex;
     justify-content: center;
@@ -48,10 +55,10 @@ const DashboardGridColumnHeader = styled.span`
 const Dashboard: React.FC = () => {
   const {t} = useTranslation();
 
-  const [dashboardData, setDashboardData] = useLocalStorage('smartAppState', {} as IResponseSmartApp);
+  const [dashboardData, setDashboardData] = useLocalStorage('locationData', {} as IResponseLocation);
 
-  const routeInfo = useParams<{ installedAppId: string }>();
-  const installedAppId = routeInfo.installedAppId ?? '';
+  const routeInfo = useParams<{locationId: string}>();
+  const locationId = routeInfo.locationId ?? '';
 
   const sortRoom = (r: IRoom, l: IRoom): 1 | -1 | 0 => {
     const rName = r.name?.toUpperCase() ?? ''; // ignore upper and lowercase
@@ -72,28 +79,29 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    const getDashboard = async (isaId: string): Promise<void> => {
-      const smartAppData = await getInstalledSmartApp(isaId);
-      smartAppData.rooms = smartAppData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
-      smartAppData.scenes = smartAppData.scenes?.sort(sortScene) ?? [];
-      smartAppData.switches = smartAppData.switches?.sort(sortLabel) ?? [];
-      smartAppData.locks = smartAppData.locks?.sort(sortLabel) ?? [];
-      smartAppData.motion = smartAppData.motion?.sort(sortLabel) ?? [];
-      setDashboardData(smartAppData);
+    const getDashboard = async (location: string): Promise<void> => {
+      const locationData = await getLocation(location);
+      locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
+      locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
+      locationData.switches = locationData.switches?.sort(sortLabel) ?? [];
+      locationData.locks = locationData.locks?.sort(sortLabel) ?? [];
+      locationData.motion = locationData.motion?.sort(sortLabel) ?? [];
+      setDashboardData(locationData);
     };
 
-    void getDashboard(installedAppId);
+    void getDashboard(locationId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // ignore installedAppId
 
-  const deleteRule = async (isaId: string, ruleId: string): Promise<void> => {
-    await fetch(`${process.env.REACT_APP_APIHOST as string}/app/${isaId}/rule/${ruleId}`, {method: 'DELETE'});
+  const deleteRule = async (location: string, ruleId: string): Promise<void> => {
+    // TODO: remove the app/id/rule/id delete endpoint and add one that takes location
+    await fetch(`${process.env.REACT_APP_APIHOST as string}/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   return (
     <DeviceContextStore value={{deviceData: dashboardData, setDeviceData: setDashboardData}}>
       <DashboardTitle>
-        {dashboardData.installedAppId}
+        {dashboardData.locationId}
       </DashboardTitle>
       <DashboardSubTitle>
         {t('dashboard.room.sectionName')}
@@ -174,12 +182,42 @@ const Dashboard: React.FC = () => {
             <span>
               {s.ownerId}
             </span>
-            <button onClick={() => deleteRule(installedAppId, s.id)}>
+            <button onClick={() => deleteRule(locationId, s.id)}>
               DELETE
             </button>
           </React.Fragment>
         ))}
       </DashboardRuleGrid>
+      <DashboardAppGrid>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.name')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ruleId')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.status')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ownerId')}
+        </DashboardGridColumnHeader>
+        {dashboardData && dashboardData.apps?.map(a => (
+          <React.Fragment key={`apps-${a.installedAppId}`}>
+            <span>
+              {a.displayName}
+            </span>
+            <span>
+              {a.appId}
+            </span>
+            <span>
+              {a.installedAppId}
+            </span>
+            <span>
+              {a.lastUpdatedDate}
+            </span>
+          </React.Fragment>
+        ))}
+      </DashboardAppGrid>
     </DeviceContextStore>
   );
 };

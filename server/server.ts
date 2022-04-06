@@ -1,7 +1,7 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {Room, SceneSummary, Device, Rule, Command, RuleRequest} from '@smartthings/core-sdk';
+import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
 // import process from './provider/env';
@@ -37,60 +37,43 @@ server.get('/app', (_, res) => {
   res.send(installedAppIds);
 });
 
-/**
- * Render the installed app instance control page
- */
-// would be neat to fix this, but appears handler for express cannot be async... but this functions as expected
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.get('/app/:id', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
+server.get('/locations', async (req, res) => {
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  res.json(await client.locations.list() || []);
+});
 
-  const options: { installedAppId: string; rooms: Room[]; scenes: SceneSummary[]; switches: Device[]; locks: Device[]; motion: Device[]; rules: Rule[] } = {
-    installedAppId: req.params.id,
-    rooms: [],
-    scenes: [],
-    switches: [],
-    locks: [],
-    motion: [],
-    rules: []
-  };
+server.get('/location/:id', async (req, res) => {
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
 
-  options.rooms = await context.api.rooms.list() || [];
+  const rooms = await client.rooms?.list(req.params.id) || [];
+  const scenes = await client.scenes?.list({locationId: [req.params.id]}) || [];
+  const switches = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'switch'}) || []).map(async (it: DeviceState) => {
+    const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
+    it.value = state.switch.value as string;
+    return it;
+  }));
+  const locks = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'lock'}) || []).map(async (it: DeviceState) => {
+    const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
+    it.value = state.lock.value as string;
+    return it;
+  }));
+  const motion = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'motionSensor'}) || []).map(async (it: DeviceState) => {
+    const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
+    it.value = state.motion.value as string;
+    return it;
+  }));
+  const rules = await client.rules?.list(req.params.id) || [];
+  const apps = await client.installedApps?.list({locationId: [req.params.id]}) || [];
 
-  if (context.configBooleanValue('scenes')) {
-    options.scenes = await context.api.scenes?.list() || [];
-  }
-
-  if (context.configBooleanValue('switches')) {
-    options.switches = await Promise.all((await context.api.devices?.list({capability: 'switch'}) || []).map(async (it: DeviceState) => {
-      const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
-      it.value = state.switch.value as string;
-      return it;
-    }));
-  }
-
-  if (context.configBooleanValue('locks')) {
-    options.locks = await Promise.all((await context.api.devices?.list({capability: 'lock'}) || []).map(async (it: DeviceState) => {
-      const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
-      it.value = state.lock.value as string;
-      return it;
-    }));
-  }
-
-  if (context.configBooleanValue('motion')) {
-    options.motion = await Promise.all((await context.api.devices?.list({capability: 'motionSensor'}) || []).map(async (it: DeviceState) => {
-      const state = await context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
-      it.value = state.motion.value as string;
-      return it;
-    }));
-  }
-
-  if (context.configBooleanValue('rules')) {
-    options.rules = await Promise.all((await context.api.rules?.list() || []));
-  }
-
-  // res.render('isa', options)
-  res.send(options);
+  res.json({
+    rooms,
+    scenes,
+    switches,
+    locks,
+    motion,
+    rules,
+    apps
+  });
 });
 
 /* Execute a scene */
