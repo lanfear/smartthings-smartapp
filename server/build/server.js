@@ -38,6 +38,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config({ path: `./${fs_1.default.existsSync('./.env.local') ? '.env.local' : '.env'}` });
+const core_sdk_1 = require("@smartthings/core-sdk");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 // import process from './provider/env';
@@ -66,53 +67,41 @@ server.get('/app', (_, res) => {
     const installedAppIds = db_1.default.listInstalledApps();
     res.send(installedAppIds);
 });
-/**
- * Render the installed app instance control page
- */
-// would be neat to fix this, but appears handler for express cannot be async... but this functions as expected
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.get('/app/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
-    const context = yield smartAppControl_1.default.withContext(req.params.id);
-    const options = {
-        installedAppId: req.params.id,
-        rooms: [],
-        scenes: [],
-        switches: [],
-        locks: [],
-        motion: [],
-        rules: []
-    };
-    options.rooms = (yield context.api.rooms.list()) || [];
-    if (context.configBooleanValue('scenes')) {
-        options.scenes = (yield ((_a = context.api.scenes) === null || _a === void 0 ? void 0 : _a.list())) || [];
-    }
-    if (context.configBooleanValue('switches')) {
-        options.switches = yield Promise.all(((yield ((_b = context.api.devices) === null || _b === void 0 ? void 0 : _b.list({ capability: 'switch' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
-            const state = yield context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
-            it.value = state.switch.value;
-            return it;
-        })));
-    }
-    if (context.configBooleanValue('locks')) {
-        options.locks = yield Promise.all(((yield ((_c = context.api.devices) === null || _c === void 0 ? void 0 : _c.list({ capability: 'lock' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
-            const state = yield context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
-            it.value = state.lock.value;
-            return it;
-        })));
-    }
-    if (context.configBooleanValue('motion')) {
-        options.motion = yield Promise.all(((yield ((_d = context.api.devices) === null || _d === void 0 ? void 0 : _d.list({ capability: 'motionSensor' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
-            const state = yield context.api.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
-            it.value = state.motion.value;
-            return it;
-        })));
-    }
-    if (context.configBooleanValue('rules')) {
-        options.rules = yield Promise.all(((yield ((_e = context.api.rules) === null || _e === void 0 ? void 0 : _e.list())) || []));
-    }
-    // res.render('isa', options)
-    res.send(options);
+server.get('/locations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+    res.json((yield client.locations.list()) || []);
+}));
+server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d, _e, _f, _g;
+    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+    const rooms = (yield ((_a = client.rooms) === null || _a === void 0 ? void 0 : _a.list(req.params.id))) || [];
+    const scenes = (yield ((_b = client.scenes) === null || _b === void 0 ? void 0 : _b.list({ locationId: [req.params.id] }))) || [];
+    const switches = yield Promise.all(((yield ((_c = client.devices) === null || _c === void 0 ? void 0 : _c.list({ locationId: [req.params.id], capability: 'switch' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+        const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
+        it.value = state.switch.value;
+        return it;
+    })));
+    const locks = yield Promise.all(((yield ((_d = client.devices) === null || _d === void 0 ? void 0 : _d.list({ locationId: [req.params.id], capability: 'lock' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+        const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
+        it.value = state.lock.value;
+        return it;
+    })));
+    const motion = yield Promise.all(((yield ((_e = client.devices) === null || _e === void 0 ? void 0 : _e.list({ locationId: [req.params.id], capability: 'motionSensor' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+        const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
+        it.value = state.motion.value;
+        return it;
+    })));
+    const rules = (yield ((_f = client.rules) === null || _f === void 0 ? void 0 : _f.list(req.params.id))) || [];
+    const apps = (yield ((_g = client.installedApps) === null || _g === void 0 ? void 0 : _g.list({ locationId: [req.params.id] }))) || [];
+    res.json({
+        rooms,
+        scenes,
+        switches,
+        locks,
+        motion,
+        rules,
+        apps
+    });
 }));
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
