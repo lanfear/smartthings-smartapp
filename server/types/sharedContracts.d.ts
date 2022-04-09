@@ -9,8 +9,17 @@ export type ResponseSwitches = (Device & {value: string})[];
 export type ResponseLocks = (Device & {value: string})[];
 export type ResponseMotion = (Device & {value: string})[];
 export type ResponseApps = (InstalledApp & {ruleSummary: IRuleSummary})[];
-export type ResponseRules = (Rule & {ruleSummary: IRuleSummary})[];
+export type ResponseRules = (Rule & {
+  executionLocation?: string;
+  ownerType?: string;
+  ownerId?: string;
+  creator?: string;
+  dateCreated?: Date;
+  dateUpdated?: Date;
+  ruleSummary: IRuleSummary;
+})[];
 export interface ResponseLocation {
+  locationId: string;
   rooms: ResponseRooms;
   scenes: ResponseScenes;
   switches: ResponseSwitches;

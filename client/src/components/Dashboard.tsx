@@ -1,12 +1,12 @@
-import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
+import {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
-import getLocation, {IResponseLocation} from '../operations/getLocation';
+import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
-import {IDevice} from '../types/smartthingsExtensions';
+import {ResponseLocation} from '../types/sharedContracts';
 import Room from './Room';
 
 const filteredRooms = ['DO NOT USE'];
@@ -52,7 +52,7 @@ const DashboardGridColumnHeader = styled.span`
     justify-content: center;
 `;
 
-const initialDashboardData: IResponseLocation = {
+const initialDashboardData: ResponseLocation = {
   locationId: '',
   rooms: [],
   scenes: [],
@@ -69,7 +69,7 @@ const sortRoom = (r: IRoom, l: IRoom): 1 | -1 | 0 => {
   return rName < lName ? -1 : rName > lName ? 1 : 0;
 };
 
-const sortLabel = (r: IDevice, l: IDevice): 1 | -1 | 0 => {
+const sortLabel = (r: Device, l: Device): 1 | -1 | 0 => {
   const rName = r.label?.toUpperCase() ?? ''; // ignore upper and lowercase
   const lName = l.label?.toUpperCase() ?? ''; // ignore upper and lowercase
   return rName < lName ? -1 : rName > lName ? 1 : 0;
@@ -81,7 +81,7 @@ const sortScene = (r: SceneSummary, l: SceneSummary): 1 | -1 | 0 => {
   return rName < lName ? -1 : rName > lName ? 1 : 0;
 };
 
-const getDashboard = async (location: string): Promise<IResponseLocation> => {
+const getDashboard = async (location: string): Promise<ResponseLocation> => {
   const locationData = await getLocation(location);
   locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
   locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
@@ -91,9 +91,9 @@ const getDashboard = async (location: string): Promise<IResponseLocation> => {
   return locationData;
 };
 
-const getFallbackData = (locationId: string): IResponseLocation => {
+const getFallbackData = (locationId: string): ResponseLocation => {
   const localStorageData = localStorage.getItem(swrKeySerializer(['locationData', locationId]));
-  return localStorageData ? JSON.parse(localStorageData) as IResponseLocation : {
+  return localStorageData ? JSON.parse(localStorageData) as ResponseLocation : {
     ...initialDashboardData,
     locationId
   };

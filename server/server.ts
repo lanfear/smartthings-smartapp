@@ -76,13 +76,14 @@ server.get('/location/:id', async (req, res) => {
   });
 
   const response: ResponseLocation = {
-    rooms,
-    scenes,
-    switches,
-    locks,
-    motion,
-    rules,
-    apps
+    locationId: req.params.id,
+    rooms: rooms,
+    scenes: scenes,
+    switches: switches,
+    locks: locks,
+    motion: motion,
+    rules: rules,
+    apps: apps
   };
   
   res.json(response);

@@ -1,5 +1,4 @@
-import {Room, SceneSummary} from '@smartthings/core-sdk';
-import {IDevice, IRule} from '../types/smartthingsExtensions';
+import {ResponseLocks, ResponseMotion, ResponseRooms, ResponseRules, ResponseScenes, ResponseSwitches} from '../types/sharedContracts';
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
   const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/app/${isaId}`);
@@ -8,12 +7,12 @@ const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> =
 
 export interface IResponseSmartApp {
   installedAppId: string;
-  rooms: Room[];
-  scenes: SceneSummary[];
-  switches: IDevice[];
-  locks: IDevice[];
-  motion: IDevice[];
-  rules: IRule[];
+  rooms: ResponseRooms;
+  scenes: ResponseScenes;
+  switches: ResponseSwitches;
+  locks: ResponseLocks;
+  motion: ResponseMotion;
+  rules: ResponseRules;
 }
 
 export default getInstalledSmartApp;
