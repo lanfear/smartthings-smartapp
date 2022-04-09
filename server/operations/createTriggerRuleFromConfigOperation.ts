@@ -8,8 +8,9 @@ import {
   generateActionSwitchLevel,
   generateActionSleep
 } from '../factories/ruleFactory';
-import {IRuleSwitchLevelInfo} from '../types';
+import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 
+// eslint-disable-next-line no-magic-numbers
 const _24hours = 24 * 60;
 
 const createTriggerRuleFromConfig = (
