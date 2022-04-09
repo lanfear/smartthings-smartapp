@@ -1,5 +1,6 @@
 import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
 import {DeviceContext} from '@smartthings/smartapp';
+import {IRuleSummary} from 'sharedContracts';
 
 export interface ISmartAppRuleMotion {
   valueType: string; // STValueType?
@@ -61,9 +62,5 @@ export interface RuleStoreInfo {
   combinedRule: RuleRequest;
   transitionRuleId?: string;
   transitionRule: RuleRequest;
-}
-
-export interface IRuleSwitchLevelInfo {
-  deviceId: string;
-  switchLevel: number;
+  newRuleSummary: IRuleSummary;
 }
