@@ -1,13 +1,13 @@
+import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import styled from 'styled-components';
 import {useParams} from 'react-router-dom';
-import {Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
+import styled from 'styled-components';
+import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
+import getLocation, {IResponseLocation} from '../operations/getLocation';
+import {DeviceContextStore} from '../store/DeviceContextStore';
 import {IDevice} from '../types/smartthingsExtensions';
 import Room from './Room';
-import {DeviceContextStore} from '../store/DeviceContextStore';
-import getLocation, {IResponseLocation} from '../operations/getLocation';
-import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -106,6 +106,7 @@ const Dashboard: React.FC = () => {
   const locationId = routeInfo.locationId ?? '';
   const {data: dashboardData, mutate: setDashboardData} = useSWR(['locationData', locationId], (_, l) => getDashboard(l), {
     revalidateOnMount: true,
+    dedupingInterval: 5000,
     fallbackData: getFallbackData(locationId)
   });
 
