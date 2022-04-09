@@ -4,17 +4,21 @@ dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}
 import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import express from 'express';
 import cors from 'cors';
+import {StatusCodes} from 'http-status-codes';
+import JSONdb from 'simple-json-db';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
-import {StatusCodes} from 'http-status-codes';
+import {RuleStoreInfo} from './types';
+import {ResponseLocation} from 'sharedContracts';
 
 const defaultPort = 3001;
 
 const server = express();
 const PORT = process.env.PORT || defaultPort;
+const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -62,10 +66,16 @@ server.get('/location/:id', async (req, res) => {
     it.value = state.motion.value as string;
     return it;
   }));
-  const rules = await client.rules?.list(req.params.id) || [];
-  const apps = await client.installedApps?.list({locationId: [req.params.id]}) || [];
+  const apps = (await client.installedApps?.list({locationId: [req.params.id]}) || []).map(a => {
+    const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`) as RuleStoreInfo;
+    return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
+  });
+  const rules = (await client.rules?.list(req.params.id) || []).map(r => {
+    const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === a.installedAppId));
+    return {...r, ruleSummary: linkedInstalledApp?.ruleSummary};
+  });
 
-  res.json({
+  const response: ResponseLocation = {
     rooms,
     scenes,
     switches,
@@ -73,7 +83,9 @@ server.get('/location/:id', async (req, res) => {
     motion,
     rules,
     apps
-  });
+  };
+  
+  res.json(response);
 });
 
 /* Execute a scene */
