@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
-import {IResponseLocation} from '../types/sharedContracts';
+import {IDevice, IResponseLocation, IRule} from '../types/sharedContracts';
 import Room from './Room';
 
 const filteredRooms = ['DO NOT USE'];
@@ -116,6 +116,15 @@ const Dashboard: React.FC = () => {
   };
 
   const renderedDashboardData = dashboardData || initialDashboardData;
+
+  const findRoomName = (rule: IRule): string | undefined => {
+    const motionDevice = renderedDashboardData.motion.find(m => rule.ruleSummary?.motionSensors.find((mm: IDevice): boolean => m.deviceId === mm.deviceId));
+    const room = renderedDashboardData.rooms.find(r => r.roomId === motionDevice?.roomId);
+    // eslint-disable-next-line no-console
+    console.log('rd', room);
+    return room?.name;
+  };
+
   return (
     <DeviceContextStore value={{deviceData: renderedDashboardData, setDeviceData: setDashboardData}}>
       <DashboardTitle>
@@ -198,7 +207,7 @@ const Dashboard: React.FC = () => {
               {s.executionLocation}
             </span>
             <span>
-              {s.ownerId}
+              {findRoomName(s)}
             </span>
             <button onClick={() => deleteRule(locationId, s.id)}>
               DELETE
