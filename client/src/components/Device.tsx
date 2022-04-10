@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {IDevice} from '../types/smartthingsExtensions';
+import {IDevice} from '../types/sharedContracts';
 
 const DeviceStatus = styled.div`
   font-size: smaller;

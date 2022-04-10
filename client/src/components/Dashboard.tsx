@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
-import {ResponseLocation} from '../types/sharedContracts';
+import {IResponseLocation} from '../types/sharedContracts';
 import Room from './Room';
 
 const filteredRooms = ['DO NOT USE'];
@@ -52,7 +52,7 @@ const DashboardGridColumnHeader = styled.span`
     justify-content: center;
 `;
 
-const initialDashboardData: ResponseLocation = {
+const initialDashboardData: IResponseLocation = {
   locationId: '',
   rooms: [],
   scenes: [],
@@ -81,7 +81,7 @@ const sortScene = (r: SceneSummary, l: SceneSummary): 1 | -1 | 0 => {
   return rName < lName ? -1 : rName > lName ? 1 : 0;
 };
 
-const getDashboard = async (location: string): Promise<ResponseLocation> => {
+const getDashboard = async (location: string): Promise<IResponseLocation> => {
   const locationData = await getLocation(location);
   locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
   locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
@@ -91,9 +91,9 @@ const getDashboard = async (location: string): Promise<ResponseLocation> => {
   return locationData;
 };
 
-const getFallbackData = (locationId: string): ResponseLocation => {
+const getFallbackData = (locationId: string): IResponseLocation => {
   const localStorageData = localStorage.getItem(swrKeySerializer(['locationData', locationId]));
-  return localStorageData ? JSON.parse(localStorageData) as ResponseLocation : {
+  return localStorageData ? JSON.parse(localStorageData) as IResponseLocation : {
     ...initialDashboardData,
     locationId
   };

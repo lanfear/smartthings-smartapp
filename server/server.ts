@@ -12,7 +12,7 @@ import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
 import {RuleStoreInfo} from './types';
-import {ResponseLocation} from 'sharedContracts';
+import {IResponseLocation} from 'sharedContracts';
 
 const defaultPort = 3001;
 
@@ -75,7 +75,7 @@ server.get('/location/:id', async (req, res) => {
     return {...r, ruleSummary: linkedInstalledApp?.ruleSummary};
   });
 
-  const response: ResponseLocation = {
+  const response: IResponseLocation = {
     locationId: req.params.id,
     rooms: rooms,
     scenes: scenes,

@@ -3,13 +3,11 @@
 import {DeviceContext} from '@smartthings/smartapp';
 import {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
 
-export type ResponseRooms = Room[];
-export type ResponseScenes = SceneSummary[];
-export type ResponseSwitches = (Device & {value: string})[];
-export type ResponseLocks = (Device & {value: string})[];
-export type ResponseMotion = (Device & {value: string})[];
-export type ResponseApps = (InstalledApp & {ruleSummary: IRuleSummary})[];
-export type ResponseRules = (Rule & {
+export type IRoom = Room;
+export type IScene = SceneSummary;
+export type IDevice = (Device & {value: string});
+export type IApp = (InstalledApp & {ruleSummary: IRuleSummary});
+export type IRule = (Rule & {
   executionLocation?: string;
   ownerType?: string;
   ownerId?: string;
@@ -17,16 +15,24 @@ export type ResponseRules = (Rule & {
   dateCreated?: Date;
   dateUpdated?: Date;
   ruleSummary: IRuleSummary;
-})[];
-export interface ResponseLocation {
+});
+
+export type IResponseRooms = IRoom[];
+export type IResponseScenes = IScene[];
+export type IResponseSwitches = IDevice[];
+export type IResponseLocks = IDevice[];
+export type IResponseMotion = IDevice[];
+export type IResponseApps = IApp[];
+export type IResponseRules = IRule[];
+export interface IResponseLocation {
   locationId: string;
-  rooms: ResponseRooms;
-  scenes: ResponseScenes;
-  switches: ResponseSwitches;
-  locks: ResponseLocks;
-  motion: ResponseMotion;
-  rules: ResponseRules;
-  apps: ResponseApps;
+  rooms: IResponseRooms;
+  scenes: IResponseScenes;
+  switches: IResponseSwitches;
+  locks: IResponseLocks;
+  motion: IResponseMotion;
+  rules: IResponseRules;
+  apps: IResponseApps;
 }
 
 
