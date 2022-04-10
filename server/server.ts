@@ -71,7 +71,7 @@ server.get('/location/:id', async (req, res) => {
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
   });
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
-    const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === a.installedAppId));
+    const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
     return {...r, ruleSummary: linkedInstalledApp?.ruleSummary};
   });
 
