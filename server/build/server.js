@@ -41,15 +41,17 @@ dotenv.config({ path: `./${fs_1.default.existsSync('./.env.local') ? '.env.local
 const core_sdk_1 = require("@smartthings/core-sdk");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const http_status_codes_1 = require("http-status-codes");
+const simple_json_db_1 = __importDefault(require("simple-json-db"));
 // import process from './provider/env';
 const smartAppControl_1 = __importDefault(require("./provider/smartAppControl"));
 const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
 const db_1 = __importDefault(require("./provider/db"));
 const sse_1 = __importDefault(require("./provider/sse"));
-const http_status_codes_1 = require("http-status-codes");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
+const ruleStore = new simple_json_db_1.default(db_1.default.ruleStorePath, { asyncWrite: true });
 server.use((0, cors_1.default)()); // TODO: this could be improved
 server.use(express_1.default.json());
 // server.use(express.static(path.join(__dirname, '../public')));
@@ -91,17 +93,25 @@ server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         it.value = state.motion.value;
         return it;
     })));
-    const rules = (yield ((_f = client.rules) === null || _f === void 0 ? void 0 : _f.list(req.params.id))) || [];
-    const apps = (yield ((_g = client.installedApps) === null || _g === void 0 ? void 0 : _g.list({ locationId: [req.params.id] }))) || [];
-    res.json({
-        rooms,
-        scenes,
-        switches,
-        locks,
-        motion,
-        rules,
-        apps
+    const apps = ((yield ((_f = client.installedApps) === null || _f === void 0 ? void 0 : _f.list({ locationId: [req.params.id] }))) || []).map(a => {
+        const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`);
+        return Object.assign(Object.assign({}, a), { ruleSummary: ruleStoreInfo === null || ruleStoreInfo === void 0 ? void 0 : ruleStoreInfo.newRuleSummary });
     });
+    const rules = ((yield ((_g = client.rules) === null || _g === void 0 ? void 0 : _g.list(req.params.id))) || []).map(r => {
+        const linkedInstalledApp = apps.find(a => { var _a; return (_a = a.ruleSummary) === null || _a === void 0 ? void 0 : _a.ruleIds.find(rid => rid === r.id); });
+        return Object.assign(Object.assign({}, r), { ruleSummary: linkedInstalledApp === null || linkedInstalledApp === void 0 ? void 0 : linkedInstalledApp.ruleSummary });
+    });
+    const response = {
+        locationId: req.params.id,
+        rooms: rooms,
+        scenes: scenes,
+        switches: switches,
+        locks: locks,
+        motion: motion,
+        rules: rules,
+        apps: apps
+    };
+    res.json(response);
 }));
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises

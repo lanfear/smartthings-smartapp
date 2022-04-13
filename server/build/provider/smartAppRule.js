@@ -50,6 +50,7 @@ const createTransitionRuleFromConfigOperation_1 = __importDefault(require("../op
 const readConfigFromContext_1 = __importStar(require("../operations/readConfigFromContext"));
 const uniqueDeviceFactory_1 = __importDefault(require("../factories/uniqueDeviceFactory"));
 const createCombinedRuleFromConfigOperation_1 = __importDefault(require("../operations/createCombinedRuleFromConfigOperation"));
+const createRuleSummaryFromConfigOperation_1 = __importDefault(require("../operations/createRuleSummaryFromConfigOperation"));
 dayjs_1.default.extend(customParseFormat_1.default);
 dayjs_1.default.extend(utc_1.default);
 const noonHour = 12;
@@ -272,8 +273,10 @@ exports.default = new smartapp_1.SmartApp()
     const newTransitionRule = transitionRuleEnabled && (0, createTransitionRuleFromConfigOperation_1.default)(appKey, newConfig.dayNightOffset, uniqueDaySwitches.map(s => s.deviceId), nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId)) || null;
     /* eslint-enable no-mixed-operators */
     const newCombinedRule = (0, createCombinedRuleFromConfigOperation_1.default)(appKey, newDayRule, newNightRule, newIdleRule);
+    const newRuleSummary = (0, createRuleSummaryFromConfigOperation_1.default)(newConfig, uniqueDaySwitches, dayDimmableSwitches, dayNonDimmableSwitches, dayDimmableSwitchLevels, uniqueNightSwitches, nightDimmableSwitches, nightNonDimmableSwitches, nightDimmableSwitchLevels, updateData.installedApp.installedAppId, [] // will be filled in
+    );
     if (rulesAreModified(appKey, newCombinedRule)) {
-        yield (0, submitRulesForSmartAppOperation_1.default)(context.api, ruleStore, appKey, newCombinedRule, newTransitionRule);
+        yield (0, submitRulesForSmartAppOperation_1.default)(context.api, ruleStore, appKey, newCombinedRule, newTransitionRule, newRuleSummary);
     }
     else {
         // eslint-disable-next-line no-console

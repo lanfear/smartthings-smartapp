@@ -3,11 +3,13 @@ import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
-import {IDevice} from '../types/smartthingsExtensions';
-import {ISseEvent} from '../types/sharedContracts';
+import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import {useDeviceContext} from '../store/DeviceContextStore';
+import SmartApp from './SmartApp';
+import getRulesFromSummary from '../operations/getRulesFromSummary';
+import Rule from './Rule';
 
 const RoomContainer = styled.div`
   display: flex;
@@ -71,11 +73,27 @@ const RoomControlDeviceLabel = styled.span`
 
 const Room: React.FC<IRoomProps> = ({room}) => {
   const {deviceData, setDeviceData} = useDeviceContext();
-  const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IDevice|null);
-
+  const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IDevice | null);
+  
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
   const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
+  const findRuleForRoom = (): IRule[] => {
+    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    // eslint-disable-next-line no-console
+    console.log('room has rules', iRoomRules);
+    return iRoomRules;
+  };
+  const findAppsForRoom = (): IApp[] => {
+    const iRoomApps = deviceData.apps.filter(a => a.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    // eslint-disable-next-line no-console
+    console.log('room has rules', iRoomApps);
+    return iRoomApps;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const roomRules = findRuleForRoom(); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const roomApps = findAppsForRoom();
 
   const deviceEventSource = useEventSource({
     source: `${process.env.REACT_APP_APIHOST as string}/events`
@@ -104,6 +122,10 @@ const Room: React.FC<IRoomProps> = ({room}) => {
       setDeviceData({...deviceData});
     }
   };
+
+  // const handleRuleDeviceEvent = (eventData: ISseRuleEvent): void => {
+  //   // ??
+  // }
 
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
@@ -169,6 +191,46 @@ const Room: React.FC<IRoomProps> = ({room}) => {
               setActiveDevice={setActiveDevice}
             />
           ))}
+          {roomApps.map(a => {
+            const ruleParts = getRulesFromSummary(a.ruleSummary);
+            return (
+              <>
+                <SmartApp
+                  key={`app-${a.installedAppId}`}
+                  app={a}
+                  isRuleEnabled={true}
+                />
+                {ruleParts.dayRule && (
+                  <Rule
+                    ruleType="Daylight"
+                    time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
+                    isRuleEnabled={true}
+                  />
+                )}
+                {ruleParts.transitionRule && (
+                  <Rule
+                    ruleType="Transition"
+                    time={ruleParts.transitionRule.time.format('HH:mm')}
+                    isRuleEnabled={true}
+                  />
+                )}
+                {ruleParts.nightRule && (
+                  <Rule
+                    ruleType="Nightlight"
+                    time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
+                    isRuleEnabled={true}
+                  />
+                )}
+                {ruleParts.idleRule && (
+                  <Rule
+                    ruleType="Idle"
+                    time={ruleParts.idleRule.motionTimeout}
+                    isRuleEnabled={true}
+                  />
+                )}
+              </>
+            );
+          })}
         </RoomControlDevices>
         <RoomControlDeviceLabel>
           {activeDevice?.label}

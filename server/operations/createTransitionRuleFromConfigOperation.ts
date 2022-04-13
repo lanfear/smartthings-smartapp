@@ -1,5 +1,5 @@
 import {RuleRequest} from '@smartthings/core-sdk';
-import {IRuleSwitchLevelInfo} from '../types';
+import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 import global from '../constants/global';
 import {
   generateConditionTrigger,

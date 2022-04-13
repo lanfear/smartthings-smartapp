@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core_sdk_1 = require("@smartthings/core-sdk");
 const global_1 = __importDefault(require("../constants/global"));
 const ruleFactory_1 = require("../factories/ruleFactory");
+// eslint-disable-next-line no-magic-numbers
 const _24hours = 24 * 60;
 const createTriggerRuleFromConfig = (startOffset, endOffset, motionControlDeviceIds, controlDeviceId, activeSwitchLevelDeviceLevelMap, activeSwitchOnDeviceIds, motionMultipleAll, motionDurationDelay) => {
     if (endOffset < startOffset) {

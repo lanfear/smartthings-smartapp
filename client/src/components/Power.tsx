@@ -2,30 +2,14 @@ import React, {useState} from 'react';
 import {Popover} from 'react-tiny-popover';
 import styled from 'styled-components';
 import {Room as IRoom} from '@smartthings/core-sdk';
+import {ControlContainer, ControlIcon} from '../factories/styleFactory';
 
 const DeviceTitle = styled.div`
   font-size: larger;
   font-weight: 700;
 `;
 
-const DeviceIcon = styled.div`
-  font-size: larger;
-`;
-
-const DeviceContainer = styled.button`
-  height: 3rem;
-  width: 3rem;
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  align-content: center;
-  align-items: center;
-  justify-content: space-evenly;
-  border: 1px solid gray;
-  border-radius: 4px;
-`;
-
-const PowerContainer = styled(DeviceContainer) <{ isPowerOn: boolean }>`
+const PowerContainer = styled(ControlContainer) <{ isPowerOn: boolean }>`
   ${props => props.isPowerOn ? `
   box-shadow:
       0px 0px 10px 2px yellow, 
@@ -44,9 +28,9 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn}) => {
       onTouchEnd={() => setPopoverOpen(false)}
       isPowerOn={isPowerOn}
     >
-      <DeviceIcon>
+      <ControlIcon>
         🔨
-      </DeviceIcon>
+      </ControlIcon>
     </PowerContainer>
   );
 

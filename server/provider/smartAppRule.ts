@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import JSONdb from 'simple-json-db';
-import {IRuleSwitchLevelInfo, RuleStoreInfo} from '../types/index';
+import {RuleStoreInfo} from '../types/index';
+import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 import global from '../constants/global';
 import db from './db';
 import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConfigOperation';
@@ -15,6 +16,7 @@ import createTransitionRuleFromConfig from '../operations/createTransitionRuleFr
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
+import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -315,13 +317,28 @@ export default new SmartApp()
       newIdleRule
     );
 
+    const newRuleSummary = createRuleSummaryFromConfig(
+      newConfig,
+      uniqueDaySwitches,
+      dayDimmableSwitches,
+      dayNonDimmableSwitches,
+      dayDimmableSwitchLevels,
+      uniqueNightSwitches,
+      nightDimmableSwitches,
+      nightNonDimmableSwitches,
+      nightDimmableSwitchLevels,
+      updateData.installedApp.installedAppId,
+      [] // will be filled in
+    );
+
     if (rulesAreModified(appKey, newCombinedRule)) {
       await submitRulesForSmartAppOperation(
         context.api,
         ruleStore,
         appKey,
         newCombinedRule,
-        newTransitionRule
+        newTransitionRule,
+        newRuleSummary
       );
     } else {
       // eslint-disable-next-line no-console
