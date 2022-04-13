@@ -1,6 +1,5 @@
 // types in this file should be copied to corresponding file in server directory as these
 // contracts are shared from server to client
-import {DeviceContext} from '@smartthings/smartapp';
 import {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
 
 export type IRoom = Room;
@@ -77,3 +76,12 @@ export interface IRuleSummary {
   installedAppId: string;
   ruleIds: string[];
 }
+
+// NOTE: this type comes from '@smartthings/smartapp' on the server-side, no need to bring in the entire pkg to get this data contract
+export interface DeviceContext {
+  deviceId: string;
+  name: string;
+  label: string;
+  componentId: string;
+}
+
