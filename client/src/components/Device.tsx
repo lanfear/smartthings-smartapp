@@ -1,30 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import {IDevice} from '../types/sharedContracts';
 
-const DeviceStatus = styled.div`
-  font-size: smaller;
-  font-weight: 500;
-`;
 
-const DeviceIcon = styled.div`
-  font-size: larger;
-`;
-
-const DeviceContainer = styled.button`
-  height: 3rem;
-  width: 3rem;
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  align-content: center;
-  align-items: center;
-  justify-content: space-evenly;
-  border: 1px solid gray;
-  border-radius: 4px;
-`;
-
-const LightContainer = styled(DeviceContainer) <{ isLightOn: boolean }>`
+const LightContainer = styled(ControlContainer) <{ isLightOn: boolean }>`
   ${props => props.isLightOn ? `
   box-shadow:
       0px 0px 10px 2px yellow, 
@@ -32,7 +12,7 @@ const LightContainer = styled(DeviceContainer) <{ isLightOn: boolean }>`
   ` : ''}
 `;
 
-const MotionContainer = styled(DeviceContainer) <{ isActive: boolean }>`
+const MotionContainer = styled(ControlContainer) <{ isActive: boolean }>`
   ${props => props.isActive ? `
   box-shadow:
       0px 0px 10px 2px lightgreen, 
@@ -49,28 +29,28 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice}) =
     isLightOn={device.value === 'on'}
   >
     {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
-    <DeviceIcon>
+    <ControlIcon>
       💡
-    </DeviceIcon>
-    <DeviceStatus>
+    </ControlIcon>
+    <ControlStatus>
       {device.value}
-    </DeviceStatus>
+    </ControlStatus>
   </LightContainer>
 ) : deviceType === 'Lock' ? (
-  <DeviceContainer
+  <ControlContainer
     onMouseEnter={() => setActiveDevice(device)}
     onMouseLeave={() => setActiveDevice(null)}
     onTouchStart={() => setActiveDevice(device)}
     onTouchEnd={() => setActiveDevice(null)}
   >
     {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
-    <DeviceIcon>
+    <ControlIcon>
       {device.value === 'locked' ? '🔒' : '🔓'}
-    </DeviceIcon>
-    <DeviceStatus>
+    </ControlIcon>
+    <ControlStatus>
       {device.value}
-    </DeviceStatus>
-  </DeviceContainer>
+    </ControlStatus>
+  </ControlContainer>
 ) : (
   <MotionContainer
     onMouseEnter={() => setActiveDevice(device)}
@@ -80,12 +60,12 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice}) =
     isActive={device.value === 'active'}
   >
     {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
-    <DeviceIcon>
+    <ControlIcon>
       {device.value === 'active' ? '🏃' : '🧍'}
-    </DeviceIcon>
-    <DeviceStatus>
+    </ControlIcon>
+    <ControlStatus>
       {device.value}
-    </DeviceStatus>
+    </ControlStatus>
   </MotionContainer>
 );
 
