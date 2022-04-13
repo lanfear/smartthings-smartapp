@@ -18,7 +18,7 @@ const core_sdk_1 = require("@smartthings/core-sdk");
 const sendSSEEvent = (data) => {
     sse_1.default.send(JSON.stringify(data), 'rule');
 };
-const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transitionRule) => __awaiter(void 0, void 0, void 0, function* () {
+const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transitionRule, newRuleSummary) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     /* eslint-disable no-console */
     console.log('Submitting Rules');
@@ -33,20 +33,23 @@ const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transition
     yield Promise.all(((yield ((_b = client.rules) === null || _b === void 0 ? void 0 : _b.list(locationId))) || [])
         .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
         .map((r) => __awaiter(void 0, void 0, void 0, function* () { return yield api.rules.delete(r.id, locationId); })));
-    // this object and the return from the rules calls below are currently unused... but the rule guid may be interesting to stash away someday
-    const newRuleInfo = {
-        combinedRule,
-        transitionRule
-    };
     const newCombinedRuleResponse = combinedRule && (yield client.rules.create(combinedRule, locationId)) || null;
-    newRuleInfo.combinedRuleId = newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id;
     const newTransitionRuleResponse = transitionRule && (yield client.rules.create(transitionRule, locationId)) || null;
-    newRuleInfo.transitionRuleId = newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id;
+    const newRuleIds = [newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id].filter(id => !!id);
+    newRuleSummary.ruleIds.push(...newRuleIds);
+    const newRuleInfo = {
+        combinedRule: combinedRule,
+        combinedRuleId: newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id,
+        transitionRule: transitionRule,
+        transitionRuleId: newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id,
+        newRuleSummary: newRuleSummary
+    };
     // eslint-disable-next-line no-console
     console.log('Applied Rules', yield api.rules.list());
     ruleStore.set(smartAppLookupKey, newRuleInfo);
     sendSSEEvent({
-        appId: smartAppLookupKey
+        appId: smartAppLookupKey,
+        ruleSummary: newRuleSummary
     });
 });
 exports.default = submitRules;
