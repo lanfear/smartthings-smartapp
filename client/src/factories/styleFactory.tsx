@@ -10,8 +10,8 @@ export const ControlStatus = styled.div`
 `;
 
 export const ControlContainer = styled.button`
-  height: 4rem;
-  width: 4rem;
+  height: 3.75rem;
+  width: 3.75rem;
   display: flex;
   flex: none;
   flex-direction: column;
