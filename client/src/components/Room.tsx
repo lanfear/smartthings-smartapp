@@ -59,6 +59,7 @@ const RoomControlDevices = styled.span`
   grid-row-start: 2;
   grid-row-end: 2;
   flex-wrap: wrap;
+  align-content: center;
 `;
 
 const RoomControlDeviceLabel = styled.span`
