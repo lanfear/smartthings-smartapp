@@ -1,4 +1,6 @@
 import React from 'react';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
@@ -10,6 +12,8 @@ import {useDeviceContext} from '../store/DeviceContextStore';
 import SmartApp from './SmartApp';
 import getRulesFromSummary from '../operations/getRulesFromSummary';
 import Rule from './Rule';
+
+dayjs.extend(isBetween);
 
 const RoomContainer = styled.div`
   display: flex;
@@ -81,20 +85,31 @@ const Room: React.FC<IRoomProps> = ({room}) => {
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
   const findRuleForRoom = (): IRule[] => {
     const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
-    // eslint-disable-next-line no-console
-    console.log('room has rules', iRoomRules);
     return iRoomRules;
   };
   const findAppsForRoom = (): IApp[] => {
     const iRoomApps = deviceData.apps.filter(a => a.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
-    // eslint-disable-next-line no-console
-    console.log('room has rules', iRoomApps);
     return iRoomApps;
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const roomRules = findRuleForRoom(); // eslint-disable-line @typescript-eslint/no-use-before-define
   const roomApps = findAppsForRoom();
+
+  const roomRuleSummaries = roomApps.map(a => getRulesFromSummary(a.ruleSummary));
+  const activeRuleControlSwitches = roomRuleSummaries.map(r => {
+    // eslint-disable-next-line no-console
+    if (r.dayRule && dayjs().utc().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
+      return r.dayRule.controlDevice;
+    }
+    if (r.nightRule && dayjs().utc().isBetween(r.nightRule.startTime, r.nightRule.endTime)) {
+      return r.nightRule.controlDevice;
+    }
+    return null;
+  }).filter(d => !!d);
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did!.deviceId));
 
   const deviceEventSource = useEventSource({
     source: `${process.env.REACT_APP_APIHOST as string}/events`
