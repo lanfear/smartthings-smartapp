@@ -189,6 +189,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
               device={s}
               deviceType="Switch"
               setActiveDevice={setActiveDevice}
+              isLocked={lockedDevices.some(d => d.deviceId === s.deviceId)}
             />
           ))}
           {roomLocks.map(s => (
@@ -218,6 +219,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 />
                 {ruleParts.dayRule && (
                   <Rule
+                    key={`rulepart-daylight-${a.installedAppId}`}
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={true}
@@ -225,6 +227,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 )}
                 {ruleParts.transitionRule && (
                   <Rule
+                    key={`rulepart-transition-${a.installedAppId}`}
                     ruleType="Transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
                     isRuleEnabled={true}
@@ -232,6 +235,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 )}
                 {ruleParts.nightRule && (
                   <Rule
+                    key={`rulepart-nightlight-${a.installedAppId}`}
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={true}
@@ -239,6 +243,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 )}
                 {ruleParts.idleRule && (
                   <Rule
+                    key={`rulepart-idle-${a.installedAppId}`}
                     ruleType="Idle"
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleEnabled={true}
