@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
 
@@ -22,9 +23,11 @@ const MotionContainer = styled(ControlContainer) <{ isActive: boolean }>`
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => deviceType === 'Switch' ? (
   <LightContainer
-    onMouseEnter={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    onTouchStart={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
     isLightOn={device.value === 'on'}
     isLocked={!!isLocked}
@@ -39,9 +42,11 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
   </LightContainer>
 ) : deviceType === 'Lock' ? (
   <ControlContainer
-    onMouseEnter={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    onTouchStart={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
   >
     {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
@@ -54,9 +59,11 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
   </ControlContainer>
 ) : (
   <MotionContainer
-    onMouseEnter={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    onTouchStart={() => setActiveDevice(device)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
     isActive={device.value === 'active'}
   >
@@ -75,7 +82,7 @@ export type DeviceType = 'Switch' | 'Lock' | 'Motion';
 export interface IDeviceProps {
   device: IDevice;
   deviceType: DeviceType;
-  setActiveDevice: (value: IDevice | null) => void;
+  setActiveDevice: (value: IActiveControl | null) => void;
   isLocked?: boolean;
 }
 

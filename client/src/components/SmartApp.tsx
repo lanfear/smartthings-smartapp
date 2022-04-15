@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {ControlContainer, ControlIcon} from '../factories/styleFactory';
+import {IActiveControl} from '../types/interfaces';
 import {IApp} from '../types/sharedContracts';
 
 // ideas: 🪄 🔮 🕹 🔌 💾 🔐 🔑 🔂
@@ -13,13 +14,14 @@ const SmartAppContainer = styled(ControlContainer) <{isRuleEnabled: boolean}>`
   ` : ''}
 `;
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled}) => (
+const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice}) => (
   <SmartAppContainer
-    // onMouseEnter={() => setPopoverOpen(true)}
-    // onMouseLeave={() => setPopoverOpen(false)}
-    // onTouchStart={() => setPopoverOpen(true)}
-    // onTouchEnd={() => setPopoverOpen(false)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onMouseEnter={() => setActiveDevice({name: app.displayName!, id: app.appId})}
+    onMouseLeave={() => setActiveDevice(null)}
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    onTouchStart={() => setActiveDevice({name: app.displayName!, id: app.appId})}
+    onTouchEnd={() => setActiveDevice(null)}
     isRuleEnabled={isRuleEnabled}
   >
     <ControlIcon>
@@ -31,6 +33,7 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled}) => (
 export interface ISmartAppProps {
   app: IApp;
   isRuleEnabled: boolean;
+  setActiveDevice: (value: IActiveControl | null) => void;
 }
 
 export default SmartApp;
