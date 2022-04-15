@@ -222,7 +222,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-daylight-${a.installedAppId}`}
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={true}
+                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                   />
                 )}
                 {ruleParts.transitionRule && (
@@ -238,7 +238,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-nightlight-${a.installedAppId}`}
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={true}
+                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                   />
                 )}
                 {ruleParts.idleRule && (
