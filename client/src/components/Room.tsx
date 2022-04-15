@@ -16,6 +16,9 @@ import {IActiveControl} from '../types/interfaces';
 
 dayjs.extend(isBetween);
 
+// 32E624 green bg
+// ideas: 🪄 🔮 🕹 🔌 💾 🔐 🔑 🔂
+
 const RoomContainer = styled.div`
   display: flex;
   flex: 1;

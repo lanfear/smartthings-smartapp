@@ -9,7 +9,7 @@ export const ControlStatus = styled.div`
   font-weight: 500;
 `;
 
-export const ControlContainer = styled.button`
+export const ControlContainer = styled.button<{rgb: string}>`
   height: 3.75rem;
   width: 3.75rem;
   display: flex;
@@ -18,6 +18,10 @@ export const ControlContainer = styled.button`
   align-content: center;
   align-items: center;
   justify-content: space-evenly;
-  border: 1px solid gray;
   border-radius: 4px;
+  background: #${props => props.rgb}66;
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 15px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
 `;

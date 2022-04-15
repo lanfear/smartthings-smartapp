@@ -10,31 +10,23 @@ const DeviceTitle = styled.div`
   font-weight: 700;
 `;
 
-const PowerContainer = styled(ControlContainer) <{ isPowerOn: boolean }>`
-  ${props => props.isPowerOn ? `
-  box-shadow:
-      0px 0px 10px 2px yellow, 
-      inset 0px 0px 20px 15px yellow;
-  ` : ''}
-`;
-
 const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const deviceComponent = (
-    <PowerContainer
+    <ControlContainer
+      rgb={isPowerOn ? 'E3E624' : 'cccccc'}
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       onMouseEnter={() => setActiveDevice({name: room.name!, id: room.roomId!})}
       onMouseLeave={() => setActiveDevice(null)}
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       onTouchStart={() => setActiveDevice({name: room.name!, id: room.roomId!})}
       onTouchEnd={() => setActiveDevice(null)}
-      isPowerOn={isPowerOn}
     >
       <ControlIcon>
         🔨
       </ControlIcon>
-    </PowerContainer>
+    </ControlContainer>
   );
 
   return (
