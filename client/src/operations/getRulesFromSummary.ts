@@ -31,12 +31,35 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
     return ruleParts;
   }
 
+  const now = dayjs.utc();
+  let dayStartTime = dayjs.utc(ruleSummary.dayStartTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
+  let dayNightTime = dayjs.utc(ruleSummary.dayNightTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
+  let nightEndTime = dayjs.utc(ruleSummary.nightEndTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
+  // first we order the time ranges
+  if (dayStartTime.isAfter(dayNightTime)) {
+    dayStartTime = dayStartTime.subtract(1, 'day');
+  }
+  if (nightEndTime.isBefore(dayNightTime)) {
+    nightEndTime = nightEndTime.add(1, 'day');
+  }
+  // now if we're +/- 24h on either side we have to adjust (assume no range settings > 24h)
+  if (dayStartTime.add(1, 'day') < now) {
+    dayStartTime = dayStartTime.add(1, 'day');
+    dayNightTime = dayNightTime.add(1, 'day');
+    nightEndTime = nightEndTime.add(1, 'day');
+  }
+  if (nightEndTime.subtract(1, 'day') > now) {
+    dayStartTime = dayStartTime.subtract(1, 'day');
+    dayNightTime = dayNightTime.subtract(1, 'day');
+    nightEndTime = nightEndTime.subtract(1, 'day');
+  }
+
   if (ruleSummary.enableDaylightRule) {
     ruleParts.dayRule = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      startTime: dayjs.utc(ruleSummary.dayStartTime),
+      startTime: dayjs.utc(dayStartTime),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      endTime: dayjs.utc(ruleSummary.dayNightTime),
+      endTime: dayjs.utc(dayNightTime),
       motionDevices: ruleSummary.motionSensors,
       controlDevice: ruleSummary.dayControlSwitch,
       switchDevices: {...ruleSummary.dayDimmableSwitches, ...ruleSummary.dayNonDimmableSwitches}
@@ -45,8 +68,8 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 
   if (ruleSummary.enableNightlightRule) {
     ruleParts.nightRule = {
-      startTime: dayjs.utc(ruleSummary.dayNightTime),
-      endTime: dayjs.utc(ruleSummary.nightEndTime),
+      startTime: dayjs.utc(dayNightTime),
+      endTime: dayjs.utc(nightEndTime),
       motionDevices: ruleSummary.motionSensors,
       controlDevice: ruleSummary.nightControlSwitch,
       switchDevices: {...ruleSummary.nightDimmableSwitches, ...ruleSummary.nightNonDimmableSwitches}

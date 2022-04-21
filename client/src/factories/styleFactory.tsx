@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import global from '../constants/global';
 
 export const ControlIcon = styled.div`
   font-size: larger;
@@ -9,15 +10,20 @@ export const ControlStatus = styled.div`
   font-weight: 500;
 `;
 
-export const ControlContainer = styled.button`
-  height: 4rem;
-  width: 4rem;
+export const ControlContainer = styled.button<{rgb: string}>`
+  height: 3.5rem;
+  width: 3.5rem;
   display: flex;
   flex: none;
   flex-direction: column;
   align-content: center;
   align-items: center;
   justify-content: space-evenly;
-  border: 1px solid gray;
   border-radius: 4px;
+  background: #${props => props.rgb}${global.palette.control.alpha};
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 15px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  margin: 0.125rem;
 `;

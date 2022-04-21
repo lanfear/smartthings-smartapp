@@ -3,35 +3,31 @@ import {Popover} from 'react-tiny-popover';
 import styled from 'styled-components';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {ControlContainer, ControlIcon} from '../factories/styleFactory';
+import {IActiveControl} from '../types/interfaces';
+import global from '../constants/global';
 
 const DeviceTitle = styled.div`
   font-size: larger;
   font-weight: 700;
 `;
 
-const PowerContainer = styled(ControlContainer) <{ isPowerOn: boolean }>`
-  ${props => props.isPowerOn ? `
-  box-shadow:
-      0px 0px 10px 2px yellow, 
-      inset 0px 0px 20px 15px yellow;
-  ` : ''}
-`;
-
-const Power: React.FC<IPowerProps> = ({room, isPowerOn}) => {
+const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const deviceComponent = (
-    <PowerContainer
-      onMouseEnter={() => setPopoverOpen(true)}
-      onMouseLeave={() => setPopoverOpen(false)}
-      onTouchStart={() => setPopoverOpen(true)}
-      onTouchEnd={() => setPopoverOpen(false)}
-      isPowerOn={isPowerOn}
+    <ControlContainer
+      rgb={isPowerOn ? `${global.palette.control.rgb.power}` : `${global.palette.control.rgb.inactive}`}
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      onMouseEnter={() => setActiveDevice({name: room.name!, id: room.roomId!})}
+      onMouseLeave={() => setActiveDevice(null)}
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      onTouchStart={() => setActiveDevice({name: room.name!, id: room.roomId!})}
+      onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlIcon>
         🔨
       </ControlIcon>
-    </PowerContainer>
+    </ControlContainer>
   );
 
   return (
@@ -55,6 +51,7 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn}) => {
 export interface IPowerProps {
   room: IRoom;
   isPowerOn: boolean;
+  setActiveDevice: (value: IActiveControl | null) => void;
 }
 
 export default Power;

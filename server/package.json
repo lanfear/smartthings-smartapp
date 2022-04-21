@@ -34,6 +34,7 @@
     "eslint": "^8.3.0",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
+    "nodemon": "^2.0.15",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
@@ -42,7 +43,7 @@
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "build": "tsc",
     "prod": "node build/server.js",
-    "start": "node --loader ts-node/esm ./server.ts",
+    "start": "nodemon --watch . --ext ts --exec node --ignore 'node_modules/*' --delay 3 --loader ts-node/esm server.ts",
     "tunnel": "ngrok http 9790 --log=stdout"
   },
   "eslintConfig": {
