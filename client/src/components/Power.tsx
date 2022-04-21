@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {ControlContainer, ControlIcon} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
+import global from '../constants/global';
 
 const DeviceTitle = styled.div`
   font-size: larger;
@@ -15,7 +16,7 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
 
   const deviceComponent = (
     <ControlContainer
-      rgb={isPowerOn ? 'E3E624' : 'cccccc'}
+      rgb={isPowerOn ? `${global.palette.control.rgb.power}` : `${global.palette.control.rgb.inactive}`}
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       onMouseEnter={() => setActiveDevice({name: room.name!, id: room.roomId!})}
       onMouseLeave={() => setActiveDevice(null)}

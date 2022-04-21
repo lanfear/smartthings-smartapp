@@ -231,6 +231,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isKeyRule={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
@@ -242,6 +243,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleType="Transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
                     isRuleEnabled={true}
+                    isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
@@ -253,6 +255,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isKeyRule={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
@@ -264,6 +267,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleType="Idle"
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleEnabled={true}
+                    isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                   />
                 )}

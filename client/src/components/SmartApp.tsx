@@ -1,11 +1,12 @@
 import React from 'react';
+import global from '../constants/global';
 import {ControlContainer, ControlIcon} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IApp} from '../types/sharedContracts';
 
 const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice}) => (
   <ControlContainer
-    rgb={isRuleEnabled ? 'E68C24' : 'cccccc'}
+    rgb={isRuleEnabled ? `${global.palette.control.rgb.app}` : `${global.palette.control.rgb.inactive}`}
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: app.displayName!, id: app.appId})}
     onMouseLeave={() => setActiveDevice(null)}

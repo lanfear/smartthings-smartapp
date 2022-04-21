@@ -1,11 +1,12 @@
 import React from 'react';
+import global from '../constants/global';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => deviceType === 'Switch' ? (
   <ControlContainer
-    rgb={device.value === 'on' ? isLocked ? 'E65E24' : 'E3E624' : 'cccccc'}
+    rgb={device.value === 'on' ? isLocked ? `${global.palette.control.rgb.locked}` : `${global.palette.control.rgb.switch}` : `${global.palette.control.rgb.inactive}`}
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
@@ -15,7 +16,7 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
   >
     {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
     <ControlIcon>
-      {isLocked ? '🔒💡' : '💡'}
+      {isLocked ? '💡🔒' : '💡'}
     </ControlIcon>
     <ControlStatus>
       {device.value}
@@ -23,7 +24,7 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
   </ControlContainer>
 ) : deviceType === 'Lock' ? (
   <ControlContainer
-    rgb="cccccc"
+    rgb={`${global.palette.control.rgb.inactive}`}
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
@@ -41,7 +42,7 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
   </ControlContainer>
 ) : (
   <ControlContainer
-    rgb={device.value === 'active' ? '32E624' : 'cccccc'}
+    rgb={device.value === 'active' ? `${global.palette.control.rgb.motion}` : `${global.palette.control.rgb.inactive}`}
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}

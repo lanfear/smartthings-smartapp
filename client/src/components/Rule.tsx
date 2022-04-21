@@ -1,4 +1,5 @@
 import React from 'react';
+import global from '../constants/global';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 
@@ -7,9 +8,9 @@ type RuleComponentType = 'Daylight' | 'Nightlight' | 'Transition' | 'Idle';
 const getRuleIcon = (ruleType: RuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'Daylight' ? '🌞' : ruleType === 'Nightlight' ? '🌚' : ruleType === 'Transition' ? '🔀' : '💤';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const App: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, setActiveDevice}) => (
+const App: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => (
   <ControlContainer
-    rgb={isRuleEnabled ? 'E68C24' : 'cccccc'}
+    rgb={isRuleEnabled ? `${global.palette.control.rgb.rule}` : `${global.palette.control.rgb.inactive}`}
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: ruleName, id: rulePartId})}
     onMouseLeave={() => setActiveDevice(null)}
@@ -19,6 +20,7 @@ const App: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRule
   >
     <ControlIcon>
       {getRuleIcon(ruleType)}
+      {isKeyRule && '🔑'}
     </ControlIcon>
     <ControlStatus>
       {time}
@@ -32,6 +34,7 @@ export interface IRuleProps {
   ruleType: RuleComponentType;
   time: string;
   isRuleEnabled: boolean;
+  isKeyRule: boolean;
   setActiveDevice: (value: IActiveControl | null) => void;
 }
 
