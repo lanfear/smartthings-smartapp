@@ -1,8 +1,11 @@
-import {Request, Response} from 'express';
+import {ErrorRequestHandler, RequestParamHandler} from 'express';
 import {StatusCodes} from 'http-status-codes';
+import {IpFilter as ipFilter} from 'express-ipfilter';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export const notFound = (req: Request, res: Response, next: Function): void => {
+const localIps = process.env.LOCALIPS.split(/,\s*/);
+export const localOnlyMiddleware = ipFilter(localIps, {mode: 'allow'});
+
+export const notFound: RequestParamHandler = (req, res, next): void => {
   if (process.env.REACT_APP) {
     next();
   } else { // In order to show custom error 404 page
@@ -12,8 +15,7 @@ export const notFound = (req: Request, res: Response, next: Function): void => {
   }
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-unused-vars
-export const errorHandler = (err: Error, _: Request, res: Response, __: Function): void => {
+export const errorHandler: ErrorRequestHandler = (err: Error, _, res): void => {
   const statusCode = res.statusCode !== StatusCodes.OK ? res.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
   res.status(statusCode);
   res.json({
