@@ -91,6 +91,7 @@
         "rules": {
           "no-nested-ternary": "off",
           "indent": "off",
+          "@typescript-eslint/no-non-null-assertion": "off",
           "@typescript-eslint/indent": [
             "error",
             2,

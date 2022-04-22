@@ -11,10 +11,8 @@ const getRuleIcon = (ruleType: RuleComponentType): '🌞' | '🌚' | '🔀' | '�
 const App: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => (
   <ControlContainer
     rgb={isRuleEnabled ? `${global.palette.control.rgb.rule}` : `${global.palette.control.rgb.inactive}`}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: ruleName, id: rulePartId})}
     onMouseLeave={() => setActiveDevice(null)}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onTouchStart={() => setActiveDevice({name: ruleName, id: rulePartId})}
     onTouchEnd={() => setActiveDevice(null)}
   >

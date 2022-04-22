@@ -112,7 +112,6 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     return null;
   }).filter(d => !!d);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did!.deviceId));
 
   const deviceEventSource = useEventSource({
@@ -227,7 +226,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-daylight-${a.installedAppId}`}
                     rulePartId={`rulepart-daylight-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Daylight Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
@@ -239,7 +238,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-transition-${a.installedAppId}`}
                     rulePartId={`rulepart-transition-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Transition Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Transition Rule`}
                     ruleType="Transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
                     isRuleEnabled={true}
@@ -251,7 +250,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-nightlight-${a.installedAppId}`}
                     rulePartId={`rulepart-nightlight-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Nightlight Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
@@ -263,7 +262,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-idle-${a.installedAppId}`}
                     rulePartId={`rulepart-idle-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Idle Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Idle Rule`}
                     ruleType="Idle"
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleEnabled={true}

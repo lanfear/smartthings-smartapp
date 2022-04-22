@@ -7,10 +7,8 @@ import {IDevice} from '../types/sharedContracts';
 const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => deviceType === 'Switch' ? (
   <ControlContainer
     rgb={device.value === 'on' ? isLocked ? `${global.palette.control.rgb.locked}` : `${global.palette.control.rgb.switch}` : `${global.palette.control.rgb.inactive}`}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
   >
@@ -25,10 +23,8 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
 ) : deviceType === 'Lock' ? (
   <ControlContainer
     rgb={`${global.palette.control.rgb.inactive}`}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
   >
@@ -43,10 +39,8 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
 ) : (
   <ControlContainer
     rgb={device.value === 'active' ? `${global.palette.control.rgb.motion}` : `${global.palette.control.rgb.inactive}`}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onMouseLeave={() => setActiveDevice(null)}
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
     onTouchEnd={() => setActiveDevice(null)}
   >
