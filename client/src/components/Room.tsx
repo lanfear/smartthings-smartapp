@@ -13,6 +13,7 @@ import SmartApp from './SmartApp';
 import getRulesFromSummary from '../operations/getRulesFromSummary';
 import Rule from './Rule';
 import {IActiveControl} from '../types/interfaces';
+import DeviceControls from './DeviceControls';
 
 dayjs.extend(isBetween);
 
@@ -178,6 +179,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
       <RoomControlGrid>
         <RoomControlPower>
           <Power
+            key={`power-${room.roomId!}`}
             room={room}
             isPowerOn={true}
             setActiveDevice={setActiveDevice}
@@ -237,7 +239,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 {ruleParts.transitionRule && (
                   <Rule
                     key={`rulepart-transition-${a.installedAppId}`}
-                    rulePartId={`rulepart-transition-${a.installedAppId}`}
+                    rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Transition Rule`}
                     ruleType="Transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}

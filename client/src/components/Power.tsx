@@ -4,10 +4,10 @@ import {ControlContainer, ControlIcon} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import global from '../constants/global';
 import {useDrag} from 'react-dnd';
-import {createDragObject, IDragAndDropType} from '../factories/dragAndDropFactory';
+import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 
 const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
-  const [collected, drag] = useDrag(() => (createDragObject(IDragAndDropType.Power, room.roomId!, room.name!)));
+  const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Power, room.roomId!, room.name!)));
 
   return (
     <ControlContainer
