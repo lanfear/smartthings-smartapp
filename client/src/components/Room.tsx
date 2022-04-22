@@ -290,7 +290,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
           {activeDevice?.name}
         </RoomControlDeviceLabel>
         <RoomControlDeviceActions>
-          Controls Here
+          <DeviceControls words="Controls Here" />
         </RoomControlDeviceActions>
       </RoomControlGrid>
     </RoomContainer>
