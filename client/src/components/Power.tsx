@@ -1,21 +1,18 @@
-import React, {useState} from 'react';
-import {Popover} from 'react-tiny-popover';
-import styled from 'styled-components';
+import React from 'react';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {ControlContainer, ControlIcon} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import global from '../constants/global';
-
-const DeviceTitle = styled.div`
-  font-size: larger;
-  font-weight: 700;
-`;
+import {useDrag} from 'react-dnd';
+import {createDragObject, IDragAndDropType} from '../factories/dragAndDropFactory';
 
 const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
-  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [collected, drag] = useDrag(() => (createDragObject(IDragAndDropType.Power, room.roomId!, room.name!)));
 
-  const deviceComponent = (
+  return (
     <ControlContainer
+      ref={drag}
+      {...collected}
       rgb={isPowerOn ? `${global.palette.control.rgb.power}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: room.name!, id: room.roomId!})}
       onMouseLeave={() => setActiveDevice(null)}
@@ -26,23 +23,6 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
         🔨
       </ControlIcon>
     </ControlContainer>
-  );
-
-  return (
-    <Popover
-      isOpen={popoverOpen}
-      positions={['top', 'left']} // if you'd like, you can limit the positions
-      padding={10} // adjust padding here!
-      reposition={false} // prevents automatic readjustment of content position that keeps your popover content within its parent's bounds
-      onClickOutside={() => setPopoverOpen(false)} // handle click events outside of the popover/target here!
-      content={() => (
-        <DeviceTitle>
-          {room.name}
-        </DeviceTitle>
-      )}
-    >
-      {deviceComponent}
-    </Popover>
   );
 };
 
