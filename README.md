@@ -1,6 +1,5 @@
 # SmartThings SmartApp Rules API Example
 
-# TODO: UPDATE THIS FILE PORTED FROM PUBLIC BRANCH AS-IS
 # DESCRIPTION
 
 This code is branched off [my working main repository](/lanfear/smartthings-smartapp) which contains a much more complex dual SmartApp setup with a React client Front-End that integrates with another SmartApp that was removed from this branch.  I attempted to branch this while the Rules SmartApp was still fairly isolated before I really move forward mixing it with the FrontEnd and other SmartApp in the main branch.
@@ -32,23 +31,33 @@ PORT=SETLOCALPORTNUMBER
 RULE_APP_ID=SEENEXTSTEP
 RULE_CLIENT_ID=SEENEXTSTEP
 RULE_CLIENT_SECRET=SEENEXTSTEP
+CONTROL_APP_ID=SEENEXTSTEP
+CONTROL_CLIENT_ID=SEENEXTSTEP
+CONTROL_CLIENT_SECRET=SEENEXTSTEP
+CONTROL_API_TOKEN=SEENEXTSTEPPART2
+LOCALIPS=LOCALIPLIST
 ```
 > Replace in `SETLOCALPORTNUMBER` with a local port of your choosing (suggest anything 5000-64000).  Note, we will use this again in Step #5.
 
-4) [Setup The App In Samsung Developer Portal](doc/APPSETUP.md)
+> Replace `LOCALIPLIST` with a comma-separated list of IPV4, IPV6 and CIDR-Range addresses (i.e. `192.168.1.0/28,127.0.0.1,::ffff:127.0.0.1,::1`)
 
-5) Modify `package.json` edit the `yarn tunnel` script set `YOURPORTFROMENVCONFHERE` to the value you set above in Step #3 for `PORT`.  
+1) [Setup The App In Samsung Developer Portal](doc/APPSETUP.md)
+   1) Setup a Samsung PWT (TODO: document this process)
+
+2) Modify `package.json` edit the `yarn tunnel` script set `YOURPORTFROMENVCONFHERE` to the value you set above in Step #3 for `PORT`.  
    - (TODO: Find a better way to deal with this manual coupling)   
-6) Continue to the 'Everyday development instructions' below
+3) Continue to the 'Everyday development instructions' below
 
 ## Everyday development instructions
 
 Run all of these from the `package.json` located in the 'server' directory (`cd server` or point-click from VS code UI)
-   1) `yarn` (to install the npm dependencies)
-   2) `yarn tunnel` (start the ngrok proxy)
-   3) `yarn start` (start the node express server hosting the SmartApp)
-   4) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
-      - **You must do this everytime you start/restart `yarn tunnel` task**
+   1) `yarn` (to install the top-level npm dependencies)
+   2) `cd ./server && yarn` (to install server-level npm dependencies)
+   3) `cd ./client && yarn` (to install client-level npm dependencies)
+   4) `yarn start` from the top-level directories will start entire dev environment in a single console session (using concurrently)
+      1) alternatively, you can run individual parts of the `yarn start` command above to control each part individually 
+   5) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
+      - **You must do this every time you start/restart `yarn tunnel` task which includes every time you run the main `yarn start` command**
 
 ## Runtime Development
 
@@ -74,20 +83,20 @@ When you make changes to the server/smartapp, and restart you do not need to uni
 13) (Extra) SSE (server-side-events) available to also pipe communication between server and smartapp (not heavily leveraged in this example, but left in code)
 
 # CAVEATS/CONSIDERATIONS/BUGS
-1) **The node express website is entirely unauthenticated!!**
-   - The smartapp interaction is properly guarded by SmartThings OAuth protocol and library, but the endpoints hosted off the Express server are public!  I strongly recommend only exposing endpoints not associated with the webapps internally or building out proper auth mechanisms on the other Express endpoints
+1) **The node express website only protected by local ip detection**  This is not considered adequate protection by web security experts.
 2) Custom, personal SmartApps cannot be shared across users =(
    - So, after all this work, and setting up many SmartApps to customize the rules in my home, I was disappointed to find out my wife could not see and control the SmartApps I had set up
 3) You are limited to [100 Rules/User and 50 Rules/ISA](https://developer-preview.smartthings.com/docs/advanced/rate-limits/#rules)
-   - So, after I configured about 12-15 SmartApps in my home, I started getting 'Too Many Requests' returned from the API when setting more rules, this is what the API returns
+   - I have now made improvements to collapse rules down to only 2 max per app install, but you can still hit this limit with enough apps installed
 4) Very 'perscriptive' ESLint RuleSet
    - I feel that the 'default' ESLint ruleset, while a good start, does not demand enough coding standards and consistent practices, so I leveraged a specific ruleset with which I am familiar that is a lot more explicit.  Relax or tune this as you wish if you do not like the standards that are defined.
 
 # RELEASE/PRODUCTION
 1) run `yarn build` (builds into `/build` directory)
 2) check-in or otherwise copy that output to build server hosting directory
-3) `yarn --prod` on server to install neccessary runtime libs
-4) `yarn prod` to run the server environment (or put the code in the script in a .service file)
+3) be sure to configure the `.env` file on the server checkout directory
+4) `yarn --prod` on server to install neccessary runtime libs
+5) `yarn prod` to run the server environment (or put the code in the script in a .service file)
 
 # CREDITS
 
