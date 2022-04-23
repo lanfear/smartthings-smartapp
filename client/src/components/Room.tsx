@@ -108,16 +108,15 @@ const Room: React.FC<IRoomProps> = ({room}) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const roomRules = findRuleForRoom(); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const roomRules = findRuleForRoom();
   const roomApps = findAppsForRoom();
 
   const roomRuleSummaries = roomApps.map(a => getRulesFromSummary(a.ruleSummary));
   const activeRuleControlSwitches = roomRuleSummaries.map(r => {
-    // eslint-disable-next-line no-console
-    if (r.dayRule && dayjs().utc().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
+    if (r.dayRule && dayjs().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
       return r.dayRule.controlDevice;
     }
-    if (r.nightRule && dayjs().utc().isBetween(r.nightRule.startTime, r.nightRule.endTime)) {
+    if (r.nightRule && dayjs().isBetween(r.nightRule.startTime, r.nightRule.endTime)) {
       return r.nightRule.controlDevice;
     }
     return null;
@@ -241,8 +240,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
-                    isKeyRule={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
+                    isRuleEnabled={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
@@ -265,8 +264,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
-                    isKeyRule={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
+                    isRuleEnabled={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
