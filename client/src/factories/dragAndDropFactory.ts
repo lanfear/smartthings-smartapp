@@ -22,7 +22,7 @@ export interface IDragConfig {
 
 export interface IDropConfig {
   accept: IDragAndDropType[];
-  drop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => IDragAndDropItem;
+  drop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => Promise<IDragAndDropItem>;
 }
 
 export const createDragConfig = (type: IDragAndDropType, dragId: string, displayName: string, subtype?: string): IDragConfig => ({
@@ -30,7 +30,7 @@ export const createDragConfig = (type: IDragAndDropType, dragId: string, display
   item: {
     type: type,
     subtype: subtype,
-    id: `${type}-${dragId}`,
+    id: dragId,
     displayName: displayName
   },
   collect: (monitor: DragSourceMonitor) => ({
@@ -38,7 +38,7 @@ export const createDragConfig = (type: IDragAndDropType, dragId: string, display
   })
 });
 
-export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => IDragAndDropItem, accept?: IDragAndDropType[]): IDropConfig => ({
+export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => Promise<IDragAndDropItem>, accept?: IDragAndDropType[]): IDropConfig => ({
   accept: accept ?? [IDragAndDropType.App, IDragAndDropType.Device, IDragAndDropType.Power, IDragAndDropType.Rule],
   drop: onDrop
 });

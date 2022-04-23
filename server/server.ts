@@ -93,30 +93,27 @@ server.get('/location/:id', async (req, res) => {
 
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/scenes/:sceneId', async (req, res) => {
+server.post('/location/:id/scenes/:sceneId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   const result = await context.api.scenes.execute(req.params.sceneId);
   res.send(result);
 });
 
 /* Execute a device command */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/devices/:deviceId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  // someday we can do better than this, TS 4.17+ should support generic for Request type
-  const result = await context.api.devices.executeCommand(req.params.deviceId, req.body as Command);
+server.post('/device/:deviceId', async (req, res) => {
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
 
-
-server.post('/app/:id/rule', async (req, res) => {
+server.post('/location/:id/rule', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   // someday we can do better than this, TS 4.17+ should support generic for Request type
   const result = await context.api.rules.create(req.body as RuleRequest);
   res.send(result);
 });
 
-server.delete('/app/:id/rule/:ruleId', async (req, res) => {
+server.delete('/location/:id/rule/:ruleId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   await context.api.rules.delete(req.params.ruleId);
   res.statusCode = StatusCodes.NO_CONTENT;

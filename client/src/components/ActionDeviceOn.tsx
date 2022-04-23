@@ -3,10 +3,12 @@ import {DropTargetMonitor, useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import executeDeviceCommand from '../operations/executeDeviceCommand';
 
-const onDrop = (item: IDragAndDropItem, monitor: DropTargetMonitor): IDragAndDropItem => {
+const onDrop = async (item: IDragAndDropItem, monitor: DropTargetMonitor): Promise<IDragAndDropItem> => {
+  const response = await executeDeviceCommand(item.id, 'switch', 'on');
   // eslint-disable-next-line no-console
-  console.log('item dropped', item, monitor);
+  console.log('item dropped', item, monitor, response);
   return item;
 };
 
