@@ -38,7 +38,7 @@ export const createDragConfig = (type: IDragAndDropType, dragId: string, display
   })
 });
 
-export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => IDragAndDropItem): IDropConfig => ({
-  accept: [IDragAndDropType.App, IDragAndDropType.Device, IDragAndDropType.Power, IDragAndDropType.Rule],
+export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => IDragAndDropItem, accept?: IDragAndDropType[]): IDropConfig => ({
+  accept: accept ?? [IDragAndDropType.App, IDragAndDropType.Device, IDragAndDropType.Power, IDragAndDropType.Rule],
   drop: onDrop
 });

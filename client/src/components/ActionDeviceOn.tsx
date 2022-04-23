@@ -7,11 +7,10 @@ import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFa
 const onDrop = (item: IDragAndDropItem, monitor: DropTargetMonitor): IDragAndDropItem => {
   // eslint-disable-next-line no-console
   console.log('item dropped', item, monitor);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return item;
 };
 
-const DeviceOnAction: React.FC<IDeviceOnActionProps> = ({words}) => {
+const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop));
   
   const leftControl = (
@@ -32,8 +31,8 @@ const DeviceOnAction: React.FC<IDeviceOnActionProps> = ({words}) => {
   return leftControl;
 };
 
-export interface IDeviceOnActionProps {
+export interface IActionDeviceOnProps {
   words: string;
 }
 
-export default DeviceOnAction;
+export default ActionDeviceOn;

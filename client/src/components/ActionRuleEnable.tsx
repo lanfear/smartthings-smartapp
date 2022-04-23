@@ -1,18 +1,17 @@
 import React from 'react';
 import {DropTargetMonitor, useDrop} from 'react-dnd';
 import global from '../constants/global';
-import {createDropConfig, IDragAndDropItem} from '../factories/dragAndDropFactory';
+import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 
 const onDrop = (item: IDragAndDropItem, monitor: DropTargetMonitor): IDragAndDropItem => {
   // eslint-disable-next-line no-console
   console.log('item dropped', item, monitor);
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return item;
 };
 
-const DeviceOffAction: React.FC<IDeviceOffActionProps> = ({words}) => {
-  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop));
+const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
+  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule]));
   
   const leftControl = (
     <ControlContainer
@@ -32,8 +31,8 @@ const DeviceOffAction: React.FC<IDeviceOffActionProps> = ({words}) => {
   return leftControl;
 };
 
-export interface IDeviceOffActionProps {
+export interface IActionRuleEnableProps {
   words: string;
 }
 
-export default DeviceOffAction;
+export default ActionRuleEnable;

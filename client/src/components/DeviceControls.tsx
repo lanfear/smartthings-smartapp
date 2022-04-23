@@ -1,7 +1,7 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
-import DeviceOffAction from './DeviceOffAction';
-import DeviceOnAction from './DeviceOnAction';
+import ActionDeviceOff from './ActionDeviceOff';
+import ActionDeviceOn from './ActionDeviceOn';
 
 const DeviceControlsContainer = styled.div`
   display: flex;
@@ -12,8 +12,8 @@ const DeviceControlsContainer = styled.div`
 const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {
   const deviceControls: ReactNode[] = [];
 
-  deviceControls.push(<DeviceOnAction words="PowerOn" />);
-  deviceControls.push(<DeviceOffAction words="PowerOff" />);
+  deviceControls.push(<ActionDeviceOn words="PowerOn" />);
+  deviceControls.push(<ActionDeviceOff words="PowerOff" />);
   
   return (
     <DeviceControlsContainer>
