@@ -13,6 +13,7 @@ import SmartApp from './SmartApp';
 import getRulesFromSummary from '../operations/getRulesFromSummary';
 import Rule from './Rule';
 import {IActiveControl} from '../types/interfaces';
+import DeviceControls from './DeviceControls';
 
 dayjs.extend(isBetween);
 
@@ -35,7 +36,7 @@ const RoomControlGrid = styled.div`
   height: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: max-content 1fr 2rem;
+  grid-template-rows: max-content 1fr 2rem 4rem;
   gap: 2px;
 `;
 
@@ -80,6 +81,16 @@ const RoomControlDeviceLabel = styled.span`
   align-items: center;
 `;
 
+const RoomControlDeviceActions = styled.span`
+  display: flex;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 4;
+  grid-row-end: 4;
+  justify-content: center;
+  align-items: center;
+`;
+
 const Room: React.FC<IRoomProps> = ({room}) => {
   const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IActiveControl | null);
@@ -97,22 +108,20 @@ const Room: React.FC<IRoomProps> = ({room}) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const roomRules = findRuleForRoom(); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const roomRules = findRuleForRoom();
   const roomApps = findAppsForRoom();
 
   const roomRuleSummaries = roomApps.map(a => getRulesFromSummary(a.ruleSummary));
   const activeRuleControlSwitches = roomRuleSummaries.map(r => {
-    // eslint-disable-next-line no-console
-    if (r.dayRule && dayjs().utc().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
+    if (r.dayRule && dayjs().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
       return r.dayRule.controlDevice;
     }
-    if (r.nightRule && dayjs().utc().isBetween(r.nightRule.startTime, r.nightRule.endTime)) {
+    if (r.nightRule && dayjs().isBetween(r.nightRule.startTime, r.nightRule.endTime)) {
       return r.nightRule.controlDevice;
     }
     return null;
   }).filter(d => !!d);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did!.deviceId));
 
   const deviceEventSource = useEventSource({
@@ -179,6 +188,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
       <RoomControlGrid>
         <RoomControlPower>
           <Power
+            key={`power-${room.roomId!}`}
             room={room}
             isPowerOn={true}
             setActiveDevice={setActiveDevice}
@@ -227,19 +237,19 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-daylight-${a.installedAppId}`}
                     rulePartId={`rulepart-daylight-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Daylight Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="Daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
-                    isKeyRule={dayjs().utc().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
+                    isRuleEnabled={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
                 {ruleParts.transitionRule && (
                   <Rule
                     key={`rulepart-transition-${a.installedAppId}`}
-                    rulePartId={`rulepart-transition-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Transition Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    rulePartId={a.installedAppId}
+                    ruleName={`${a.displayName!} Transition Rule`}
                     ruleType="Transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
                     isRuleEnabled={true}
@@ -251,11 +261,11 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-nightlight-${a.installedAppId}`}
                     rulePartId={`rulepart-nightlight-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Nightlight Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="Nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
-                    isKeyRule={dayjs().utc().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
+                    isRuleEnabled={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
                 )}
@@ -263,7 +273,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                   <Rule
                     key={`rulepart-idle-${a.installedAppId}`}
                     rulePartId={`rulepart-idle-${a.installedAppId}`}
-                    ruleName={`${a.displayName!} Idle Rule`} // eslint-disable-line @typescript-eslint/no-non-null-assertion
+                    ruleName={`${a.displayName!} Idle Rule`}
                     ruleType="Idle"
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleEnabled={true}
@@ -278,6 +288,9 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         <RoomControlDeviceLabel>
           {activeDevice?.name}
         </RoomControlDeviceLabel>
+        <RoomControlDeviceActions>
+          <DeviceControls words="Controls Here" />
+        </RoomControlDeviceActions>
       </RoomControlGrid>
     </RoomContainer>
   );

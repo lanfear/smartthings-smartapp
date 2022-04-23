@@ -1,7 +1,9 @@
 import dayjs, {Dayjs} from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import objectSupport from 'dayjs/plugin/objectSupport';
 import {DeviceContext, IRuleSummary} from '../types/sharedContracts';
 dayjs.extend(utc);
+dayjs.extend(objectSupport);
 
 export interface IRuleRange {
   startTime: Dayjs; // dayjs/time
@@ -31,10 +33,20 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
     return ruleParts;
   }
 
-  const now = dayjs.utc();
-  let dayStartTime = dayjs.utc(ruleSummary.dayStartTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
-  let dayNightTime = dayjs.utc(ruleSummary.dayNightTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
-  let nightEndTime = dayjs.utc(ruleSummary.nightEndTime).set('year', now.year()).set('month', now.month()).set('date', now.date()).set('second', 0).set('millisecond', 0);
+  // the data coming from server is actually off, encoded in UTC when it is local, so... we do this for now
+  const now = dayjs();
+  let dayStartTime = dayjs(ruleSummary.dayStartTime);
+  let dayNightTime = dayjs(ruleSummary.dayNightTime);
+  let nightEndTime = dayjs(ruleSummary.nightEndTime);
+  /* eslint-disable @typescript-eslint/ban-ts-comment */
+  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  dayStartTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayStartTime.utc().hour(), minute: dayStartTime.utc().minute(), second: 0, milliseconds: 0});
+  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  dayNightTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayNightTime.utc().hour(), minute: dayNightTime.utc().minute(), second: 0, milliseconds: 0});
+  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  nightEndTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: nightEndTime.utc().hour(), minute: nightEndTime.utc().minute(), second: 0, milliseconds: 0});
+  /* eslint-enable @typescript-eslint/ban-ts-comment */
+
   // first we order the time ranges
   if (dayStartTime.isAfter(dayNightTime)) {
     dayStartTime = dayStartTime.subtract(1, 'day');
@@ -54,12 +66,13 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
     nightEndTime = nightEndTime.subtract(1, 'day');
   }
 
+
   if (ruleSummary.enableDaylightRule) {
     ruleParts.dayRule = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      startTime: dayjs.utc(dayStartTime),
+      startTime: dayStartTime,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
-      endTime: dayjs.utc(dayNightTime),
+      endTime: dayNightTime,
       motionDevices: ruleSummary.motionSensors,
       controlDevice: ruleSummary.dayControlSwitch,
       switchDevices: {...ruleSummary.dayDimmableSwitches, ...ruleSummary.dayNonDimmableSwitches}
@@ -68,8 +81,8 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 
   if (ruleSummary.enableNightlightRule) {
     ruleParts.nightRule = {
-      startTime: dayjs.utc(dayNightTime),
-      endTime: dayjs.utc(nightEndTime),
+      startTime: dayNightTime,
+      endTime: nightEndTime,
       motionDevices: ruleSummary.motionSensors,
       controlDevice: ruleSummary.nightControlSwitch,
       switchDevices: {...ruleSummary.nightDimmableSwitches, ...ruleSummary.nightNonDimmableSwitches}
@@ -78,7 +91,7 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 
   if (ruleSummary.enableTransitionRule) {
     ruleParts.transitionRule = {
-      time: dayjs.utc(ruleSummary.dayNightTime),
+      time: dayNightTime,
       transitionOffDevices: {...ruleSummary.dayDimmableSwitches, ...ruleSummary.dayNonDimmableSwitches},
       transitionOnDevices: {...ruleSummary.nightDimmableSwitches, ...ruleSummary.nightNonDimmableSwitches}
     };

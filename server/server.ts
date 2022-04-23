@@ -13,6 +13,7 @@ import db from './provider/db';
 import sse from './provider/sse';
 import {RuleStoreInfo} from './types';
 import {IResponseLocation} from 'sharedContracts';
+import {localOnlyMiddleware} from './middlewares';
 
 const defaultPort = 3001;
 
@@ -33,6 +34,7 @@ server.post('/smartapp/rule', (req, res) => {
   void smartAppRule.handleHttpCallback(req, res);
 });
 
+server.use('/', localOnlyMiddleware);
 /**
  * list installed apps registered in the db
  */
