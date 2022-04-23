@@ -48,6 +48,7 @@ const smartAppControl_1 = __importDefault(require("./provider/smartAppControl"))
 const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
 const db_1 = __importDefault(require("./provider/db"));
 const sse_1 = __importDefault(require("./provider/sse"));
+const middlewares_1 = require("./middlewares");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
@@ -62,6 +63,7 @@ server.post('/smartapp/control', (req, res) => {
 server.post('/smartapp/rule', (req, res) => {
     void smartAppRule_1.default.handleHttpCallback(req, res);
 });
+server.use('/', middlewares_1.localOnlyMiddleware);
 /**
  * list installed apps registered in the db
  */

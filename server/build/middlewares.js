@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorHandler = exports.notFound = void 0;
+exports.errorHandler = exports.notFound = exports.localOnlyMiddleware = void 0;
 const http_status_codes_1 = require("http-status-codes");
-// eslint-disable-next-line @typescript-eslint/ban-types
+const express_ipfilter_1 = require("express-ipfilter");
+const localIps = process.env.LOCALIPS.split(/,\s*/);
+exports.localOnlyMiddleware = (0, express_ipfilter_1.IpFilter)(localIps, { mode: 'allow' });
 const notFound = (req, res, next) => {
     if (process.env.REACT_APP) {
         next();
@@ -14,8 +16,7 @@ const notFound = (req, res, next) => {
     }
 };
 exports.notFound = notFound;
-// eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-unused-vars
-const errorHandler = (err, _, res, __) => {
+const errorHandler = (err, _, res) => {
     const statusCode = res.statusCode !== http_status_codes_1.StatusCodes.OK ? res.statusCode : http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR;
     res.status(statusCode);
     res.json({
