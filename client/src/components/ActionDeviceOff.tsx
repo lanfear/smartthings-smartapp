@@ -1,18 +1,26 @@
 import React from 'react';
-import {DropTargetMonitor, useDrop} from 'react-dnd';
+import {useDrop} from 'react-dnd';
 import global from '../constants/global';
-import {createDropConfig, IDragAndDropItem} from '../factories/dragAndDropFactory';
+import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
-
-const onDrop = async (item: IDragAndDropItem, monitor: DropTargetMonitor): Promise<IDragAndDropItem> => {
-  await Promise.resolve();
-  // eslint-disable-next-line no-console
-  console.log('item dropped', item, monitor);
-  return item;
-};
+import executeDeviceCommand from '../operations/executeDeviceCommand';
+import {useDeviceContext} from '../store/DeviceContextStore';
 
 const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
-  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop));
+  const {deviceData} = useDeviceContext();
+
+  const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
+    if (item.type === IDragAndDropType.Device) {
+      await executeDeviceCommand(item.id, 'switch', 'off');
+    } else if (item.type === IDragAndDropType.Power) {
+      const roomSwitches = deviceData.switches.filter(d => d.roomId === item.id);
+      // TODO: this can be a single call if we expose the API properly
+      await Promise.all(roomSwitches.map(s => executeDeviceCommand(s.deviceId, 'switch', 'off')));
+    }
+    return item;
+  };
+
+  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device]));
   
   const leftControl = (
     <ControlContainer
