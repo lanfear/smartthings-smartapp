@@ -13,6 +13,7 @@ const getRuleIcon = (ruleType: RuleComponentType): '🌞' | '🌚' | '🔀' | '�
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => {
   const dragId = `${ruleType.toLowerCase()}-${rulePartId}`;
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Rule, dragId, ruleName)));
+  const iconography = `${getRuleIcon(ruleType)}${isKeyRule ? '🔑' : ''}`;
 
   return (
     <ControlContainer
@@ -25,8 +26,7 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
       onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlIcon>
-        {getRuleIcon(ruleType)}
-        {isKeyRule && '🔑'}
+        {iconography}
       </ControlIcon>
       <ControlStatus>
         {time}
