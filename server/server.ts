@@ -14,6 +14,7 @@ import sse from './provider/sse';
 import {RuleStoreInfo} from './types';
 import {IResponseLocation} from 'sharedContracts';
 import {localOnlyMiddleware} from './middlewares';
+import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
 
 const defaultPort = 3001;
 
@@ -104,6 +105,25 @@ server.post('/device/:deviceId', async (req, res) => {
   const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
   const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
+});
+
+/* Execute a device command */
+server.put('/rule/:installedAppId/:rulePart', (req, res) => {
+  const ruleStoreInfo = ruleStore.get(`app-${req.params.installedAppId}`) as RuleStoreInfo;
+  const combinedRule = createCombinedRuleFromSummary(ruleStoreInfo.newRuleSummary, true, true, true);
+  const transitionRule = createTransitionRuleFromSummary(ruleStoreInfo.newRuleSummary, true);
+
+  const rulesAreModified = (!ruleStoreInfo.combinedRule || JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule));
+  const rules2AreModified = (!ruleStoreInfo.transitionRule || JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule));
+
+  console.log('a', rulesAreModified, 't', combinedRule); // eslint-disable-line no-console
+  console.log('json1', JSON.stringify(combinedRule)); // eslint-disable-line no-console
+  console.log('json2', JSON.stringify(ruleStoreInfo.combinedRule)); // eslint-disable-line no-console
+  console.log('a', rules2AreModified, 't2', transitionRule); // eslint-disable-line no-console
+  console.log('json3', JSON.stringify(transitionRule)); // eslint-disable-line no-console
+  console.log('json4', JSON.stringify(ruleStoreInfo.transitionRule)); // eslint-disable-line no-console
+
+  res.send();
 });
 
 server.post('/location/:id/rule', async (req, res) => {

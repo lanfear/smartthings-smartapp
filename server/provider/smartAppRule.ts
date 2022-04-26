@@ -331,6 +331,7 @@ export default new SmartApp()
       [] // will be filled in
     );
 
+    // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (rulesAreModified(appKey, newCombinedRule)) {
       await submitRulesForSmartAppOperation(
         context.api,

@@ -71,6 +71,7 @@ export interface IRuleSummary {
   dayStartTime: string;
   dayNightTime: string;
   nightEndTime: string;
+  motionMultipleAll: boolean;
   enableAllRules: boolean;
   enableDaylightRule: boolean;
   enableNightlightRule: boolean;

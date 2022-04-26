@@ -4,6 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
+import executeRuleControl from '../operations/executeRuleControl';
 import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
 import {DeviceContext, IResponseLocation, IRule} from '../types/sharedContracts';
@@ -236,7 +237,10 @@ const Dashboard: React.FC = () => {
             <span>
               {a.appId}
             </span>
-            <span>
+            <span onClick={() => {
+              void executeRuleControl(a.installedAppId, 'daylight');
+            }}
+            >
               {a.installedAppId}
             </span>
             <span>
