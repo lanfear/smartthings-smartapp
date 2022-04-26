@@ -17,6 +17,8 @@ export type IRule = (Rule & {
   ruleSummary: IRuleSummary;
 });
 
+export type IRuleComponentType = 'Daylight' | 'Nightlight' | 'Transition' | 'Idle';
+
 export type IResponseRooms = IRoom[];
 export type IResponseScenes = IScene[];
 export type IResponseSwitches = IDevice[];

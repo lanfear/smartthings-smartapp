@@ -4,10 +4,9 @@ import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
+import {IRuleComponentType} from '../types/sharedContracts';
 
-type RuleComponentType = 'Daylight' | 'Nightlight' | 'Transition' | 'Idle';
-
-const getRuleIcon = (ruleType: RuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'Daylight' ? '🌞' : ruleType === 'Nightlight' ? '🌚' : ruleType === 'Transition' ? '🔀' : '💤';
+const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'Daylight' ? '🌞' : ruleType === 'Nightlight' ? '🌚' : ruleType === 'Transition' ? '🔀' : '💤';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => {
@@ -38,7 +37,7 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
 export interface IRuleProps {
   rulePartId: string;
   ruleName: string;
-  ruleType: RuleComponentType;
+  ruleType: IRuleComponentType;
   time: string;
   isRuleEnabled: boolean;
   isKeyRule: boolean;
