@@ -2,19 +2,21 @@ import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
 import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
-import express from 'express';
+import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import JSONdb from 'simple-json-db';
+import {RuleStoreInfo} from './types';
+import {IResponseLocation, IRuleComponentType, IRuleSummary} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
-import {RuleStoreInfo} from './types';
-import {IResponseLocation} from 'sharedContracts';
 import {localOnlyMiddleware} from './middlewares';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
+import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
+
 
 const defaultPort = 3001;
 
@@ -107,21 +109,64 @@ server.post('/device/:deviceId', async (req, res) => {
   res.send(result);
 });
 
-/* Execute a device command */
-server.put('/rule/:installedAppId/:rulePart', (req, res) => {
-  const ruleStoreInfo = ruleStore.get(`app-${req.params.installedAppId}`) as RuleStoreInfo;
-  const combinedRule = createCombinedRuleFromSummary(ruleStoreInfo.newRuleSummary, true, true, true);
-  const transitionRule = createTransitionRuleFromSummary(ruleStoreInfo.newRuleSummary, true);
+/* Enable/Disable a rule component */
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: boolean}>, res) => {
+  const appKey = `app-${req.params.installedAppId}`;
+  const ruleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
 
-  const rulesAreModified = (!ruleStoreInfo.combinedRule || JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule));
-  const rules2AreModified = (!ruleStoreInfo.transitionRule || JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule));
+  if (!ruleStoreInfo) {
+    res.statusCode = 422;
+    res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
+    res.send();
+  }
 
-  console.log('a', rulesAreModified, 't', combinedRule); // eslint-disable-line no-console
-  console.log('json1', JSON.stringify(combinedRule)); // eslint-disable-line no-console
-  console.log('json2', JSON.stringify(ruleStoreInfo.combinedRule)); // eslint-disable-line no-console
-  console.log('a', rules2AreModified, 't2', transitionRule); // eslint-disable-line no-console
-  console.log('json3', JSON.stringify(transitionRule)); // eslint-disable-line no-console
-  console.log('json4', JSON.stringify(ruleStoreInfo.transitionRule)); // eslint-disable-line no-console
+  // if route passed 'all' we disable all rule components, else, we disable whichever matches
+  const enableAll = req.params.ruleComponent !== 'all' || req.params.enabled;
+  const enableDaylight = enableAll || req.params.ruleComponent !== 'daylight' || req.params.enabled;
+  const enableNightlight = enableAll || req.params.ruleComponent !== 'nightlight' || req.params.enabled;
+  const enableIdle = enableAll || req.params.ruleComponent !== 'idle' || req.params.enabled;
+  const enableTransition = enableAll || req.params.ruleComponent !== 'transition' || req.params.enabled;
+  const combinedRule = createCombinedRuleFromSummary(
+    ruleStoreInfo.newRuleSummary,
+    enableDaylight,
+    enableNightlight,
+    enableIdle
+  );
+  const transitionRule = createTransitionRuleFromSummary(
+    ruleStoreInfo.newRuleSummary,
+    enableTransition
+  );
+
+  const rulesAreModified =
+    JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
+    JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule);
+
+  // only store modifications to the ...Enabled settings in newRuleSummary, we dont modify the rest of the summary
+  const newRuleSummary: IRuleSummary = {
+    ...ruleStoreInfo.newRuleSummary,
+    enableAllRules: enableAll,
+    enableDaylightRule: enableDaylight,
+    enableNightlightRule: enableNightlight,
+    enableIdleRule: enableIdle,
+    enableTransitionRule: enableTransition
+  };
+
+  if (!rulesAreModified) {
+    // eslint-disable-next-line no-console
+    console.log('Rules not modified, nothing to update');
+    return;
+  }
+
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  await submitRulesForSmartAppOperation(
+    client,
+    ruleStore,
+    req.params.locationId,
+    appKey,
+    combinedRule,
+    transitionRule,
+    newRuleSummary
+  );
 
   res.send();
 });
