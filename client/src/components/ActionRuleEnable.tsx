@@ -1,17 +1,25 @@
 import React from 'react';
-import {DropTargetMonitor, useDrop} from 'react-dnd';
+import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
-
-const onDrop = async (item: IDragAndDropItem, monitor: DropTargetMonitor): Promise<IDragAndDropItem> => {
-  await Promise.resolve();
-  // eslint-disable-next-line no-console
-  console.log('item dropped', item, monitor);
-  return item;
-};
+import executeRuleControl from '../operations/executeRuleControl';
+import {useDeviceContext} from '../store/DeviceContextStore';
+import {IRuleComponentType} from '../types/sharedContracts';
 
 const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
+  const {deviceData} = useDeviceContext();
+
+  const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
+  // eslint-disable-next-line no-console
+    console.log('item dropped', item);
+
+    if (item.type === IDragAndDropType.Rule) {
+      await executeRuleControl(deviceData.locationId, item.id, item.subtype as IRuleComponentType, true);
+    }
+    return item;
+  };
+
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule]));
   
   const leftControl = (
@@ -24,7 +32,7 @@ const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
           🤖
       </ControlIcon>
       <ControlStatus>
-        {words}
+        {`Enable Rule ${words}`}
       </ControlStatus>
     </ControlContainer>
   );

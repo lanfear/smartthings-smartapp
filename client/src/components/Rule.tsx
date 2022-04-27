@@ -11,7 +11,7 @@ const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => {
   const dragId = `${ruleType.toLowerCase()}-${rulePartId}`;
-  const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Rule, dragId, ruleName)));
+  const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Rule, rulePartId, ruleName, ruleType)));
   const iconography = `${getRuleIcon(ruleType)}${isKeyRule ? '🔑' : ''}`;
 
   return (

@@ -109,7 +109,7 @@ server.post('/device/:deviceId', async (req, res) => {
 });
 
 /* Enable/Disable a rule component */
-server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: boolean}>, res) => {
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
   const appKey = `app-${req.params.installedAppId}`;
   const ruleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
 
@@ -117,14 +117,15 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     res.statusCode = 422;
     res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
     res.send();
+    return;
   }
 
   // if route passed 'all' we disable all rule components, else, we disable whichever matches
-  const enableAll = req.params.ruleComponent !== 'all' || req.params.enabled;
-  const enableDaylight = enableAll || req.params.ruleComponent !== 'daylight' || req.params.enabled;
-  const enableNightlight = enableAll || req.params.ruleComponent !== 'nightlight' || req.params.enabled;
-  const enableIdle = enableAll || req.params.ruleComponent !== 'idle' || req.params.enabled;
-  const enableTransition = enableAll || req.params.ruleComponent !== 'transition' || req.params.enabled;
+  const enableAll = req.params.ruleComponent !== 'all' || req.params.enabled === 'true';
+  const enableDaylight = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableDaylightRule;
+  const enableNightlight = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableNightlightRule;
+  const enableIdle = req.params.ruleComponent === 'idle' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableIdleRule;
+  const enableTransition = req.params.ruleComponent === 'transition' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableTransitionRule;
   const combinedRule = createCombinedRuleFromSummary(
     ruleStoreInfo.newRuleSummary,
     enableDaylight,
@@ -135,6 +136,9 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     ruleStoreInfo.newRuleSummary,
     enableTransition
   );
+
+  // eslint-disable-next-line no-console
+  console.log(req.params.ruleComponent, req.params.enabled, enableAll, enableDaylight, enableNightlight, enableIdle, enableTransition, ruleStoreInfo.newRuleSummary);
 
   const rulesAreModified =
     JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
@@ -153,6 +157,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   if (!rulesAreModified) {
     // eslint-disable-next-line no-console
     console.log('Rules not modified, nothing to update');
+    res.statusCode = StatusCodes.NOT_MODIFIED;
+    res.send();
     return;
   }
 

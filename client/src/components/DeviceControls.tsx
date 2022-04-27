@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import ActionDeviceDim from './ActionDeviceDim';
 import ActionDeviceOff from './ActionDeviceOff';
 import ActionDeviceOn from './ActionDeviceOn';
+import ActionRuleDisable from './ActionRuleDisable';
+import ActionRuleEnable from './ActionRuleEnable';
 
 const DeviceControlsContainer = styled.div`
   display: flex;
@@ -18,11 +20,12 @@ const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {
 
   deviceControls.push(<ActionDeviceOn words="PowerOn" />);
   deviceControls.push(<ActionDeviceOff words="PowerOff" />);
+  deviceControls.push(<ActionDeviceDim words="Dim" />);
+  deviceControls.push(<ActionRuleEnable words="(E)" />);
+  deviceControls.push(<ActionRuleDisable words="(D)" />);
   
   return (
     <DeviceControlsContainer>
-      {deviceControls.map(c => c)}
-      <ActionDeviceDim words="Dim" />
       {deviceControls.map(c => c)}
     </DeviceControlsContainer>
   );

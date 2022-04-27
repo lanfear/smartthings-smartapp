@@ -236,7 +236,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 {ruleParts.dayRule && (
                   <Rule
                     key={`rulepart-daylight-${a.installedAppId}`}
-                    rulePartId={`rulepart-daylight-${a.installedAppId}`}
+                    rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
@@ -260,7 +260,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 {ruleParts.nightRule && (
                   <Rule
                     key={`rulepart-nightlight-${a.installedAppId}`}
-                    rulePartId={`rulepart-nightlight-${a.installedAppId}`}
+                    rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
@@ -272,7 +272,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                 {ruleParts.idleRule && (
                   <Rule
                     key={`rulepart-idle-${a.installedAppId}`}
-                    rulePartId={`rulepart-idle-${a.installedAppId}`}
+                    rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Idle Rule`}
                     ruleType="idle"
                     time={ruleParts.idleRule.motionTimeout}
