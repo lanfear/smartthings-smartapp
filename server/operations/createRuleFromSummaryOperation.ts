@@ -11,6 +11,10 @@ import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation'
 dayjs.extend(utc);
 
 export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRuleEnabled: boolean, nightRuleEnabled: boolean, idleRuleEnabled: boolean): RuleRequest => {
+  if (!ruleSummary || !ruleSummary.enableAllRules) {
+    return null;
+  }
+
   const dayStartTime = dayjs(ruleSummary.dayStartTime).utc().diff(dayjs(ruleSummary.dayStartTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
   const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
   const nightEndTime = dayjs(ruleSummary.nightEndTime).utc().diff(dayjs(ruleSummary.nightEndTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
@@ -58,6 +62,10 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRule
 };
 
 export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary, transitionRuleEnabled: boolean): RuleRequest => {
+  if (!ruleSummary || !ruleSummary.enableAllRules) {
+    return null;
+  }
+
   const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
 
   const appKey = `app-${ruleSummary.installedAppId}`;
