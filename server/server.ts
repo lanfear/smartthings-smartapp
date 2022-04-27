@@ -17,7 +17,6 @@ import {localOnlyMiddleware} from './middlewares';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
 import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
 
-
 const defaultPort = 3001;
 
 const server = express();
