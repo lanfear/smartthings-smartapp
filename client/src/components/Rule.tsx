@@ -6,7 +6,7 @@ import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFa
 import {IActiveControl} from '../types/interfaces';
 import {IRuleComponentType} from '../types/sharedContracts';
 
-const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'Daylight' ? '🌞' : ruleType === 'Nightlight' ? '🌚' : ruleType === 'Transition' ? '🔀' : '💤';
+const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '💤';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleEnabled, isKeyRule, setActiveDevice}) => {

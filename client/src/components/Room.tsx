@@ -238,7 +238,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-daylight-${a.installedAppId}`}
                     rulePartId={`rulepart-daylight-${a.installedAppId}`}
                     ruleName={`${a.displayName!} Daylight Rule`}
-                    ruleType="Daylight"
+                    ruleType="daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                     isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
@@ -250,7 +250,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-transition-${a.installedAppId}`}
                     rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Transition Rule`}
-                    ruleType="Transition"
+                    ruleType="transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
                     isRuleEnabled={true}
                     isKeyRule={false}
@@ -262,7 +262,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-nightlight-${a.installedAppId}`}
                     rulePartId={`rulepart-nightlight-${a.installedAppId}`}
                     ruleName={`${a.displayName!} Nightlight Rule`}
-                    ruleType="Nightlight"
+                    ruleType="nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
                     isRuleEnabled={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                     isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
@@ -274,7 +274,7 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     key={`rulepart-idle-${a.installedAppId}`}
                     rulePartId={`rulepart-idle-${a.installedAppId}`}
                     ruleName={`${a.displayName!} Idle Rule`}
-                    ruleType="Idle"
+                    ruleType="idle"
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleEnabled={true}
                     isKeyRule={false}
