@@ -240,7 +240,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isRuleActive={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
                     isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
@@ -252,7 +253,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Transition Rule`}
                     ruleType="transition"
                     time={ruleParts.transitionRule.time.format('HH:mm')}
-                    isRuleEnabled={true}
+                    isRuleActive={true}
+                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
                     isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                   />
@@ -264,7 +266,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleEnabled={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isRuleActive={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
                     isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
                   />
@@ -276,7 +279,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
                     ruleName={`${a.displayName!} Idle Rule`}
                     ruleType="idle"
                     time={ruleParts.idleRule.motionTimeout}
-                    isRuleEnabled={true}
+                    isRuleActive={true}
+                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
                     isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                   />
