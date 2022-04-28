@@ -24,8 +24,11 @@ const submitRules = async (client: SmartThingsClient, ruleStore: JSONdb, locatio
   await Promise.all(
     (await client.rules?.list(locationId) || [])
       .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
-      .map(async r => await client.rules.delete(r.id, locationId)));
-
+      .map(async r => {
+        await client.rules.delete(r.id, locationId);
+        newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
+      }));
+  
   const newCombinedRuleResponse = combinedRule && await client.rules.create(combinedRule, locationId) || null;
   const newTransitionRuleResponse = transitionRule && await client.rules.create(transitionRule, locationId) || null;
   const newRuleIds = [newCombinedRuleResponse?.id, newTransitionRuleResponse?.id].filter(id => !!id);
