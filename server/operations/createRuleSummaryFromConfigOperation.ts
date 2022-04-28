@@ -46,6 +46,11 @@ const createRuleSummaryFromConfig = (
     enableNightlightRule: config.enableNightlightRule,
     enableIdleRule: config.enableIdleRule,
     enableTransitionRule: config.enableDaylightRule && config.enableNightlightRule,
+    temporaryDisableAllRules: false,
+    temporaryDisableDaylightRule: false,
+    temporaryDisableNightlightRule: false,
+    temporaryDisableIdleRule: false,
+    temporaryDisableTransitionRule: false,
     installedAppId: installedAppId,
     ruleIds: ruleIds
   };

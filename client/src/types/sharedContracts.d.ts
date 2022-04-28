@@ -75,6 +75,11 @@ export interface IRuleSummary {
   enableNightlightRule: boolean;
   enableIdleRule: boolean;
   enableTransitionRule: boolean;
+  temporaryDisableAllRules: boolean;
+  temporaryDisableDaylightRule: boolean;
+  temporaryDisableNightlightRule: boolean;
+  temporaryDisableIdleRule: boolean;
+  temporaryDisableTransitionRule: boolean;
   installedAppId: string;
   ruleIds: string[];
 }

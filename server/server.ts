@@ -7,7 +7,7 @@ import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import JSONdb from 'simple-json-db';
 import {RuleStoreInfo} from './types';
-import {IResponseLocation, IRuleComponentType, IRuleSummary} from 'sharedContracts';
+import {IResponseLocation, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
@@ -121,38 +121,24 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   }
 
   // if route passed 'all' we disable all rule components, else, we disable whichever matches
-  const enableAll = req.params.ruleComponent !== 'all' || req.params.enabled === 'true';
-  const enableDaylight = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableDaylightRule;
-  const enableNightlight = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableNightlightRule;
-  const enableIdle = req.params.ruleComponent === 'idle' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableIdleRule;
-  const enableTransition = req.params.ruleComponent === 'transition' ? req.params.enabled === 'true' : ruleStoreInfo.newRuleSummary.enableTransitionRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableAllRules = req.params.ruleComponent === 'all' && req.params.enabled === 'false'; // may want to factor this disable all value into the following rules?
+  ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableDaylightRule && ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableNightlightRule && ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = req.params.ruleComponent === 'idle' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableIdleRule && ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = req.params.ruleComponent === 'transition' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableTransitionRule && ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule;
   const combinedRule = createCombinedRuleFromSummary(
-    ruleStoreInfo.newRuleSummary,
-    enableDaylight,
-    enableNightlight,
-    enableIdle
+    ruleStoreInfo.newRuleSummary
   );
   const transitionRule = createTransitionRuleFromSummary(
-    ruleStoreInfo.newRuleSummary,
-    enableTransition
+    ruleStoreInfo.newRuleSummary
   );
 
   // eslint-disable-next-line no-console
-  console.log(req.params.ruleComponent, req.params.enabled, enableAll, enableDaylight, enableNightlight, enableIdle, enableTransition, ruleStoreInfo.newRuleSummary);
+  // console.log(req.params.ruleComponent, req.params.enabled, ruleStoreInfo.newRuleSummary);
 
   const rulesAreModified =
     JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
     JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule);
-
-  // only store modifications to the ...Enabled settings in newRuleSummary, we dont modify the rest of the summary
-  const newRuleSummary: IRuleSummary = {
-    ...ruleStoreInfo.newRuleSummary,
-    enableAllRules: enableAll,
-    enableDaylightRule: enableDaylight,
-    enableNightlightRule: enableNightlight,
-    enableIdleRule: enableIdle,
-    enableTransitionRule: enableTransition
-  };
 
   if (!rulesAreModified) {
     // eslint-disable-next-line no-console
@@ -170,7 +156,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     appKey,
     combinedRule,
     transitionRule,
-    newRuleSummary
+    ruleStoreInfo.newRuleSummary
   );
 
   res.send();

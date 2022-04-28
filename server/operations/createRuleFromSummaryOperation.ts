@@ -10,7 +10,7 @@ import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation'
 
 dayjs.extend(utc);
 
-export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRuleEnabled: boolean, nightRuleEnabled: boolean, idleRuleEnabled: boolean): RuleRequest => {
+export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
   if (!ruleSummary || !ruleSummary.enableAllRules) {
     return null;
   }
@@ -22,7 +22,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRule
   const uniqueSwitches = uniqueDeviceFactory(ruleSummary.daySwitches.concat(ruleSummary.nightSwitches));
   
   /* eslint-disable no-mixed-operators */
-  const newDayRule = dayRuleEnabled && ruleSummary.enableDaylightRule && createTriggerRuleFromConfig(
+  const newDayRule = ruleSummary.enableDaylightRule && !ruleSummary.temporaryDisableDaylightRule && createTriggerRuleFromConfig(
     dayStartTime,
     dayNightTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -33,7 +33,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRule
     ruleSummary.motionDurationDelay
   ) || null;
 
-  const newNightRule = nightRuleEnabled && ruleSummary.enableNightlightRule && createTriggerRuleFromConfig(
+  const newNightRule = ruleSummary.enableNightlightRule && !ruleSummary.temporaryDisableNightlightRule && createTriggerRuleFromConfig(
     dayNightTime,
     nightEndTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -44,7 +44,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRule
     ruleSummary.motionDurationDelay
   ) || null;
 
-  const newIdleRule = idleRuleEnabled && ruleSummary.enableIdleRule && createIdleRuleFromConfig(
+  const newIdleRule = ruleSummary.enableIdleRule && !ruleSummary.temporaryDisableIdleRule && createIdleRuleFromConfig(
     ruleSummary.motionSensors.map(d => d.deviceId),
     uniqueSwitches.map(d => d.deviceId),
     ruleSummary.motionIdleTimeout,
@@ -61,7 +61,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary, dayRule
   );
 };
 
-export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary, transitionRuleEnabled: boolean): RuleRequest => {
+export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
   if (!ruleSummary || !ruleSummary.enableAllRules) {
     return null;
   }
@@ -69,7 +69,7 @@ export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary, trans
   const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
 
   const appKey = `app-${ruleSummary.installedAppId}`;
-  return transitionRuleEnabled && ruleSummary.enableTransitionRule && createTransitionRuleFromConfig(
+  return ruleSummary.enableTransitionRule && !ruleSummary.temporaryDisableTransitionRule && createTransitionRuleFromConfig(
     appKey,
     dayNightTime,
     ruleSummary.daySwitches.map(s => s.deviceId),
