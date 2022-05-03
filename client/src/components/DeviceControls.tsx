@@ -7,6 +7,7 @@ import ActionRuleDisable from './ActionRuleDisable';
 import ActionRuleEnable from './ActionRuleEnable';
 
 const DeviceControlsContainer = styled.div`
+  height: 75vh;
   display: flex;
   flex-direction: column;
   width: 100%;
