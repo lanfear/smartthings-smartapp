@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 
@@ -29,7 +29,7 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device]));
   
   const leftControl = (
-    <ControlContainer
+    <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
       ref={drop}
       {...collectedProps}
@@ -40,7 +40,7 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
       <ControlStatus>
         {words}
       </ControlStatus>
-    </ControlContainer>
+    </ControlActionContainer>
   );
   
   return leftControl;
