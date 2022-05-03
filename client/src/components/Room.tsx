@@ -13,7 +13,6 @@ import SmartApp from './SmartApp';
 import getRulesFromSummary from '../operations/getRulesFromSummary';
 import Rule from './Rule';
 import {IActiveControl} from '../types/interfaces';
-import DeviceControls from './DeviceControls';
 
 dayjs.extend(isBetween);
 
@@ -21,6 +20,7 @@ dayjs.extend(isBetween);
 // ideas: 🪄 🔮 🕹 🔌 💾 🔐 🔑 🔂
 
 const RoomContainer = styled.div`
+  height: 100%;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -36,7 +36,7 @@ const RoomControlGrid = styled.div`
   height: 100%;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: max-content 1fr 2rem 4rem;
+  grid-template-rows: max-content 1fr 2rem;
   gap: 2px;
 `;
 
@@ -77,16 +77,6 @@ const RoomControlDeviceLabel = styled.span`
   grid-column-end: 6;
   grid-row-start: 3;
   grid-row-end: 3;
-  justify-content: center;
-  align-items: center;
-`;
-
-const RoomControlDeviceActions = styled.span`
-  display: flex;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  grid-row-start: 4;
-  grid-row-end: 4;
   justify-content: center;
   align-items: center;
 `;
@@ -292,9 +282,6 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         <RoomControlDeviceLabel>
           {activeDevice?.name}
         </RoomControlDeviceLabel>
-        <RoomControlDeviceActions>
-          <DeviceControls words="Controls Here" />
-        </RoomControlDeviceActions>
       </RoomControlGrid>
     </RoomContainer>
   );

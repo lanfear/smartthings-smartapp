@@ -8,8 +8,11 @@ import ActionRuleEnable from './ActionRuleEnable';
 
 const DeviceControlsContainer = styled.div`
   display: flex;
+  flex-direction: column;
   width: 100%;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
 `;
 
 const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {

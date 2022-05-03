@@ -7,8 +7,10 @@ import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
 import {DeviceContext, IResponseLocation, IRule} from '../types/sharedContracts';
+import DeviceControls from './DeviceControls';
 import Room from './Room';
 
+const gridRoomColumnCount = 3;
 const filteredRooms = ['DO NOT USE'];
 
 const DashboardTitle = styled.h2`
@@ -21,9 +23,9 @@ const DashboardSubTitle = styled.h3`
 
 const DashboardRoomGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: [control-start] max-content [control-end] repeat(3, [room-start] 1fr [room-end]);
     gap: 10px;
-    grid-auto-columns: 1fr;
+    // grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
 `;
 
@@ -50,6 +52,23 @@ const DashboardAppGrid = styled.div`
 const DashboardGridColumnHeader = styled.span`
     display: flex;
     justify-content: center;
+`;
+
+const RoomGridContainer = styled.div`
+  &:nth-child(3n+1) {
+    grid-column: room-start 1 / room-end 1;
+  }
+  &:nth-child(3n+2) {
+    grid-column: room-start 2 / room-end 2;
+  }
+  &:nth-child(3n) {
+    grid-column: room-start 3 / room-end 3;
+  }
+`;
+
+const DeviceControlsGridContainer = styled.div<{roomCount: number}>`
+  grid-column: control-start / control-end;
+  grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
 `;
 
 const initialDashboardData: IResponseLocation = {
@@ -135,10 +154,13 @@ const Dashboard: React.FC = () => {
       </DashboardSubTitle>
       <DashboardRoomGrid>
         {renderedDashboardData && renderedDashboardData?.rooms?.map(r => (
-          <React.Fragment key={`room-${r.roomId as string}`}>
+          <RoomGridContainer key={`room-${r.roomId as string}`}>
             <Room room={r} />
-          </React.Fragment>
+          </RoomGridContainer>
         ))}
+        <DeviceControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
+          <DeviceControls words="bewbs" />
+        </DeviceControlsGridContainer>
       </DashboardRoomGrid>
       <DashboardSubTitle>
         {t('dashboard.scene.sectionName')}
