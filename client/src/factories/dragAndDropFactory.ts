@@ -40,6 +40,7 @@ export const createDragConfig = (type: IDragAndDropType, dragId: string, display
   })
 });
 
+// TODO: define collect type as more than Record...
 export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => Promise<IDragAndDropItem>, accept?: IDragAndDropType[]): IDropConfig => ({
   accept: accept ?? [IDragAndDropType.App, IDragAndDropType.Device, IDragAndDropType.Power, IDragAndDropType.Rule],
   drop: onDrop,

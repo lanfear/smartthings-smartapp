@@ -31,4 +31,9 @@ export const ControlContainer = styled.button<{rgb: string}>`
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`
   opacity: ${props => props.canDrop === false ? '.25' : '1'};
   transition: opacity .25s ease-in-out;
+
+  input[type="range"] {
+    -webkit-appearance: slider-vertical;
+  }
+
 `;
