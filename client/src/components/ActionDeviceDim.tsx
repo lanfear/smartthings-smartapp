@@ -38,6 +38,7 @@ const DimLevelSlider = styled.div`
   align-items:center;
   color: white;
   font-family: sans-serif;
+  transition: all 0.15s;
 `;
 
 // slider level bottom is controlled here so we can rely on isOverCurrent also
