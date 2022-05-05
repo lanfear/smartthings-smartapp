@@ -6,6 +6,7 @@ import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories
 import {ControlActionContainer} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
+import {IResponseSwitches} from '../types/sharedContracts';
 
 const dimLevelMin = 5;
 const dimLevelMax = 95;
@@ -22,7 +23,7 @@ const DimLevelSliderContainer = styled.div`
   box-shadow: 0 0 5px #e76f51;
 `;
 
-const DimLevelSlider = styled.div<{progressPercentage: number}>`
+const DimLevelSlider = styled.div`
   position: absolute;
   height: 100%;
   width: 100%;
@@ -30,7 +31,7 @@ const DimLevelSlider = styled.div<{progressPercentage: number}>`
   background-color: #e76f51;
   left: 0;
   right: 0;
-  bottom: ${props => negative100Percent + props.progressPercentage}%;
+  bottom: -100%;
   border-radius: inherit;
   display: flex;
   justify-content: center;
@@ -39,9 +40,41 @@ const DimLevelSlider = styled.div<{progressPercentage: number}>`
   font-family: sans-serif;
 `;
 
-const BleedingControlActionContainer = styled(ControlActionContainer)`
+// slider level bottom is controlled here so we can rely on is-dragging also
+const BleedingControlActionContainer = styled(ControlActionContainer) <{progressPercentage: number; isOverCurrent?: boolean}>`
   flex-grow: 1;
+
+  .dim-level-slider {
+    bottom: ${props => props.isOverCurrent ? negative100Percent + props.progressPercentage : negative100Percent}%;
+  }
 `;
+
+const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitches, dimLevelSliderValue: number, setDimLevelSliderValue: (value: React.SetStateAction<number>) => void): Promise<IDragAndDropItem> => {
+  // component: 'main',
+  // capability: 'switchLevel',
+  // command: 'setLevel',
+  // arguments: [{integer: switchLevel}, {integer: rateLevel}]
+
+  // this shouldn't happen, but just incase we drop and have never updated state dont unintentionally dim light to '0', rather do nothing
+  if (dimLevelSliderValue <= 0) {
+    return item;
+  }
+
+  try {
+    if (item.type === IDragAndDropType.Device) {
+      // eslint-disable-next-line no-magic-numbers
+      await executeDeviceCommand(item.id, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50]);
+    } else if (item.type === IDragAndDropType.Power) {
+      const roomSwitches = allSwitches.filter(d => d.roomId === item.id);
+      // TODO: this can be a single call if we expose the API properly
+      // eslint-disable-next-line no-magic-numbers
+      await Promise.all(roomSwitches.map(s => executeDeviceCommand(s.deviceId, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50])));
+    }
+    return item;
+  } finally {
+    setDimLevelSliderValue(0);
+  }
+};
 
 const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
   const {deviceData} = useDeviceContext();
@@ -51,35 +84,6 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
   // TODO: this whole state can go someday...?
   // eslint-disable-next-line no-console
   console.log('words', words, dimLevelSliderValue);
-
-  const onDrop = useMemo(() => async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
-    // component: 'main',
-    // capability: 'switchLevel',
-    // command: 'setLevel',
-    // arguments: [{integer: switchLevel}, {integer: rateLevel}]
-
-    // this shouldn't happen, but just incase we drop and have never updated state dont unintentionally dim light to '0', rather do nothing
-    if (dimLevelSliderValue <= 0) {
-      return item;
-    }
-
-    try {
-      if (item.type === IDragAndDropType.Device) {
-        // eslint-disable-next-line no-magic-numbers
-        await executeDeviceCommand(item.id, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50]);
-      } else if (item.type === IDragAndDropType.Power) {
-        const roomSwitches = deviceData.switches.filter(d => d.roomId === item.id);
-        // TODO: this can be a single call if we expose the API properly
-        // eslint-disable-next-line no-magic-numbers
-        await Promise.all(roomSwitches.map(s => executeDeviceCommand(s.deviceId, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50])));
-      }
-      return item;
-    } finally {
-      setDimLevelSliderValue(0);
-    }
-  // TODO: is this right, do i redefine this func everytime this state var changes?  or can i pass it into a more stable memo?
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dimLevelSliderValue]);
 
   const sliderRef = useRef<HTMLInputElement>(null);
 
@@ -105,17 +109,26 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
   };
 
   // create a standard hook config from factory like elsewhere, then spread additional 'hover' prop onto it
-  const dropHookConfig = createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device]);
-  const [collectedProps, drop] = useDrop(() => ({...dropHookConfig, hover: onDragHover}));
+  const dropHookConfig = useMemo(() => {
+    const onDrop = (item: IDragAndDropItem): Promise<IDragAndDropItem> => onDropStatic(item, deviceData.switches, dimLevelSliderValue, setDimLevelSliderValue);
+    return {...(createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device])), hover: onDragHover};
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dimLevelSliderValue]);
+
+  const [collectedProps, drop] = useDrop(() => dropHookConfig, [dimLevelSliderValue]);
 
   const leftControl = (
     <BleedingControlActionContainer
       rgb={global.palette.control.rgb.inactive}
       ref={drop}
+      progressPercentage={dimLevelSliderValue}
       {...collectedProps}
     >
-      <DimLevelSliderContainer ref={sliderRef}>
-        <DimLevelSlider progressPercentage={dimLevelSliderValue} />
+      <DimLevelSliderContainer
+        className="dim-level-slider-container"
+        ref={sliderRef}
+      >
+        <DimLevelSlider className="dim-level-slider" />
       </DimLevelSliderContainer>
     </BleedingControlActionContainer>
   );
