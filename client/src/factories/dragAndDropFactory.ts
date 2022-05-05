@@ -17,14 +17,24 @@ export interface IDragAndDropItem {
 export interface IDragConfig {
   type: IDragAndDropType;
   item: IDragAndDropItem;
-  collect: (monitor: DragSourceMonitor) => { isDragging: boolean };
+  collect: (monitor: DragSourceMonitor<IDragAndDropItem, IDragAndDropItem>) => IDragMonitor;
 }
 
 export interface IDropConfig {
   accept: IDragAndDropType[];
   drop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => Promise<IDragAndDropItem>;
   canDrop?: (item: IDragAndDropItem, monitor: DropTargetMonitor<IDragAndDropItem, IDragAndDropItem>) => boolean;
-  collect?: (monitor: DropTargetMonitor<IDragAndDropItem, IDragAndDropItem>) => Record<string, unknown>;
+  collect?: (monitor: DropTargetMonitor<IDragAndDropItem, IDragAndDropItem>) => IDropMonitor;
+}
+
+export interface IDragMonitor {
+  isDragging: boolean;
+}
+
+export interface IDropMonitor {
+  hovered: boolean;
+  canDrop: boolean;
+  isOverCurrent: boolean;
 }
 
 export const createDragConfig = (type: IDragAndDropType, dragId: string, displayName: string, subtype?: string): IDragConfig => ({
@@ -40,7 +50,6 @@ export const createDragConfig = (type: IDragAndDropType, dragId: string, display
   })
 });
 
-// TODO: define collect type as more than Record...
 export const createDropConfig = (onDrop: (item: IDragAndDropItem, monitor: DropTargetMonitor) => Promise<IDragAndDropItem>, accept?: IDragAndDropType[]): IDropConfig => ({
   accept: accept ?? [IDragAndDropType.App, IDragAndDropType.Device, IDragAndDropType.Power, IDragAndDropType.Rule],
   drop: onDrop,

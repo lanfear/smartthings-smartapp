@@ -19,11 +19,36 @@ const DeviceControlsContainer = styled.div`
 const DeviceControls: React.FC = () => {
   const deviceControls: ReactNode[] = [];
 
-  deviceControls.push(<ActionDeviceOn words="PowerOn" />);
-  deviceControls.push(<ActionDeviceOff words="PowerOff" />);
-  deviceControls.push(<ActionDeviceDim words="Dim" />);
-  deviceControls.push(<ActionRuleEnable words="(E)" />);
-  deviceControls.push(<ActionRuleDisable words="(D)" />);
+  deviceControls.push(
+    <ActionDeviceOn
+      key="control-action-power-on"
+      words="PowerOn"
+    />
+  );
+  deviceControls.push(
+    <ActionDeviceOff
+      key="control-action-power-off"
+      words="PowerOff"
+    />
+  );
+  deviceControls.push(
+    <ActionDeviceDim
+      key="control-action-power-dim"
+      words="Dim"
+    />
+  );
+  deviceControls.push(
+    <ActionRuleEnable
+      key="control-action-rule-enable"
+      words="(E)"
+    />
+  );
+  deviceControls.push(
+    <ActionRuleDisable
+      key="control-action-rule-disable"
+      words="(D)"
+    />
+  );
   
   return (
     <DeviceControlsContainer>

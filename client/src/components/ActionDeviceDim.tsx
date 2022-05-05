@@ -40,7 +40,7 @@ const DimLevelSlider = styled.div`
   font-family: sans-serif;
 `;
 
-// slider level bottom is controlled here so we can rely on is-dragging also
+// slider level bottom is controlled here so we can rely on isOverCurrent also
 const BleedingControlActionContainer = styled(ControlActionContainer) <{progressPercentage: number; isOverCurrent?: boolean}>`
   flex-grow: 1;
 
