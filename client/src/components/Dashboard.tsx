@@ -159,7 +159,7 @@ const Dashboard: React.FC = () => {
           </RoomGridContainer>
         ))}
         <DeviceControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
-          <DeviceControls words="bewbs" />
+          <DeviceControls />
         </DeviceControlsGridContainer>
       </DashboardRoomGrid>
       <DashboardSubTitle>

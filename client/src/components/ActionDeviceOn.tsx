@@ -36,9 +36,6 @@ const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
     </ControlActionContainer>
   );
 
-  // eslint-disable-next-line no-console
-  console.log('cp', collectedProps);
-  
   return leftControl;
 };
 

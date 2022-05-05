@@ -16,11 +16,8 @@ const DeviceControlsContainer = styled.div`
   top: 0;
 `;
 
-const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {
+const DeviceControls: React.FC = () => {
   const deviceControls: ReactNode[] = [];
-
-  // eslint-disable-next-line no-console
-  console.log(words);
 
   deviceControls.push(<ActionDeviceOn words="PowerOn" />);
   deviceControls.push(<ActionDeviceOff words="PowerOff" />);
@@ -34,9 +31,5 @@ const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {
     </DeviceControlsContainer>
   );
 };
-
-export interface IDeviceControlsProps {
-  words: string;
-}
 
 export default DeviceControls;

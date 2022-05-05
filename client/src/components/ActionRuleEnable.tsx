@@ -11,9 +11,6 @@ const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
-  // eslint-disable-next-line no-console
-    console.log('item dropped', item);
-
     if (item.type === IDragAndDropType.Rule) {
       await executeRuleControl(deviceData.locationId, item.id, item.subtype as IRuleComponentType, true);
     }
