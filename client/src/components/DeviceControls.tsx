@@ -22,19 +22,7 @@ const DeviceControls: React.FC = () => {
   deviceControls.push(
     <ActionDeviceOn
       key="control-action-power-on"
-      words="PowerOn"
-    />
-  );
-  deviceControls.push(
-    <ActionDeviceOff
-      key="control-action-power-off"
-      words="PowerOff"
-    />
-  );
-  deviceControls.push(
-    <ActionDeviceDim
-      key="control-action-power-dim"
-      words="Dim"
+      words="On"
     />
   );
   deviceControls.push(
@@ -44,9 +32,21 @@ const DeviceControls: React.FC = () => {
     />
   );
   deviceControls.push(
+    <ActionDeviceDim
+      key="control-action-power-dim"
+      words="Dim"
+    />
+  );
+  deviceControls.push(
     <ActionRuleDisable
       key="control-action-rule-disable"
       words="(D)"
+    />
+  );
+  deviceControls.push(
+    <ActionDeviceOff
+      key="control-action-power-off"
+      words="PowerOff"
     />
   );
   
