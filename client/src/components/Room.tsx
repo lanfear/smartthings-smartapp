@@ -16,6 +16,8 @@ import {IActiveControl} from '../types/interfaces';
 
 dayjs.extend(isBetween);
 
+const numDevicesPerRow = 5;
+
 // 32E624 green bg
 // ideas: 🪄 🔮 🕹 🔌 💾 🔐 🔑 🔂
 
@@ -31,24 +33,32 @@ const RoomContainer = styled.div`
   border-radius: 4px;
 `;
 
-const RoomControlGrid = styled.div`
+// each 'app' gets a row, up to 5 devices / row, plus reserved rows
+const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: max-content 1fr 2rem;
+  grid-template-rows: 
+    max-content
+    repeat(${props => Math.max(Math.ceil(props.numDevices / numDevicesPerRow) + props.numApps, 1)}, max-content)
+    1fr;
+  grid-template-columns: [device-start app-start] 1fr [device-end app-end device-start rule-day-start] 1fr [device-end rule-day-end device-start rule-trans-start] 1fr [device-end rule-trans-end device-start rule-night-start] 1fr [device-end rule-night-end device-start rule-idle-start] 1fr [device-end rule-idle-end];
+  // grid-template-columns: repeat(5, 1fr);
+  // grid-template-rows: max-content 1fr 2rem;
   gap: 2px;
 `;
 
-const RoomControlPower = styled.span`
+const RoomControlPower = styled.div`
   display: flex;
+  justify-content: center;
+  align-items: center;
   grid-column-start: 1;
   grid-column-end: 1;
   grid-row-start: 1;
   grid-row-end: 1;
 `;
 
-const RoomControlTitle = styled.span`
+const RoomControlTitle = styled.div`
   width: 100%;
   display: flex;
   grid-column-start: 2;
@@ -61,24 +71,43 @@ const RoomControlTitle = styled.span`
   font-weight: 700;
 `;
 
-const RoomControlDevices = styled.span`
+const RoomControlDevice = styled.div`
   display: flex;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  grid-row-start: 2;
-  grid-row-end: 2;
-  flex-wrap: wrap;
-  align-content: center;
-`;
-
-const RoomControlDeviceLabel = styled.span`
-  display: flex;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  grid-row-start: 3;
-  grid-row-end: 3;
   justify-content: center;
   align-items: center;
+  &:nth-child(5n+1) {
+    grid-column: device-start 1 / device-end 1
+  }
+  &:nth-child(5n+2) {
+    grid-column: device-start 2 / device-end 2
+  }
+  &:nth-child(5n+3) {
+    grid-column: device-start 3 / device-end 3
+  }
+  &:nth-child(5n+4) {
+    grid-column: device-start 4 / device-end 4
+  }
+  &:nth-child(5n+5) {
+    grid-column: device-start 5 / device-end 5
+  }
+`;
+
+const RoomControlRule = styled.div<{gridLineName: string}>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  grid-column: ${props => props.gridLineName}-start / ${props => props.gridLineName}-end
+`;
+
+const RoomControlDeviceLabel = styled.div`
+  display: flex;
+  grid-column-start: 1;
+  grid-column-end: -1;
+  grid-row-start: -2;
+  grid-row-end: -1;
+  justify-content: center;
+  align-items: end;
+  min-height: 2rem;
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {
@@ -113,6 +142,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
   }).filter(d => !!d);
 
   const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did!.deviceId));
+
+  const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
 
   const deviceEventSource = useEventSource({
     source: `${process.env.REACT_APP_APIHOST as string}/events`
@@ -175,7 +206,129 @@ const Room: React.FC<IRoomProps> = ({room}) => {
 
   return (
     <RoomContainer>
-      <RoomControlGrid>
+      <RoomControlGrid
+        numDevices={numDevices}
+        numApps={roomApps.length}
+      >
+        {roomSwitches.map(s => (
+          <RoomControlDevice
+            key={`switch-${s.deviceId}`}
+          >
+            <Device
+              device={s}
+              deviceType="Switch"
+              setActiveDevice={setActiveDevice}
+              isLocked={lockedDevices.some(d => d.deviceId === s.deviceId)}
+            />
+          </RoomControlDevice>
+        ))}
+        {roomLocks.map(s => (
+          <RoomControlDevice
+            key={`lock-${s.deviceId}`}
+          >
+            <Device
+              device={s}
+              deviceType="Lock"
+              setActiveDevice={setActiveDevice}
+            />
+          </RoomControlDevice>
+        ))}
+        {roomMotion.map(s => (
+          <RoomControlDevice
+            key={`motion-${s.deviceId}`}
+          >
+            <Device
+              device={s}
+              deviceType="Motion"
+              setActiveDevice={setActiveDevice}
+            />
+          </RoomControlDevice>
+        ))}
+        {roomApps.map(a => {
+          const ruleParts = getRulesFromSummary(a.ruleSummary);
+          return (
+            <>
+              <RoomControlRule
+                key={`app-${a.installedAppId}`}
+                gridLineName="app"
+              >
+                <SmartApp
+                  app={a}
+                  isRuleEnabled={true}
+                  setActiveDevice={setActiveDevice}
+                />
+              </RoomControlRule>
+              {ruleParts.dayRule && (
+                <RoomControlRule
+                  key={`rulepart-daylight-${a.installedAppId}`}
+                  gridLineName="rule-day"
+                >
+                  <Rule
+                    rulePartId={a.installedAppId}
+                    ruleName={`${a.displayName!} Daylight Rule`}
+                    ruleType="daylight"
+                    time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
+                    isRuleActive={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
+                    isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
+                    setActiveDevice={setActiveDevice}
+                  />
+                </RoomControlRule>
+              )}
+              {ruleParts.transitionRule && (
+                <RoomControlRule
+                  key={`rulepart-transition-${a.installedAppId}`}
+                  gridLineName="rule-trans"
+                >
+                  <Rule
+                    rulePartId={a.installedAppId}
+                    ruleName={`${a.displayName!} Transition Rule`}
+                    ruleType="transition"
+                    time={ruleParts.transitionRule.time.format('HH:mm')}
+                    isRuleActive={true}
+                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
+                    isKeyRule={false}
+                    setActiveDevice={setActiveDevice}
+                  />
+                </RoomControlRule>
+              )}
+              {ruleParts.nightRule && (
+                <RoomControlRule
+                  key={`rulepart-nightlight-${a.installedAppId}`}
+                  gridLineName="rule-night"
+                >
+                  <Rule
+                    rulePartId={a.installedAppId}
+                    ruleName={`${a.displayName!} Nightlight Rule`}
+                    ruleType="nightlight"
+                    time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
+                    isRuleActive={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
+                    isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
+                    setActiveDevice={setActiveDevice}
+                  />
+                </RoomControlRule>
+              )}
+              {ruleParts.idleRule && (
+                <RoomControlRule
+                  key={`rulepart-idle-${a.installedAppId}`}
+                  gridLineName="rule-idle"
+                >
+                  <Rule
+                    rulePartId={a.installedAppId}
+                    ruleName={`${a.displayName!} Idle Rule`}
+                    ruleType="idle"
+                    time={ruleParts.idleRule.motionTimeout}
+                    isRuleActive={true}
+                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
+                    isKeyRule={false}
+                    setActiveDevice={setActiveDevice}
+                  />
+                </RoomControlRule>
+              )}
+            </>
+          );
+        })}
         <RoomControlPower>
           <Power
             key={`power-${room.roomId!}`}
@@ -187,98 +340,6 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         <RoomControlTitle>
           {room.name}
         </RoomControlTitle>
-        <RoomControlDevices>
-          {roomSwitches.map(s => (
-            <Device
-              key={`switch-${s.deviceId}`}
-              device={s}
-              deviceType="Switch"
-              setActiveDevice={setActiveDevice}
-              isLocked={lockedDevices.some(d => d.deviceId === s.deviceId)}
-            />
-          ))}
-          {roomLocks.map(s => (
-            <Device
-              key={`lock-${s.deviceId}`}
-              device={s}
-              deviceType="Lock"
-              setActiveDevice={setActiveDevice}
-            />
-          ))}
-          {roomMotion.map(s => (
-            <Device
-              key={`motion-${s.deviceId}`}
-              device={s}
-              deviceType="Motion"
-              setActiveDevice={setActiveDevice}
-            />
-          ))}
-          {roomApps.map(a => {
-            const ruleParts = getRulesFromSummary(a.ruleSummary);
-            return (
-              <>
-                <SmartApp
-                  key={`app-${a.installedAppId}`}
-                  app={a}
-                  isRuleEnabled={true}
-                  setActiveDevice={setActiveDevice}
-                />
-                {ruleParts.dayRule && (
-                  <Rule
-                    key={`rulepart-daylight-${a.installedAppId}`}
-                    rulePartId={a.installedAppId}
-                    ruleName={`${a.displayName!} Daylight Rule`}
-                    ruleType="daylight"
-                    time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleActive={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
-                    isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
-                    isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
-                    setActiveDevice={setActiveDevice}
-                  />
-                )}
-                {ruleParts.transitionRule && (
-                  <Rule
-                    key={`rulepart-transition-${a.installedAppId}`}
-                    rulePartId={a.installedAppId}
-                    ruleName={`${a.displayName!} Transition Rule`}
-                    ruleType="transition"
-                    time={ruleParts.transitionRule.time.format('HH:mm')}
-                    isRuleActive={true}
-                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
-                    isKeyRule={false}
-                    setActiveDevice={setActiveDevice}
-                  />
-                )}
-                {ruleParts.nightRule && (
-                  <Rule
-                    key={`rulepart-nightlight-${a.installedAppId}`}
-                    rulePartId={a.installedAppId}
-                    ruleName={`${a.displayName!} Nightlight Rule`}
-                    ruleType="nightlight"
-                    time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleActive={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
-                    isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
-                    isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
-                    setActiveDevice={setActiveDevice}
-                  />
-                )}
-                {ruleParts.idleRule && (
-                  <Rule
-                    key={`rulepart-idle-${a.installedAppId}`}
-                    rulePartId={a.installedAppId}
-                    ruleName={`${a.displayName!} Idle Rule`}
-                    ruleType="idle"
-                    time={ruleParts.idleRule.motionTimeout}
-                    isRuleActive={true}
-                    isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
-                    isKeyRule={false}
-                    setActiveDevice={setActiveDevice}
-                  />
-                )}
-              </>
-            );
-          })}
-        </RoomControlDevices>
         <RoomControlDeviceLabel>
           {activeDevice?.name}
         </RoomControlDeviceLabel>
