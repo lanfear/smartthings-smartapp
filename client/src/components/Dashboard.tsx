@@ -11,7 +11,6 @@ import DeviceControls from './DeviceControls';
 import Room from './Room';
 import RuleControls from './RuleControls';
 
-const gridRoomColumnCount = 3;
 const filteredRooms = ['DO NOT USE'];
 
 const DashboardTitle = styled.h2`
@@ -24,7 +23,7 @@ const DashboardSubTitle = styled.h3`
 
 const DashboardRoomGrid = styled.div`
     display: grid;
-    grid-template-columns: [device-control-start] max-content [device-control-end] repeat(3, [room-start] 1fr [room-end]) [rule-control-start] max-content [rule-control-end] ;
+    grid-template-columns: [device-control-start] max-content [device-control-end rooms-start] 1fr [rooms-end rule-control-start] max-content [rule-control-end] ;
     gap: 10px;
     // grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
@@ -56,25 +55,19 @@ const DashboardGridColumnHeader = styled.span`
 `;
 
 const RoomGridContainer = styled.div`
-  &:nth-child(3n+1) {
-    grid-column: room-start 1 / room-end 1;
-  }
-  &:nth-child(3n+2) {
-    grid-column: room-start 2 / room-end 2;
-  }
-  &:nth-child(3n) {
-    grid-column: room-start 3 / room-end 3;
-  }
-`;
+  grid-column: rooms-start / rooms-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 10px;
+}`;
 
-const DeviceControlsGridContainer = styled.div<{roomCount: number}>`
+const DeviceControlsGridContainer = styled.div`
   grid-column: device-control-start / device-control-end;
-  grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
 `;
 
-const RuleControlsGridContainer = styled.div<{roomCount: number}>`
+const RuleControlsGridContainer = styled.div`
   grid-column: rule-control-start / rule-control-end;
-  grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
 `;
 
 const initialDashboardData: IResponseLocation = {
@@ -159,15 +152,18 @@ const Dashboard: React.FC = () => {
         {t('dashboard.room.sectionName')}
       </DashboardSubTitle>
       <DashboardRoomGrid>
-        {renderedDashboardData && renderedDashboardData?.rooms?.map(r => (
-          <RoomGridContainer key={`room-${r.roomId as string}`}>
-            <Room room={r} />
-          </RoomGridContainer>
-        ))}
-        <DeviceControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
+        <DeviceControlsGridContainer>
           <DeviceControls />
         </DeviceControlsGridContainer>
-        <RuleControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
+        <RoomGridContainer>
+          {renderedDashboardData && renderedDashboardData?.rooms?.map(r => (
+            <Room
+              room={r}
+              key={`room-${r.roomId as string}`}
+            />
+          ))}
+        </RoomGridContainer>
+        <RuleControlsGridContainer>
           <RuleControls />
         </RuleControlsGridContainer>
       </DashboardRoomGrid>
