@@ -3,7 +3,7 @@ import {DropTargetMonitor, useDrop} from 'react-dnd';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlActionContainer} from '../factories/styleFactory';
+import {ControlActionContainer, ControlStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IResponseSwitches} from '../types/sharedContracts';
@@ -77,14 +77,10 @@ const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitch
   }
 };
 
-const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
+const ActionDeviceDim: React.FC = () => {
   const {deviceData} = useDeviceContext();
   
   const [dimLevelSliderValue, setDimLevelSliderValue] = useState(0);
-
-  // TODO: this whole state can go someday...?
-  // eslint-disable-next-line no-console
-  console.log('words', words, dimLevelSliderValue);
 
   const sliderRef = useRef<HTMLInputElement>(null);
 
@@ -125,6 +121,9 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
       progressPercentage={dimLevelSliderValue}
       {...collectedProps}
     >
+      <ControlStatus>
+      Dimmer
+      </ControlStatus>
       <DimLevelSliderContainer
         className="dim-level-slider-container"
         ref={sliderRef}
@@ -136,9 +135,5 @@ const ActionDeviceDim: React.FC<IActionDeviceDimProps> = ({words}) => {
   
   return leftControl;
 };
-
-export interface IActionDeviceDimProps {
-  words: string;
-}
 
 export default ActionDeviceDim;

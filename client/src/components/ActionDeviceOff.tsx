@@ -6,7 +6,7 @@ import {ControlActionContainer, ControlIcon, ControlStatus} from '../factories/s
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 
-const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
+const ActionDeviceOff: React.FC = () => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
@@ -32,16 +32,12 @@ const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
           🤖
       </ControlIcon>
       <ControlStatus>
-        {words}
+        Off
       </ControlStatus>
     </ControlActionContainer>
   );
   
   return leftControl;
 };
-
-export interface IDeviceOffActionProps {
-  words: string;
-}
 
 export default ActionDeviceOff;
