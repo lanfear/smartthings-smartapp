@@ -1,12 +1,10 @@
-import React, {ReactNode} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import ActionDeviceDim from './ActionDeviceDim';
 import ActionDeviceOff from './ActionDeviceOff';
 import ActionDeviceOn from './ActionDeviceOn';
-import ActionRuleDisable from './ActionRuleDisable';
-import ActionRuleEnable from './ActionRuleEnable';
 
-const DeviceControlsContainer = styled.div`
+const ControlsContainer = styled.div`
   height: 75vh;
   display: flex;
   flex-direction: column;
@@ -16,40 +14,18 @@ const DeviceControlsContainer = styled.div`
   top: 0;
 `;
 
-const DeviceControls: React.FC = () => {
-  const deviceControls: ReactNode[] = [];
-
-  deviceControls.push(
+const DeviceControls: React.FC = () => (
+  <ControlsContainer>
     <ActionDeviceOn
       key="control-action-power-on"
     />
-  );
-  deviceControls.push(
-    <ActionRuleEnable
-      key="control-action-rule-enable"
-    />
-  );
-  deviceControls.push(
     <ActionDeviceDim
       key="control-action-power-dim"
     />
-  );
-  deviceControls.push(
-    <ActionRuleDisable
-      key="control-action-rule-disable"
-    />
-  );
-  deviceControls.push(
     <ActionDeviceOff
       key="control-action-power-off"
     />
-  );
-  
-  return (
-    <DeviceControlsContainer>
-      {deviceControls.map(c => c)}
-    </DeviceControlsContainer>
-  );
-};
+  </ControlsContainer>
+);
 
 export default DeviceControls;

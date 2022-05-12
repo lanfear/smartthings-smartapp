@@ -9,6 +9,7 @@ import {DeviceContextStore} from '../store/DeviceContextStore';
 import {DeviceContext, IResponseLocation, IRule} from '../types/sharedContracts';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
+import RuleControls from './RuleControls';
 
 const gridRoomColumnCount = 3;
 const filteredRooms = ['DO NOT USE'];
@@ -23,7 +24,7 @@ const DashboardSubTitle = styled.h3`
 
 const DashboardRoomGrid = styled.div`
     display: grid;
-    grid-template-columns: [control-start] max-content [control-end] repeat(3, [room-start] 1fr [room-end]);
+    grid-template-columns: [device-control-start] max-content [device-control-end] repeat(3, [room-start] 1fr [room-end]) [rule-control-start] max-content [rule-control-end] ;
     gap: 10px;
     // grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
@@ -67,7 +68,12 @@ const RoomGridContainer = styled.div`
 `;
 
 const DeviceControlsGridContainer = styled.div<{roomCount: number}>`
-  grid-column: control-start / control-end;
+  grid-column: device-control-start / device-control-end;
+  grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
+`;
+
+const RuleControlsGridContainer = styled.div<{roomCount: number}>`
+  grid-column: rule-control-start / rule-control-end;
   grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
 `;
 
@@ -161,6 +167,9 @@ const Dashboard: React.FC = () => {
         <DeviceControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
           <DeviceControls />
         </DeviceControlsGridContainer>
+        <RuleControlsGridContainer roomCount={renderedDashboardData?.rooms?.length || 0}>
+          <RuleControls />
+        </RuleControlsGridContainer>
       </DashboardRoomGrid>
       <DashboardSubTitle>
         {t('dashboard.scene.sectionName')}
