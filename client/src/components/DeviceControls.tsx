@@ -1,31 +1,31 @@
-import React, {ReactNode} from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import ActionDeviceDim from './ActionDeviceDim';
 import ActionDeviceOff from './ActionDeviceOff';
 import ActionDeviceOn from './ActionDeviceOn';
 
-const DeviceControlsContainer = styled.div`
+const ControlsContainer = styled.div`
+  height: 75vh;
   display: flex;
+  flex-direction: column;
   width: 100%;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
 `;
 
-const DeviceControls: React.FC<IDeviceControlsProps> = ({words}) => {
-  const deviceControls: ReactNode[] = [];
-
-  deviceControls.push(<ActionDeviceOn words="PowerOn" />);
-  deviceControls.push(<ActionDeviceOff words="PowerOff" />);
-  
-  return (
-    <DeviceControlsContainer>
-      {deviceControls.map(c => c)}
-      {words}
-      {deviceControls.map(c => c)}
-    </DeviceControlsContainer>
-  );
-};
-
-export interface IDeviceControlsProps {
-  words: string;
-}
+const DeviceControls: React.FC = () => (
+  <ControlsContainer>
+    <ActionDeviceOn
+      key="control-action-power-on"
+    />
+    <ActionDeviceDim
+      key="control-action-power-dim"
+    />
+    <ActionDeviceOff
+      key="control-action-power-off"
+    />
+  </ControlsContainer>
+);
 
 export default DeviceControls;

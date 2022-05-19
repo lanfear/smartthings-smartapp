@@ -7,8 +7,7 @@ import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => {
-  const dragId = `${deviceType.toLowerCase()}-${device.deviceId}`;
-  const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Device, dragId, device.label!)));
+  const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Device, device.deviceId, device.label!)));
 
   return deviceType === 'Switch' ? (
     <ControlContainer

@@ -40,11 +40,17 @@ const createRuleSummaryFromConfig = (
     dayStartTime: dayStartTime.toJSON(),
     dayNightTime: dayNightTime.toJSON(),
     nightEndTime: nightEndTime.toJSON(),
+    motionMultipleAll: config.motionMultipleAll,
     enableAllRules: config.enableAllRules,
     enableDaylightRule: config.enableDaylightRule,
     enableNightlightRule: config.enableNightlightRule,
     enableIdleRule: config.enableIdleRule,
     enableTransitionRule: config.enableDaylightRule && config.enableNightlightRule,
+    temporaryDisableAllRules: false,
+    temporaryDisableDaylightRule: false,
+    temporaryDisableNightlightRule: false,
+    temporaryDisableIdleRule: false,
+    temporaryDisableTransitionRule: false,
     installedAppId: installedAppId,
     ruleIds: ruleIds
   };

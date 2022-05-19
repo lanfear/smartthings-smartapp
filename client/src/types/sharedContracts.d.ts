@@ -16,6 +16,8 @@ export type IRule = (Rule & {
   ruleSummary: IRuleSummary;
 });
 
+export type IRuleComponentType = 'daylight' | 'nightlight' | 'transition' | 'idle';
+
 export type IResponseRooms = IRoom[];
 export type IResponseScenes = IScene[];
 export type IResponseSwitches = IDevice[];
@@ -73,6 +75,11 @@ export interface IRuleSummary {
   enableNightlightRule: boolean;
   enableIdleRule: boolean;
   enableTransitionRule: boolean;
+  temporaryDisableAllRules: boolean;
+  temporaryDisableDaylightRule: boolean;
+  temporaryDisableNightlightRule: boolean;
+  temporaryDisableIdleRule: boolean;
+  temporaryDisableTransitionRule: boolean;
   installedAppId: string;
   ruleIds: string[];
 }

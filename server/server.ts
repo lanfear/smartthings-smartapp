@@ -2,18 +2,20 @@ import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
 import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
-import express from 'express';
+import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import JSONdb from 'simple-json-db';
+import {RuleStoreInfo} from './types';
+import {IResponseLocation, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import db from './provider/db';
 import sse from './provider/sse';
-import {RuleStoreInfo} from './types';
-import {IResponseLocation} from 'sharedContracts';
 import {localOnlyMiddleware} from './middlewares';
+import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
+import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
 
 const defaultPort = 3001;
 
@@ -93,30 +95,81 @@ server.get('/location/:id', async (req, res) => {
 
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/scenes/:sceneId', async (req, res) => {
+server.post('/location/:id/scenes/:sceneId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   const result = await context.api.scenes.execute(req.params.sceneId);
   res.send(result);
 });
 
 /* Execute a device command */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/devices/:deviceId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  // someday we can do better than this, TS 4.17+ should support generic for Request type
-  const result = await context.api.devices.executeCommand(req.params.deviceId, req.body as Command);
+server.post('/device/:deviceId', async (req, res) => {
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
 
+/* Enable/Disable a rule component */
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
+  const appKey = `app-${req.params.installedAppId}`;
+  const ruleStoreInfo = ruleStore.get(appKey) as RuleStoreInfo;
 
-server.post('/app/:id/rule', async (req, res) => {
+  if (!ruleStoreInfo) {
+    res.statusCode = 422;
+    res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
+    res.send();
+    return;
+  }
+
+  // if route passed 'all' we disable all rule components, else, we disable whichever matches
+  ruleStoreInfo.newRuleSummary.temporaryDisableAllRules = req.params.ruleComponent === 'all' && req.params.enabled === 'false'; // may want to factor this disable all value into the following rules?
+  ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableDaylightRule && ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableNightlightRule && ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = req.params.ruleComponent === 'idle' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableIdleRule && ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule;
+  ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = req.params.ruleComponent === 'transition' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableTransitionRule && ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule;
+  const combinedRule = createCombinedRuleFromSummary(
+    ruleStoreInfo.newRuleSummary
+  );
+  const transitionRule = createTransitionRuleFromSummary(
+    ruleStoreInfo.newRuleSummary
+  );
+
+  // eslint-disable-next-line no-console
+  // console.log(req.params.ruleComponent, req.params.enabled, ruleStoreInfo.newRuleSummary);
+
+  const rulesAreModified =
+    JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
+    JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule);
+
+  if (!rulesAreModified) {
+    // eslint-disable-next-line no-console
+    console.log('Rules not modified, nothing to update');
+    res.statusCode = StatusCodes.NOT_MODIFIED;
+    res.send();
+    return;
+  }
+
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  await submitRulesForSmartAppOperation(
+    client,
+    ruleStore,
+    req.params.locationId,
+    appKey,
+    combinedRule,
+    transitionRule,
+    ruleStoreInfo.newRuleSummary
+  );
+
+  res.send();
+});
+
+server.post('/location/:id/rule', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   // someday we can do better than this, TS 4.17+ should support generic for Request type
   const result = await context.api.rules.create(req.body as RuleRequest);
   res.send(result);
 });
 
-server.delete('/app/:id/rule/:ruleId', async (req, res) => {
+server.delete('/location/:id/rule/:ruleId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   await context.api.rules.delete(req.params.ruleId);
   res.statusCode = StatusCodes.NO_CONTENT;

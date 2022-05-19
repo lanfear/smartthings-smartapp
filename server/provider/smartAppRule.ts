@@ -1,6 +1,6 @@
 import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {Device, RuleRequest} from '@smartthings/core-sdk';
+import {SmartThingsClient, BearerTokenAuthenticator, Device, RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
@@ -331,10 +331,12 @@ export default new SmartApp()
       [] // will be filled in
     );
 
+    // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (rulesAreModified(appKey, newCombinedRule)) {
       await submitRulesForSmartAppOperation(
-        context.api,
+        new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)),
         ruleStore,
+        context.api.locations.locationId(),
         appKey,
         newCombinedRule,
         newTransitionRule,

@@ -7,7 +7,9 @@ import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {DeviceContextStore} from '../store/DeviceContextStore';
 import {DeviceContext, IResponseLocation, IRule} from '../types/sharedContracts';
+import DeviceControls from './DeviceControls';
 import Room from './Room';
+import RuleControls from './RuleControls';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -21,9 +23,9 @@ const DashboardSubTitle = styled.h3`
 
 const DashboardRoomGrid = styled.div`
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: [device-control-start] max-content [device-control-end rooms-start] 1fr [rooms-end rule-control-start] max-content [rule-control-end] ;
     gap: 10px;
-    grid-auto-columns: 1fr;
+    // grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
 `;
 
@@ -50,6 +52,22 @@ const DashboardAppGrid = styled.div`
 const DashboardGridColumnHeader = styled.span`
     display: flex;
     justify-content: center;
+`;
+
+const RoomGridContainer = styled.div`
+  grid-column: rooms-start / rooms-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 10px;
+}`;
+
+const DeviceControlsGridContainer = styled.div`
+  grid-column: device-control-start / device-control-end;
+`;
+
+const RuleControlsGridContainer = styled.div`
+  grid-column: rule-control-start / rule-control-end;
 `;
 
 const initialDashboardData: IResponseLocation = {
@@ -134,11 +152,20 @@ const Dashboard: React.FC = () => {
         {t('dashboard.room.sectionName')}
       </DashboardSubTitle>
       <DashboardRoomGrid>
-        {renderedDashboardData && renderedDashboardData?.rooms?.map(r => (
-          <React.Fragment key={`room-${r.roomId as string}`}>
-            <Room room={r} />
-          </React.Fragment>
-        ))}
+        <DeviceControlsGridContainer>
+          <DeviceControls />
+        </DeviceControlsGridContainer>
+        <RoomGridContainer>
+          {renderedDashboardData && renderedDashboardData?.rooms?.map(r => (
+            <Room
+              room={r}
+              key={`room-${r.roomId as string}`}
+            />
+          ))}
+        </RoomGridContainer>
+        <RuleControlsGridContainer>
+          <RuleControls />
+        </RuleControlsGridContainer>
       </DashboardRoomGrid>
       <DashboardSubTitle>
         {t('dashboard.scene.sectionName')}
