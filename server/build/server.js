@@ -49,6 +49,8 @@ const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
 const db_1 = __importDefault(require("./provider/db"));
 const sse_1 = __importDefault(require("./provider/sse"));
 const middlewares_1 = require("./middlewares");
+const createRuleFromSummaryOperation_1 = require("./operations/createRuleFromSummaryOperation");
+const submitRulesForSmartAppOperation_1 = __importDefault(require("./operations/submitRulesForSmartAppOperation"));
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
@@ -117,26 +119,57 @@ server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
 }));
 /* Execute a scene */
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/scenes/:sceneId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+server.post('/location/:id/scenes/:sceneId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
     const result = yield context.api.scenes.execute(req.params.sceneId);
     res.send(result);
 }));
 /* Execute a device command */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
-server.post('/app/:id/devices/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartAppControl_1.default.withContext(req.params.id);
-    // someday we can do better than this, TS 4.17+ should support generic for Request type
-    const result = yield context.api.devices.executeCommand(req.params.deviceId, req.body);
+server.post('/device/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+    const result = yield client.devices.executeCommand(req.params.deviceId, req.body);
     res.send(result);
 }));
-server.post('/app/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+/* Enable/Disable a rule component */
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const appKey = `app-${req.params.installedAppId}`;
+    const ruleStoreInfo = ruleStore.get(appKey);
+    if (!ruleStoreInfo) {
+        res.statusCode = 422;
+        res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
+        res.send();
+        return;
+    }
+    // if route passed 'all' we disable all rule components, else, we disable whichever matches
+    ruleStoreInfo.newRuleSummary.temporaryDisableAllRules = req.params.ruleComponent === 'all' && req.params.enabled === 'false'; // may want to factor this disable all value into the following rules?
+    ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableDaylightRule && ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule;
+    ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableNightlightRule && ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule;
+    ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = req.params.ruleComponent === 'idle' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableIdleRule && ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule;
+    ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = req.params.ruleComponent === 'transition' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableTransitionRule && ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule;
+    const combinedRule = (0, createRuleFromSummaryOperation_1.createCombinedRuleFromSummary)(ruleStoreInfo.newRuleSummary);
+    const transitionRule = (0, createRuleFromSummaryOperation_1.createTransitionRuleFromSummary)(ruleStoreInfo.newRuleSummary);
+    // eslint-disable-next-line no-console
+    // console.log(req.params.ruleComponent, req.params.enabled, ruleStoreInfo.newRuleSummary);
+    const rulesAreModified = JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
+        JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule);
+    if (!rulesAreModified) {
+        // eslint-disable-next-line no-console
+        console.log('Rules not modified, nothing to update');
+        res.statusCode = http_status_codes_1.StatusCodes.NOT_MODIFIED;
+        res.send();
+        return;
+    }
+    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+    yield (0, submitRulesForSmartAppOperation_1.default)(client, ruleStore, req.params.locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);
+    res.send();
+}));
+server.post('/location/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
     // someday we can do better than this, TS 4.17+ should support generic for Request type
     const result = yield context.api.rules.create(req.body);
     res.send(result);
 }));
-server.delete('/app/:id/rule/:ruleId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+server.delete('/location/:id/rule/:ruleId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
     yield context.api.rules.delete(req.params.ruleId);
     res.statusCode = http_status_codes_1.StatusCodes.NO_CONTENT;

@@ -14,25 +14,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable no-mixed-operators */
 const sse_1 = __importDefault(require("../provider/sse"));
-const core_sdk_1 = require("@smartthings/core-sdk");
 const sendSSEEvent = (data) => {
     sse_1.default.send(JSON.stringify(data), 'rule');
 };
-const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transitionRule, newRuleSummary) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+const submitRules = (client, ruleStore, locationId, smartAppLookupKey, combinedRule, transitionRule, newRuleSummary) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     /* eslint-disable no-console */
     console.log('Submitting Rules');
     console.log('Rule', JSON.stringify(combinedRule));
     /* eslint-enable no-console */
-    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-    const locationId = api.locations.locationId();
     // TODO: after all existing rules are cleared, this can go
-    yield Promise.all(((yield ((_a = api.rules) === null || _a === void 0 ? void 0 : _a.list())) || [])
+    // await Promise.all(
+    //   (await api.rules?.list() || [])
+    //     .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
+    //     .map(async r => await api.rules.delete(r.id)));
+    yield Promise.all(((yield ((_a = client.rules) === null || _a === void 0 ? void 0 : _a.list(locationId))) || [])
         .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
-        .map((r) => __awaiter(void 0, void 0, void 0, function* () { return yield api.rules.delete(r.id); })));
-    yield Promise.all(((yield ((_b = client.rules) === null || _b === void 0 ? void 0 : _b.list(locationId))) || [])
-        .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
-        .map((r) => __awaiter(void 0, void 0, void 0, function* () { return yield api.rules.delete(r.id, locationId); })));
+        .map((r) => __awaiter(void 0, void 0, void 0, function* () {
+        yield client.rules.delete(r.id, locationId);
+        newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
+    })));
     const newCombinedRuleResponse = combinedRule && (yield client.rules.create(combinedRule, locationId)) || null;
     const newTransitionRuleResponse = transitionRule && (yield client.rules.create(transitionRule, locationId)) || null;
     const newRuleIds = [newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id].filter(id => !!id);
@@ -45,7 +46,7 @@ const submitRules = (api, ruleStore, smartAppLookupKey, combinedRule, transition
         newRuleSummary: newRuleSummary
     };
     // eslint-disable-next-line no-console
-    console.log('Applied Rules', yield api.rules.list());
+    console.log('Applied Rules', newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.actions, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.actions);
     ruleStore.set(smartAppLookupKey, newRuleInfo);
     sendSSEEvent({
         appId: smartAppLookupKey,

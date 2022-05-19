@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const file_context_store_1 = __importDefault(require("@smartthings/file-context-store"));
 const smartapp_1 = require("@smartthings/smartapp");
+const core_sdk_1 = require("@smartthings/core-sdk");
 const dayjs_1 = __importDefault(require("dayjs"));
 const customParseFormat_1 = __importDefault(require("dayjs/plugin/customParseFormat"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
@@ -275,8 +276,9 @@ exports.default = new smartapp_1.SmartApp()
     const newCombinedRule = (0, createCombinedRuleFromConfigOperation_1.default)(appKey, newDayRule, newNightRule, newIdleRule);
     const newRuleSummary = (0, createRuleSummaryFromConfigOperation_1.default)(newConfig, uniqueDaySwitches, dayDimmableSwitches, dayNonDimmableSwitches, dayDimmableSwitchLevels, uniqueNightSwitches, nightDimmableSwitches, nightNonDimmableSwitches, nightDimmableSwitchLevels, updateData.installedApp.installedAppId, [] // will be filled in
     );
+    // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (rulesAreModified(appKey, newCombinedRule)) {
-        yield (0, submitRulesForSmartAppOperation_1.default)(context.api, ruleStore, appKey, newCombinedRule, newTransitionRule, newRuleSummary);
+        yield (0, submitRulesForSmartAppOperation_1.default)(new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)), ruleStore, context.api.locations.locationId(), appKey, newCombinedRule, newTransitionRule, newRuleSummary);
     }
     else {
         // eslint-disable-next-line no-console
