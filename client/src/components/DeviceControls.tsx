@@ -18,9 +18,19 @@ const DeviceControls: React.FC = () => (
   <ControlsContainer>
     <ActionDeviceOn
       key="control-action-power-on"
+      words="On"
+    />
+    <ActionRuleEnable
+      key="control-action-rule-enable"
+      words="Enable"
     />
     <ActionDeviceDim
       key="control-action-power-dim"
+      words="Dim"
+    />
+    <ActionRuleDisable
+      key="control-action-rule-disable"
+      words="Disable"
     />
     <ActionDeviceOff
       key="control-action-power-off"

@@ -17,6 +17,7 @@ import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operat
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
+import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -27,10 +28,10 @@ const increment5 = 5;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const ruleStore: JSONdb = new JSONdb(db.ruleStorePath, {asyncWrite: true});
+const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
 
 const rulesAreModified = (ruleStoreKey: string, newRule: RuleRequest): boolean => {
-  const existingRules = ruleStore.get(ruleStoreKey) as RuleStoreInfo;
+  const existingRules = ruleStore.get(ruleStoreKey);
   return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 };
 
@@ -54,7 +55,7 @@ export default new SmartApp()
       const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
       const motionSensorNames = config.motionSensors.map(s => s.label).join(config.motionMultipleAll ? ' AND ' : ' OR ');
       const idleMotionSensorNames = config.motionSensors.map(s => s.label).join(!config.motionMultipleAll ? ' AND ' : ' OR ');
-      
+
       const dayStartTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.dayStartOffset, 'minutes').format('hh:mm A');
       const dayNightTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.dayNightOffset, 'minutes').format('hh:mm A');
       const nightEndTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.nightEndOffset, 'minutes').format('hh:mm A');
@@ -205,14 +206,14 @@ export default new SmartApp()
         console.log('api lookup failed even though isAuthenticated', e);
         return;
       }
-      
+
       const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
       const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
       const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
       const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
-  
+
       dayDimmableSwitches.forEach(s => {
         section.numberSetting(`dayLevel${s.deviceId}`)
           .name(`${s.label} Day Dimming Level`)
@@ -225,7 +226,7 @@ export default new SmartApp()
         // @ts-ignore
         // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
       });
-              
+
       nightDimmableSwitches.forEach(s => {
         section.numberSetting(`nightLevel${s.deviceId}`)
           .name(`${s.label} Night Dimming Level`)
@@ -246,7 +247,7 @@ export default new SmartApp()
       // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
       return;
     }
-    
+
     const appKey = `app-${updateData.installedApp.installedAppId}`;
 
     const newConfig = await readConfigFromContext(context);
@@ -255,7 +256,7 @@ export default new SmartApp()
     const uniqueDaySwitches = uniqueDeviceFactory([newConfig.dayControlSwitch].concat(newConfig.dayActiveSwitches));
     const uniqueNightSwitches = uniqueDeviceFactory([newConfig.nightControlSwitch].concat(newConfig.nightActiveSwitches));
     const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
-    
+
     const allConfigSwitchLevels = readDeviceLevelConfigFromContext(context, uniqueSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId)));
     const dayDimmableSwitches = uniqueDaySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
     const nightDimmableSwitches = uniqueNightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
@@ -333,13 +334,23 @@ export default new SmartApp()
 
     // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (rulesAreModified(appKey, newCombinedRule)) {
-      await submitRulesForSmartAppOperation(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [_unused, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
         new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)),
-        ruleStore,
         context.api.locations.locationId(),
         appKey,
         newCombinedRule,
         newTransitionRule,
+        newRuleSummary
+      );
+
+      storeRulesAndNotifyOperation(
+        ruleStore,
+        appKey,
+        newCombinedRule,
+        newCombinedRuleId,
+        newTransitionRule,
+        newTransitionRuleId,
         newRuleSummary
       );
     } else {

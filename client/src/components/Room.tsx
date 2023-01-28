@@ -246,6 +246,18 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         ))}
         {roomApps.map(a => {
           const ruleParts = getRulesFromSummary(a.ruleSummary);
+          if (room.name?.startsWith('B - Play Area') && a.displayName?.startsWith('ZZ')) {
+            // eslint-disable-next-line no-console
+            console.log(room.name, a.displayName, 'all', 'rule enabled info', a.ruleSummary.enableAllRules, a.ruleSummary.temporaryDisableAllRules);
+            // eslint-disable-next-line no-console
+            console.log(room.name, a.displayName, 'day', 'rule enabled info', a.ruleSummary.enableDaylightRule, a.ruleSummary.temporaryDisableDaylightRule);
+            // eslint-disable-next-line no-console
+            console.log(room.name, a.displayName, 'night', 'rule enabled info', a.ruleSummary.enableNightlightRule, a.ruleSummary.temporaryDisableNightlightRule);
+            // eslint-disable-next-line no-console
+            console.log(room.name, a.displayName, 'idle', 'rule enabled info', a.ruleSummary.enableIdleRule, a.ruleSummary.temporaryDisableIdleRule);
+            // eslint-disable-next-line no-console
+            console.log(room.name, a.displayName, 'trans', 'rule enabled info', a.ruleSummary.enableTransitionRule, a.ruleSummary.temporaryDisableIdleRule);
+          }
           return (
             <>
               <RoomControlRule

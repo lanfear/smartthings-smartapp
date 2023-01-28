@@ -26,7 +26,7 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({timeSpan}) => {
       {...collectedProps}
     >
       <ControlIcon>
-          🤖
+          ❎
       </ControlIcon>
       <ControlStatus>
         {timeSpan ? `Disable (${timeSpan})` : 'Disable'}

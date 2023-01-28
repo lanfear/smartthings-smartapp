@@ -18,7 +18,7 @@ const ActionRuleEnable: React.FC = () => {
   };
 
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule]));
-  
+
   const leftControl = (
     <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
@@ -26,14 +26,14 @@ const ActionRuleEnable: React.FC = () => {
       {...collectedProps}
     >
       <ControlIcon>
-          🤖
+          ✅
       </ControlIcon>
       <ControlStatus>
-        Enable
+        {words}
       </ControlStatus>
     </ControlActionContainer>
   );
-  
+
   return leftControl;
 };
 
