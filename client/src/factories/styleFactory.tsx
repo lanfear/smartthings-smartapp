@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import global from '../constants/global';
 
-export const ControlIcon = styled.div`
-  font-size: larger;
+export const ControlIcon = styled.div<{fontSize?: string}>`
+  font-size: ${props => props.fontSize ?? 'larger'};
 `;
 
 export const ControlStatus = styled.div`

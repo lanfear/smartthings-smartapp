@@ -7,7 +7,7 @@ import executeRuleControl from '../operations/executeRuleControl';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IRuleComponentType} from '../types/sharedContracts';
 
-const ActionRuleEnable: React.FC = () => {
+const ActionRuleEnable: React.FC<IActionRuleEnableProps> = () => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
@@ -25,8 +25,8 @@ const ActionRuleEnable: React.FC = () => {
       ref={drop}
       {...collectedProps}
     >
-      <ControlIcon>
-          ✅
+      <ControlIcon fontSize="x-large">
+          ▶
       </ControlIcon>
       <ControlStatus>
         {words}
@@ -36,5 +36,9 @@ const ActionRuleEnable: React.FC = () => {
 
   return leftControl;
 };
+
+export interface IActionRuleEnableProps {
+  words: string;
+}
 
 export default ActionRuleEnable;

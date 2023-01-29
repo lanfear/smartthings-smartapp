@@ -6,7 +6,7 @@ import {ControlActionContainer, ControlIcon, ControlStatus} from '../factories/s
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 
-const ActionDeviceOff: React.FC = () => {
+const ActionDeviceOff: React.FC<IDeviceOffActionProps> = () => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
@@ -21,7 +21,7 @@ const ActionDeviceOff: React.FC = () => {
   };
 
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device]));
-  
+
   const leftControl = (
     <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
@@ -29,15 +29,19 @@ const ActionDeviceOff: React.FC = () => {
       {...collectedProps}
     >
       <ControlIcon>
-          🤖
+          ❎
       </ControlIcon>
       <ControlStatus>
         Off
       </ControlStatus>
     </ControlActionContainer>
   );
-  
+
   return leftControl;
 };
+
+export interface IDeviceOffActionProps {
+  words: string;
+}
 
 export default ActionDeviceOff;

@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlIcon} from '../factories/styleFactory';
+import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IApp} from '../types/sharedContracts';
 
@@ -22,6 +22,9 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
       <ControlIcon>
           🤖
       </ControlIcon>
+      <ControlStatus>
+        RuleSet
+      </ControlStatus>
     </ControlContainer>
   );
 };

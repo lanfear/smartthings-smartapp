@@ -26,7 +26,6 @@ const DeviceControls: React.FC = () => (
     />
     <ActionDeviceDim
       key="control-action-power-dim"
-      words="Dim"
     />
     <ActionRuleDisable
       key="control-action-rule-disable"
@@ -34,6 +33,7 @@ const DeviceControls: React.FC = () => (
     />
     <ActionDeviceOff
       key="control-action-power-off"
+      words="Off"
     />
   </ControlsContainer>
 );

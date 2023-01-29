@@ -18,22 +18,22 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({timeSpan}) => {
   };
 
   const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule]));
-  
+
   const leftControl = (
     <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
       ref={drop}
       {...collectedProps}
     >
-      <ControlIcon>
-          ❎
+      <ControlIcon fontSize="x-large">
+          ⏸
       </ControlIcon>
       <ControlStatus>
         {timeSpan ? `Disable (${timeSpan})` : 'Disable'}
       </ControlStatus>
     </ControlActionContainer>
   );
-  
+
   return leftControl;
 };
 
