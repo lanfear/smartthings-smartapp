@@ -15,6 +15,7 @@ import SmartApps from './components/SmartApps';
 import Dashboard from './components/Dashboard';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
+import {DeviceContextStore} from './store/DeviceContextStore';
 
 const App: React.FC = () => (
   <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
@@ -131,8 +132,13 @@ const App: React.FC = () => (
             />
             <Route
               path="dashboard/:locationId"
-              element={<Dashboard />}
-            />
+              element={(
+                <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
+                  <Dashboard />
+                </DeviceContextStore>
+              )}
+            >
+            </Route>
           </Routes>
         </section>
       </EventSourceProvider>

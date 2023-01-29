@@ -7,7 +7,7 @@ import executeRuleControl from '../operations/executeRuleControl';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IRuleComponentType} from '../types/sharedContracts';
 
-const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({timeSpan}) => {
+const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words}) => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
@@ -29,7 +29,7 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({timeSpan}) => {
           ⏸
       </ControlIcon>
       <ControlStatus>
-        {timeSpan ? `Disable (${timeSpan})` : 'Disable'}
+        {words}
       </ControlStatus>
     </ControlActionContainer>
   );
@@ -38,7 +38,7 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({timeSpan}) => {
 };
 
 export interface IActionRuleDisableProps {
-  timeSpan?: string;
+  words: string;
 }
 
 export default ActionRuleDisable;

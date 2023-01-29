@@ -7,7 +7,7 @@ import executeRuleControl from '../operations/executeRuleControl';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IRuleComponentType} from '../types/sharedContracts';
 
-const ActionRuleEnable: React.FC<IActionRuleEnableProps> = () => {
+const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {

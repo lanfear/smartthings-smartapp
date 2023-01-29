@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import ActionDeviceDim from './ActionDeviceDim';
 import ActionDeviceOff from './ActionDeviceOff';
 import ActionDeviceOn from './ActionDeviceOn';
+import ActionRuleDisable from './ActionRuleDisable';
+import ActionRuleEnable from './ActionRuleEnable';
 
 const ControlsContainer = styled.div`
   height: 75vh;
