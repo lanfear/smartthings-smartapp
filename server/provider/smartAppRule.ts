@@ -332,6 +332,8 @@ export default new SmartApp()
       [] // will be filled in
     );
 
+    // TODO: somewhere around here we could sync this against the exiting rulestore, to sync webapp side with the smartapp side
+    //       the way things are now, changes to an app just steamroll the webapp side with a new config created from scratch
     // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (rulesAreModified(appKey, newCombinedRule)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
