@@ -113,9 +113,11 @@ server.post('/device/:deviceId', async (req, res) => {
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{ locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string }>, res) => {
   const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, ruleIsTemporarilyDisabled: boolean): boolean => {
     // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
-    // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled, 'allRulesAreTemporarilyDisabled', allRulesAreTemporarilyDisabled);
-    if (ruleComponent !== ruleComponentParam && ruleComponent !== 'all') {
-      // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', allRulesAreTemporarilyDisabled, ruleIsTemporarilyDisabled, '===>', allRulesAreTemporarilyDisabled || ruleIsTemporarilyDisabled);
+    // eslint-disable-next-line no-console
+    console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
+    if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
+      // eslint-disable-next-line no-console
+      console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
       return ruleIsTemporarilyDisabled;
     }
 
@@ -138,10 +140,11 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = determineTempDisableValue('nightlight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule);
   ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = determineTempDisableValue('idle', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule);
   ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = determineTempDisableValue('transition', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule);
-  ruleStoreInfo.combinedRule = createCombinedRuleFromSummary(
+  // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
+  const combinedRule = createCombinedRuleFromSummary(
     ruleStoreInfo.newRuleSummary
   );
-  ruleStoreInfo.transitionRule = createTransitionRuleFromSummary(
+  const transitionRule = createTransitionRuleFromSummary(
     ruleStoreInfo.newRuleSummary
   );
 
@@ -159,8 +162,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     client,
     req.params.locationId,
     appKey,
-    ruleStoreInfo.combinedRule,
-    ruleStoreInfo.transitionRule,
+    combinedRule,
+    transitionRule,
     ruleStoreInfo.newRuleSummary
   );
 
