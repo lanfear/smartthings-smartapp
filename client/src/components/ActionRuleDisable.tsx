@@ -11,13 +11,16 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words}) => {
   const {deviceData} = useDeviceContext();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
+    if (item.type === IDragAndDropType.App) {
+      await executeRuleControl(deviceData.locationId, item.id, 'all', false);
+    }
     if (item.type === IDragAndDropType.Rule) {
       await executeRuleControl(deviceData.locationId, item.id, item.subtype as IRuleComponentType, false);
     }
     return item;
   };
 
-  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule]));
+  const [collectedProps, drop] = useDrop(() => createDropConfig(onDrop, [IDragAndDropType.Rule, IDragAndDropType.App]));
 
   const leftControl = (
     <ControlActionContainer
