@@ -1,7 +1,7 @@
 // src/theme-context.js
 import React, {createContext, useContext, useCallback} from 'react';
 import {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
-import useSWR, {unstable_serialize as swrKeySerializer} from 'swr';
+import useSWR, {KeyedMutator, unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {IResponseLocation} from '../types/sharedContracts';
 
@@ -70,20 +70,9 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
   });
 
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
-    // eslint-disable-next-line no-console
-    console.log('loading from server');
     const data = await getDeviceDataFromServer(locationId);
-    // eslint-disable-next-line no-console
-    console.log('setting data to', data);
-    await setDeviceData(data);
+    await setDeviceData(data, {revalidate: false});
   }, [locationId, setDeviceData]);
-
-  // useEffect(() => {
-  //   void loadDeviceDataFromServer();
-  // }, [loadDeviceDataFromServer]);
-
-  // eslint-disable-next-line no-console
-  console.log('rendering context wrapper', deviceData);
 
   return (
     <DeviceContext.Provider value={{
@@ -102,7 +91,7 @@ export const useDeviceContext = (): IDeviceContextStore => useContext(DeviceCont
 
 export interface IDeviceContextStore {
   deviceData: IResponseLocation;
-  setDeviceData: (value: IResponseLocation) => void;
+  setDeviceData: KeyedMutator<IResponseLocation>;
   loadDeviceDataFromServer: () => Promise<void>;
 }
 

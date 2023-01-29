@@ -149,27 +149,27 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     source: `${process.env.REACT_APP_APIHOST as string}/events`
   });
 
-  const handleSwitchDeviceEvent = (eventData: ISseEvent): void => {
+  const handleSwitchDeviceEvent = async (eventData: ISseEvent): Promise<void> => {
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDeviceData({...deviceData});
+      await setDeviceData({...deviceData}, {revalidate: false});
     }
   };
 
-  const handleLockDeviceEvent = (eventData: ISseEvent): void => {
+  const handleLockDeviceEvent = async (eventData: ISseEvent): Promise<void> => {
     const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDeviceData({...deviceData});
+      await setDeviceData({...deviceData}, {revalidate: false});
     }
   };
 
-  const handleMotionDeviceEvent = (eventData: ISseEvent): void => {
+  const handleMotionDeviceEvent = async (eventData: ISseEvent): Promise<void> => {
     const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      setDeviceData({...deviceData});
+      await setDeviceData({...deviceData}, {revalidate: false});
     }
   };
 

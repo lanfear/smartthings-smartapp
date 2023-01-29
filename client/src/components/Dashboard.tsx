@@ -87,9 +87,6 @@ const Dashboard: React.FC = () => {
     return room?.name;
   };
 
-  // eslint-disable-next-line no-console
-  console.log('rendering db locdata', deviceData);
-
   return (
     <>
       <DashboardTitle>
