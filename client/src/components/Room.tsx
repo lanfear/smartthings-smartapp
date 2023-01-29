@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import {Room as IRoom} from '@smartthings/core-sdk';
@@ -62,6 +62,19 @@ const RoomControlTitle = styled.div`
   width: 100%;
   display: flex;
   grid-column-start: 2;
+  grid-column-end: 5;
+  grid-row-start: 1;
+  grid-row-end: 1;
+  justify-content: center;
+  align-items: center;
+  font-size: larger;
+  font-weight: 700;
+`;
+
+const RoomControlFavorite = styled.button`
+  all: unset;
+  display: flex;
+  grid-column-start: 5;
   grid-column-end: 6;
   grid-row-start: 1;
   grid-row-end: 1;
@@ -69,6 +82,7 @@ const RoomControlTitle = styled.div`
   align-items: center;
   font-size: larger;
   font-weight: 700;
+  cursor: pointer;
 `;
 
 const RoomControlDevice = styled.div`
@@ -110,9 +124,11 @@ const RoomControlDeviceLabel = styled.div`
   min-height: 2rem;
 `;
 
-const Room: React.FC<IRoomProps> = ({room}) => {
+const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
+  // eslint-disable-next-line no-console
   const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IActiveControl | null);
+  const domRef = useRef<HTMLDivElement>(null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
   const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
@@ -173,6 +189,13 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   };
 
+  useEffect(() => {
+    if (isFavoriteRoom) {
+      domRef.current!.scrollIntoView({behavior: 'smooth'});
+    }
+  }, [isFavoriteRoom]);
+
+  // TODO: these can probably just go into the store context handler?
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
     startOnInit: true,
@@ -201,7 +224,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
   }, [deviceEventSource]);
 
   return (
-    <RoomContainer>
+    // eslint-disable-next-line no-undefined
+    <RoomContainer ref={domRef}>
       <RoomControlGrid
         numDevices={numDevices}
         numApps={roomApps.length}
@@ -346,6 +370,9 @@ const Room: React.FC<IRoomProps> = ({room}) => {
         <RoomControlTitle>
           {room.name}
         </RoomControlTitle>
+        <RoomControlFavorite onClick={() => setFavoriteRoom(room.roomId!)}>
+          {isFavoriteRoom ? '🌟' : '⭐'}
+        </RoomControlFavorite>
         <RoomControlDeviceLabel>
           {activeDevice?.name}
         </RoomControlDeviceLabel>
@@ -356,6 +383,8 @@ const Room: React.FC<IRoomProps> = ({room}) => {
 
 export interface IRoomProps {
   room: IRoom;
+  isFavoriteRoom: boolean;
+  setFavoriteRoom: (roomId: string) => void;
 }
 
 export default Room;

@@ -2,6 +2,7 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
+import {useLocalStorage} from 'use-hooks';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {DeviceContext, IRule} from '../types/sharedContracts';
 import DeviceControls from './DeviceControls';
@@ -70,12 +71,12 @@ const RuleControlsGridContainer = styled.div`
 const Dashboard: React.FC = () => {
   const {t} = useTranslation();
   const {deviceData} = useDeviceContext();
+  const [favoriteRoom, setFavoriteRoom] = useLocalStorage<string>('favorite-room', '');
 
   const routeInfo = useParams<{locationId: string}>();
   const locationId = routeInfo.locationId ?? ''; // empty location id should not happen
 
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
-    // TODO: remove the app/id/rule/id delete endpoint and add one that takes location
     await fetch(`${process.env.REACT_APP_APIHOST as string}/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
@@ -98,7 +99,11 @@ const Dashboard: React.FC = () => {
       <DashboardRoomGrid>
         {deviceData && deviceData?.rooms?.map(r => (
           <RoomGridContainer key={`room-${r.roomId as string}`}>
-            <Room room={r} />
+            <Room
+              room={r}
+              isFavoriteRoom={favoriteRoom === r.roomId}
+              setFavoriteRoom={setFavoriteRoom}
+            />
           </RoomGridContainer>
         ))}
         <DeviceControlsGridContainer roomCount={deviceData?.rooms?.length || 0}>
