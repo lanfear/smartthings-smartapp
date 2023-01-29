@@ -5,7 +5,7 @@ import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
-import {DeviceContext, IApp, IRule, ISseEvent, ISseRuleEvent} from '../types/sharedContracts';
+import {DeviceContext, IApp, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import {useDeviceContext} from '../store/DeviceContextStore';
@@ -111,7 +111,7 @@ const RoomControlDeviceLabel = styled.div`
 `;
 
 const Room: React.FC<IRoomProps> = ({room}) => {
-  const {deviceData, setDeviceData, loadDeviceDataFromServer} = useDeviceContext();
+  const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IActiveControl | null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
@@ -173,14 +173,6 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     }
   };
 
-  const handleRuleChangeEvent = async (): Promise<void> => {
-    await loadDeviceDataFromServer();
-  };
-
-  // const handleRuleDeviceEvent = (eventData: ISseRuleEvent): void => {
-  //   // ??
-  // }
-
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
     startOnInit: true,
@@ -205,15 +197,6 @@ const Room: React.FC<IRoomProps> = ({room}) => {
     event: {
       name: 'switch',
       listener: ({data}) => handleSwitchDeviceEvent(data)
-    }
-  }, [deviceEventSource]);
-
-  useEventSourceListener<ISseRuleEvent>({
-    source: deviceEventSource,
-    startOnInit: true,
-    event: {
-      name: 'rule',
-      listener: handleRuleChangeEvent
     }
   }, [deviceEventSource]);
 

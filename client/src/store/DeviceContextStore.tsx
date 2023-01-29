@@ -3,7 +3,8 @@ import React, {createContext, useContext, useCallback} from 'react';
 import {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import useSWR, {KeyedMutator, unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
-import {IResponseLocation} from '../types/sharedContracts';
+import {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
+import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -69,10 +70,26 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
     fallbackData: getFallbackData(locationId)
   });
 
+  // listen to sse events
+  const deviceEventSource = useEventSource({
+    source: `${process.env.REACT_APP_APIHOST as string}/events`
+  });
+
+  // when any rules event comes in, just reload data from server
+  useEventSourceListener<ISseRuleEvent>({
+    source: deviceEventSource,
+    startOnInit: true,
+    event: {
+      name: 'rule',
+      listener: () => setDeviceData()
+    }
+  });
+
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
-    const data = await getDeviceDataFromServer(locationId);
-    await setDeviceData(data, {revalidate: false});
-  }, [locationId, setDeviceData]);
+    // calling mutate w/out any data flags as stale and triggers a revalidate from server wrt the swr hook options
+    // for instance, it respects deduping config so if many components trigger this in quick succession it will dedupe to single call
+    await setDeviceData();
+  }, [setDeviceData]);
 
   return (
     <DeviceContext.Provider value={{
