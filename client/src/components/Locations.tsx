@@ -6,7 +6,7 @@ import getLocations, {IResponseLocations} from '../operations/getLocations';
 
 const LocationsGrid = styled.div`
     display: grid;
-    grid-template-columns: 3fr repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 10px;
     grid-auto-rows: minmax(100px, auto);
 `;
@@ -20,24 +20,59 @@ const Locations: React.FC<LocationsProps> = () => {
     const getLocationsAsync = async (): Promise<void> => {
       setLocations(await getLocations());
     };
-    
+
     void getLocationsAsync();
   }, []);
 
   return (
     <LocationsGrid>
       {Object.values(locations).map(l => (
-        <Link
-          key={`location-${l.locationId}`}
-          to={`/dashboard/${l.locationId}`}
-        >
-          <div>
-            {`${t('location.identifier')}: ${l.locationId}`}
-          </div>
-          <div>
-            {`${t('location.name')}: ${l.name}`}
-          </div>
-        </Link>
+        <React.Fragment key={`location-${l.locationId}`}>
+          <Link
+            key={`location-${l.locationId}-rooms`}
+            to={`/dashboard/${l.locationId}/rooms`}
+          >
+            <div>
+              {`${t('location.identifier')}: ${l.locationId}`}
+            </div>
+            <div>
+              {`${t('location.name')}: ${l.name} Rooms`}
+            </div>
+          </Link>
+          <Link
+            key={`location-${l.locationId}-scenes`}
+            to={`/dashboard/${l.locationId}/scenes`}
+          >
+            <div>
+              {`${t('location.identifier')}: ${l.locationId} Scenes`}
+            </div>
+            <div>
+              {`${t('location.name')}: ${l.name}`}
+            </div>
+          </Link>
+          <Link
+            key={`location-${l.locationId}-rules`}
+            to={`/dashboard/${l.locationId}/rules`}
+          >
+            <div>
+              {`${t('location.identifier')}: ${l.locationId} Rules`}
+            </div>
+            <div>
+              {`${t('location.name')}: ${l.name}`}
+            </div>
+          </Link>
+          <Link
+            key={`location-${l.locationId}-apps`}
+            to={`/dashboard/${l.locationId}/apps`}
+          >
+            <div>
+              {`${t('location.identifier')}: ${l.locationId} Apps`}
+            </div>
+            <div>
+              {`${t('location.name')}: ${l.name}`}
+            </div>
+          </Link>
+        </React.Fragment>
       ))}
     </LocationsGrid>
   );

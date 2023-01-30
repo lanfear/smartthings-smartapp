@@ -277,7 +277,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
             console.log(room.name, a.displayName, 'trans', 'rule enabled info', a.ruleSummary.enableTransitionRule, a.ruleSummary.temporaryDisableTransitionRule);
           }
           return (
-            <>
+            <React.Fragment key={`rulesection-${a.installedAppId}`}>
               <RoomControlRule
                 key={`app-${a.installedAppId}`}
                 gridLineName="app"
@@ -356,7 +356,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                   />
                 </RoomControlRule>
               )}
-            </>
+            </React.Fragment>
           );
         })}
         <RoomControlPower>

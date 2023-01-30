@@ -12,10 +12,13 @@ import RuleExamples from './components/RuleExamples';
 import BasicTemplates from './components/BasicTemplates';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import SmartApps from './components/SmartApps';
-import Dashboard from './components/Dashboard';
+import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
 import {DeviceContextStore} from './store/DeviceContextStore';
+import DashboardApps from './components/DashboardApps';
+import DashboardRules from './components/DashboardRules';
+import DashboardScenes from './components/DashboardScenes';
 
 const App: React.FC = () => (
   <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
@@ -131,10 +134,37 @@ const App: React.FC = () => (
               element={<Locations />}
             />
             <Route
-              path="dashboard/:locationId"
+              path="dashboard/:locationId/rooms"
               element={(
                 <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                  <Dashboard />
+                  <DashboardRooms />
+                </DeviceContextStore>
+              )}
+            >
+            </Route>
+            <Route
+              path="dashboard/:locationId/scenes"
+              element={(
+                <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
+                  <DashboardScenes />
+                </DeviceContextStore>
+              )}
+            >
+            </Route>
+            <Route
+              path="dashboard/:locationId/rules"
+              element={(
+                <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
+                  <DashboardRules />
+                </DeviceContextStore>
+              )}
+            >
+            </Route>
+            <Route
+              path="dashboard/:locationId/apps"
+              element={(
+                <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
+                  <DashboardApps />
                 </DeviceContextStore>
               )}
             >
