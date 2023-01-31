@@ -64,11 +64,13 @@ const getFallbackData = (locationId: string): IResponseLocation => {
 const DeviceContext = createContext({deviceData: initialDeviceData} as IDeviceContextStore);
 
 export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({locationId, children}) => {
-  const {data: deviceData, mutate: setDeviceData} = useSWR(['locationData', locationId], (_, l) => getDeviceDataFromServer(l), {
+  const {data: deviceData, mutate: _setDeviceData} = useSWR(['locationData', locationId], (_, l) => getDeviceDataFromServer(l), {
     revalidateOnMount: true,
     dedupingInterval: 5000,
     fallbackData: getFallbackData(locationId)
   });
+
+  const setDeviceData: typeof _setDeviceData = useCallback(async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)), opts), [_setDeviceData]);
 
   // listen to sse events
   const deviceEventSource = useEventSource({
