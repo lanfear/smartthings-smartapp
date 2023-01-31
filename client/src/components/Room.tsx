@@ -6,6 +6,7 @@ import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
 import {DeviceContext, IApp, IRule, ISseEvent} from '../types/sharedContracts';
+import global from '../constants/global';
 import Device from './Device';
 import Power from './Power';
 import {useDeviceContext} from '../store/DeviceContextStore';
@@ -45,7 +46,7 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   grid-template-columns: [device-start app-start] 1fr [device-end app-end device-start rule-day-start] 1fr [device-end rule-day-end device-start rule-trans-start] 1fr [device-end rule-trans-end device-start rule-night-start] 1fr [device-end rule-night-end device-start rule-idle-start] 1fr [device-end rule-idle-end];
   // grid-template-columns: repeat(5, 1fr);
   // grid-template-rows: max-content 1fr 2rem;
-  gap: 2px;
+  gap: ${global.measurements.deviceGridGap};
 `;
 
 const RoomControlPower = styled.div`
@@ -267,13 +268,9 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
         {roomApps.map(a => {
           const ruleParts = getRulesFromSummary(a.ruleSummary);
           if (room.name?.startsWith('B - Play Area') && a.displayName?.startsWith('ZZ')) {
-            // eslint-disable-next-line no-console
             console.log(room.name, a.displayName, 'day', 'rule enabled info', a.ruleSummary.enableDaylightRule, a.ruleSummary.temporaryDisableDaylightRule);
-            // eslint-disable-next-line no-console
             console.log(room.name, a.displayName, 'night', 'rule enabled info', a.ruleSummary.enableNightlightRule, a.ruleSummary.temporaryDisableNightlightRule);
-            // eslint-disable-next-line no-console
             console.log(room.name, a.displayName, 'idle', 'rule enabled info', a.ruleSummary.enableIdleRule, a.ruleSummary.temporaryDisableIdleRule);
-            // eslint-disable-next-line no-console
             console.log(room.name, a.displayName, 'trans', 'rule enabled info', a.ruleSummary.enableTransitionRule, a.ruleSummary.temporaryDisableTransitionRule);
           }
           return (

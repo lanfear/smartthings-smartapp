@@ -3,36 +3,60 @@ import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
+import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../constants/styles';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
 
-const gridRoomColumnCount = 3;
+const printColumnN = (n: number, columns: number): string => `
+    .room-grid-container:nth-child(${columns}n${n !== columns ? `+${n}` : ''}) {
+      grid-column: room-start ${n} / room-end ${n};
+    }
+  `;
 
-const DashboardRoomGrid = styled.div`
+const printColumns1ToN = (columns: number): string => {
+  const iteratorArray: number[] = [];
+  for (let i = 1; i <= columns; i++) {
+    iteratorArray.push(i);
+  }
+  return iteratorArray
+    .map(i => printColumnN(i, columns))
+    .join('');
+};
+
+const printColumnBreakpoints = (roomCount: number): string => {
+  const deviceControlsContainerWidth = parseFloat(global.measurements.controlsContainerWidth);
+  const roomContainerWidth =
+    (global.measurements.devicesPerRow * (parseFloat(global.measurements.deviceWidth) + (2 * parseFloat(global.measurements.deviceMargin)))) +
+    ((global.measurements.devicesPerRow + 1) * parseFloat(global.measurements.deviceGridGap));
+
+  // eslint-disable-next-line no-magic-numbers
+  return [1, 2, 3, 4, 5].map(i => `
+    ${i !== 1 ? `@media (min-width: ${deviceControlsContainerWidth + (i * roomContainerWidth)}rem) {` : ''}
+      ${printColumns1ToN(i)}
+      .device-controls-grid-container {
+        grid-row: 1 / ${Math.ceil((roomCount / i) + 1)};
+      }
+    ${i !== 1 ? '}' : ''}
+  `).join('');
+};
+
+const DashboardRoomGrid = styled.div<{roomCount: number}>`
     display: grid;
-    grid-template-columns: [control-start] max-content [control-end] repeat(3, [room-start] 1fr [room-end]);
+    grid-template-columns: [control-start] max-content [control-end] repeat(${props => props.roomCount}, [room-start] 1fr [room-end]);
     gap: 10px;
-    // grid-auto-columns: 1fr;
     grid-auto-rows: 1fr;
+    ${props => printColumnBreakpoints(props.roomCount)}
 `;
 
+// grid-row constraint set in generated grid class mediaquery statement above
 const RoomGridContainer = styled.div`
-  &:nth-child(3n+1) {
-    grid-column: room-start 1 / room-end 1;
-  }
-  &:nth-child(3n+2) {
-    grid-column: room-start 2 / room-end 2;
-  }
-  &:nth-child(3n) {
-    grid-column: room-start 3 / room-end 3;
-  }
 `;
 
-const DeviceControlsGridContainer = styled.div<{roomCount: number}>`
+// grid-row constraint set in generated grid class mediaquery statement above
+const DeviceControlsGridContainer = styled.div`
   grid-column: control-start / control-end;
-  grid-row: 1 / ${props => (props.roomCount / gridRoomColumnCount) + 1}
 `;
 
 const DashboardRooms: React.FC = () => {
@@ -51,9 +75,12 @@ const DashboardRooms: React.FC = () => {
       <DashboardSubTitle>
         {t('dashboard.room.sectionName')}
       </DashboardSubTitle>
-      <DashboardRoomGrid>
+      <DashboardRoomGrid roomCount={deviceData?.rooms?.length || 0}>
         {deviceData && deviceData?.rooms?.map(r => (
-          <RoomGridContainer key={`room-${r.roomId as string}`}>
+          <RoomGridContainer
+            key={`room-${r.roomId as string}`}
+            className="room-grid-container"
+          >
             <Room
               room={r}
               isFavoriteRoom={favoriteRoom === r.roomId}
@@ -61,7 +88,9 @@ const DashboardRooms: React.FC = () => {
             />
           </RoomGridContainer>
         ))}
-        <DeviceControlsGridContainer roomCount={deviceData?.rooms?.length || 0}>
+        <DeviceControlsGridContainer
+          className="device-controls-grid-container"
+        >
           <DeviceControls />
         </DeviceControlsGridContainer>
       </DashboardRoomGrid>
