@@ -267,12 +267,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
         ))}
         {roomApps.map(a => {
           const ruleParts = getRulesFromSummary(a.ruleSummary);
-          if (room.name?.startsWith('B - Play Area') && a.displayName?.startsWith('ZZ')) {
-            console.log(room.name, a.displayName, 'day', 'rule enabled info', a.ruleSummary.enableDaylightRule, a.ruleSummary.temporaryDisableDaylightRule);
-            console.log(room.name, a.displayName, 'night', 'rule enabled info', a.ruleSummary.enableNightlightRule, a.ruleSummary.temporaryDisableNightlightRule);
-            console.log(room.name, a.displayName, 'idle', 'rule enabled info', a.ruleSummary.enableIdleRule, a.ruleSummary.temporaryDisableIdleRule);
-            console.log(room.name, a.displayName, 'trans', 'rule enabled info', a.ruleSummary.enableTransitionRule, a.ruleSummary.temporaryDisableTransitionRule);
-          }
+
           return (
             <React.Fragment key={`rulesection-${a.installedAppId}`}>
               <RoomControlRule
