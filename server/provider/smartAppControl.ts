@@ -16,7 +16,7 @@ const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
 
 /* Define the SmartApp */
 export default new SmartApp()
-  .enableEventLogging()
+  .enableEventLogging(2, process.env.LOGGING_EVENTS_ENABLED.toLowerCase() === 'true')
   .configureI18n()
   .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
   .appId(process.env.CONTROL_APP_ID)
@@ -80,7 +80,7 @@ export default new SmartApp()
       });
     }
   });
-    
+
 // // Configuration page definition
 // .page('mainPage', (_, page) => {
 
