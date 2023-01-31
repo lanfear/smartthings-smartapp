@@ -11,8 +11,8 @@ export const ControlStatus = styled.div`
 `;
 
 export const ControlContainer = styled.button<{rgb: string}>`
-  height: 3.5rem;
-  width: 3.5rem;
+  height: ${global.measurements.deviceWidth};
+  width: ${global.measurements.deviceWidth};
   display: flex;
   flex: none;
   flex-direction: column;
@@ -25,7 +25,7 @@ export const ControlContainer = styled.button<{rgb: string}>`
   backdrop-filter: blur( 15px );
   border-radius: 10px;
   border: 1px solid rgba( 255, 255, 255, 0.18 );
-  margin: 0.125rem;
+  margin: ${global.measurements.deviceMargin};
 `;
 
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`
@@ -35,5 +35,17 @@ export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boole
   input[type="range"] {
     -webkit-appearance: slider-vertical;
   }
+`;
 
+export const DashboardTitle = styled.h2`
+    font-weight: 600;
+`;
+
+export const DashboardSubTitle = styled.h3`
+    font-weight: 600;
+`;
+
+export const DashboardGridColumnHeader = styled.span`
+    display: flex;
+    justify-content: center;
 `;

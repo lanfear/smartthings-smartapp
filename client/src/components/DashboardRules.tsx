@@ -2,14 +2,15 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import {DashboardTitle, DashboardGridColumnHeader} from '../constants/styles';
+import global from '../constants/global';
+import {DashboardTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {DeviceContext, IRule} from '../types/sharedContracts';
 
 const DashboardRuleGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: ${global.measurements.dashboardGridGap};
     grid-auto-rows: minmax(100px, auto);
 `;
 

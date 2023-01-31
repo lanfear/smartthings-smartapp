@@ -2,12 +2,13 @@ import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
+import global from '../constants/global';
 import getLocations, {IResponseLocations} from '../operations/getLocations';
 
 const LocationsGrid = styled.div`
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: ${global.measurements.dashboardGridGap};
     grid-auto-rows: minmax(100px, auto);
 `;
 

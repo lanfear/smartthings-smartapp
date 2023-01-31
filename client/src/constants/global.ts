@@ -4,13 +4,10 @@ export default {
       switchLevelRate: 20
     }
   },
-  // notes to improve (move all these to rem, some gaps are in px)
-  // grid-gap: 10px
-  // devices: 5x3.5rem
-  // side-bar: 60px;
+  // side-bar: (3.5rem+0.125rem+0.125rem);
   // room-width = 5x(3.5rem+0.125rem+0.125rem)+6x(0.125rem)
   measurements: {
-    defaultGridGap: '10px',
+    dashboardGridGap: '0.625rem',
     deviceWidth: '3.5rem',
     deviceMargin: '0.125rem',
     deviceGridGap: '0.125rem',

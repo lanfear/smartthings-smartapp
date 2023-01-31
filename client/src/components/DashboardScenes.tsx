@@ -2,13 +2,14 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../constants/styles';
+import global from '../constants/global';
+import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
 import {useDeviceContext} from '../store/DeviceContextStore';
 
 const DashboardSceneGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
+    gap: ${global.measurements.dashboardGridGap};
 `;
 
 const DashboardScenes: React.FC = () => {

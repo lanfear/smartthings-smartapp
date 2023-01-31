@@ -4,7 +4,7 @@ import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
 import global from '../constants/global';
-import {DashboardSubTitle, DashboardTitle} from '../constants/styles';
+import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
@@ -45,7 +45,7 @@ const printColumnBreakpoints = (roomCount: number): string => {
 const DashboardRoomGrid = styled.div<{roomCount: number}>`
     display: grid;
     grid-template-columns: [control-start] max-content [control-end] repeat(${props => props.roomCount}, [room-start] 1fr [room-end]);
-    gap: 10px;
+    gap: ${global.measurements.dashboardGridGap};
     grid-auto-rows: 1fr;
     ${props => printColumnBreakpoints(props.roomCount)}
 `;

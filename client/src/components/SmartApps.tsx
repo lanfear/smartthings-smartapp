@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
+import global from '../constants/global';
 import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import getInstalledSmartApps, {IResponseSmartApps} from '../operations/getInstalledSmartApps';
 import {Rule, RuleRequest} from '@smartthings/core-sdk';
@@ -10,7 +11,7 @@ import {generateActionSwitchLevel, generateConditionBetween, generateConditionMo
 const SmartAppGrid = styled.div`
     display: grid;
     grid-template-columns: 3fr repeat(3, 1fr);
-    gap: 10px;
+    gap: ${global.measurements.dashboardGridGap};
     grid-auto-rows: minmax(100px, auto);
 `;
 
@@ -61,7 +62,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     const getSmartApps = async (): Promise<void> => {
       setSmartApps(await getInstalledSmartApps());
     };
-    
+
     void getSmartApps();
   }, []);
 
@@ -71,7 +72,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
       updatedSmartAppData[isaId] = await getInstalledSmartApp(isaId);
       setSmartAppData(updatedSmartAppData);
     };
-    
+
     // TODO: this is dumb, do them in batch or something
     smartApps.forEach(sa => {
       void getSmartApp(sa);
