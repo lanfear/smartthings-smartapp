@@ -354,7 +354,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
           <Power
             key={`power-${room.roomId!}`}
             room={room}
-            isPowerOn={true}
+            isPowerOn={roomSwitches.some(s => s.value === 'on')}
             setActiveDevice={setActiveDevice}
           />
         </RoomControlPower>
