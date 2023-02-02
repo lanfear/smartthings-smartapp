@@ -2,19 +2,27 @@ import styled from 'styled-components';
 import global from '../constants/global';
 
 export const ActionLogo = styled.div<{ fontSize?: string }>`
-  font-size: ${props => props.fontSize ?? 'xx-large'};
+  font-size: ${props => props.fontSize ?? 'x-large'};
 `;
 
 export const ControlLogo = styled(ActionLogo)`
   position: absolute;
-  justify-self: center;
-  align-self: center;
+  height: 100%;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   opacity: 50%;
   z-index: -1;
 `;
 
 export const ControlStatus = styled.div`
     font-weight: 700;
+    line-height: 1;
+`;
+
+export const ControlIcon = styled.div<{ fontSize?: string }>`
+  font-size: ${props => props.fontSize ?? 'larger'};
 `;
 
 export const ControlContainer = styled.button<{rgb: string}>`
@@ -25,7 +33,7 @@ export const ControlContainer = styled.button<{rgb: string}>`
   flex-direction: column;
   align-content: center;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-between;
   border-radius: 4px;
   background: #${props => props.rgb}${global.palette.control.alpha};
   box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
@@ -33,6 +41,7 @@ export const ControlContainer = styled.button<{rgb: string}>`
   border-radius: 10px;
   border: 1px solid rgba( 255, 255, 255, 0.18 );
   margin: ${global.measurements.deviceMargin};
+  padding: 0.25rem 0;
 `;
 
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`

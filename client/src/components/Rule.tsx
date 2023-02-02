@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
+import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IRuleComponentType} from '../types/sharedContracts';
 
@@ -12,7 +12,7 @@ const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleActive, isRuleEnabled, isKeyRule, setActiveDevice}) => {
   const dragId = `${ruleType.toLowerCase()}-${rulePartId}`;
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Rule, rulePartId, ruleName, ruleType)));
-  const iconography = `${getRuleIcon(ruleType)}${isKeyRule ? '🔑' : ''}${isRuleEnabled ? '' : '🚫'}`;
+  const iconography = `${isKeyRule ? '🔑' : ''}${isRuleEnabled ? '' : '🚫'}`;
 
   return (
     <ControlContainer
@@ -25,11 +25,16 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
       onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlLogo>
-        {iconography}
+        {getRuleIcon(ruleType)}
       </ControlLogo>
       <ControlStatus>
         {time}
       </ControlStatus>
+      {iconography ?? (
+        <ControlIcon>
+          {iconography}
+        </ControlIcon>
+      )}
     </ControlContainer>
   );
 };

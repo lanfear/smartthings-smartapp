@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
+import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
@@ -21,11 +21,16 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
     >
       {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
       <ControlLogo>
-        {isLocked ? '💡🔒' : '💡'}
+        💡
       </ControlLogo>
       <ControlStatus>
         {device.value}
       </ControlStatus>
+      {isLocked && (
+        <ControlIcon>
+          🔒
+        </ControlIcon>
+      )}
     </ControlContainer>
   ) : deviceType === 'Lock' ? (
     <ControlContainer
