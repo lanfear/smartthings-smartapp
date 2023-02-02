@@ -126,7 +126,6 @@ const RoomControlDeviceLabel = styled.div`
 `;
 
 const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
-  // eslint-disable-next-line no-console
   const {deviceData, setDeviceData} = useDeviceContext();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
