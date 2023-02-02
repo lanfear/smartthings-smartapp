@@ -1,13 +1,20 @@
 import styled from 'styled-components';
 import global from '../constants/global';
 
-export const ControlIcon = styled.div<{fontSize?: string}>`
-  font-size: ${props => props.fontSize ?? 'larger'};
+export const ActionIcon = styled.div<{ fontSize?: string }>`
+  font-size: ${props => props.fontSize ?? 'xx-large'};
+`;
+
+export const ControlIcon = styled(ActionIcon)`
+  position: absolute;
+  justify-self: center;
+  align-self: center;
+  opacity: 50%;
+  z-index: -1;
 `;
 
 export const ControlStatus = styled.div`
-  font-size: smaller;
-  font-weight: 500;
+    font-weight: 700;
 `;
 
 export const ControlContainer = styled.button<{rgb: string}>`

@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ActionIcon, ControlStatus} from '../factories/styleFactory';
 import executeRuleControl from '../operations/executeRuleControl';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IRuleComponentType} from '../types/sharedContracts';
@@ -28,9 +28,9 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words}) => {
       ref={drop}
       {...collectedProps}
     >
-      <ControlIcon fontSize="x-large">
+      <ActionIcon fontSize="x-large">
           ⏸
-      </ControlIcon>
+      </ActionIcon>
       <ControlStatus>
         {words}
       </ControlStatus>

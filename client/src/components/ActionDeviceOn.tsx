@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ActionIcon, ControlStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 
@@ -27,9 +27,9 @@ const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
       ref={drop}
       {...collectedProps}
     >
-      <ControlIcon>
+      <ActionIcon fontSize="larger">
           ✅
-      </ControlIcon>
+      </ActionIcon>
       <ControlStatus>
         {words}
       </ControlStatus>
