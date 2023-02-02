@@ -1,6 +1,6 @@
 import React from 'react';
 import {Room as IRoom} from '@smartthings/core-sdk';
-import {ControlContainer, ControlIcon} from '../factories/styleFactory';
+import {ControlContainer, ControlLogo} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import global from '../constants/global';
 import {useDrag} from 'react-dnd';
@@ -19,9 +19,9 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
       onTouchStart={() => setActiveDevice({name: room.name!, id: room.roomId!})}
       onTouchEnd={() => setActiveDevice(null)}
     >
-      <ControlIcon>
+      <ControlLogo>
         🔨
-      </ControlIcon>
+      </ControlLogo>
     </ControlContainer>
   );
 };

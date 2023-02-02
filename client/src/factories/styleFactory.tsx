@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import global from '../constants/global';
 
-export const ActionIcon = styled.div<{ fontSize?: string }>`
+export const ActionLogo = styled.div<{ fontSize?: string }>`
   font-size: ${props => props.fontSize ?? 'xx-large'};
 `;
 
-export const ControlIcon = styled(ActionIcon)`
+export const ControlLogo = styled(ActionLogo)`
   position: absolute;
   justify-self: center;
   align-self: center;

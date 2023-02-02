@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IRuleComponentType} from '../types/sharedContracts';
 
@@ -24,9 +24,9 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
       onTouchStart={() => setActiveDevice({name: ruleName, id: `${IDragAndDropType.Rule}-${dragId}`})}
       onTouchEnd={() => setActiveDevice(null)}
     >
-      <ControlIcon>
+      <ControlLogo>
         {iconography}
-      </ControlIcon>
+      </ControlLogo>
       <ControlStatus>
         {time}
       </ControlStatus>
