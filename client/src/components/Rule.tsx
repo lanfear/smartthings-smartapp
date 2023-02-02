@@ -30,7 +30,7 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
       <ControlStatus>
         {time}
       </ControlStatus>
-      {iconography ?? (
+      {!!iconography && (
         <ControlIcon>
           {iconography}
         </ControlIcon>

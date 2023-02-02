@@ -19,10 +19,16 @@ export const ControlLogo = styled(ActionLogo)`
 export const ControlStatus = styled.div`
     font-weight: 700;
     line-height: 1;
+    background: #9995;
+    border-radius: 10px;
+    padding: 0.125rem 0;
 `;
 
 export const ControlIcon = styled.div<{ fontSize?: string }>`
-  font-size: ${props => props.fontSize ?? 'larger'};
+  font-size: ${props => props.fontSize ?? 'unset'};
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
 `;
 
 export const ControlContainer = styled.button<{rgb: string}>`
@@ -41,7 +47,6 @@ export const ControlContainer = styled.button<{rgb: string}>`
   border-radius: 10px;
   border: 1px solid rgba( 255, 255, 255, 0.18 );
   margin: ${global.measurements.deviceMargin};
-  padding: 0.25rem 0;
 `;
 
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`
