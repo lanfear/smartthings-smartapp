@@ -6,7 +6,7 @@ import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../fact
 import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
-const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => {
+const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked, isLinkedActive, isLockedActive}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Device, device.deviceId, device.label!)));
 
   return deviceType === 'Switch' ? (
@@ -18,6 +18,8 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       onMouseLeave={() => setActiveDevice(null)}
       onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
       onTouchEnd={() => setActiveDevice(null)}
+      isLinkedActive={isLinkedActive}
+      isLockedActive={isLockedActive}
     >
       {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
       <ControlLogo>
@@ -59,6 +61,8 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       onMouseLeave={() => setActiveDevice(null)}
       onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
       onTouchEnd={() => setActiveDevice(null)}
+      isLinkedActive={isLinkedActive}
+      isLockedActive={isLockedActive}
     >
       {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
       <ControlLogo>
@@ -78,6 +82,8 @@ export interface IDeviceProps {
   deviceType: DeviceType;
   setActiveDevice: (value: IActiveControl | null) => void;
   isLocked?: boolean;
+  isLinkedActive?: boolean;
+  isLockedActive?: boolean;
 }
 
 export default Device;

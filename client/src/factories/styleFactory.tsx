@@ -1,5 +1,11 @@
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 import global from '../constants/global';
+
+const DeviceBorderAnimation = keyframes`
+    50% {
+        border: 1px solid rgba( 255, 255, 255, 0.18 );
+    }
+`;
 
 export const ActionLogo = styled.div<{ fontSize?: string }>`
   font-size: ${props => props.fontSize ?? 'x-large'};
@@ -31,7 +37,9 @@ export const ControlIcon = styled.div<{ fontSize?: string }>`
   justify-content: space-between;
 `;
 
-export const ControlContainer = styled.button<{rgb: string}>`
+export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; isLockedActive?: boolean}>(p => ({
+  className: `${p.isLinkedActive ? 'linkedActive' : ''} ${p.isLockedActive ? 'lockedActive' : ''}`
+}))<{isLinkedActive?: boolean; isLockedActive?: boolean; rgb: string}>`
   height: ${global.measurements.deviceWidth};
   width: ${global.measurements.deviceWidth};
   display: flex;
@@ -47,6 +55,23 @@ export const ControlContainer = styled.button<{rgb: string}>`
   border-radius: 10px;
   border: 1px solid rgba( 255, 255, 255, 0.18 );
   margin: ${global.measurements.deviceMargin};
+  transition : border 500ms pulse;
+
+  &.linkedActive {
+    border: 1px solid #000;
+    animation-name: ${DeviceBorderAnimation};
+    animation-duration: 2.0s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count:infinite;
+  }
+
+  &.lockedActive {
+    border: 1px solid #f00;
+    animation-name: ${DeviceBorderAnimation};
+    animation-duration: 2.0s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count:infinite;
+  }
 `;
 
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`

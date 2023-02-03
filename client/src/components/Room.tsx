@@ -1,17 +1,17 @@
 import React, {useEffect, useRef} from 'react';
-import dayjs from 'dayjs';
+import dayjs, {Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'use-hooks';
-import {DeviceContext, IApp, IRule, ISseEvent} from '../types/sharedContracts';
+import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import global from '../constants/global';
 import Device from './Device';
 import Power from './Power';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import SmartApp from './SmartApp';
-import getRulesFromSummary from '../operations/getRulesFromSummary';
+import getRulesFromSummary, {IRuleIdle, IRuleRange, IRuleTransition} from '../operations/getRulesFromSummary';
 import Rule from './Rule';
 import {IActiveControl} from '../types/interfaces';
 
@@ -21,6 +21,40 @@ const numDevicesPerRow = 5;
 
 // 32E624 green bg
 // ideas: 🪄 🔮 🕹 🔌 💾 🔐 🔑 🔂
+
+const isRuleActive = (startTime: Dayjs, endTime: Dayjs): boolean => dayjs().isBetween(startTime, endTime);
+const isLinkedRuleActive = (rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean => !!activeDeviceId && (
+  rule.controlDevice.deviceId === activeDeviceId ||
+    Object.values(rule.switchDevices).some(d => d.deviceId === activeDeviceId) ||
+    activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
+);
+
+const isLockedRuleActive = (lockedDevices: IDevice[], rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean =>
+  !!activeDeviceId && (
+    rule.controlDevice.deviceId === activeDeviceId || (
+      lockedDevices.some(d => d) &&
+      isRuleActive(rule.startTime, rule.endTime) &&
+      activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
+    )
+  );
+
+const isLinkedDeviceActive = (roomRuleSummaries: Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>, deviceId: string, activeDeviceId?: string): boolean =>
+  !!activeDeviceId && (
+    (deviceId === activeDeviceId) ||
+    Object.entries(roomRuleSummaries).some(([k, v]) => (
+      (activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule &&
+        (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId))) ||
+      (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule &&
+        (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
+    )));
+
+const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>, deviceId: string, activeDeviceId?: string): boolean =>
+  !!activeDeviceId && (
+    (lockedDevices.some(d => d.deviceId === deviceId) && deviceId === activeDeviceId) ||
+    (Object.entries(roomRuleSummaries).some(([k, v]) =>
+      ((activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule && v.dayRule.controlDevice.deviceId === deviceId && isRuleActive(v.dayRule.startTime, v.dayRule.endTime)) ||
+       (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule && v.nightRule.controlDevice.deviceId === deviceId && isRuleActive(v.nightRule.startTime, v.nightRule.endTime)))))
+  );
 
 const RoomContainer = styled.div`
   height: 100%;
@@ -146,8 +180,12 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const roomRules = findRuleForRoom();
   const roomApps = findAppsForRoom();
 
-  const roomRuleSummaries = roomApps.map(a => getRulesFromSummary(a.ruleSummary));
-  const activeRuleControlSwitches = roomRuleSummaries.map(r => {
+  const roomRuleSummaries = roomApps.reduce((p, c) => {
+    p[c.installedAppId] = getRulesFromSummary(c.ruleSummary);
+    return p;
+  }, {} as Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>);
+
+  const activeRuleControlSwitches = Object.values(roomRuleSummaries).map(r => {
     if (r.dayRule && dayjs().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
       return r.dayRule.controlDevice;
     }
@@ -239,6 +277,8 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
               deviceType="Switch"
               setActiveDevice={setActiveDevice}
               isLocked={lockedDevices.some(d => d.deviceId === s.deviceId)}
+              isLinkedActive={isLinkedDeviceActive(roomRuleSummaries, s.deviceId, activeDevice?.id)}
+              isLockedActive={isLockedDeviceActive(lockedDevices, roomRuleSummaries, s.deviceId, activeDevice?.id)}
             />
           </RoomControlDevice>
         ))}
@@ -289,10 +329,12 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="daylight"
                     time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
-                    isRuleActive={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
+                    isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
-                    isKeyRule={dayjs().isBetween(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
+                    isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
+                    isLinkedActive={isLinkedRuleActive(ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id)}
+                    isLockedActive={isLockedRuleActive(lockedDevices, ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id)}
                   />
                 </RoomControlRule>
               )}
@@ -323,10 +365,12 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="nightlight"
                     time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
-                    isRuleActive={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
+                    isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
-                    isKeyRule={dayjs().isBetween(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
+                    isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
                     setActiveDevice={setActiveDevice}
+                    isLinkedActive={isLinkedRuleActive(ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id)}
+                    isLockedActive={isLockedRuleActive(lockedDevices, ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id)}
                   />
                 </RoomControlRule>
               )}
