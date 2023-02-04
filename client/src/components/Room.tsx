@@ -328,7 +328,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Daylight Rule`}
                     ruleType="daylight"
-                    time={`${ruleParts.dayRule.startTime.format('HH:mm')} - ${ruleParts.dayRule.endTime.format('HH:mm')}`}
+                    time={`${ruleParts.dayRule.startTime.format('hA')} - ${ruleParts.dayRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
                     isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
@@ -347,7 +347,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Transition Rule`}
                     ruleType="transition"
-                    time={ruleParts.transitionRule.time.format('HH:mm')}
+                    time={ruleParts.transitionRule.time.format('hA')}
                     isRuleActive={true}
                     isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
                     isKeyRule={false}
@@ -364,7 +364,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     rulePartId={a.installedAppId}
                     ruleName={`${a.displayName!} Nightlight Rule`}
                     ruleType="nightlight"
-                    time={`${ruleParts.nightRule.startTime.format('HH:mm')} - ${ruleParts.nightRule.endTime.format('HH:mm')}`}
+                    time={`${ruleParts.nightRule.startTime.format('hA')} - ${ruleParts.nightRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
                     isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
