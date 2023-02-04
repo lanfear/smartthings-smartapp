@@ -25,7 +25,8 @@ export default {
         motion: '32E624',
         rule: 'E68C24',
         app: 'E68C24',
-        locked: 'E65E24'
+        locked: 'E65E24',
+        floor: 'F35506'
       }
     }
   }

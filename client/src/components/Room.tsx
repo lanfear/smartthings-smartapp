@@ -115,6 +115,17 @@ const RoomControlTitleText = styled.span`
   border: 1px solid rgba( 255, 255, 255, 0.18 );
 `;
 
+const RoomControlTitleFloor = styled.span`
+  padding: 0 0.5rem;
+  background: #${global.palette.control.rgb.floor}${global.palette.control.alpha};
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 15px );
+  border-radius: 50%;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  font-size: small;
+  color: #000;
+`;
+
 const RoomControlFavorite = styled.button`
   all: unset;
   display: flex;
@@ -211,6 +222,10 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const deviceEventSource = useEventSource({
     source: `${process.env.REACT_APP_APIHOST as string}/events`
   });
+
+  const roomParts = room.name!.split(' - ');
+  const roomName = roomParts.length > 1 ? roomParts[1] : roomParts[0];
+  const roomFloor = roomParts.length > 1 ? roomParts[0] : null;
 
   const handleSwitchDeviceEvent = async (eventData: ISseEvent): Promise<void> => {
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
@@ -412,9 +427,16 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
           />
         </RoomControlPower>
         <RoomControlTitle>
-          {room.name}
+          <RoomControlTitleText>
+            {roomName}
+          </RoomControlTitleText>
         </RoomControlTitle>
         <RoomControlFavorite onClick={() => setFavoriteRoom(room.roomId!)}>
+          {!!roomFloor && (
+            <RoomControlTitleFloor>
+              {roomFloor}
+            </RoomControlTitleFloor>
+          )}
           {isFavoriteRoom ? '🌟' : '⭐'}
         </RoomControlFavorite>
         <RoomControlDeviceLabel>
