@@ -28,6 +28,7 @@ export const ControlStatus = styled.div`
     background: #9995;
     border-radius: 10px;
     padding: 0.125rem 0;
+    min-width: 80%;
 `;
 
 export const ControlIcon = styled.div<{ fontSize?: string }>`
@@ -48,7 +49,6 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
   align-content: center;
   align-items: center;
   justify-content: space-between;
-  border-radius: 4px;
   background: #${props => props.rgb}${global.palette.control.alpha};
   box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
   backdrop-filter: blur( 15px );

@@ -106,6 +106,15 @@ const RoomControlTitle = styled.div`
   font-weight: 700;
 `;
 
+const RoomControlTitleText = styled.span`
+  padding: 0 0.5rem;
+  background: #${global.palette.control.rgb.inactive}${global.palette.control.alpha};
+  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+  backdrop-filter: blur( 15px );
+  border-radius: 10px;
+  border: 1px solid rgba( 255, 255, 255, 0.18 );
+`;
+
 const RoomControlFavorite = styled.button`
   all: unset;
   display: flex;
