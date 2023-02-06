@@ -26,7 +26,7 @@ const sendSSEEvent = (type, data) => {
 };
 /* Define the SmartApp */
 exports.default = new smartapp_1.SmartApp()
-    .enableEventLogging()
+    .enableEventLogging(2, process.env.LOGGING_EVENTS_ENABLED.toLowerCase() === 'true')
     .configureI18n()
     .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
     .appId(process.env.CONTROL_APP_ID)
