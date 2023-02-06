@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/lanfear/smartthings-smartapp/static/css/main.e05be9da.chunk.css",
+    "main.js": "/lanfear/smartthings-smartapp/static/js/main.09dda116.chunk.js",
+    "main.js.map": "/lanfear/smartthings-smartapp/static/js/main.09dda116.chunk.js.map",
+    "runtime-main.js": "/lanfear/smartthings-smartapp/static/js/runtime-main.018689c9.js",
+    "runtime-main.js.map": "/lanfear/smartthings-smartapp/static/js/runtime-main.018689c9.js.map",
+    "static/js/2.557a86b1.chunk.js": "/lanfear/smartthings-smartapp/static/js/2.557a86b1.chunk.js",
+    "static/js/2.557a86b1.chunk.js.map": "/lanfear/smartthings-smartapp/static/js/2.557a86b1.chunk.js.map",
+    "static/js/3.bc52364b.chunk.js": "/lanfear/smartthings-smartapp/static/js/3.bc52364b.chunk.js",
+    "static/js/3.bc52364b.chunk.js.map": "/lanfear/smartthings-smartapp/static/js/3.bc52364b.chunk.js.map",
+    "index.html": "/lanfear/smartthings-smartapp/index.html",
+    "static/css/main.e05be9da.chunk.css.map": "/lanfear/smartthings-smartapp/static/css/main.e05be9da.chunk.css.map",
+    "static/js/2.557a86b1.chunk.js.LICENSE.txt": "/lanfear/smartthings-smartapp/static/js/2.557a86b1.chunk.js.LICENSE.txt",
+    "static/media/getFetch.cjs": "/lanfear/smartthings-smartapp/static/media/getFetch.582d29c4.cjs"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.018689c9.js",
+    "static/js/2.557a86b1.chunk.js",
+    "static/css/main.e05be9da.chunk.css",
+    "static/js/main.09dda116.chunk.js"
+  ]
+}
