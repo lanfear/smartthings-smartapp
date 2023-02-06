@@ -2,7 +2,6 @@ import dayjs, {Dayjs} from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import objectSupport from 'dayjs/plugin/objectSupport';
 import {DeviceContext, IRuleSummary} from '../types/sharedContracts';
-import {IntervalUnit} from '@smartthings/core-sdk';
 dayjs.extend(utc);
 dayjs.extend(objectSupport);
 
@@ -99,7 +98,7 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 
   if (ruleSummary.enableIdleRule) {
     ruleParts.idleRule = {
-      motionTimeout: `${ruleSummary.motionIdleTimeout}${ruleSummary.motionIdleTimeoutUnit === IntervalUnit.Minute ? 'm' : 's'}`,
+      motionTimeout: `${ruleSummary.motionIdleTimeout}${ruleSummary.motionIdleTimeoutUnit === 'Minute' ? 'm' : 's'}`,
       motionDevices: ruleSummary.motionSensors,
       switchDevices: {...ruleSummary.dayDimmableSwitches, ...ruleSummary.dayNonDimmableSwitches, ...ruleSummary.nightDimmableSwitches, ...ruleSummary.nightNonDimmableSwitches}
     };

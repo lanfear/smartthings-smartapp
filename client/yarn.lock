@@ -1713,10 +1713,10 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@smartthings/core-sdk@^3.4.0":
-  version "3.6.0"
-  resolved "https://registry.yarnpkg.com/@smartthings/core-sdk/-/core-sdk-3.6.0.tgz#9437d3b49cbf4646b81649d47a40e08b4566aa2d"
-  integrity sha512-4med6fWOXyUJdkw2l+pXSxqOQBy4aqBRP27ZJkmYftyHvTvaNpJJRaa8ZSrPJlfsuPLJC4N7M/ZQjOzZd8i2sQ==
+"@smartthings/core-sdk@^5.2.0":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@smartthings/core-sdk/-/core-sdk-5.2.0.tgz#7fefa15afc9f8a280e265ec8a3485e93a44dd539"
+  integrity sha512-oyCa58xcY7mCWlVzX0KVyG909rTm2hg7GAOXOiSWdE6MIr/Cn0boyz6GFI1c6ldNyueXvwFxkPNvtO+qpSETWA==
   dependencies:
     async-mutex "^0.3.2"
     axios "^0.21.4"

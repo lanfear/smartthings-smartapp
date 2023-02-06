@@ -12,7 +12,7 @@
   "homepage": "https://github.com/lanfear/smartthings-smartapp",
   "bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
-    "@smartthings/core-sdk": "^3.4.0",
+    "@smartthings/core-sdk": "^5.2.0",
     "ace-builds": "^1.4.13",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
