@@ -126,3 +126,4 @@ I really intend to continue to build out the `main` branch of this repository ac
 - advanced logging and log routings (categories, enable/disable in .env, verbose logging to specific file, some/all captured by syslog?)
 - different icons for different light types (fan, fanlight, light, ??)
 - show % of dim instead of on/off
+- .env for client being baked into production build
