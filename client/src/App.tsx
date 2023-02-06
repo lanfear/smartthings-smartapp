@@ -43,7 +43,6 @@ const App: React.FC = () => (
                         Rule Helper
               </a>
 
-
               <div
                 className="navbar-burger burger"
                 data-target="navMenubd-example"

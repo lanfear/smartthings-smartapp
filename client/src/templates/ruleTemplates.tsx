@@ -21,7 +21,6 @@ import delayedCommand from './templates/delayedCommand.json';
 import nestedIf from './templates/nestedIf.json';
 import morningSchedule from './templates/morningSchedule.json';
 
-
 const BasicTemp = [
   {label: 'And operator', value: and},
   {label: 'Between', value: between},
@@ -47,7 +46,6 @@ const AdvancedTemp = [
   {label: 'Nested If Condition', value: nestedIf},
   {label: 'Morning Routine At Location', value: morningSchedule}
 ];
-
 
 export {
   BasicTemp,

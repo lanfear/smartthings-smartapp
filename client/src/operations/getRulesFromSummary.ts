@@ -67,7 +67,6 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
     nightEndTime = nightEndTime.subtract(1, 'day');
   }
 
-
   if (ruleSummary.enableDaylightRule) {
     ruleParts.dayRule = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
@@ -110,4 +109,3 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 };
 
 export default getRulesFromSummary;
-

@@ -15,7 +15,6 @@ const Home: React.FC = () => (
         <br />
         <br />
 
-
                 A rule is defined in JSON format and contains a name, install source, and a list of actions.
                 A single rule can be used to contain multiple actions within it. These actions represent a
                 tree that is evaluated when the rule is triggered. This
@@ -109,6 +108,4 @@ const Home: React.FC = () => (
   </div>
 );
 
-
 export default Home;
-

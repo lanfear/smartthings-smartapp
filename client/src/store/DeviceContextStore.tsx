@@ -70,6 +70,8 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
     fallbackData: getFallbackData(locationId)
   });
 
+  // TODO: fix whatever tf this is about
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const setDeviceData: typeof _setDeviceData = useCallback(async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)), opts), [_setDeviceData]);
 
   // listen to sse events
