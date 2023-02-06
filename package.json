@@ -12,8 +12,7 @@
   "homepage": "https://github.com/lanfear/smartthings-smartapp",
   "bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
-    "concurrently": "^7.0.0",
-    "react-tiny-popover": "^7.0.1"
+    "concurrently": "^7.0.0"
   },
   "scripts": {
     "inst": "concurrently -n \"client:install,server:install\" -c \"red,magenta\" \"cd client && yarn\" \"cd server && yarn\"",
