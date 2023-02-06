@@ -1,6 +1,6 @@
 import React from 'react';
 import {Room as IRoom} from '@smartthings/core-sdk';
-import {ControlContainer, ControlLogo} from '../factories/styleFactory';
+import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import global from '../constants/global';
 import {useDrag} from 'react-dnd';
@@ -22,6 +22,9 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
       <ControlLogo>
         🔨
       </ControlLogo>
+      <ControlStatus>
+        power
+      </ControlStatus>
     </ControlContainer>
   );
 };
