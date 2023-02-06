@@ -116,3 +116,13 @@ I really don't intend to develop this branch much further or clean/refine it.  I
 I _MAY_ consider fork contributions if contacted or PR(s) if I end up having them configured.  My hesitation is only with regards to my time, of which I don't have much to spare.  I am not trying to discourage community participation.
 
 I really intend to continue to build out the `main` branch of this repository according to my needs and that will also remain public for example(s) although it may become much more complicated.
+
+# MY TODO LIST
+
+- Why doesnt add imports map the proper file (or even always show node-modules available for client?) 
+  - https://medium.com/geekculture/avoid-relative-path-hell-in-typescript-backend-41417b0086b7 seems good idea in its own PR
+- Autoformatter settings figured out? may need to upgrade eslint and the rules?? (wip: 7c3506f upgrade typescript, separate PR)
+- lint on checkin?
+- advanced logging and log routings (categories, enable/disable in .env, verbose logging to specific file, some/all captured by syslog?)
+- different icons for different light types (fan, fanlight, light, ??)
+- show % of dim instead of on/off
