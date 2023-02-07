@@ -4,18 +4,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateActionSwitchOff = exports.generateActionSwitchOn = exports.generateActionSwitchLevel = exports.generateActionSleep = exports.generateConditionDeviceOn = exports.generateConditionDeviceOff = exports.generateConditionsNoMotion = exports.generateConditionMotion = exports.generateConditionBetween = exports.generateConditionTrigger = void 0;
-/* eslint-disable id-blacklist, id-denylist */
-const core_sdk_1 = require("@smartthings/core-sdk");
 const global_1 = __importDefault(require("../constants/global"));
 const generateConditionTrigger = (noonOffsetTime, actions) => ({
     every: {
         specific: {
-            reference: core_sdk_1.TimeReference.Noon,
+            reference: 'Noon',
             offset: {
                 value: {
                     integer: noonOffsetTime
                 },
-                unit: core_sdk_1.IntervalUnit.Minute
+                unit: 'Minute'
             }
         },
         actions: actions
@@ -27,28 +25,28 @@ const generateConditionBetween = (noonOffsetStart, noonOffsetEnd) => ({
     between: {
         value: {
             time: {
-                reference: core_sdk_1.TimeReference.Now
+                reference: 'Now'
             }
         },
         start: {
             time: {
-                reference: core_sdk_1.TimeReference.Noon,
+                reference: 'Noon',
                 offset: {
                     value: {
                         integer: noonOffsetStart
                     },
-                    unit: core_sdk_1.IntervalUnit.Minute
+                    unit: 'Minute'
                 }
             }
         },
         end: {
             time: {
-                reference: core_sdk_1.TimeReference.Noon,
+                reference: 'Noon',
                 offset: {
                     value: {
                         integer: noonOffsetEnd
                     },
-                    unit: core_sdk_1.IntervalUnit.Minute
+                    unit: 'Minute'
                 }
             }
         }

@@ -16,7 +16,6 @@ exports.readDeviceLevelConfigFromContext = void 0;
 const dayjs_1 = __importDefault(require("dayjs"));
 const customParseFormat_1 = __importDefault(require("dayjs/plugin/customParseFormat"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
-const core_sdk_1 = require("@smartthings/core-sdk");
 const global_1 = __importDefault(require("../constants/global"));
 dayjs_1.default.extend(customParseFormat_1.default);
 dayjs_1.default.extend(utc_1.default);
@@ -52,7 +51,7 @@ const readConfigFromContext = (context) => __awaiter(void 0, void 0, void 0, fun
         motionSensors: (_e = yield getDeviceConfigIfAuthenticated(context, 'motionSensor')) !== null && _e !== void 0 ? _e : [],
         motionMultipleAll: (_f = context.configBooleanValue('motionMultipleAll')) === null || _f === void 0 ? void 0 : _f.valueOf(),
         motionIdleTimeout: (_g = context.configNumberValue('motionIdleTimeout')) === null || _g === void 0 ? void 0 : _g.valueOf(),
-        motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? core_sdk_1.IntervalUnit.Minute : core_sdk_1.IntervalUnit.Second,
+        motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? 'Minute' : 'Second',
         motionDurationDelay: (_h = context.configNumberValue('motionDurationDelay')) === null || _h === void 0 ? void 0 : _h.valueOf(),
         dayControlSwitch: ((_j = yield getDeviceConfigIfAuthenticated(context, 'dayControlSwitch')) !== null && _j !== void 0 ? _j : [null])[0],
         dayActiveSwitches: (_k = yield getDeviceConfigIfAuthenticated(context, 'dayActiveSwitches')) !== null && _k !== void 0 ? _k : [],
