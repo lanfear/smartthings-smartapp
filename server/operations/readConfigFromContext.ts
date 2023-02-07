@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
-import {IntervalUnit} from '@smartthings/core-sdk';
 import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
 import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig} from '../types';
 import global from '../constants/global';
@@ -40,7 +39,7 @@ const readConfigFromContext = async (context: SmartAppContext): Promise<ISmartAp
   motionSensors: await getDeviceConfigIfAuthenticated(context, 'motionSensor') ?? [],
   motionMultipleAll: context.configBooleanValue('motionMultipleAll')?.valueOf(),
   motionIdleTimeout: context.configNumberValue('motionIdleTimeout')?.valueOf(),
-  motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? IntervalUnit.Minute : IntervalUnit.Second,
+  motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? 'Minute' : 'Second',
   motionDurationDelay: context.configNumberValue('motionDurationDelay')?.valueOf(),
   dayControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'dayControlSwitch') ?? [null])[0],
   dayActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'dayActiveSwitches') ?? [],

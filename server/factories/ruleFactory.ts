@@ -1,16 +1,16 @@
 /* eslint-disable id-blacklist, id-denylist */
-import {Action, Condition, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
+import {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
-export const generateConditionTrigger = (noonOffsetTime: number, actions: Action[]): Action => ({
+export const generateConditionTrigger = (noonOffsetTime: number, actions: RuleAction[]): RuleAction => ({
   every: {
     specific: {
-      reference: TimeReference.Noon,
+      reference: 'Noon',
       offset: {
         value: {
           integer: noonOffsetTime
         },
-        unit: IntervalUnit.Minute
+        unit: 'Minute'
       }
     },
     actions: actions
@@ -18,40 +18,40 @@ export const generateConditionTrigger = (noonOffsetTime: number, actions: Action
 });
 
 // annoying that this is on both server and client side =(
-export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): Condition => ({
+export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): RuleCondition => ({
   between: {
     value: {
       time: {
-        reference: TimeReference.Now
+        reference: 'Now'
       }
     },
     start: {
       time: {
-        reference: TimeReference.Noon,
+        reference: 'Noon',
         offset: {
           value: {
             integer: noonOffsetStart
           },
-          unit: IntervalUnit.Minute
+          unit: 'Minute'
         }
       }
     },
     end: {
       time: {
-        reference: TimeReference.Noon,
+        reference: 'Noon',
         offset: {
           value: {
             integer: noonOffsetEnd
           },
-          unit: IntervalUnit.Minute
+          unit: 'Minute'
         }
       }
     }
   }
 });
 
-export const generateConditionMotion = (motionDeviceIds: string[], andMultiple: boolean): Condition => {
-  const motionConditions: Condition[] = motionDeviceIds.map(d => ({
+export const generateConditionMotion = (motionDeviceIds: string[], andMultiple: boolean): RuleCondition => {
+  const motionConditions: RuleCondition[] = motionDeviceIds.map(d => ({
     equals: {
       left: {
         device: {
@@ -72,7 +72,7 @@ export const generateConditionMotion = (motionDeviceIds: string[], andMultiple: 
   return andMultiple ? {and: motionConditions} : {or: motionConditions};
 };
 
-export const generateConditionsNoMotion = (motionDeviceIds: string[]): Condition[] => motionDeviceIds.map(d => ({
+export const generateConditionsNoMotion = (motionDeviceIds: string[]): RuleCondition[] => motionDeviceIds.map(d => ({
   equals: {
     left: {
       device: {
@@ -90,7 +90,7 @@ export const generateConditionsNoMotion = (motionDeviceIds: string[]): Condition
   }
 }));
 
-export const generateConditionDeviceOff = (switchDeviceId: string): Condition => ({
+export const generateConditionDeviceOff = (switchDeviceId: string): RuleCondition => ({
   equals: {
     left: {
       device: {
@@ -108,7 +108,7 @@ export const generateConditionDeviceOff = (switchDeviceId: string): Condition =>
   }
 });
 
-export const generateConditionDeviceOn = (switchDeviceId: string): Condition => ({
+export const generateConditionDeviceOn = (switchDeviceId: string): RuleCondition => ({
   equals: {
     left: {
       device: {
@@ -126,7 +126,7 @@ export const generateConditionDeviceOn = (switchDeviceId: string): Condition => 
   }
 });
 
-export const generateActionSleep = (sleepDuration: number, sleepUnit: IntervalUnit): Action => ({
+export const generateActionSleep = (sleepDuration: number, sleepUnit: IntervalUnit): RuleAction => ({
   sleep: {
     duration: {
       value: {
@@ -137,7 +137,7 @@ export const generateActionSleep = (sleepDuration: number, sleepUnit: IntervalUn
   }
 });
 
-export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): Action => ({
+export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): RuleAction => ({
   command: {
     devices: [
       motionDeviceId
@@ -153,7 +153,7 @@ export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: n
   }
 });
 
-export const generateActionSwitchOn = (motionDeviceId: string): Action => ({
+export const generateActionSwitchOn = (motionDeviceId: string): RuleAction => ({
   command: {
     devices: [
       motionDeviceId
@@ -168,7 +168,7 @@ export const generateActionSwitchOn = (motionDeviceId: string): Action => ({
   }
 });
 
-export const generateActionSwitchOff = (motionDeviceIds: string[]): Action => ({
+export const generateActionSwitchOff = (motionDeviceIds: string[]): RuleAction => ({
   command: {
     devices: motionDeviceIds,
     commands: [

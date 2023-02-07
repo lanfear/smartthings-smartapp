@@ -1,10 +1,10 @@
-import {Action, RuleRequest} from '@smartthings/core-sdk';
+import {RuleRequest, RuleAction} from '@smartthings/core-sdk';
 
 const createCombinedRuleFromConfig = (
   appKey: string,
-  dayTriggerAction: Action,
-  nightTriggerAction: Action,
-  idleAction: Action
+  dayTriggerAction: RuleAction,
+  nightTriggerAction: RuleAction,
+  idleAction: RuleAction
 ): RuleRequest => {
   const ruleLabel = `${appKey}-rule`;
 

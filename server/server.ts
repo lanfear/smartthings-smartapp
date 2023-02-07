@@ -7,7 +7,7 @@ import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import JSONdb from 'simple-json-db';
 import {RuleStoreInfo} from './types';
-import {IResponseLocation, IRuleComponentType} from 'sharedContracts';
+import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
@@ -77,7 +77,7 @@ server.get('/location/:id', async (req, res) => {
   });
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
-    return {...r, ruleSummary: linkedInstalledApp?.ruleSummary};
+    return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
   });
 
   const response: IResponseLocation = {

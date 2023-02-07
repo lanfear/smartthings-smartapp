@@ -1,4 +1,4 @@
-import {IntervalUnit, Action, IfAction} from '@smartthings/core-sdk';
+import {IntervalUnit, RuleAction, IfAction} from '@smartthings/core-sdk';
 import {
   generateConditionsNoMotion,
   generateActionSwitchOff,
@@ -11,7 +11,7 @@ const createIdleRuleFromConfig = (
   idleTimeoutDelay: number,
   idleTimeoutUnit: IntervalUnit,
   motionMultipleAll: boolean
-): Action => {
+): RuleAction => {
   const idleConditions = generateConditionsNoMotion(motionControlDeviceIds);
   const sleepAction = generateActionSleep(idleTimeoutDelay, idleTimeoutUnit);
 
@@ -24,14 +24,14 @@ const createIdleRuleFromConfig = (
   } else {
     finalIfAction.or = idleConditions;
   }
-    
+
   if (idleTimeoutDelay <= 0) {
     return {
       if: finalIfAction
     };
   }
 
-  const newRule: Action = {
+  const newRule: RuleAction = {
     if: {
       then: [
         sleepAction,
