@@ -26,4 +26,3 @@ const storeRulesAndNotifyOperation = (ruleStore: JSONdb<RuleStoreInfo>, smartApp
 };
 
 export default storeRulesAndNotifyOperation;
-

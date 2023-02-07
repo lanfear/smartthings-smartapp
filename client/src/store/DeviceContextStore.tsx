@@ -70,9 +70,7 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
     fallbackData: getFallbackData(locationId)
   });
 
-  // TODO: fix whatever tf this is about
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const setDeviceData: typeof _setDeviceData = useCallback(async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)), opts), [_setDeviceData]);
+  const setDeviceData: typeof _setDeviceData = useCallback(async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)) as IResponseLocation, opts), [_setDeviceData]);
 
   // listen to sse events
   const deviceEventSource = useEventSource({
@@ -85,7 +83,7 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
     startOnInit: true,
     event: {
       name: 'rule',
-      listener: () => setDeviceData()
+      listener: () => _setDeviceData()
     }
   });
 
