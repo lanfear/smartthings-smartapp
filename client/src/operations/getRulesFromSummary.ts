@@ -66,7 +66,6 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
     nightEndTime = nightEndTime.subtract(1, 'day');
   }
 
-
   if (ruleSummary.enableDaylightRule) {
     ruleParts.dayRule = {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
@@ -99,7 +98,7 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 
   if (ruleSummary.enableIdleRule) {
     ruleParts.idleRule = {
-      motionTimeout: `${ruleSummary.motionIdleTimeout} ${ruleSummary.motionIdleTimeoutUnit}(s)`,
+      motionTimeout: `${ruleSummary.motionIdleTimeout}${ruleSummary.motionIdleTimeoutUnit === 'Minute' ? 'm' : 's'}`,
       motionDevices: ruleSummary.motionSensors,
       switchDevices: {...ruleSummary.dayDimmableSwitches, ...ruleSummary.dayNonDimmableSwitches, ...ruleSummary.nightDimmableSwitches, ...ruleSummary.nightNonDimmableSwitches}
     };
@@ -109,4 +108,3 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
 };
 
 export default getRulesFromSummary;
-

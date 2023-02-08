@@ -1,4 +1,4 @@
-import {IntervalUnit, Action} from '@smartthings/core-sdk';
+import {RuleAction} from '@smartthings/core-sdk';
 import global from '../constants/global';
 import {
   generateConditionDeviceOff,
@@ -22,7 +22,7 @@ const createTriggerRuleFromConfig = (
   activeSwitchOnDeviceIds: string[],
   motionMultipleAll: boolean,
   motionDurationDelay: number
-): Action => {
+): RuleAction => {
   if (endOffset < startOffset) {
     endOffset += _24hours;
   }
@@ -31,7 +31,7 @@ const createTriggerRuleFromConfig = (
   const controlSwitchCondition = generateConditionDeviceOff(controlDeviceId);
   const switchDimmableActions = activeSwitchLevelDeviceLevelMap.map(s => generateActionSwitchLevel(s.deviceId, s.switchLevel, global.rule.default.switchLevelRate));
   const switchOnActions = activeSwitchOnDeviceIds.map(s => generateActionSwitchOn(s));
-  const sleepAction = generateActionSleep(motionDurationDelay, IntervalUnit.Second);
+  const sleepAction = generateActionSleep(motionDurationDelay, 'Second');
 
   if (motionDurationDelay <= 0) {
     return {

@@ -8,11 +8,12 @@
 		"eslint.workingDirectories": [
 			"./server",
 			"./client"
-		]
+		],
 		"typescript.format.enable": true,
 		"eslint.format.enable": true,
 		"eslint.packageManager": "yarn",
 		"editor.codeActionsOnSave": {
+
 			"source.fixAll.eslint": true,
 		},
 		"[javascript]": {
@@ -21,12 +22,12 @@
 		"[javascriptreact]": {
 			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 		},
+    "[typescript]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
 		"[typescriptreact]": {
 			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 		},
 		"typescript.tsserver.watchOptions": {},
-		"[typescript]": {
-			"editor.defaultFormatter": "dbaeumer.vscode-eslint"
-		}
 	}
 }

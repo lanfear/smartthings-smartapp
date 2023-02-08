@@ -1,58 +1,70 @@
 {
-    "smartapp": {
-        "label":  "App ID",
-        "sceneCount": "Scene Count",
-        "switchCount": "Switch Count",
-        "lockCount": "Lock Count"
+  "smartapp": {
+    "label": "App ID",
+    "sceneCount": "Scene Count",
+    "switchCount": "Switch Count",
+    "lockCount": "Lock Count"
+  },
+  "location": {
+    "identifier": "Location ID",
+    "name": "Location Name"
+  },
+  "dashboard": {
+    "room": {
+      "sectionName": "Rooms"
     },
-    "location": {
-        "identifier":  "Location ID",
-        "name": "Location Name"
+    "scene": {
+      "sectionName": "Scenes",
+      "header": {
+        "sceneName": "Scene Name",
+        "sceneId": "Scene ID",
+        "createdBy": "Created By",
+        "createdDate": "Created Date",
+        "lastExecutedDate": "Last Executed"
+      }
     },
-    "dashboard": {
-        "scene": {
-            "sectionName":  "Scenes",
-            "header": {
-                "sceneName": "Scene Name",
-                "sceneId": "Scene ID",
-                "createdBy": "Created By",
-                "createdDate": "Created Date",
-                "lastExecutedDate": "Last Executed"
-            }
-        },
-        "switch": {
-            "sectionName":  "Switches",
-            "header": {
-                "label": "Name",
-                "deviceId": "Device ID",
-                "value": "Status"
-            }
-        },
-        "lock": {
-            "sectionName":  "Switches",
-            "header": {
-                "label": "Name",
-                "deviceId": "Device ID",
-                "value": "Status"
-            }
-        },
-        "motion": {
-            "sectionName":  "Motion Sensors",
-            "header": {
-                "label": "Name",
-                "deviceId": "Device ID",
-                "value": "Status"
-            }
-        },
-        "rule": {
-            "sectionName":  "Rules",
-            "header": {
-                "name": "Name",
-                "ruleId": "Device ID",
-                "status": "Status",
-                "ownerId": "Owner",
-                "manage": "Manage"
-            }
-        }
+    "switch": {
+      "sectionName": "Switches",
+      "header": {
+        "label": "Name",
+        "deviceId": "Device ID",
+        "value": "Status"
+      }
+    },
+    "lock": {
+      "sectionName": "Switches",
+      "header": {
+        "label": "Name",
+        "deviceId": "Device ID",
+        "value": "Status"
+      }
+    },
+    "motion": {
+      "sectionName": "Motion Sensors",
+      "header": {
+        "label": "Name",
+        "deviceId": "Device ID",
+        "value": "Status"
+      }
+    },
+    "rule": {
+      "sectionName": "Rules",
+      "header": {
+        "name": "Name",
+        "ruleId": "Device ID",
+        "status": "Status",
+        "ownerId": "Owner",
+        "manage": "Manage"
+      }
+    },
+    "installedApp": {
+      "sectionName": "Installed Apps",
+      "header": {
+        "name": "Name",
+        "appId": "App ID",
+        "installedAppId": "Installed App ID",
+        "lastUpdatedDate": "Last Updated"
+      }
     }
+  }
 }

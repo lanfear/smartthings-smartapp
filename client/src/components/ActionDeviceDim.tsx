@@ -3,7 +3,7 @@ import {DropTargetMonitor, useDrop} from 'react-dnd';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IResponseSwitches} from '../types/sharedContracts';
@@ -11,6 +11,11 @@ import {IResponseSwitches} from '../types/sharedContracts';
 const dimLevelMin = 5;
 const dimLevelMax = 95;
 const negative100Percent = -100;
+
+const DimLevelUpDownArrowContainer = styled.div`
+  display: flex;
+  font-size: x-large;
+`;
 
 const DimLevelSliderContainer = styled.div`
   height: 80%;
@@ -79,7 +84,7 @@ const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitch
 
 const ActionDeviceDim: React.FC = () => {
   const {deviceData} = useDeviceContext();
-  
+
   const [dimLevelSliderValue, setDimLevelSliderValue] = useState(0);
 
   const sliderRef = useRef<HTMLInputElement>(null);
@@ -121,18 +126,21 @@ const ActionDeviceDim: React.FC = () => {
       progressPercentage={dimLevelSliderValue}
       {...collectedProps}
     >
-      <ControlStatus>
-      Dimmer
-      </ControlStatus>
+      <DimLevelUpDownArrowContainer>
+        🔺
+      </DimLevelUpDownArrowContainer>
       <DimLevelSliderContainer
         className="dim-level-slider-container"
         ref={sliderRef}
       >
         <DimLevelSlider className="dim-level-slider" />
       </DimLevelSliderContainer>
+      <DimLevelUpDownArrowContainer>
+        🔻
+      </DimLevelUpDownArrowContainer>
     </BleedingControlActionContainer>
   );
-  
+
   return leftControl;
 };
 

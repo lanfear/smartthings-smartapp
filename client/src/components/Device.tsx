@@ -2,11 +2,11 @@ import React from 'react';
 import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlContainer, ControlIcon, ControlStatus} from '../factories/styleFactory';
+import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import {IActiveControl} from '../types/interfaces';
 import {IDevice} from '../types/sharedContracts';
 
-const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked}) => {
+const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked, isLinkedActive, isLockedActive}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Device, device.deviceId, device.label!)));
 
   return deviceType === 'Switch' ? (
@@ -18,14 +18,21 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       onMouseLeave={() => setActiveDevice(null)}
       onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
       onTouchEnd={() => setActiveDevice(null)}
+      isLinkedActive={isLinkedActive}
+      isLockedActive={isLockedActive}
     >
       {/* <span>{t('dashboard.switch.header.deviceId')}: {device.deviceId}</span> */}
-      <ControlIcon>
-        {isLocked ? '💡🔒' : '💡'}
-      </ControlIcon>
+      <ControlLogo>
+        💡
+      </ControlLogo>
       <ControlStatus>
         {device.value}
       </ControlStatus>
+      {isLocked && (
+        <ControlIcon>
+          🔒
+        </ControlIcon>
+      )}
     </ControlContainer>
   ) : deviceType === 'Lock' ? (
     <ControlContainer
@@ -38,9 +45,9 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       onTouchEnd={() => setActiveDevice(null)}
     >
       {/* <span>{t('dashboard.lock.header.deviceId')}: {device.deviceId}</span> */}
-      <ControlIcon>
+      <ControlLogo>
         {device.value === 'locked' ? '🔒' : '🔓'}
-      </ControlIcon>
+      </ControlLogo>
       <ControlStatus>
         {device.value}
       </ControlStatus>
@@ -54,11 +61,13 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       onMouseLeave={() => setActiveDevice(null)}
       onTouchStart={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
       onTouchEnd={() => setActiveDevice(null)}
+      isLinkedActive={isLinkedActive}
+      isLockedActive={isLockedActive}
     >
       {/* <span>{t('dashboard.motion.header.deviceId')}: {device.deviceId}</span> */}
-      <ControlIcon>
+      <ControlLogo>
         {device.value === 'active' ? '🏃' : '🧍'}
-      </ControlIcon>
+      </ControlLogo>
       <ControlStatus>
         {device.value}
       </ControlStatus>
@@ -73,6 +82,8 @@ export interface IDeviceProps {
   deviceType: DeviceType;
   setActiveDevice: (value: IActiveControl | null) => void;
   isLocked?: boolean;
+  isLinkedActive?: boolean;
+  isLockedActive?: boolean;
 }
 
 export default Device;

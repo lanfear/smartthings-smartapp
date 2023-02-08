@@ -39,7 +39,6 @@ import turnOnSunrise from './examples/turnOnSunrise.json';
 import turnOnSunset from './examples/turnOnSunset.json';
 import unlockItWhenIArrive from './examples/unlockItWhenIArrive.json';
 
-
 const Examples = [
   {label: 'Bon Voyage', value: bonVoyage},
   {label: 'Brigthen My Path', value: brightenMyPath},
@@ -82,6 +81,5 @@ const Examples = [
   {label: 'Turn On Sunset', value: turnOnSunset},
   {label: 'Unlock It When I Arrive', value: unlockItWhenIArrive}
 ];
-
 
 export default Examples;

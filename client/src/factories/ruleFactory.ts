@@ -1,39 +1,40 @@
-import {Action, Condition, IntervalUnit, TimeReference} from '@smartthings/core-sdk';
+import {RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
-export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): Condition => ({
+export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): RuleCondition => ({
   between: {
     value: {
       time: {
-        reference: TimeReference.Now
+        reference: 'Now'
       }
     },
     start: {
       time: {
-        reference: TimeReference.Noon,
+        reference: 'Noon',
         offset: {
           value: {
             integer: noonOffsetStart
           },
-          unit: IntervalUnit.Minute
+          unit: 'Minute'
         }
       }
     },
     end: {
       time: {
-        reference: TimeReference.Noon,
+        reference: 'Noon',
         offset: {
           value: {
             integer: noonOffsetEnd
           },
-          unit: IntervalUnit.Minute
+          unit: 'Minute'
         }
       }
     }
+
   }
 });
 
-export const generateConditionMotion = (motionDeviceId: string): Condition => ({
+export const generateConditionMotion = (motionDeviceId: string): RuleCondition => ({
   equals: {
     left: {
       device: {
@@ -52,7 +53,7 @@ export const generateConditionMotion = (motionDeviceId: string): Condition => ({
   }
 });
 
-export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): Action => ({
+export const generateActionSwitchLevel = (motionDeviceId: string, switchLevel: number, rateLevel: number = global.rule.default.switchLevelRate): RuleAction => ({
   command: {
     devices: [
       motionDeviceId

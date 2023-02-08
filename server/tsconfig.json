@@ -9,6 +9,9 @@
         "sourceMap": true,
         "baseUrl": ".",
         "outDir": "build",
+        "lib": [
+          "es6"
+        ],
         "paths": {
             "*": [
                 "node_modules/*",

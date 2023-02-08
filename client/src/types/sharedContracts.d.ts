@@ -36,7 +36,6 @@ export interface IResponseLocation {
   apps: IResponseApps;
 }
 
-
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';
 export interface ISseEvent
 {
@@ -75,7 +74,6 @@ export interface IRuleSummary {
   enableNightlightRule: boolean;
   enableIdleRule: boolean;
   enableTransitionRule: boolean;
-  temporaryDisableAllRules: boolean;
   temporaryDisableDaylightRule: boolean;
   temporaryDisableNightlightRule: boolean;
   temporaryDisableIdleRule: boolean;
@@ -91,4 +89,3 @@ export interface DeviceContext {
   label: string;
   componentId: string;
 }
-
