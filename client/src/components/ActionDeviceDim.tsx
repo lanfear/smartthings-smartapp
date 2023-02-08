@@ -3,7 +3,7 @@ import {DropTargetMonitor, useDrop} from 'react-dnd';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceContext} from '../store/DeviceContextStore';
 import {IResponseSwitches} from '../types/sharedContracts';
