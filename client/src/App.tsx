@@ -36,12 +36,36 @@ const App: React.FC = () => (
         <nav className="navbar ">
           <div className="container">
             <div className="navbar-brand">
-              <a
+              <Link
                 className="navbar-item"
-                href="/"
+                to="/smartapps"
               >
-                        Rule Helper
-              </a>
+                            Installed Apps
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/locations"
+              >
+                            Locations
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/rule-examples"
+              >
+                            Rule Examples
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/basic-templates"
+              >
+                            Basic Templates
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/advanced-templates"
+              >
+                            Advanced Templates
+              </Link>
 
               <div
                 className="navbar-burger burger"
@@ -60,6 +84,18 @@ const App: React.FC = () => (
               <div className="navbar-start">
                 <Link
                   className="navbar-item"
+                  to="/smartapps"
+                >
+                            Installed Apps
+                </Link>
+                <Link
+                  className="navbar-item"
+                  to="/locations"
+                >
+                            Locations
+                </Link>
+                <Link
+                  className="navbar-item"
                   to="/rule-examples"
                 >
                             Rule Examples
@@ -75,18 +111,6 @@ const App: React.FC = () => (
                   to="/advanced-templates"
                 >
                             Advanced Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/smartapps"
-                >
-                            Installed Apps
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/locations"
-                >
-                            Locations
                 </Link>
               </div>
 
