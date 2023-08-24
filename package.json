@@ -12,7 +12,7 @@
   "homepage": "https://github.com/lanfear/smartthings-smartapp",
   "bugs": "https://github.com/lanfear/smartthings-smartapp/issues",
   "dependencies": {
-    "concurrently": "^7.0.0"
+    "concurrently": "^8.2.0"
   },
   "scripts": {
     "inst": "concurrently -n \"client:install,server:install\" -c \"red,magenta\" \"cd client && yarn\" \"cd server && yarn\"",
