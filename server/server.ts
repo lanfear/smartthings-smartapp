@@ -6,6 +6,7 @@ import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import JSONdb from 'simple-json-db';
+import {createClient} from 'redis';
 import {RuleStoreInfo} from './types';
 import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
@@ -23,6 +24,9 @@ const defaultPort = 3001;
 const server = express();
 const PORT = process.env.PORT || defaultPort;
 const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
+const redisRuleStore = createClient({
+  url: process.env.REDIS_SERVER
+});
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -71,10 +75,13 @@ server.get('/location/:id', async (req, res) => {
     it.value = state.motion.value as string;
     return it;
   }));
-  const apps = (await client.installedApps?.list({locationId: [req.params.id]}) || []).map(a => {
+  const apps = await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+    const ruleStoreInfoRedis = await redisRuleStore.json.get(`app-${a.installedAppId}`);
+    // eslint-disable-next-line no-console
+    console.log('redis rule', ruleStoreInfoRedis);
     const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  });
+  }));
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
     return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
@@ -126,6 +133,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   };
 
   const appKey = `app-${req.params.installedAppId}`;
+  // const ruleStoreInfo = await redisRuleStore.json.get(appKey);
   const ruleStoreInfo = ruleStore.get(appKey);
   const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;
 
@@ -167,8 +175,9 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     ruleStoreInfo.newRuleSummary
   );
 
-  storeRulesAndNotifyOperation(
+  await storeRulesAndNotifyOperation(
     ruleStore,
+    redisRuleStore,
     appKey,
     ruleStoreInfo.combinedRule,
     newCombinedRuleId,

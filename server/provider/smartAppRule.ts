@@ -18,6 +18,7 @@ import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
+import {createClient} from 'redis';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -29,6 +30,9 @@ const increment5 = 5;
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
+const redisRuleStore = createClient({
+  url: process.env.REDIS_SERVER
+});
 
 const rulesAreModified = (ruleStoreKey: string, newRule: RuleRequest): boolean => {
   const existingRules = ruleStore.get(ruleStoreKey);
@@ -346,8 +350,9 @@ export default new SmartApp()
         newRuleSummary
       );
 
-      storeRulesAndNotifyOperation(
+      await storeRulesAndNotifyOperation(
         ruleStore,
+        redisRuleStore,
         appKey,
         newCombinedRule,
         newCombinedRuleId,

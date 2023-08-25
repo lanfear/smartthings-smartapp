@@ -57,7 +57,9 @@ export interface ISmartAppRuleSwitchLevelConfig {
   switchNightLevel: number;
 }
 
-export interface RuleStoreInfo {
+export interface RuleStoreInfo extends Record<string, any> {
+  [key: string]: any; // required for redis
+  [key: number]: any; // required for redis
   combinedRuleId?: string;
   combinedRule: RuleRequest;
   transitionRuleId?: string;
