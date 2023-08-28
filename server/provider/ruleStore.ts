@@ -9,18 +9,19 @@ const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
 });
 
-const cleanup = async (): Promise<void> => {
-  if (redisRuleStore.isOpen) {
-    /* eslint-disable no-console */
-    console.log('Redis client stopping...');
-    await redisRuleStore.disconnect();
-    /* eslint-enabe no-console */
-    console.log('Redis client stopped.');
-  }
-};
+// none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself up
+// const cleanup = async (): Promise<void> => {
+//   if (redisRuleStore.isOpen) {
+//     /* eslint-disable no-console */
+//     console.log('Redis client stopping...');
+//     await redisRuleStore.disconnect();
+//     /* eslint-enabe no-console */
+//     console.log('Redis client stopped.');
+//   }
+// };
 
-process.on('SIGINT', cleanup);
-process.on('SIGTERM', cleanup);
+// process.on('SIGINT', cleanup);
+// process.on('SIGTERM', cleanup);
 
 const get = async (ruleStoreKey: string): Promise<RuleStoreInfo|null> => {
   if (!redisRuleStore.isOpen) {
