@@ -12,7 +12,7 @@ const redisRuleStore = createClient({
 const get = async (ruleStoreKey: string): Promise<RuleStoreInfo|null> => {
   await redisRuleStore.connect();
   const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
-  await redisRuleStore.quit();
+  await redisRuleStore.disconnect();
   console.log('redis rule', !!ruleStoreInfoRedis);
   const ruleStoreInfo = ruleStore.get(`app-${ruleStoreKey}`);
   return ruleStoreInfo;
@@ -23,7 +23,7 @@ const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<
   await redisRuleStore.connect();
   // console.log('setting redis rule key', `${ruleInfoPrefix}${ruleStoreKey}`);
   await redisRuleStore.set(`${ruleInfoPrefix}${ruleStoreKey}`, JSON.stringify(ruleStoreInfo));
-  await redisRuleStore.quit();
+  await redisRuleStore.disconnect();
 };
 
 export default {
