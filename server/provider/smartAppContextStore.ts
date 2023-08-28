@@ -6,11 +6,13 @@ const redisContextStore = createClient({
 });
 
 const cleanup = async (): Promise<void> => {
-  /* eslint-disable no-console */
-  console.log('Redis client stopping...');
-  await redisContextStore.quit();
-  console.log('Redis client stopped.');
-  /* eslint-enabe no-console */
+  if (redisContextStore.isOpen) {
+    /* eslint-disable no-console */
+    console.log('Redis client stopping...');
+    await redisContextStore.disconnect();
+    /* eslint-enabe no-console */
+    console.log('Redis client stopped.');
+  }
 };
 
 process.on('SIGINT', cleanup);
@@ -21,15 +23,17 @@ const createStore = (automationId: string): ContextStore => {
 
   return {
     get: async installedAppId => {
-      await redisContextStore.connect();
+      if (!redisContextStore.isOpen) {
+        await redisContextStore.connect();
+      }
       const appRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
-      await redisContextStore.disconnect();
       return appRecord;
     },
     put: async contextRecord => {
-      await redisContextStore.connect();
+      if (!redisContextStore.isOpen) {
+        await redisContextStore.connect();
+      }
       await redisContextStore.set(`${appContextPrefix}${contextRecord.installedAppId}`, JSON.stringify(contextRecord));
-      await redisContextStore.disconnect();
       return contextRecord;
     }
   };
