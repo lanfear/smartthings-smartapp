@@ -113,10 +113,10 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, ruleIsTemporarilyDisabled: boolean): boolean => {
     // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
     // eslint-disable-next-line no-console
-    console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
+    // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
     if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
       // eslint-disable-next-line no-console
-      console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
+      // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
       return ruleIsTemporarilyDisabled;
     }
 

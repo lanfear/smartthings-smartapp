@@ -271,6 +271,9 @@ export default new SmartApp()
     const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
     const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
 
+    // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
+    // console.log('newConfig', newConfig);
+
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       newConfig.dayStartOffset,
@@ -347,7 +350,7 @@ export default new SmartApp()
       );
 
       await storeRulesAndNotifyOperation(
-        appKey,
+        updateData.installedApp.installedAppId,
         newCombinedRule,
         newCombinedRuleId,
         newTransitionRule,
