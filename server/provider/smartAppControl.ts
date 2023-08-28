@@ -8,7 +8,7 @@ import {ISseEvent, ISseEventType} from 'sharedContracts';
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const contextStore: ContextStore = smartAppContextStore;
+const contextStore: ContextStore = smartAppContextStore(process.env.CONTROL_APP_ID);
 
 const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
   sse.send(JSON.stringify(data), type);

@@ -26,7 +26,7 @@ const increment5 = 5;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const contextStore: ContextStore = smartAppContextStore;
+const contextStore: ContextStore = smartAppContextStore(process.env.RULE_APP_ID);
 
 const rulesAreModified = async (ruleStoreKey: string, newRule: RuleRequest): Promise<boolean> => {
   // todo: get existing rules
