@@ -13,13 +13,13 @@ const store: ContextStore = {
   get: async installedAppId => {
     await redisContextStore.connect();
     const appRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as RedisContextRecord;
-    await redisContextStore.disconnect();
+    await redisContextStore.quit();
     return appRecord;
   },
   put: async contextRecord => {
     await redisContextStore.connect();
     await redisContextStore.set(`${appContextPrefix}${contextRecord.installedAppId}`, JSON.stringify(contextRecord));
-    await redisContextStore.disconnect();
+    await redisContextStore.quit();
     return contextRecord;
   }
 };
