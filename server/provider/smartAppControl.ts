@@ -1,6 +1,5 @@
-import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import db from './db';
+import smartAppContextStore from './smartAppContextStore';
 import sse from './sse';
 import {ISseEvent, ISseEventType} from 'sharedContracts';
 
@@ -8,7 +7,8 @@ import {ISseEvent, ISseEventType} from 'sharedContracts';
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
-const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+// const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+const contextStore: ContextStore = smartAppContextStore;
 
 const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
   sse.send(JSON.stringify(data), type);

@@ -5,8 +5,6 @@ import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleReques
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
-import JSONdb from 'simple-json-db';
-import {createClient} from 'redis';
 import {RuleStoreInfo} from './types';
 import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
@@ -18,15 +16,12 @@ import {localOnlyMiddleware} from './middlewares';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
 import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
 import storeRulesAndNotifyOperation from './operations/storeRulesAndNotifyOperation';
+import ruleStore from './provider/ruleStore';
 
 const defaultPort = 3001;
 
 const server = express();
 const PORT = process.env.PORT || defaultPort;
-const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
-const redisRuleStore = createClient({
-  url: process.env.REDIS_SERVER
-});
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -76,10 +71,7 @@ server.get('/location/:id', async (req, res) => {
     return it;
   }));
   const apps = await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
-    const ruleStoreInfoRedis = await redisRuleStore.json.get(`app-${a.installedAppId}`);
-    // eslint-disable-next-line no-console
-    console.log('redis rule', ruleStoreInfoRedis);
-    const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`);
+    const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
   }));
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
@@ -133,8 +125,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   };
 
   const appKey = `app-${req.params.installedAppId}`;
-  // const ruleStoreInfo = await redisRuleStore.json.get(appKey);
-  const ruleStoreInfo = ruleStore.get(appKey);
+
+  const ruleStoreInfo = await ruleStore.get(req.params.installedAppId);
   const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;
 
   if (!ruleStoreInfo) {
@@ -176,9 +168,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   );
 
   await storeRulesAndNotifyOperation(
-    ruleStore,
-    redisRuleStore,
-    appKey,
+    req.params.locationId,
     ruleStoreInfo.combinedRule,
     newCombinedRuleId,
     ruleStoreInfo.transitionRule,
