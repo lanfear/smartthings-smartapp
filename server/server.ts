@@ -10,13 +10,13 @@ import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
-import db from './provider/db';
 import sse from './provider/sse';
 import {localOnlyMiddleware} from './middlewares';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
 import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
 import storeRulesAndNotifyOperation from './operations/storeRulesAndNotifyOperation';
 import ruleStore from './provider/ruleStore';
+import {listInstalledApps} from './provider/smartAppContextStore';
 
 const defaultPort = 3001;
 
@@ -40,8 +40,8 @@ server.use('/', localOnlyMiddleware);
 /**
  * list installed apps registered in the db
  */
-server.get('/app', (_, res) => {
-  const installedAppIds = db.listInstalledApps();
+server.get('/app', async (_, res) => {
+  const installedAppIds = await listInstalledApps();
   res.send(installedAppIds);
 });
 

@@ -9,7 +9,7 @@ const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
 });
 
-// none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself up
+// none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself
 // const cleanup = async (): Promise<void> => {
 //   if (redisRuleStore.isOpen) {
 //     /* eslint-disable no-console */

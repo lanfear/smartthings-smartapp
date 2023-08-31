@@ -19,6 +19,15 @@ const redisContextStore = createClient({
 // process.on('SIGINT', cleanup);
 // process.on('SIGTERM', cleanup);
 
+export const listInstalledApps = async (): Promise<string[]> => {
+  if (!redisContextStore.isOpen) {
+    await redisContextStore.connect();
+  }
+  // guid regex: [0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}
+  const installedAppIds = (await redisContextStore.keys('st-appcontext-*')).map(k => k.replace(/^st-appcontext-.*-([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/, '$1'));
+  return installedAppIds;
+};
+
 const createStore = (automationId: string): ContextStore => {
   const appContextPrefix = `st-appcontext-${automationId}-`;
 
