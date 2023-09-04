@@ -187,8 +187,8 @@ server.post('/location/:id/rule', async (req, res) => {
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  await context.api.rules.delete(req.params.ruleId);
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  await client.rules.delete(req.params.ruleId, req.params.id);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();
 });
