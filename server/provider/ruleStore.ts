@@ -3,7 +3,7 @@ import {createClient} from 'redis';
 import JSONdb from 'simple-json-db';
 import db from './db';
 
-const ruleInfoPrefix = `st-ruleinfo-${process.env.ENV_TYPE}-`;
+const ruleInfoPrefix = `st-ruleinfo-${process.env.RULE_APP_ID}-`;
 const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
 const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
@@ -28,7 +28,7 @@ const get = async (ruleStoreKey: string): Promise<RuleStoreInfo|null> => {
     await redisRuleStore.connect();
   }
   const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
-  console.log('redis rule', !!ruleStoreInfoRedis);
+  console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
   const ruleStoreInfo = ruleStore.get(`app-${ruleStoreKey}`);
   return ruleStoreInfo;
 };
