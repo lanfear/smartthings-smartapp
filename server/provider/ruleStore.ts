@@ -42,7 +42,17 @@ const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<
   await redisRuleStore.set(`${ruleInfoPrefix}${ruleStoreKey}`, JSON.stringify(ruleStoreInfo));
 };
 
+const deleteRule = async (ruleStoreKey: string): Promise<void> => {
+  ruleStore.delete(`app-${ruleStoreKey}`);
+  if (!redisRuleStore.isOpen) {
+    await redisRuleStore.connect();
+  }
+  // console.log('deleting redis rule key', `${ruleInfoPrefix}${ruleStoreKey}`);
+  await redisRuleStore.del(`${ruleInfoPrefix}${ruleStoreKey}`);
+};
+
 export default {
-  get,
-  set
+  get: get,
+  set: set,
+  delete: deleteRule
 };
