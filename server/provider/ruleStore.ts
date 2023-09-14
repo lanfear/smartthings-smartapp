@@ -3,7 +3,7 @@ import {createClient} from 'redis';
 import JSONdb from 'simple-json-db';
 import db from './db';
 
-const ruleInfoPrefix = `st-ruleinfo-${process.env.RULE_APP_ID}-`;
+const ruleInfoPrefix = 'st-ruleinfo-';
 const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
 const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
@@ -23,7 +23,7 @@ const redisRuleStore = createClient({
 // process.on('SIGINT', cleanup);
 // process.on('SIGTERM', cleanup);
 
-const get = async (ruleStoreKey: string): Promise<RuleStoreInfo|null> => {
+const get = async (ruleStoreKey: string): Promise<RuleStoreInfo | null> => {
   if (!redisRuleStore.isOpen) {
     await redisRuleStore.connect();
   }
