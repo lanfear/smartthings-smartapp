@@ -1,6 +1,12 @@
 import {ContextRecord, ContextStore} from '@smartthings/smartapp';
 import {createClient} from 'redis';
 
+// this is the full interface of context store, the type is incorrect
+export interface ContextStoreExtended extends ContextStore {
+  update: (installedAppId: string, contextRecord: ContextRecord) => Promise<ContextRecord>;
+  delete: (installedAppId: string) => Promise<ContextRecord>;
+}
+
 const redisContextStore = createClient({
   url: process.env.REDIS_SERVER
 });
@@ -28,7 +34,7 @@ export const listInstalledApps = async (): Promise<string[]> => {
   return installedAppIds;
 };
 
-const createStore = (automationId: string): ContextStore => {
+const createStore = (automationId: string): ContextStoreExtended => {
   const appContextPrefix = `st-appcontext-${automationId}-`;
 
   return {
@@ -44,6 +50,21 @@ const createStore = (automationId: string): ContextStore => {
         await redisContextStore.connect();
       }
       await redisContextStore.set(`${appContextPrefix}${contextRecord.installedAppId}`, JSON.stringify(contextRecord));
+      return contextRecord;
+    },
+    update: async (installedAppId, contextRecord) => {
+      if (!redisContextStore.isOpen) {
+        await redisContextStore.connect();
+      }
+      await redisContextStore.set(`${appContextPrefix}${installedAppId}`, JSON.stringify(contextRecord));
+      return contextRecord;
+    },
+    delete: async installedAppId => {
+      if (!redisContextStore.isOpen) {
+        await redisContextStore.connect();
+      }
+      const contextRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
+      await redisContextStore.del(`${appContextPrefix}${installedAppId}`);
       return contextRecord;
     }
   };
