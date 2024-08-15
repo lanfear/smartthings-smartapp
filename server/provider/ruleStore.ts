@@ -1,10 +1,9 @@
 import {RuleStoreInfo} from 'index';
 import {createClient} from 'redis';
-import JSONdb from 'simple-json-db';
-import db from './db';
+
+// TODO: drop JSONdb
 
 const ruleInfoPrefix = 'st-ruleinfo-';
-const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
 const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
 });
@@ -28,13 +27,11 @@ const get = async (ruleStoreKey: string): Promise<RuleStoreInfo | null> => {
     await redisRuleStore.connect();
   }
   const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
-  console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
-  const ruleStoreInfo = ruleStore.get(`app-${ruleStoreKey}`);
+  // console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
   return ruleStoreInfoRedis;
 };
 
 const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<void> => {
-  ruleStore.set(`app-${ruleStoreKey}`, ruleStoreInfo);
   if (!redisRuleStore.isOpen) {
     await redisRuleStore.connect();
   }
@@ -43,7 +40,6 @@ const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<
 };
 
 const deleteRule = async (ruleStoreKey: string): Promise<void> => {
-  ruleStore.delete(`app-${ruleStoreKey}`);
   if (!redisRuleStore.isOpen) {
     await redisRuleStore.connect();
   }
