@@ -30,7 +30,7 @@ const get = async (ruleStoreKey: string): Promise<RuleStoreInfo | null> => {
   const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
   console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
   const ruleStoreInfo = ruleStore.get(`app-${ruleStoreKey}`);
-  return ruleStoreInfo;
+  return ruleStoreInfoRedis;
 };
 
 const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<void> => {
