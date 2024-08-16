@@ -29,5 +29,8 @@ export default {
         floor: 'F35506'
       }
     }
+  },
+  httpStatusCode: {
+    notFound: 404
   }
 };

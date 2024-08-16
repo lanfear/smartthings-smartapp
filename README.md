@@ -79,7 +79,7 @@ When you make changes to the server/smartapp, and restart you do not need to uni
 9) Stable VSCode integration, ready for use with npm, yarn and eslint (and other) VSCode plugins
 10) Proper seperation of 'development' vs 'production' libraries for efficient and minimal runtime env
 11) Proper setup and use of 'dotenv' to safely store security data away from repository
-12) (Extra) Simple, but exemplified persistent storage (JSONdb) linking web-app stored data to server stored data
+12) (Extra) Simple, but exemplified persistent storage (redis) linking web-app stored data to server stored data
 13) (Extra) SSE (server-side-events) available to also pipe communication between server and smartapp (not heavily leveraged in this example, but left in code)
 
 # CAVEATS/CONSIDERATIONS/BUGS

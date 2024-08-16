@@ -1,14 +1,12 @@
-import FileContextStore from '@smartthings/file-context-store';
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
 import {SmartThingsClient, BearerTokenAuthenticator, Device, RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
-import JSONdb from 'simple-json-db';
-import {RuleStoreInfo} from '../types/index';
 import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 import global from '../constants/global';
-import db from './db';
+import ruleStore from './ruleStore';
+import smartAppContextStore from './smartAppContextStore';
 import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConfigOperation';
 import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
@@ -27,11 +25,13 @@ const offset6Hours = 360;
 const increment5 = 5;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
+// const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+const contextStore: ContextStore = smartAppContextStore(process.env.RULE_APP_ID);
 
-const rulesAreModified = (ruleStoreKey: string, newRule: RuleRequest): boolean => {
-  const existingRules = ruleStore.get(ruleStoreKey);
+const rulesAreModified = async (ruleStoreKey: string, newRule: RuleRequest): Promise<boolean> => {
+  // todo: get existing rules
+  // const existingRules = ruleStore.get(ruleStoreKey);
+  const existingRules = await ruleStore.get(ruleStoreKey);
   return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 };
 
@@ -271,6 +271,9 @@ export default new SmartApp()
     const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
     const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
 
+    // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
+    // console.log('newConfig', newConfig);
+
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       newConfig.dayStartOffset,
@@ -335,7 +338,7 @@ export default new SmartApp()
     // TODO: somewhere around here we could sync this against the exiting rulestore, to sync webapp side with the smartapp side
     //       the way things are now, changes to an app just steamroll the webapp side with a new config created from scratch
     // TODO: think rulesAreModified should really check both combined rule and transition rule
-    if (rulesAreModified(appKey, newCombinedRule)) {
+    if (await rulesAreModified(updateData.installedApp.installedAppId, newCombinedRule)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_unused, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
         new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)),
@@ -346,9 +349,8 @@ export default new SmartApp()
         newRuleSummary
       );
 
-      storeRulesAndNotifyOperation(
-        ruleStore,
-        appKey,
+      await storeRulesAndNotifyOperation(
+        updateData.installedApp.installedAppId,
         newCombinedRule,
         newCombinedRuleId,
         newTransitionRule,

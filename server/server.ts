@@ -5,24 +5,23 @@ import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleReques
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
-import JSONdb from 'simple-json-db';
 import {RuleStoreInfo} from './types';
 import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
-import db from './provider/db';
 import sse from './provider/sse';
 import {localOnlyMiddleware} from './middlewares';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
 import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
 import storeRulesAndNotifyOperation from './operations/storeRulesAndNotifyOperation';
+import ruleStore from './provider/ruleStore';
+import {listInstalledApps} from './provider/smartAppContextStore';
 
 const defaultPort = 3001;
 
 const server = express();
 const PORT = process.env.PORT || defaultPort;
-const ruleStore = new JSONdb<RuleStoreInfo>(db.ruleStorePath, {asyncWrite: true});
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -41,8 +40,8 @@ server.use('/', localOnlyMiddleware);
 /**
  * list installed apps registered in the db
  */
-server.get('/app', (_, res) => {
-  const installedAppIds = db.listInstalledApps();
+server.get('/app', async (_, res) => {
+  const installedAppIds = await listInstalledApps();
   res.send(installedAppIds);
 });
 
@@ -71,10 +70,10 @@ server.get('/location/:id', async (req, res) => {
     it.value = state.motion.value as string;
     return it;
   }));
-  const apps = (await client.installedApps?.list({locationId: [req.params.id]}) || []).map(a => {
-    const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`);
+  const apps = await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+    const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  });
+  }));
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
     return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
@@ -114,10 +113,10 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, ruleIsTemporarilyDisabled: boolean): boolean => {
     // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
     // eslint-disable-next-line no-console
-    console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
+    // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
     if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
       // eslint-disable-next-line no-console
-      console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
+      // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
       return ruleIsTemporarilyDisabled;
     }
 
@@ -126,7 +125,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   };
 
   const appKey = `app-${req.params.installedAppId}`;
-  const ruleStoreInfo = ruleStore.get(appKey);
+
+  const ruleStoreInfo = await ruleStore.get(req.params.installedAppId);
   const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;
 
   if (!ruleStoreInfo) {
@@ -167,9 +167,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     ruleStoreInfo.newRuleSummary
   );
 
-  storeRulesAndNotifyOperation(
-    ruleStore,
-    appKey,
+  await storeRulesAndNotifyOperation(
+    req.params.locationId,
     ruleStoreInfo.combinedRule,
     newCombinedRuleId,
     ruleStoreInfo.transitionRule,
@@ -188,8 +187,8 @@ server.post('/location/:id/rule', async (req, res) => {
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  await context.api.rules.delete(req.params.ruleId);
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  await client.rules.delete(req.params.ruleId, req.params.id);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();
 });
