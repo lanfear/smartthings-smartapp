@@ -8,12 +8,6 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
   console.log('Rule', JSON.stringify(combinedRule));
   /* eslint-enable no-console */
 
-  // TODO: after all existing rules are cleared, this can go
-  // await Promise.all(
-  //   (await api.rules?.list() || [])
-  //     .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
-  //     .map(async r => await api.rules.delete(r.id)));
-
   await Promise.all(
     (await client.rules?.list(locationId) || [])
       .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
@@ -21,7 +15,7 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
         await client.rules.delete(r.id, locationId);
         newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
       }));
-  
+
   const newCombinedRuleResponse = combinedRule && await client.rules.create(combinedRule, locationId) || null;
   const newTransitionRuleResponse = transitionRule && await client.rules.create(transitionRule, locationId) || null;
   const newRuleIds = [newCombinedRuleResponse?.id, newTransitionRuleResponse?.id].filter(id => !!id);
