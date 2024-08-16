@@ -1,8 +1,6 @@
 import {RuleStoreInfo} from 'index';
 import {createClient} from 'redis';
 
-// TODO: drop JSONdb
-
 const ruleInfoPrefix = 'st-ruleinfo-';
 const redisRuleStore = createClient({
   url: process.env.REDIS_SERVER
