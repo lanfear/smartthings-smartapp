@@ -33,7 +33,6 @@
     "react-dom": "^17.0.2",
     "react-i18next": "^11.16.1",
     "react-router-dom": "^6.15.0",
-    "react-scripts": "^5.0.1",
     "react-sse-hooks": "^1.0.5",
     "sass": "^1.77.8",
     "stream-browserify": "^3.0.0",
@@ -44,6 +43,10 @@
     "web-vitals": "^3.4.0"
   },
   "devDependencies": {
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-prettier": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -51,9 +54,13 @@
     "@types/react-dom": "^17.0.10",
     "@types/react-router-dom": "^5.3.2",
     "@types/styled-components": "^5.1.15",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.23.1",
+    "esbuild-sass-plugin": "^3.3.1",
+    "esbuild-scss-modules-plugin": "^1.1.1",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "react-app-rewired": "^2.2.1"
+    "replace-in-file": "^7.1.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -61,7 +68,9 @@
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
-    "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix"
+    "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
+    "esbuild-cli": "esbuild ./tool/bundle.ts --bundle --platform=node --sourcemap=inline --outfile=./build/bundle.js --log-level=warning --packages=external",
+    "esbuild": "npm run esbuild-cli && node build/bundle.js"
   },
   "eslintConfig": {
     "ignorePatterns": [
