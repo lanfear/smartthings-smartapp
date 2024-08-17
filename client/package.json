@@ -71,7 +71,7 @@
   },
   "scripts": {
     "dev": "npm-watch dev-stack",
-    "dev-stack": "npx concurrently -c gray,white,blue \"npm:dev-http-server\" \"npm:build:watch\" \"npm:lint:watch\"",
+    "dev-stack": "npx concurrently -c gray,white \"npm:dev-http-server\" \"npm:build:watch\"",
     "dev-http-server": "npx -p local-web-server -c \"cd ./build && dotenv -e ../.env -- cross-replace ws --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html\"",
     "build": "npm run build:precompile && node build/bundle.js",
     "build:precompile": "esbuild ./tool/bundle.ts --bundle --platform=node --sourcemap=inline --outfile=./build/bundle.js --log-level=warning --packages=external",
