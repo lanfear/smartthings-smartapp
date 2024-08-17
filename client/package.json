@@ -54,7 +54,9 @@
     "@types/react-dom": "^17.0.10",
     "@types/react-router-dom": "^5.3.2",
     "@types/styled-components": "^5.1.15",
+    "cross-replace": "^0.2.0",
     "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
     "esbuild": "^0.23.1",
     "esbuild-sass-plugin": "^3.3.1",
     "esbuild-scss-modules-plugin": "^1.1.1",
@@ -70,7 +72,8 @@
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "esbuild-cli": "esbuild ./tool/bundle.ts --bundle --platform=node --sourcemap=inline --outfile=./build/bundle.js --log-level=warning --packages=external",
-    "esbuild": "npm run esbuild-cli && node build/bundle.js"
+    "esbuild": "npm run esbuild-cli && node build/bundle.js",
+    "dev-http-server": "npx -p local-web-server -c \"cd ./build && dotenv -e ../.env -- cross-replace ws --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html\""
   },
   "eslintConfig": {
     "ignorePatterns": [

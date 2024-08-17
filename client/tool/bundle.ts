@@ -79,7 +79,7 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
 const scssLoader = scss({
   inject: false,
   minify: true,
-  cssCallback: (css) => console.log(css),
+  cssCallback: (css) => console.log(css)
 });
 
 // ***** STEPS *****
