@@ -1,5 +1,5 @@
 const getInstalledSmartApps = async (): Promise<IResponseSmartApps> => {
-  const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/app`);
+  const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/app`);
   return await response.json() as IResponseSmartApps;
 };
 

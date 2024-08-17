@@ -25,10 +25,10 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   const [smartApps, setSmartApps] = useState<IResponseSmartApps>([]);
   const [smartAppData, setSmartAppData] = useState<ISmartAppData>({});
 
-  const betweenCondition = generateConditionBetween(parseInt(process.env.REACT_APP_RULE_START_TIME_OFFSET ?? '', 10), parseInt(process.env.REACT_APP_RULE_END_TIME_OFFSET ?? '', 10));
-  const motionCondition = generateConditionMotion(process.env.REACT_APP_RULE_MOTION_DEVICEID ?? '');
+  const betweenCondition = generateConditionBetween(parseInt(process.env.SMARTAPP_BUILDTIME_RULE_START_TIME_OFFSET ?? '', 10), parseInt(process.env.SMARTAPP_BUILDTIME_RULE_END_TIME_OFFSET ?? '', 10));
+  const motionCondition = generateConditionMotion(process.env.SMARTAPP_BUILDTIME_RULE_MOTION_DEVICEID ?? '');
   // eslint-disable-next-line no-magic-numbers
-  const switchAction = generateActionSwitchLevel(process.env.REACT_APP_RULE_SWITCH_DEVICEID ?? '', 75);
+  const switchAction = generateActionSwitchLevel(process.env.SMARTAPP_BUILDTIME_RULE_SWITCH_DEVICEID ?? '', 75);
   const newRule: RuleRequest = {
     name: 'Motion Family Room',
     actions: [
@@ -47,7 +47,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   };
 
   const addRule = async (isaId: string): Promise<Rule> => {
-    const response = await fetch(`${process.env.REACT_APP_APIHOST as string}/${isaId}/rule`, {
+    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/${isaId}/rule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
