@@ -35,15 +35,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const file_context_store_1 = __importDefault(require("@smartthings/file-context-store"));
 const smartapp_1 = require("@smartthings/smartapp");
 const core_sdk_1 = require("@smartthings/core-sdk");
 const dayjs_1 = __importDefault(require("dayjs"));
 const customParseFormat_1 = __importDefault(require("dayjs/plugin/customParseFormat"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
-const simple_json_db_1 = __importDefault(require("simple-json-db"));
 const global_1 = __importDefault(require("../constants/global"));
-const db_1 = __importDefault(require("./db"));
+const ruleStore_1 = __importDefault(require("./ruleStore"));
+const smartAppContextStore_1 = __importDefault(require("./smartAppContextStore"));
 const createTriggerRuleFromConfigOperation_1 = __importDefault(require("../operations/createTriggerRuleFromConfigOperation"));
 const createIdleRuleFromConfigOperation_1 = __importDefault(require("../operations/createIdleRuleFromConfigOperation"));
 const submitRulesForSmartAppOperation_1 = __importDefault(require("../operations/submitRulesForSmartAppOperation"));
@@ -52,18 +51,21 @@ const readConfigFromContext_1 = __importStar(require("../operations/readConfigFr
 const uniqueDeviceFactory_1 = __importDefault(require("../factories/uniqueDeviceFactory"));
 const createCombinedRuleFromConfigOperation_1 = __importDefault(require("../operations/createCombinedRuleFromConfigOperation"));
 const createRuleSummaryFromConfigOperation_1 = __importDefault(require("../operations/createRuleSummaryFromConfigOperation"));
+const storeRulesAndNotifyOperation_1 = __importDefault(require("../operations/storeRulesAndNotifyOperation"));
 dayjs_1.default.extend(customParseFormat_1.default);
 dayjs_1.default.extend(utc_1.default);
 const noonHour = 12;
 const offset6Hours = 360;
 const increment5 = 5;
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-const contextStore = new file_context_store_1.default(db_1.default.dataDirectory);
-const ruleStore = new simple_json_db_1.default(db_1.default.ruleStorePath, { asyncWrite: true });
-const rulesAreModified = (ruleStoreKey, newRule) => {
-    const existingRules = ruleStore.get(ruleStoreKey);
+// const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
+const contextStore = (0, smartAppContextStore_1.default)(process.env.RULE_APP_ID);
+const rulesAreModified = (ruleStoreKey, newRule) => __awaiter(void 0, void 0, void 0, function* () {
+    // todo: get existing rules
+    // const existingRules = ruleStore.get(ruleStoreKey);
+    const existingRules = yield ruleStore_1.default.get(ruleStoreKey);
     return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
-};
+});
 /* Define the SmartApp */
 exports.default = new smartapp_1.SmartApp()
     .enableEventLogging()
@@ -266,6 +268,8 @@ exports.default = new smartapp_1.SmartApp()
     const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
     const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
     const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
+    // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
+    // console.log('newConfig', newConfig);
     /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayStartOffset, newConfig.dayNightOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.dayControlSwitch.deviceId, dayDimmableSwitchLevels, dayNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) || null;
     const newNightRule = nightRuleEnabled && (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayNightOffset, newConfig.nightEndOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.nightControlSwitch.deviceId, nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) || null;
@@ -276,9 +280,13 @@ exports.default = new smartapp_1.SmartApp()
     const newCombinedRule = (0, createCombinedRuleFromConfigOperation_1.default)(appKey, newDayRule, newNightRule, newIdleRule);
     const newRuleSummary = (0, createRuleSummaryFromConfigOperation_1.default)(newConfig, uniqueDaySwitches, dayDimmableSwitches, dayNonDimmableSwitches, dayDimmableSwitchLevels, uniqueNightSwitches, nightDimmableSwitches, nightNonDimmableSwitches, nightDimmableSwitchLevels, updateData.installedApp.installedAppId, [] // will be filled in
     );
+    // TODO: somewhere around here we could sync this against the exiting rulestore, to sync webapp side with the smartapp side
+    //       the way things are now, changes to an app just steamroll the webapp side with a new config created from scratch
     // TODO: think rulesAreModified should really check both combined rule and transition rule
-    if (rulesAreModified(appKey, newCombinedRule)) {
-        yield (0, submitRulesForSmartAppOperation_1.default)(new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)), ruleStore, context.api.locations.locationId(), appKey, newCombinedRule, newTransitionRule, newRuleSummary);
+    if (yield rulesAreModified(updateData.installedApp.installedAppId, newCombinedRule)) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_unused, newCombinedRuleId, newTransitionRuleId] = yield (0, submitRulesForSmartAppOperation_1.default)(new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)), context.api.locations.locationId(), appKey, newCombinedRule, newTransitionRule, newRuleSummary);
+        yield (0, storeRulesAndNotifyOperation_1.default)(updateData.installedApp.installedAppId, newCombinedRule, newCombinedRuleId, newTransitionRule, newTransitionRuleId, newRuleSummary);
     }
     else {
         // eslint-disable-next-line no-console

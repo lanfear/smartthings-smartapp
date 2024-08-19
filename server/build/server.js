@@ -42,19 +42,19 @@ const core_sdk_1 = require("@smartthings/core-sdk");
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const http_status_codes_1 = require("http-status-codes");
-const simple_json_db_1 = __importDefault(require("simple-json-db"));
 // import process from './provider/env';
 const smartAppControl_1 = __importDefault(require("./provider/smartAppControl"));
 const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
-const db_1 = __importDefault(require("./provider/db"));
 const sse_1 = __importDefault(require("./provider/sse"));
 const middlewares_1 = require("./middlewares");
 const createRuleFromSummaryOperation_1 = require("./operations/createRuleFromSummaryOperation");
 const submitRulesForSmartAppOperation_1 = __importDefault(require("./operations/submitRulesForSmartAppOperation"));
+const storeRulesAndNotifyOperation_1 = __importDefault(require("./operations/storeRulesAndNotifyOperation"));
+const ruleStore_1 = __importDefault(require("./provider/ruleStore"));
+const smartAppContextStore_1 = require("./provider/smartAppContextStore");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
-const ruleStore = new simple_json_db_1.default(db_1.default.ruleStorePath, { asyncWrite: true });
 server.use((0, cors_1.default)()); // TODO: this could be improved
 server.use(express_1.default.json());
 // server.use(express.static(path.join(__dirname, '../public')));
@@ -69,10 +69,10 @@ server.use('/', middlewares_1.localOnlyMiddleware);
 /**
  * list installed apps registered in the db
  */
-server.get('/app', (_, res) => {
-    const installedAppIds = db_1.default.listInstalledApps();
+server.get('/app', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const installedAppIds = yield (0, smartAppContextStore_1.listInstalledApps)();
     res.send(installedAppIds);
-});
+}));
 server.get('/locations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
     res.json((yield client.locations.list()) || []);
@@ -97,10 +97,10 @@ server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         it.value = state.motion.value;
         return it;
     })));
-    const apps = ((yield ((_f = client.installedApps) === null || _f === void 0 ? void 0 : _f.list({ locationId: [req.params.id] }))) || []).map(a => {
-        const ruleStoreInfo = ruleStore.get(`app-${a.installedAppId}`);
+    const apps = yield Promise.all(((yield ((_f = client.installedApps) === null || _f === void 0 ? void 0 : _f.list({ locationId: [req.params.id] }))) || []).map((a) => __awaiter(void 0, void 0, void 0, function* () {
+        const ruleStoreInfo = yield ruleStore_1.default.get(a.installedAppId);
         return Object.assign(Object.assign({}, a), { ruleSummary: ruleStoreInfo === null || ruleStoreInfo === void 0 ? void 0 : ruleStoreInfo.newRuleSummary });
-    });
+    })));
     const rules = ((yield ((_g = client.rules) === null || _g === void 0 ? void 0 : _g.list(req.params.id))) || []).map(r => {
         const linkedInstalledApp = apps.find(a => { var _a; return (_a = a.ruleSummary) === null || _a === void 0 ? void 0 : _a.ruleIds.find(rid => rid === r.id); });
         return Object.assign(Object.assign({}, r), { dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp === null || linkedInstalledApp === void 0 ? void 0 : linkedInstalledApp.ruleSummary });
@@ -132,27 +132,36 @@ server.post('/device/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0,
 }));
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const determineTempDisableValue = (ruleComponent, ruleComponentParam, paramsDisabled, ruleIsEnabled, ruleIsTemporarilyDisabled) => {
+        // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
+        // eslint-disable-next-line no-console
+        // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
+        if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
+            // eslint-disable-next-line no-console
+            // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
+            return ruleIsTemporarilyDisabled;
+        }
+        // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route does match, setting to !ruleIsEnabled ? false : paramsDisabled', 're', ruleIsEnabled, 'pe', paramsDisabled, '===>', !ruleIsEnabled ? false : paramsDisabled);
+        return !ruleIsEnabled ? false : paramsDisabled;
+    };
     const appKey = `app-${req.params.installedAppId}`;
-    const ruleStoreInfo = ruleStore.get(appKey);
+    const ruleStoreInfo = yield ruleStore_1.default.get(req.params.installedAppId);
+    const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo));
     if (!ruleStoreInfo) {
         res.statusCode = 422;
         res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
         res.send();
         return;
     }
-    // if route passed 'all' we disable all rule components, else, we disable whichever matches
-    ruleStoreInfo.newRuleSummary.temporaryDisableAllRules = req.params.ruleComponent === 'all' && req.params.enabled === 'false'; // may want to factor this disable all value into the following rules?
-    ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = req.params.ruleComponent === 'daylight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableDaylightRule && ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule;
-    ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = req.params.ruleComponent === 'nightlight' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableNightlightRule && ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule;
-    ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = req.params.ruleComponent === 'idle' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableIdleRule && ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule;
-    ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = req.params.ruleComponent === 'transition' ? req.params.enabled === 'false' : !ruleStoreInfo.newRuleSummary.enableTransitionRule && ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule;
+    ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = determineTempDisableValue('daylight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableDaylightRule, ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule);
+    ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = determineTempDisableValue('nightlight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule);
+    ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = determineTempDisableValue('idle', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule);
+    ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = determineTempDisableValue('transition', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule);
+    // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
     const combinedRule = (0, createRuleFromSummaryOperation_1.createCombinedRuleFromSummary)(ruleStoreInfo.newRuleSummary);
     const transitionRule = (0, createRuleFromSummaryOperation_1.createTransitionRuleFromSummary)(ruleStoreInfo.newRuleSummary);
-    // eslint-disable-next-line no-console
-    // console.log(req.params.ruleComponent, req.params.enabled, ruleStoreInfo.newRuleSummary);
-    const rulesAreModified = JSON.stringify(combinedRule) !== JSON.stringify(ruleStoreInfo.combinedRule) ||
-        JSON.stringify(transitionRule) !== JSON.stringify(ruleStoreInfo.transitionRule);
-    if (!rulesAreModified) {
+    // bet on jsonify ordreing matching across saves...
+    if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
         // eslint-disable-next-line no-console
         console.log('Rules not modified, nothing to update');
         res.statusCode = http_status_codes_1.StatusCodes.NOT_MODIFIED;
@@ -160,7 +169,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
         return;
     }
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-    yield (0, submitRulesForSmartAppOperation_1.default)(client, ruleStore, req.params.locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);
+    const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = yield (0, submitRulesForSmartAppOperation_1.default)(client, req.params.locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);
+    yield (0, storeRulesAndNotifyOperation_1.default)(req.params.locationId, ruleStoreInfo.combinedRule, newCombinedRuleId, ruleStoreInfo.transitionRule, newTransitionRuleId, newRuleSummary);
     res.send();
 }));
 server.post('/location/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -170,8 +180,8 @@ server.post('/location/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0
     res.send(result);
 }));
 server.delete('/location/:id/rule/:ruleId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const context = yield smartAppControl_1.default.withContext(req.params.id);
-    yield context.api.rules.delete(req.params.ruleId);
+    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+    yield client.rules.delete(req.params.ruleId, req.params.id);
     res.statusCode = http_status_codes_1.StatusCodes.NO_CONTENT;
     res.send();
 }));

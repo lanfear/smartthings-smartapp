@@ -33,7 +33,6 @@ const createRuleSummaryFromConfig = (config, uniqueDaySwitches, dayDimmableSwitc
         enableNightlightRule: config.enableNightlightRule,
         enableIdleRule: config.enableIdleRule,
         enableTransitionRule: config.enableDaylightRule && config.enableNightlightRule,
-        temporaryDisableAllRules: false,
         temporaryDisableDaylightRule: false,
         temporaryDisableNightlightRule: false,
         temporaryDisableIdleRule: false,
