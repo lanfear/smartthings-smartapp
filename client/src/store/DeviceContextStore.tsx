@@ -74,7 +74,7 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
 
   // listen to sse events
   const deviceEventSource = useEventSource({
-    source: `${process.env.REACT_APP_APIHOST as string}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/events`
   });
 
   // when any rules event comes in, just reload data from server

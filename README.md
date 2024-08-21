@@ -13,16 +13,16 @@ This is targeted at hobbiest SmartApp developers who may be interested in a full
 These steps are intentionally different than may of the example SmartApp Community examples.  I attempt to layout the explicit steps necessary to get a local development environment up and running.  This example cannot be hosted on automated web hosting platforms like other SmartThings Community examples.
 
 ## Prerequisites
-1. Latest version of [NodeJS](https://nodejs.org) installed on your computer (must be version 14+)
-2. [Yarn](https://yarnpkg.com) or [NPM](https://www.npmjs.com/) (`npm install -g yarn`)
+1. Latest version of [NodeJS](https://nodejs.org) installed on your computer (known to work with 18+)
 
 ## One-Time Setup Instructions
 
 1) Clone this app to a local directory
 
-2) [Download NGrok](https://ngrok.com/download) and put the ngrok.exe program in the `/server` subdirectory and set up a **FREE** account, then configure NGrok according to the basic setup instructions on the download page.
+2) [Download NGrok](https://ngrok.com/download) and set up a **FREE** account, then configure NGrok according to the basic setup instructions on the download page.
    - This is required assuming your development environment does not have a public-facing internet address
    - this service sets up a secure tunnel that is required for proper OAuth communication between Samsung Cloud, your SmartThings Hub and your locally running development web-server
+   - After installing and setting it up, you do not need to manually run it, the node scripts `tunnel` runs ngrok internally
 
 3) Create a file named `server/.env.local` containing the following text
 ```
@@ -35,35 +35,35 @@ CONTROL_APP_ID=SEENEXTSTEP
 CONTROL_CLIENT_ID=SEENEXTSTEP
 CONTROL_CLIENT_SECRET=SEENEXTSTEP
 CONTROL_API_TOKEN=SEENEXTSTEPPART2
-LOCALIPS=LOCALIPLIST
+RULE_APP_ID=SEENEXTSTEP
+RULE_CLIENT_ID=SEENEXTSTEP
+RULE_CLIENT_SECRET=SEENEXTSTEP
+LOGGING_EVENTS_ENABLED=false # or true
+REDIS_SERVER=LOCALREDISPORT # TODO: document redis setup
 ```
-> Replace in `SETLOCALPORTNUMBER` with a local port of your choosing (suggest anything 5000-64000).  Note, we will use this again in Step #5.
+> Replace in `SETLOCALPORTNUMBER` with a local port of your choosing (suggest anything 5000-64000).
 
 > Replace `LOCALIPLIST` with a comma-separated list of IPV4, IPV6 and CIDR-Range addresses (i.e. `192.168.1.0/28,127.0.0.1,::ffff:127.0.0.1,::1`)
 
 1) [Setup The App In Samsung Developer Portal](doc/APPSETUP.md)
    1) Setup a Samsung PWT (TODO: document this process)
 
-2) Modify `package.json` edit the `yarn tunnel` script set `YOURPORTFROMENVCONFHERE` to the value you set above in Step #3 for `PORT`.  
-   - (TODO: Find a better way to deal with this manual coupling)   
-3) Continue to the 'Everyday development instructions' below
+2) Continue to the 'Everyday development instructions' below
 
 ## Everyday development instructions
 
 Run all of these from the `package.json` located in the 'server' directory (`cd server` or point-click from VS code UI)
-   1) `yarn` (to install the top-level npm dependencies)
-   2) `cd ./server && yarn` (to install server-level npm dependencies)
-   3) `cd ./client && yarn` (to install client-level npm dependencies)
-   4) `yarn start` from the top-level directories will start entire dev environment in a single console session (using concurrently)
-      1) alternatively, you can run individual parts of the `yarn start` command above to control each part individually 
-   5) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
-      - **You must do this every time you start/restart `yarn tunnel` task which includes every time you run the main `yarn start` command**
+   1) `npm install && npm run inst` (to install the top-level npm dependencies, then the dependencies of each subdir)
+   2) `npm run start` from the top-level directories will start entire dev environment in a single console session (using concurrently)
+      1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually 
+   3) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
+      - **You must do this every time you start/restart `npm run tunnel` task which includes every time you run the main `npm run start` command**
 
 ## Runtime Development
 
-Finally! You are ready to develop!  Once you make changes, you need to **stop and start ONLY the `yarn server` task**  
+Finally! You are ready to develop!  Once you make changes, you need to **stop and start ONLY the `npm run server` task**  
 
-You **do not want or need to restart the `yarn tunnel` task**.  If you do so, you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
+You **do not want or need to restart the `npm run tunnel` task**.  If you do so, you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
 
 When you make changes to the server/smartapp, and restart you do not need to uninstall or re-install a working development app.
 
@@ -76,7 +76,7 @@ When you make changes to the server/smartapp, and restart you do not need to uni
 6) Configured to run with new, experimental ESM support coming standard in pending Node minor release
 7) Strict ESLint configuration and adherance (NOTE: should integrate ESLint into git commit hooks)
 8) Complete and Accurate (hopefully, I tried!) SmartThings setup documentation with images and code snippets
-9) Stable VSCode integration, ready for use with npm, yarn and eslint (and other) VSCode plugins
+9) Stable VSCode integration, ready for use with npm and eslint (and other) VSCode plugins
 10) Proper seperation of 'development' vs 'production' libraries for efficient and minimal runtime env
 11) Proper setup and use of 'dotenv' to safely store security data away from repository
 12) (Extra) Simple, but exemplified persistent storage (redis) linking web-app stored data to server stored data
@@ -92,11 +92,11 @@ When you make changes to the server/smartapp, and restart you do not need to uni
    - I feel that the 'default' ESLint ruleset, while a good start, does not demand enough coding standards and consistent practices, so I leveraged a specific ruleset with which I am familiar that is a lot more explicit.  Relax or tune this as you wish if you do not like the standards that are defined.
 
 # RELEASE/PRODUCTION
-1) run `yarn build` (builds into `/build` directory)
+1) run `npm run build` (builds into `/build` directory)
 2) check-in or otherwise copy that output to build server hosting directory
 3) be sure to configure the `.env` file on the server checkout directory
-4) `yarn --prod` on server to install neccessary runtime libs
-5) `yarn prod` to run the server environment (or put the code in the script in a .service file)
+4) `npm --prod` on server to install neccessary runtime libs
+5) `npm run prod` to run the server environment (or put the code in the script in a .service file)
 
 # CREDITS
 

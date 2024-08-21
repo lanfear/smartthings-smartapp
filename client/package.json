@@ -33,7 +33,6 @@
     "react-dom": "^17.0.2",
     "react-i18next": "^11.16.1",
     "react-router-dom": "^6.15.0",
-    "react-scripts": "^5.0.1",
     "react-sse-hooks": "^1.0.5",
     "sass": "^1.77.8",
     "stream-browserify": "^3.0.0",
@@ -44,6 +43,11 @@
     "web-vitals": "^3.4.0"
   },
   "devDependencies": {
+    "@dotenv-run/esbuild": "^1.4.0",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-prettier": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -51,17 +55,31 @@
     "@types/react-dom": "^17.0.10",
     "@types/react-router-dom": "^5.3.2",
     "@types/styled-components": "^5.1.15",
+    "@typescript-eslint/eslint-plugin": "^8.1.0",
+    "cross-replace": "^0.2.0",
+    "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
+    "esbuild": "^0.23.1",
+    "esbuild-sass-plugin": "^3.3.1",
+    "esbuild-scss-modules-plugin": "^1.1.1",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "react-app-rewired": "^2.2.1"
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "npm-watch": "^0.13.0",
+    "replace-in-file": "^7.1.0"
   },
   "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject",
+    "dev": "npm-watch dev-stack",
+    "dev-stack": "npx concurrently -c gray,white \"npm:dev-http-server\" \"npm:build:watch\"",
+    "dev-http-server": "npx -p local-web-server -c \"cd ./build && dotenv -e ../.env -- cross-replace ws --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html\"",
+    "build": "npm run build:precompile && node build/bundle.js",
+    "build:precompile": "esbuild ./tool/bundle.ts --bundle --platform=node --sourcemap=inline --outfile=./build/bundle.js --log-level=warning --packages=external",
+    "build:watch": "npm-watch build",
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
-    "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix"
+    "lint:watch": "npm-watch lint",
+    "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
+    "test": "react-app-rewired test"
   },
   "eslintConfig": {
     "ignorePatterns": [
@@ -134,5 +152,41 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "esbuild-reason": "because version of @dotenv-run/esbuild@1.4.0",
+    "esbuild": "$esbuild",
+    "react-reason": "because version use-hooks@2.0.0-rc.5",
+    "react": "$react"
+  },
+  "watch": {
+    "dev-stack": {
+      "patterns": [
+        ".env",
+        "package.json"
+      ],
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
+    "build": {
+      "patterns": [
+        "public/index.html",
+        "public/**/*.json",
+        "src/**/*.ts",
+        "src/**/*.tsx"
+      ],
+      "extensions": "html,json,ts,tsx",
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
+    "lint": {
+      "patterns": [
+        "src/**/*.ts",
+        "src/**/*.tsx"
+      ],
+      "extensions": "ts,tsx",
+      "runOnChangeOnly": false,
+      "quiet": true
+    }
   }
 }

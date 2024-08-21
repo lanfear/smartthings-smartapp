@@ -33,20 +33,23 @@
     "@types/triple-beam": "^1.3.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
+    "cross-replace": "^0.2.0",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^8.47.0",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
+    "npm-watch": "^0.13.0",
     "typescript": "^5.1.6"
   },
   "scripts": {
     "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "build": "tsc",
+    "build:watch": "npm-watch build",
     "prod": "node build/server.js",
-    "start": "nodemon --watch . --ext ts --exec node --ignore 'node_modules/*' --delay 3 --loader ts-node/esm server.ts",
-    "tunnel": "ngrok http 9790 --log=stdout"
+    "prod:watch": "npm-watch prod",
+    "start": "npx concurrently -c gray,white \"npm:build:watch\" \"npm:prod:watch\"",
+    "tunnel": "npx -p ngrok -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %PORT% --log=stdout\""
   },
   "eslintConfig": {
     "ignorePatterns": [
@@ -111,5 +114,33 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "**/*.ts",
+        "**/*.tsx"
+      ],
+      "extensions": "ts,tsx",
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
+    "lint": {
+      "patterns": [
+        "**/*.ts",
+        "**/*.tsx"
+      ],
+      "extensions": "ts,tsx",
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
+    "prod": {
+      "patterns": [
+        "build/server.js"
+      ],
+      "extensions": "js",
+      "runOnChangeOnly": false,
+      "quiet": true
+    }
   }
 }

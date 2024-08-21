@@ -1,6 +1,6 @@
 # (Re)Verify The App Registration
 
-## Copy the value output in `yarn tunnel` task output for the 'https' url
+## Copy the value output in `npm run tunnel` task output for the 'https' url
 
 ![NGrok Out](ngrok.png)
 
@@ -26,7 +26,7 @@
 
  ![Verification Window](runsetup4.png)
 
-## **Go to the output of the `yarn start` task** and follow this link
+## **Go to the output of the `npm run start` task** and follow this link
 
  ![Verification Link](runsetup5.png)
 

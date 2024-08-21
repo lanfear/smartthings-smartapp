@@ -220,7 +220,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
 
   const deviceEventSource = useEventSource({
-    source: `${process.env.REACT_APP_APIHOST as string}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/events`
   });
 
   const roomParts = room.name!.split(' - ');
