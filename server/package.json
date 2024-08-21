@@ -33,8 +33,6 @@
     "@types/triple-beam": "^1.3.2",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
-    "cross-replace": "^0.2.0",
-    "dotenv-cli": "^7.4.2",
     "eslint": "^8.47.0",
     "eslint-config-techsmith": "^2.4.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
@@ -49,7 +47,7 @@
     "prod": "node build/server.js",
     "prod:watch": "npm-watch prod",
     "start": "npx concurrently -c gray,white \"npm:build:watch\" \"npm:prod:watch\"",
-    "tunnel": "npx -p ngrok -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %PORT% --log=stdout\""
+    "tunnel": "npx -p ngrok -p dotenv-cli -p cross-replace -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %PORT% --log=stdout\""
   },
   "eslintConfig": {
     "ignorePatterns": [
