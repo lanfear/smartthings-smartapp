@@ -19,6 +19,8 @@
     "lint": "concurrently -n \"client:lint,server:lint\" -c \"white,gray\" \"cd client && npm run lint\" \"cd server && npm run lint\"",
     "start": "concurrently -n \"server:tunnel,server:host,client:start\" -c \"blue,cyan,green\" \"cd server && npm run tunnel\" \"cd server && npm run start\" \"cd client && npm run start\"",
     "kill-node-win": "taskkill -F -IM node.exe",
-    "kill-node-linux": "killall .node.bin"
+    "kill-node-linux": "killall .node.bin",
+    "kill-client": "npx -p killport -p dotenv-cli -p cross-replace -c \"dotenv -e client/.env -- cross-replace kill-port %SMARTAPP_WEBHARNESS_PORT%\"",
+    "kill-server": "npx -p killport -p dotenv-cli -p cross-replace -c \"dotenv -e server/.env -- cross-replace kill-port %PORT%\""
   }
 }
