@@ -75,10 +75,10 @@ const DashboardRooms: React.FC = () => {
       <DashboardSubTitle>
         {t('dashboard.room.sectionName')}
       </DashboardSubTitle>
-      <DashboardRoomGrid roomCount={deviceData?.rooms?.length || 0}>
-        {deviceData && deviceData?.rooms?.map(r => (
+      <DashboardRoomGrid roomCount={deviceData.rooms.length || 0}>
+        {deviceData && deviceData.rooms.map(r => (
           <RoomGridContainer
-            key={`room-${r.roomId as string}`}
+            key={`room-${r.roomId!}`}
             className="room-grid-container"
           >
             <Room

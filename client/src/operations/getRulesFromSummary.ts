@@ -26,8 +26,8 @@ export interface IRuleIdle {
 }
 
 // this to factory
-const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle } => {
-  const ruleParts: { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle } = {};
+const getRulesFromSummary = (ruleSummary: IRuleSummary): {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} => {
+  const ruleParts: {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} = {};
 
   if (!ruleSummary) {
     return ruleParts;
@@ -39,11 +39,11 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): { dayRule?: IRuleRange;
   let dayNightTime = dayjs(ruleSummary.dayNightTime);
   let nightEndTime = dayjs(ruleSummary.nightEndTime);
   /* eslint-disable @typescript-eslint/ban-ts-comment */
-  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  // @ts-expect-error | i dunno, the objectSupport plugin isnt being recognized as valid
   dayStartTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayStartTime.utc().hour(), minute: dayStartTime.utc().minute(), second: 0, milliseconds: 0});
-  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  // @ts-expect-error | i dunno, the objectSupport plugin isnt being recognized as valid
   dayNightTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayNightTime.utc().hour(), minute: dayNightTime.utc().minute(), second: 0, milliseconds: 0});
-  // @ts-ignore | i dunno, the objectSupport plugin isnt being recognized as valid
+  // @ts-expect-error | i dunno, the objectSupport plugin isnt being recognized as valid
   nightEndTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: nightEndTime.utc().hour(), minute: nightEndTime.utc().minute(), second: 0, milliseconds: 0});
   /* eslint-enable @typescript-eslint/ban-ts-comment */
 

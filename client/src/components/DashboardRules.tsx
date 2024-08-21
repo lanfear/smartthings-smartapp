@@ -24,15 +24,15 @@ const DashboardRuleLineItemGrid = styled.div`
     gap: ${global.measurements.dashboardGridGap};
 `;
 
-const DashboardRuleHeader = styled(DashboardGridColumnHeader) <{ gridArea: string }>`
+const DashboardRuleHeader = styled(DashboardGridColumnHeader) <{gridArea: string}>`
   grid-area: ${props => props.gridArea};
 `;
 
-const DashboardRuleContent = styled.span<{ gridArea: string }>`
+const DashboardRuleContent = styled.span<{gridArea: string}>`
   grid-area: ${props => props.gridArea};
 `;
 
-const DashboardRuleName = styled.span<{ matchesInstalledApp: boolean }>`
+const DashboardRuleName = styled.span<{matchesInstalledApp: boolean}>`
   grid-area: 'name';
   color: ${props => props.matchesInstalledApp ? 'green' : 'red'};
 `;
@@ -52,10 +52,10 @@ const DashboardRules: React.FC = () => {
   const routeInfo = useParams<{locationId: string}>();
   const locationId = routeInfo.locationId ?? ''; // empty location id should not happen
 
-  const findAppMatchingRule = (ruleName: string): IApp|undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));
+  const findAppMatchingRule = (ruleName: string): IApp | undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));
 
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
-    await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
+    await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   /* eslint-disable no-undefined */
@@ -82,7 +82,7 @@ const DashboardRules: React.FC = () => {
             {t('dashboard.rule.header.manage')}
           </DashboardRuleHeader>
         </DashboardRuleLineItemGrid>
-        {deviceData && deviceData.rules?.map(s => (
+        {deviceData && deviceData.rules.map(s => (
           <React.Fragment key={`rules-${s.id}`}>
             <DashboardRuleLineItemGrid>
               <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(s.name)}>

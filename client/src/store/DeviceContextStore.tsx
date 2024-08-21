@@ -44,11 +44,11 @@ const getDeviceDataFromServer = async (locationId: string): Promise<IResponseLoc
   }
 
   const locationData = await getLocation(locationId);
-  locationData.rooms = locationData.rooms?.sort(sortRoom).filter(r => !filteredRooms.includes(r.name as string)) ?? [];
-  locationData.scenes = locationData.scenes?.sort(sortScene) ?? [];
-  locationData.switches = locationData.switches?.sort(sortLabel) ?? [];
-  locationData.locks = locationData.locks?.sort(sortLabel) ?? [];
-  locationData.motion = locationData.motion?.sort(sortLabel) ?? [];
+  locationData.rooms = locationData.rooms.sort(sortRoom).filter(r => !filteredRooms.includes(r.name!)) ?? [];
+  locationData.scenes = locationData.scenes.sort(sortScene) ?? [];
+  locationData.switches = locationData.switches.sort(sortLabel) ?? [];
+  locationData.locks = locationData.locks.sort(sortLabel) ?? [];
+  locationData.motion = locationData.motion.sort(sortLabel) ?? [];
   return locationData;
 };
 
@@ -74,7 +74,7 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
 
   // listen to sse events
   const deviceEventSource = useEventSource({
-    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`
   });
 
   // when any rules event comes in, just reload data from server

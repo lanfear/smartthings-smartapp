@@ -7,7 +7,7 @@ const DeviceBorderAnimation = keyframes`
     }
 `;
 
-export const ActionLogo = styled.div<{ fontSize?: string }>`
+export const ActionLogo = styled.div<{fontSize?: string}>`
   font-size: ${props => props.fontSize ?? 'x-large'};
 `;
 
@@ -31,7 +31,7 @@ export const ControlStatus = styled.div`
     min-width: 80%;
 `;
 
-export const ControlIcon = styled.div<{ fontSize?: string }>`
+export const ControlIcon = styled.div<{fontSize?: string}>`
   font-size: ${props => props.fontSize ?? 'unset'};
   display: flex;
   width: 100%;

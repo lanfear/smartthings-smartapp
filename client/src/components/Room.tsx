@@ -38,7 +38,7 @@ const isLockedRuleActive = (lockedDevices: IDevice[], rule: IRuleRange, rulePart
     )
   );
 
-const isLinkedDeviceActive = (roomRuleSummaries: Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>, deviceId: string, activeDeviceId?: string): boolean =>
+const isLinkedDeviceActive = (roomRuleSummaries: Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>, deviceId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
     (deviceId === activeDeviceId) ||
     Object.entries(roomRuleSummaries).some(([k, v]) => (
@@ -48,7 +48,7 @@ const isLinkedDeviceActive = (roomRuleSummaries: Record<string, { dayRule?: IRul
         (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
     )));
 
-const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>, deviceId: string, activeDeviceId?: string): boolean =>
+const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>, deviceId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
     (lockedDevices.some(d => d.deviceId === deviceId) && deviceId === activeDeviceId) ||
     (Object.entries(roomRuleSummaries).some(([k, v]) =>
@@ -181,18 +181,18 @@ const RoomControlDeviceLabel = styled.div`
 
 const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
   const {deviceData, setDeviceData} = useDeviceContext();
-  const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId as string}-activeDevice`, null as IActiveControl | null);
+  const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId!}-activeDevice`, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
   const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
   const findRuleForRoom = (): IRule[] => {
-    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomRules;
   };
   const findAppsForRoom = (): IApp[] => {
-    const iRoomApps = deviceData.apps.filter(a => a.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    const iRoomApps = deviceData.apps.filter(a => a.ruleSummary.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomApps;
   };
 
@@ -200,10 +200,10 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const roomRules = findRuleForRoom();
   const roomApps = findAppsForRoom();
 
-  const roomRuleSummaries = roomApps.reduce((p, c) => {
+  const roomRuleSummaries = roomApps.reduce<Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>>((p, c) => {
     p[c.installedAppId] = getRulesFromSummary(c.ruleSummary);
     return p;
-  }, {} as Record<string, { dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle }>);
+  }, {});
 
   const activeRuleControlSwitches = Object.values(roomRuleSummaries).map(r => {
     if (r.dayRule && dayjs().isBetween(r.dayRule.startTime, r.dayRule.endTime)) {
@@ -220,7 +220,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
 
   const deviceEventSource = useEventSource({
-    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`
   });
 
   const roomParts = room.name!.split(' - ');

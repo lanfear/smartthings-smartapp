@@ -47,7 +47,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   };
 
   const addRule = async (isaId: string): Promise<Rule> => {
-    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST as string}/${isaId}/rule`, {
+    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/${isaId}/rule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
