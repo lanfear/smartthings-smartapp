@@ -16,7 +16,7 @@ export const notFound: RequestParamHandler = (req, res, next): void => {
 };
 
 export const errorHandler: ErrorRequestHandler = (err: Error, _, res): void => {
-  const statusCode = res.statusCode !== StatusCodes.OK ? res.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
+  const statusCode = res.statusCode !== StatusCodes.OK as number ? res.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
   res.status(statusCode);
   res.json({
     message: err.message,
