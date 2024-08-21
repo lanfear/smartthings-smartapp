@@ -41,7 +41,7 @@ const DashboardApps: React.FC = () => {
         <DashboardGridColumnHeader>
           {t('dashboard.installedApp.header.ownerId')}
         </DashboardGridColumnHeader>
-        {deviceData && deviceData.apps.map(a => (
+        {deviceData.apps.map(a => (
           <React.Fragment key={`apps-${a.installedAppId}`}>
             <span>
               {a.displayName}

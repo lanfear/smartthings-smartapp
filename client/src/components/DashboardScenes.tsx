@@ -43,7 +43,7 @@ const DashboardScenes: React.FC = () => {
         <DashboardGridColumnHeader>
           {t('dashboard.scene.header.lastExecutedDate')}
         </DashboardGridColumnHeader>
-        {deviceData && deviceData.scenes.map(s => (
+        {deviceData.scenes.map(s => (
           <React.Fragment key={`scene-${s.sceneId!}`}>
             <span>
               {s.sceneName}

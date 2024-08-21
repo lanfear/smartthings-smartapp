@@ -31,7 +31,7 @@ const printColumnBreakpoints = (roomCount: number): string => {
     (global.measurements.devicesPerRow * (parseFloat(global.measurements.deviceWidth) + (2 * parseFloat(global.measurements.deviceMargin)))) +
     ((global.measurements.devicesPerRow + 1) * parseFloat(global.measurements.deviceGridGap));
 
-  // eslint-disable-next-line no-magic-numbers
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   return [1, 2, 3, 4, 5].map(i => `
     ${i !== 1 ? `@media (min-width: ${deviceControlsContainerWidth + (i * roomContainerWidth)}rem) {` : ''}
       ${printColumns1ToN(i)}
@@ -76,7 +76,7 @@ const DashboardRooms: React.FC = () => {
         {t('dashboard.room.sectionName')}
       </DashboardSubTitle>
       <DashboardRoomGrid roomCount={deviceData.rooms.length || 0}>
-        {deviceData && deviceData.rooms.map(r => (
+        {deviceData.rooms.map(r => (
           <RoomGridContainer
             key={`room-${r.roomId!}`}
             className="room-grid-container"

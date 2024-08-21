@@ -82,7 +82,7 @@ const DashboardRules: React.FC = () => {
             {t('dashboard.rule.header.manage')}
           </DashboardRuleHeader>
         </DashboardRuleLineItemGrid>
-        {deviceData && deviceData.rules.map(s => (
+        {deviceData.rules.map(s => (
           <React.Fragment key={`rules-${s.id}`}>
             <DashboardRuleLineItemGrid>
               <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(s.name)}>

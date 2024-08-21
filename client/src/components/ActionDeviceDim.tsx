@@ -68,12 +68,12 @@ const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitch
 
   try {
     if (item.type === IDragAndDropType.Device) {
-      // eslint-disable-next-line no-magic-numbers
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       await executeDeviceCommand(item.id, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50]);
     } else if (item.type === IDragAndDropType.Power) {
       const roomSwitches = allSwitches.filter(d => d.roomId === item.id);
       // TODO: this can be a single call if we expose the API properly
-      // eslint-disable-next-line no-magic-numbers
+      // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       await Promise.all(roomSwitches.map(s => executeDeviceCommand(s.deviceId, 'switchLevel', 'setLevel', 'main', [dimLevelSliderValue, 50])));
     }
     return item;

@@ -44,11 +44,11 @@ const getDeviceDataFromServer = async (locationId: string): Promise<IResponseLoc
   }
 
   const locationData = await getLocation(locationId);
-  locationData.rooms = locationData.rooms.sort(sortRoom).filter(r => !filteredRooms.includes(r.name!)) ?? [];
-  locationData.scenes = locationData.scenes.sort(sortScene) ?? [];
-  locationData.switches = locationData.switches.sort(sortLabel) ?? [];
-  locationData.locks = locationData.locks.sort(sortLabel) ?? [];
-  locationData.motion = locationData.motion.sort(sortLabel) ?? [];
+  locationData.rooms = locationData.rooms.sort(sortRoom).filter(r => !filteredRooms.includes(r.name!));
+  locationData.scenes = locationData.scenes.sort(sortScene);
+  locationData.switches = locationData.switches.sort(sortLabel);
+  locationData.locks = locationData.locks.sort(sortLabel);
+  locationData.motion = locationData.motion.sort(sortLabel);
   return locationData;
 };
 
@@ -95,7 +95,7 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
 
   return (
     <DeviceContext.Provider value={{
-      deviceData: deviceData || initialDeviceData,
+      deviceData: deviceData ?? initialDeviceData,
       setDeviceData: setDeviceData,
       loadDeviceDataFromServer: loadDeviceDataFromServer
     }}

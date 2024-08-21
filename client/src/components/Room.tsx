@@ -32,7 +32,6 @@ const isLinkedRuleActive = (rule: IRuleRange, rulePart: string, ruleBaseId: stri
 const isLockedRuleActive = (lockedDevices: IDevice[], rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
     rule.controlDevice.deviceId === activeDeviceId || (
-      lockedDevices.some(d => d) &&
       isRuleActive(rule.startTime, rule.endTime) &&
       activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
     )

@@ -27,7 +27,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
 
   const betweenCondition = generateConditionBetween(parseInt(process.env.SMARTAPP_BUILDTIME_RULE_START_TIME_OFFSET ?? '', 10), parseInt(process.env.SMARTAPP_BUILDTIME_RULE_END_TIME_OFFSET ?? '', 10));
   const motionCondition = generateConditionMotion(process.env.SMARTAPP_BUILDTIME_RULE_MOTION_DEVICEID ?? '');
-  // eslint-disable-next-line no-magic-numbers
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const switchAction = generateActionSwitchLevel(process.env.SMARTAPP_BUILDTIME_RULE_SWITCH_DEVICEID ?? '', 75);
   const newRule: RuleRequest = {
     name: 'Motion Family Room',
