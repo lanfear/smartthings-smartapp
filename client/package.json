@@ -74,7 +74,7 @@
     "build": "npm run build:precompile && node build/bundle.js",
     "build:precompile": "esbuild ./tool/bundle.ts --bundle --platform=node --sourcemap=inline --outfile=./build/bundle.js --log-level=warning --packages=external",
     "build:watch": "npm-watch build",
-    "lint": "eslint --cache --color **/*.{js,jsx,ts,tsx}",
+    "lint": "npx concurrently -n tsc,lint -c cyan,green \"tsc --noEmit\" \"eslint --cache --color **/*.{js,jsx,ts,tsx}\"",
     "lint:watch": "npm-watch lint",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "test": "react-app-rewired test"
