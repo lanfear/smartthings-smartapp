@@ -42,7 +42,8 @@ const isLinkedDeviceActive = (roomRuleSummaries: Record<string, {dayRule?: IRule
     (deviceId === activeDeviceId) ||
     Object.entries(roomRuleSummaries).some(([k, v]) => (
       (activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule &&
-        (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId))) ||
+        (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId))) || // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
+
       (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule &&
         (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
     )));
@@ -51,7 +52,7 @@ const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Recor
   !!activeDeviceId && (
     (lockedDevices.some(d => d.deviceId === deviceId) && deviceId === activeDeviceId) ||
     (Object.entries(roomRuleSummaries).some(([k, v]) =>
-      ((activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule && v.dayRule.controlDevice.deviceId === deviceId && isRuleActive(v.dayRule.startTime, v.dayRule.endTime)) ||
+      ((activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule && v.dayRule.controlDevice.deviceId === deviceId && isRuleActive(v.dayRule.startTime, v.dayRule.endTime)) || // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
        (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule && v.nightRule.controlDevice.deviceId === deviceId && isRuleActive(v.nightRule.startTime, v.nightRule.endTime)))))
   );
 
@@ -354,7 +355,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     time={`${ruleParts.dayRule.startTime.format('hA')} - ${ruleParts.dayRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
-                    isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.some(d => d)}
+                    isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.length > 0}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleActive(ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id)}
                     isLockedActive={isLockedRuleActive(lockedDevices, ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id)}
@@ -390,7 +391,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                     time={`${ruleParts.nightRule.startTime.format('hA')} - ${ruleParts.nightRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
-                    isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.some(d => d)}
+                    isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.length > 0}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleActive(ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id)}
                     isLockedActive={isLockedRuleActive(lockedDevices, ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id)}

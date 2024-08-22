@@ -18,10 +18,8 @@ export default [{
         globals: {
             process: "readonly",
         },
-
         ecmaVersion: 2020,
         sourceType: "script",
-
         parserOptions: {
             project: "./tsconfig.json",
         },
@@ -30,7 +28,6 @@ export default [{
     rules: {
         "no-nested-ternary": "off",
         "no-console": "warn",
-
         indent: ["error", 2, {
             SwitchCase: 1,
         }],
@@ -46,7 +43,6 @@ export default [{
         indent: "off",
         "no-console": "warn",
         "@typescript-eslint/no-non-null-assertion": "off",
-
         "@typescript-eslint/indent": ["error", 2, {
             SwitchCase: 1,
 
@@ -60,3 +56,4 @@ export default [{
         }],
     },
 }];
+

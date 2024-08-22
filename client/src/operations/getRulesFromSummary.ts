@@ -29,10 +29,6 @@ export interface IRuleIdle {
 const getRulesFromSummary = (ruleSummary: IRuleSummary): {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} => {
   const ruleParts: {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} = {};
 
-  if (!ruleSummary) {
-    return ruleParts;
-  }
-
   // the data coming from server is actually off, encoded in UTC when it is local, so... we do this for now
   const now = dayjs();
   let dayStartTime = dayjs(ruleSummary.dayStartTime);

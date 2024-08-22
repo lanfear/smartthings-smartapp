@@ -94,8 +94,7 @@
       }
     ],
     "parserOptions": {
-      "ecmaVersion": 2020,
-      "project": "/server/tsconfig.json"
+      "ecmaVersion": 2020
     },
     "globals": {
       "process": "readonly"
