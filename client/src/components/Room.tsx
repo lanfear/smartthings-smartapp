@@ -4,7 +4,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import {Room as IRoom} from '@smartthings/core-sdk';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
-import {useLocalStorage} from 'use-hooks';
+import {useLocalStorage} from 'usehooks-ts';
 import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import global from '../constants/global';
 import Device from './Device';

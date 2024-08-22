@@ -35,7 +35,7 @@
     "styled-components": "^5.3.3",
     "swr": "^1.2.2",
     "typescript": "^5.1.6",
-    "use-hooks": "^2.0.0-rc.5",
+    "usehooks-ts": "^3.1.0",
     "web-vitals": "^3.4.0"
   },
   "devDependencies": {
@@ -151,9 +151,7 @@
   "overrides": {
     "@typescript-eslint/eslint-plugin": "$@typescript-eslint/eslint-plugin",
     "esbuild-reason": "because version of @dotenv-run/esbuild@1.4.0",
-    "esbuild": "$esbuild",
-    "react-reason": "because version use-hooks@2.0.0-rc.5",
-    "react": "$react"
+    "esbuild": "$esbuild"
   },
   "watch": {
     "dev-stack": {

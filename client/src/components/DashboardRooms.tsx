@@ -2,7 +2,7 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import {useLocalStorage} from 'use-hooks';
+import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceContext} from '../store/DeviceContextStore';
