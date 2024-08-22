@@ -14,10 +14,7 @@
   "dependencies": {
     "@smartthings/core-sdk": "^8.2.0",
     "ace-builds": "^1.24.1",
-    "assert": "^2.0.0",
-    "buffer": "^6.0.3",
     "bulma": "^0.9.3",
-    "crypto-browserify": "^3.12.0",
     "dayjs": "^1.11.9",
     "i18next": "^23.4.4",
     "i18next-browser-languagedetector": "^7.1.0",
@@ -35,7 +32,6 @@
     "react-router-dom": "^6.15.0",
     "react-sse-hooks": "^1.0.5",
     "sass": "^1.77.8",
-    "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
     "swr": "^1.2.2",
     "typescript": "^5.1.6",
