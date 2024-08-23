@@ -32,6 +32,7 @@ const isLinkedRuleActive = (rule: IRuleRange, rulePart: string, ruleBaseId: stri
 const isLockedRuleActive = (lockedDevices: IDevice[], rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
     rule.controlDevice.deviceId === activeDeviceId || (
+      lockedDevices.length > 0 &&
       isRuleActive(rule.startTime, rule.endTime) &&
       activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
     )
@@ -188,11 +189,11 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
   const findRuleForRoom = (): IRule[] => {
-    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomRules;
   };
   const findAppsForRoom = (): IApp[] => {
-    const iRoomApps = deviceData.apps.filter(a => a.ruleSummary.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
+    const iRoomApps = deviceData.apps.filter(a => a.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomApps;
   };
 
