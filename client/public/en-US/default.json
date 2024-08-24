@@ -6,8 +6,7 @@
     "lockCount": "Lock Count"
   },
   "location": {
-    "identifier": "Location ID",
-    "name": "Location Name"
+    "identifier": "ID"
   },
   "dashboard": {
     "room": {

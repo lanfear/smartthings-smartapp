@@ -38,12 +38,6 @@ const App: React.FC = () => (
             <div className="navbar-brand">
               <Link
                 className="navbar-item"
-                to="/smartapps"
-              >
-                            Installed Apps
-              </Link>
-              <Link
-                className="navbar-item"
                 to="/locations"
               >
                             Locations
@@ -66,54 +60,12 @@ const App: React.FC = () => (
               >
                             Advanced Templates
               </Link>
-
-              <div
-                className="navbar-burger burger"
-                data-target="navMenubd-example"
+              <Link
+                className="navbar-item"
+                to="/smartapps"
               >
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-
-            <div
-              id="navMenubd-example"
-              className="navbar-menu"
-            >
-              <div className="navbar-start">
-                <Link
-                  className="navbar-item"
-                  to="/smartapps"
-                >
-                            Installed Apps
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/locations"
-                >
-                            Locations
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/rule-examples"
-                >
-                            Rule Examples
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/basic-templates"
-                >
-                            Basic Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/advanced-templates"
-                >
-                            Advanced Templates
-                </Link>
-              </div>
-
+                            Debugging (SmartApps)
+              </Link>
               <div className="navbar-end">
                 <a
                   className="navbar-item is-hidden-desktop-only"

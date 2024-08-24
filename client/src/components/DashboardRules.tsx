@@ -2,10 +2,13 @@ import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-monokai';
 import global from '../constants/global';
 import {DashboardTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
 import {useDeviceContext} from '../store/DeviceContextStore';
-import {IApp} from '../types/sharedContracts';
+import {IApp, IRule} from '../types/sharedContracts';
 
 const DashboardRuleGrid = styled.div`
     display: grid;
@@ -17,19 +20,19 @@ const DashboardRuleGrid = styled.div`
 const DashboardRuleLineItemGrid = styled.div`
     display: grid;
     grid-template-areas:
-      "name id   status app  manage"
-      "rule rule rule   rule rule";
+      "name id   status app  manage";
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: 1fr max-content;
     gap: ${global.measurements.dashboardGridGap};
 `;
 
-const DashboardRuleHeader = styled(DashboardGridColumnHeader) <{gridArea: string}>`
+const DashboardRuleHeader = styled(DashboardGridColumnHeader)<{gridArea: string}>`
   grid-area: ${props => props.gridArea};
 `;
 
 const DashboardRuleContent = styled.span<{gridArea: string}>`
   grid-area: ${props => props.gridArea};
+  display: flex;
+  justify-content: space-evenly;
 `;
 
 const DashboardRuleName = styled.span<{matchesInstalledApp: boolean}>`
@@ -37,16 +40,24 @@ const DashboardRuleName = styled.span<{matchesInstalledApp: boolean}>`
   color: ${props => props.matchesInstalledApp ? 'green' : 'red'};
 `;
 
-const DashboardRuleDataContent = styled(DashboardRuleContent)`
-  grid-area: ${props => props.gridArea};
-  font-family: monospace;
-  white-space: pre;
-  overflow: hidden;
+const DashboardModal = styled.div`
+`;
+
+const DashboardModalBackground = styled.div`
+  backdrop-filter: blur(10px);
+`;
+
+const DashboardModalContent = styled.div`
+`;
+
+const DashboardModalButton = styled.button`
 `;
 
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
   const {deviceData} = useDeviceContext();
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+  const [activeRule, setActiveRule] = React.useState<IRule | null>(null);
   // const [existingAppList, setExistingAppList] = React.useState<Record<string, string>>({});
 
   const routeInfo = useParams<{locationId: string}>();
@@ -56,6 +67,11 @@ const DashboardRules: React.FC = () => {
 
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
     await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
+  };
+
+  const openRule = (ruleId: string): void => {
+    setActiveRule(deviceData.rules.find(r => r.id === ruleId) ?? null);
+    setModalOpen(true);
   };
 
   /* eslint-disable no-undefined */
@@ -98,17 +114,39 @@ const DashboardRules: React.FC = () => {
                 {findAppMatchingRule(s.name)?.displayName ?? '(rogue rule)'}
               </DashboardRuleContent>
               <DashboardRuleContent gridArea="manage">
+                <button onClick={() => openRule(s.id)}>
+                  SHOW RULE
+                </button>
                 <button onClick={() => deleteRule(locationId, s.id)}>
                   DELETE
                 </button>
               </DashboardRuleContent>
-              <DashboardRuleDataContent gridArea="rule">
-                {JSON.stringify(s, undefined, 2)}
-              </DashboardRuleDataContent>
             </DashboardRuleLineItemGrid>
           </React.Fragment>
         ))}
       </DashboardRuleGrid>
+      <DashboardModal className={modalOpen ? 'modal is-active' : 'modal'}>
+        <DashboardModalBackground className="modal-background" />
+        <DashboardModalContent className="modal-content">
+          <AceEditor
+            height="800px"
+            width="100%"
+            mode="json"
+            theme="monokai"
+            name="textarea"
+            value={JSON.stringify(activeRule, undefined, 2)}
+            editorProps={{$blockScrolling: true}}
+            setOptions={{fontSize: 15}}
+          />
+        </DashboardModalContent>
+        <DashboardModalButton
+          className="modal-close"
+          aria-label="close"
+          onClick={() => setModalOpen(false)}
+        >
+          Close
+        </DashboardModalButton>
+      </DashboardModal>
     </>
   );
   /* eslint-enable no-undefined */
