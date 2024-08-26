@@ -71,6 +71,7 @@ server.get('/location/:id', async (req, res) => {
     return it;
   }));
   const apps = await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+    // this is where we get an empty rulestore info object?
     const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
   }));

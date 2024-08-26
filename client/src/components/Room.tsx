@@ -216,7 +216,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
     return null;
   }).filter(d => !!d);
 
-  const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did!.deviceId));
+  const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did.deviceId));
 
   const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
 

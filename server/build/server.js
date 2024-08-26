@@ -98,6 +98,7 @@ server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
         return it;
     })));
     const apps = yield Promise.all(((yield ((_f = client.installedApps) === null || _f === void 0 ? void 0 : _f.list({ locationId: [req.params.id] }))) || []).map((a) => __awaiter(void 0, void 0, void 0, function* () {
+        // this is where we get an empty rulestore info object?
         const ruleStoreInfo = yield ruleStore_1.default.get(a.installedAppId);
         return Object.assign(Object.assign({}, a), { ruleSummary: ruleStoreInfo === null || ruleStoreInfo === void 0 ? void 0 : ruleStoreInfo.newRuleSummary });
     })));
