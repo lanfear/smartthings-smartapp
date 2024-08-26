@@ -129,8 +129,8 @@ const DashboardRules: React.FC = () => {
         <DashboardModalBackground className="modal-background" />
         <DashboardModalContent className="modal-content">
           <AceEditor
-            height="800px"
             width="100%"
+            height="80vh"
             mode="json"
             theme="monokai"
             name="textarea"
