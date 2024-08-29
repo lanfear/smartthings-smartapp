@@ -26,14 +26,8 @@ export interface IRuleIdle {
 }
 
 // this to factory
-const getRulesFromSummary = (ruleSummary?: IRuleSummary): {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} => {
+const getRulesFromSummary = (ruleSummary: IRuleSummary): {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} => {
   const ruleParts: {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle} = {};
-
-  // sometimes ruleSummary is empty, should probably figure this out via TS
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!ruleSummary) {
-    return ruleParts;
-  }
 
   // the data coming from server is actually off, encoded in UTC when it is local, so... we do this for now
   const now = dayjs();

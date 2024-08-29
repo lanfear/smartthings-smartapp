@@ -6,7 +6,7 @@ import {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@sma
 export type IRoom = Room;
 export type IScene = SceneSummary;
 export type IDevice = (Device & {value: string});
-export type IApp = (InstalledApp & {ruleSummary?: IRuleSummary});
+export type IApp = (InstalledApp & {ruleSummary: IRuleSummary});
 export type IRule = (Rule & {
   executionLocation?: string;
   ownerType?: string;
