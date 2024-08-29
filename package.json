@@ -16,6 +16,7 @@
   },
   "scripts": {
     "inst": "concurrently -n \"client:install,server:install\" -c \"red,magenta\" \"cd client && npm install\" \"cd server && npm install\"",
+    "build": "concurrently -n \"server:build,client:build\" -c \"red,magenta\" \"cd server && npm run build\" \"cd client && npm run build\"",
     "lint": "concurrently -n \"client:lint,server:lint\" -c \"white,gray\" \"cd client && npm run lint\" \"cd server && npm run lint\"",
     "start": "concurrently -n \"server:tunnel,server:host,client:start\" -c \"blue,cyan,green\" \"cd server && npm run tunnel\" \"cd server && npm run start\" \"cd client && npm run start\"",
     "kill-node-win": "taskkill -F -IM node.exe",
