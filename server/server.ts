@@ -70,10 +70,10 @@ server.get('/location/:id', async (req, res) => {
     it.value = state.motion.value as string;
     return it;
   }));
-  const apps = await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+  const apps = (await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
     const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  }));
+  }))).filter(a => !!a.ruleSummary); // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
   const rules = (await client.rules?.list(req.params.id) || []).map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
     return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;

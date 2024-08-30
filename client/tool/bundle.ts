@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import dotenv from 'dotenv';
 
 // dotenv.config({path: './.env-sample'});
@@ -11,23 +12,23 @@ import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
-import {sassPlugin} from 'esbuild-sass-plugin'
-import scss from 'esbuild-scss-modules-plugin'
-import { dotenvRun } from '@dotenv-run/esbuild';
+import {sassPlugin} from 'esbuild-sass-plugin';
+import scss from 'esbuild-scss-modules-plugin';
+import {dotenvRun} from '@dotenv-run/esbuild';
 
 const parentDir = path.join(__dirname, '..');
-const nodeModules = path.join(parentDir, 'node_modules');
+// const nodeModules = path.join(parentDir, 'node_modules');
 const srcDir = path.join(parentDir, 'src');
 const staticSrcDir = path.join(parentDir, 'public');
 const buildDir = path.join(parentDir, 'build');
-const buildCssDir = path.join(buildDir, 'static', 'css');
+// const buildCssDir = path.join(buildDir, 'static', 'css');
 const buildJsDir = path.join(buildDir, 'static', 'js');
 
 // ***** PLUGINS *****
 const svgrPlugin: Plugin = {
   name: 'svgr',
-  setup: build => {
-    build.onLoad({filter: /\.svg$/}, async args => {
+  setup: builder => {
+    builder.onLoad({filter: /\.svg$/}, async args => {
       const svg = await fs.readFile(args.path, 'utf8');
       if (args.suffix === '?url') {
         return {
@@ -50,27 +51,28 @@ const svgrPlugin: Plugin = {
 
 const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; sourceMaps: BuildOptions['sourcemap']}): Plugin => ({
   name: 'url-loader',
-  setup: build => {
-    build.onResolve({filter: /\?dataurl$/}, args => {
+  setup: builder => {
+    builder.onResolve({filter: /\?dataurl$/}, args => {
       const filePath = path.resolve(args.resolveDir, args.path.slice(0, args.path.length - '?dataurl'.length));
       // if resolving .ts, tell esbuild it is .js so that it gets the correct mimetype
       // eslint-disable-next-line @typescript-eslint/no-magic-numbers
       const pathForEsbuild = filePath.endsWith('.ts') ? `${filePath.slice(0, filePath.length - 4)}.js` : filePath;
       return {path: pathForEsbuild, namespace: 'dataurl', pluginData: {sourcePath: filePath}};
     });
-    build.onLoad({filter: /.*/, namespace: 'dataurl'}, async args => {
-      const res = await build.esbuild.build({
-        entryPoints: [args.pluginData.sourcePath],
+    builder.onLoad({filter: /.*/, namespace: 'dataurl'}, async args => {
+      const res = await builder.esbuild.build({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        entryPoints: [args.pluginData.sourcePath], // sourcePath is set from argsin onResolve
         bundle: true,
         minify: minify,
         sourcemap: sourceMaps,
-        target: build.initialOptions.target,
-        plugins: build.initialOptions.plugins,
+        target: builder.initialOptions.target,
+        plugins: builder.initialOptions.plugins,
         write: false
       });
 
       return {
-        contents: res.outputFiles[0]!.contents,
+        contents: res.outputFiles[0].contents,
         loader: 'dataurl'
       };
     });
@@ -80,11 +82,11 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
 const scssLoader = scss({
   inject: false,
   minify: true,
-  cssCallback: (css) => console.log(css)
+  cssCallback: css => console.log(css)
 });
 
 const dotEnv = dotenvRun({
-  prefix: "SMARTAPP_BUILDTIME_",
+  prefix: 'SMARTAPP_BUILDTIME_'
 });
 
 // ***** STEPS *****
@@ -173,7 +175,7 @@ const copyStaticAssetsToDist = async (): Promise<void> => {
 const doReplacesInBundleDir = async (): Promise<void> => {
   console.info('replacing .env vars in destination .html files');
   await replaceInFile({
-    files: `build/**/*.html`, // this can be a glob
+    files: 'build/**/*.html', // this can be a glob
     from: [
       /__PROCESSENV__\w+__/g
     ],
@@ -181,7 +183,7 @@ const doReplacesInBundleDir = async (): Promise<void> => {
       match => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
         // not sure what in the toolchain needs to change for this to be recognized
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         if (!(Object as unknown as any).hasOwn(process.env, matchIndex)) {
           console.info('  ', match, 'not defined in .env, skipping replace in .html');
           return match;
@@ -222,4 +224,3 @@ void (async () => {
     console.error('Error bundling', e);
   }
 })();
-

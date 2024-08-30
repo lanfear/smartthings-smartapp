@@ -13,7 +13,7 @@ export type IRule = (Rule & {
   creator?: string;
   dateCreated?: Date;
   dateUpdated?: Date;
-  ruleSummary: IRuleSummary;
+  ruleSummary?: IRuleSummary;
 });
 
 export type IRuleComponentType = 'daylight' | 'nightlight' | 'transition' | 'idle';
@@ -37,8 +37,7 @@ export interface IResponseLocation {
 }
 
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';
-export interface ISseEvent
-{
+export interface ISseEvent {
   deviceId: string;
   value: string;
 }

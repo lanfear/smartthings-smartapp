@@ -12,6 +12,10 @@ const LocationsGrid = styled.div`
     grid-auto-rows: minmax(100px, auto);
 `;
 
+const LocationGroup = styled.div`
+  display: flex;
+`;
+
 const Locations: React.FC<LocationsProps> = () => {
   const {t} = useTranslation();
 
@@ -26,52 +30,60 @@ const Locations: React.FC<LocationsProps> = () => {
   }, []);
 
   return (
-    <LocationsGrid>
+    <LocationsGrid className="content">
       {Object.values(locations).map(l => (
         <React.Fragment key={`location-${l.locationId}`}>
           <Link
             key={`location-${l.locationId}-rooms`}
             to={`/dashboard/${l.locationId}/rooms`}
           >
-            <div>
-              {`${t('location.identifier')}: ${l.locationId}`}
-            </div>
-            <div>
-              {`${t('location.name')}: ${l.name} Rooms`}
-            </div>
+            <LocationGroup className="box">
+              <h2>
+                {`${l.name} Rooms`}
+              </h2>
+              <h3>
+                {`(${t('location.identifier')}: ${l.locationId})`}
+              </h3>
+            </LocationGroup>
           </Link>
           <Link
             key={`location-${l.locationId}-scenes`}
             to={`/dashboard/${l.locationId}/scenes`}
           >
-            <div>
-              {`${t('location.identifier')}: ${l.locationId} Scenes`}
-            </div>
-            <div>
-              {`${t('location.name')}: ${l.name}`}
-            </div>
+            <LocationGroup className="box">
+              <h2>
+                {`${l.name} Scenes`}
+              </h2>
+              <h3>
+                {`(${t('location.identifier')}: ${l.locationId})`}
+              </h3>
+            </LocationGroup>
           </Link>
           <Link
             key={`location-${l.locationId}-rules`}
             to={`/dashboard/${l.locationId}/rules`}
           >
-            <div>
-              {`${t('location.identifier')}: ${l.locationId} Rules`}
-            </div>
-            <div>
-              {`${t('location.name')}: ${l.name}`}
-            </div>
+            <LocationGroup className="box">
+              <h2>
+                {`${l.name} Rules`}
+              </h2>
+              <h3>
+                {`(${t('location.identifier')}: ${l.locationId})`}
+              </h3>
+            </LocationGroup>
           </Link>
           <Link
             key={`location-${l.locationId}-apps`}
             to={`/dashboard/${l.locationId}/apps`}
           >
-            <div>
-              {`${t('location.identifier')}: ${l.locationId} Apps`}
-            </div>
-            <div>
-              {`${t('location.name')}: ${l.name}`}
-            </div>
+            <LocationGroup className="box">
+              <h2>
+                {`${l.name} Apps`}
+              </h2>
+              <h3>
+                {`(${t('location.identifier')}: ${l.locationId})`}
+              </h3>
+            </LocationGroup>
           </Link>
         </React.Fragment>
       ))}
