@@ -4,13 +4,6 @@ import '../styles/index.css';
 import '../styles/animations.css';
 
 export const GlobalStyles = createGlobalStyle`
-  /* bug with react-scripts ~4.0.3 that overlays iframe after time */
-  body {
-    iframe:last-of-type {
-      display: none !important;
-    }
-  }
-
   :root {
     .modal {
       --bulma-modal-content-width: 90vw;
