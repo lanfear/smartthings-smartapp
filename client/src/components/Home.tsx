@@ -1,5 +1,4 @@
 import React from 'react';
-import '../App.scss';
 
 const Home: React.FC = () => (
   <div>
