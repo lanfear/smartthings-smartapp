@@ -66,18 +66,6 @@ const App: React.FC = () => (
               >
                             Debugging (SmartApps)
               </Link>
-              <div className="navbar-end">
-                <a
-                  className="navbar-item is-hidden-desktop-only"
-                  href="https://github.com/jgthms/bulma"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="icon">
-                    <i className="fa fa-github"></i>
-                  </span>
-                </a>
-              </div>
             </div>
           </nav>
           <section className="container main-content">
