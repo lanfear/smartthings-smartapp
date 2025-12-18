@@ -12,8 +12,6 @@ import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
-import {sassPlugin} from 'esbuild-sass-plugin';
-import scss from 'esbuild-scss-modules-plugin';
 import {dotenvRun} from '@dotenv-run/esbuild';
 
 const parentDir = path.join(__dirname, '..');
@@ -79,12 +77,6 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
   }
 });
 
-const scssLoader = scss({
-  inject: false,
-  minify: true,
-  cssCallback: css => console.log(css)
-});
-
 const dotEnv = dotenvRun({
   prefix: 'SMARTAPP_BUILDTIME_'
 });
@@ -105,8 +97,6 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
     plugins: [
       dotEnv,
       svgrPlugin,
-      sassPlugin(),
-      scssLoader,
       urlLoader({
         minify: true,
         sourceMaps: isLocal ? 'inline' : false

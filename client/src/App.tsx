@@ -5,7 +5,6 @@ import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
 import {TouchBackend} from 'react-dnd-touch-backend';
 import {isMobile} from 'react-device-detect';
-import './App.scss';
 // Components
 import StyledComponentProvider from './providers/StyledComponentProvider';
 import Home from './components/Home';
@@ -36,53 +35,50 @@ const App: React.FC = () => (
       >
         <EventSourceProvider>
           <nav className="navbar ">
-            <div className="container">
-              <div className="navbar-brand">
-                <Link
-                  className="navbar-item"
-                  to="/locations"
-                >
+            <div className="navbar-brand">
+              <Link
+                className="navbar-item"
+                to="/locations"
+              >
                             Locations
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/rule-examples"
-                >
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/rule-examples"
+              >
                             Rule Examples
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/basic-templates"
-                >
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/basic-templates"
+              >
                             Basic Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/advanced-templates"
-                >
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/advanced-templates"
+              >
                             Advanced Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/smartapps"
-                >
+              </Link>
+              <Link
+                className="navbar-item"
+                to="/smartapps"
+              >
                             Debugging (SmartApps)
-                </Link>
-                <div className="navbar-end">
-                  <a
-                    className="navbar-item is-hidden-desktop-only"
-                    href="https://github.com/jgthms/bulma"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="icon">
-                      <i className="fa fa-github"></i>
-                    </span>
-                  </a>
-                </div>
+              </Link>
+              <div className="navbar-end">
+                <a
+                  className="navbar-item is-hidden-desktop-only"
+                  href="https://github.com/jgthms/bulma"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span className="icon">
+                    <i className="fa fa-github"></i>
+                  </span>
+                </a>
               </div>
             </div>
-
           </nav>
           <section className="container main-content">
             <Routes>

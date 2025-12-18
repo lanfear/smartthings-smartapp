@@ -1,0 +1,66 @@
+/*
+linear-gradient(-45deg, #ff5959, #ff4040, #ff0d6e, #ff8033, #d74177);
+linear-gradient(-45deg, #ff408c, #ff4040, #6666ff);
+ */
+
+@keyframes gradientLoop {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* animation: 1.5s myFlash linear infinite; */
+@keyframes flashLoop {
+  0% {
+    opacity: 1;
+    text-shadow: transparent;
+  }
+
+  50% {
+    opacity: .1;
+  }
+
+  100% {
+    opacity: 1;
+    text-shadow: 2px 2px 20px #fff;
+  }
+}
+
+/* https: //codepen.io/TheMOZZARELLA/pen/gOePxaN
+
+  a:focus::after {
+    position: absolute;
+    width: calc(100% + 0.05em);
+    height: calc(100% + 0.05em);
+    background: var(--gradient);
+    border-radius: 0.3em;
+    content: "";
+    z-index: -2;
+    animation: spinny 5s linear infinite;
+  }
+*/
+
+@keyframes spinny {
+  0% {
+    transform: rotateZ(0deg);
+    border-radius: 0.3em;
+  }
+
+  50% {
+    border-radius: 1em;
+  }
+
+  100% {
+    transform: rotateZ(360deg);
+    border-radius: 0.3em;
+  }
+}
+
