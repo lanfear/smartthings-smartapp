@@ -1,7 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
-import {useNavigate} from 'react-router-dom';
 import styled from 'styled-components';
 import getLocations, {IResponseLocations} from '../operations/getLocations';
+import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 
 const DropdownContainer = styled.div`
   position: relative;
@@ -69,29 +69,19 @@ const Checkmark = styled.span`
 `;
 
 const LocationDropdown: React.FC = () => {
+  const locationId = useLocationContextStore(s => s.locationId);
   const [locations, setLocations] = useState<IResponseLocations>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
-    localStorage.getItem('selectedLocationId')
-  );
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const getLocationsAsync = async (): Promise<void> => {
       const fetchedLocations = await getLocations();
       setLocations(fetchedLocations);
-
-      // If no location is selected and we have locations, select the first one
-      if (!selectedLocationId && fetchedLocations.length > 0) {
-        const firstLocationId = fetchedLocations[0].locationId;
-        setSelectedLocationId(firstLocationId);
-        localStorage.setItem('selectedLocationId', firstLocationId);
-      }
     };
 
     void getLocationsAsync();
-  }, [selectedLocationId]);
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -107,14 +97,12 @@ const LocationDropdown: React.FC = () => {
     };
   }, []);
 
-  const handleLocationSelect = (locationId: string): void => {
-    setSelectedLocationId(locationId);
-    localStorage.setItem('selectedLocationId', locationId);
+  const handleLocationSelect = (selectedLocationId: string, selectedLocationName: string): void => {
+    setLocation(selectedLocationId, selectedLocationName);
     setIsOpen(false);
-    navigate(`/dashboard/${locationId}/rooms`);
   };
 
-  const selectedLocation = locations.find(l => l.locationId === selectedLocationId);
+  const selectedLocation = locations.find(l => l.locationId === locationId);
 
   return (
     <DropdownContainer ref={dropdownRef}>
@@ -129,10 +117,10 @@ const LocationDropdown: React.FC = () => {
         {locations.map(location => (
           <DropdownItem
             key={location.locationId}
-            onClick={() => handleLocationSelect(location.locationId)}
+            onClick={() => handleLocationSelect(location.locationId, location.name)}
           >
             <Checkmark>
-              {location.locationId === selectedLocationId ? '✓' : ''}
+              {location.locationId === locationId ? '✓' : ''}
             </Checkmark>
             {location.name}
           </DropdownItem>
