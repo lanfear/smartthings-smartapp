@@ -122,14 +122,13 @@ export const GlobalStyles = createGlobalStyle`
       background-color: rgba(110, 255, 185, 0.25);
 
       &:focus {
-        position: absolute;
+        /* position: absolute;
         width: calc(100% + 0.05em);
-        height: calc(100% + 0.05em);
+        height: calc(100% + 0.05em); */
         background: var(--navbar-focus-gradient);
         border-radius: 0.3em;
         content: "";
-        z-index: -2;
-        animation: spinny 5s linear infinite;
+        /* animation: spinny 5s linear infinite; */
       }
 
       &:hover {
