@@ -9,7 +9,7 @@ import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedCon
 import global from '../constants/global';
 import Device from './Device';
 import Power from './Power';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import SmartApp from './SmartApp';
 import getRulesFromSummary, {IRuleIdle, IRuleRange, IRuleTransition} from '../operations/getRulesFromSummary';
 import Rule from './Rule';
@@ -181,7 +181,7 @@ const RoomControlDeviceLabel = styled.div`
 `;
 
 const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
-  const {deviceData, setDeviceData} = useDeviceContext();
+  const {deviceData, setDeviceData} = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId!}-activeDevice`, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
 

@@ -4,7 +4,7 @@ import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 
 const DashboardSceneGrid = styled.div`
     display: grid;
@@ -14,7 +14,7 @@ const DashboardSceneGrid = styled.div`
 
 const DashboardScenes: React.FC = () => {
   const {t} = useTranslation();
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
 
   const routeInfo = useParams<{locationId: string}>();
   const locationId = routeInfo.locationId ?? ''; // empty location id should not happen

@@ -7,7 +7,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
 import global from '../constants/global';
 import {DashboardTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import {IApp, IRule} from '../types/sharedContracts';
 
 const DashboardRuleGrid = styled.div`
@@ -55,7 +55,7 @@ const DashboardModalButton = styled.button`
 
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const [activeRule, setActiveRule] = React.useState<IRule | null>(null);
   // const [existingAppList, setExistingAppList] = React.useState<Record<string, string>>({});

@@ -4,11 +4,11 @@ import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
 import executeRuleControl from '../operations/executeRuleControl';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import {IRuleComponentType} from '../types/sharedContracts';
 
 const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
     if (item.type === IDragAndDropType.App) {

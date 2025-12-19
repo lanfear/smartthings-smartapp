@@ -5,7 +5,7 @@ import global from '../constants/global';
 import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlActionContainer} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import {IResponseSwitches} from '../types/sharedContracts';
 
 const dimLevelMin = 5;
@@ -83,7 +83,7 @@ const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitch
 };
 
 const ActionDeviceDim: React.FC = () => {
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
 
   const [dimLevelSliderValue, setDimLevelSliderValue] = useState(0);
 
