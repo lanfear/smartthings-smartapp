@@ -16,122 +16,141 @@ import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
 import LocationDropdown from './components/LocationDropdown';
-import {DeviceContextStore} from './store/DeviceContextStore';
 import DashboardApps from './components/DashboardApps';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
+import {useLocationContextStore} from './store/LocationContextStore';
 
-const App: React.FC = () => (
-  <StyledComponentProvider>
-    <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
-      <SWRConfig
-        value={{
-          onSuccess: (d, k) => {
-            localStorage.setItem(k, JSON.stringify(d));
-          },
-          onError: (_, k) => {
-            localStorage.removeItem(k);
-          }
-        }}
-      >
-        <EventSourceProvider>
-          <nav className="navbar">
-            <div className="navbar-brand">
-              <LocationDropdown />
-              <Link
-                className="navbar-item"
-                to="/rule-examples"
-              >
-                            Rule Examples
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/basic-templates"
-              >
-                            Basic Templates
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/advanced-templates"
-              >
-                            Advanced Templates
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/smartapps"
-              >
-                            Debugging (SmartApps)
-              </Link>
-            </div>
-          </nav>
-          <section className="container main-content">
-            <Routes>
-              <Route
-                path="/"
-                element={<Home />}
-              />
-              <Route
-                path="rule-examples"
-                element={<RuleExamples />}
-              />
-              <Route
-                path="basic-templates"
-                element={<BasicTemplates />}
-              />
-              <Route
-                path="advanced-templates"
-                element={<AdvancedTemplates />}
-              />
-              <Route
-                path="smartapps"
-                element={<SmartApps />}
-              />
-              <Route
-                path="locations"
-                element={<Locations />}
-              />
-              <Route
-                path="dashboard/:locationId/rooms"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardRooms />
-                  </DeviceContextStore>
-                )}
-              >
-              </Route>
-              <Route
-                path="dashboard/:locationId/scenes"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardScenes />
-                  </DeviceContextStore>
-                )}
-              >
-              </Route>
-              <Route
-                path="dashboard/:locationId/rules"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardRules />
-                  </DeviceContextStore>
-                )}
-              >
-              </Route>
-              <Route
-                path="dashboard/:locationId/apps"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardApps />
-                  </DeviceContextStore>
-                )}
-              >
-              </Route>
-            </Routes>
-          </section>
-        </EventSourceProvider>
-      </SWRConfig>
-    </DndProvider>
-  </StyledComponentProvider>
-);
+export type RouteParams = Record<string, string> & {
+  locationId: string;
+};
+
+const App: React.FC = () => {
+  const locationId = useLocationContextStore(s => s.locationId);
+
+  return (
+    <StyledComponentProvider>
+      <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
+        <SWRConfig
+          value={{
+            onSuccess: (d, k) => {
+              localStorage.setItem(k, JSON.stringify(d));
+            },
+            onError: (_, k) => {
+              localStorage.removeItem(k);
+            }
+          }}
+        >
+          <EventSourceProvider>
+            <nav className="navbar">
+              <div className="navbar-brand">
+                <LocationDropdown />
+                <Link
+                  key="location-rooms"
+                  className="navbar-item"
+                  to={`/dashboard/${locationId}/rooms`}
+                >
+                  Rooms
+                </Link>
+                <Link
+                  key="location-scenes"
+                  className="navbar-item"
+                  to={`/dashboard/${locationId}/scenes`}
+                >
+                  Scenes
+                </Link>
+                <Link
+                  key="location-rules"
+                  className="navbar-item"
+                  to={`/dashboard/${locationId}/rules`}
+                >
+                  Rules
+                </Link>
+                <Link
+                  key="location-apps"
+                  className="navbar-item"
+                  to={`/dashboard/${locationId}/apps`}
+                >
+                  Apps
+                </Link>
+                <Link
+                  className="navbar-item"
+                  to="/rule-examples"
+                >
+                  Rule Examples
+                </Link>
+                <Link
+                  className="navbar-item"
+                  to="/basic-templates"
+                >
+                  Basic Templates
+                </Link>
+                <Link
+                  className="navbar-item"
+                  to="/advanced-templates"
+                >
+                  Advanced Templates
+                </Link>
+                <Link
+                  className="navbar-item"
+                  to="/smartapps"
+                >
+                  Debugging (SmartApps)
+                </Link>
+              </div>
+            </nav>
+            <section className="container main-content">
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Home />}
+                />
+                <Route
+                  path="rule-examples"
+                  element={<RuleExamples />}
+                />
+                <Route
+                  path="basic-templates"
+                  element={<BasicTemplates />}
+                />
+                <Route
+                  path="advanced-templates"
+                  element={<AdvancedTemplates />}
+                />
+                <Route
+                  path="smartapps"
+                  element={<SmartApps />}
+                />
+                <Route
+                  path="locations"
+                  element={<Locations />}
+                />
+                <Route
+                  path="dashboard/:locationId/rooms"
+                  element={<DashboardRooms />}
+                />
+                <Route
+                  path="dashboard/:locationId/scenes"
+                  element={(<DashboardScenes />)}
+                >
+                </Route>
+                <Route
+                  path="dashboard/:locationId/rules"
+                  element={(<DashboardRules />)}
+                >
+                </Route>
+                <Route
+                  path="dashboard/:locationId/apps"
+                  element={(<DashboardApps />)}
+                >
+                </Route>
+              </Routes>
+            </section>
+          </EventSourceProvider>
+        </SWRConfig>
+      </DndProvider>
+    </StyledComponentProvider>
+  );
+};
 
 export default App;
