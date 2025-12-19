@@ -15,6 +15,7 @@ import SmartApps from './components/SmartApps';
 import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
+import LocationDropdown from './components/LocationDropdown';
 import {DeviceContextStore} from './store/DeviceContextStore';
 import DashboardApps from './components/DashboardApps';
 import DashboardRules from './components/DashboardRules';
@@ -36,12 +37,7 @@ const App: React.FC = () => (
         <EventSourceProvider>
           <nav className="navbar">
             <div className="navbar-brand">
-              <Link
-                className="navbar-item"
-                to="/locations"
-              >
-                            Locations
-              </Link>
+              <LocationDropdown />
               <Link
                 className="navbar-item"
                 to="/rule-examples"
