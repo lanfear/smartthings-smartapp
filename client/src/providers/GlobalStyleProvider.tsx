@@ -128,7 +128,6 @@ export const GlobalStyles = createGlobalStyle`
         background: var(--navbar-focus-gradient);
         border-radius: 0.3em;
         content: "";
-        z-index: -2;
         /* animation: spinny 5s linear infinite; */
       }
 
@@ -170,7 +169,7 @@ export const GlobalStyles = createGlobalStyle`
         // /* Opera 12+ */
         // background: -ms-radial-gradient(center, ellipse cover, rgba(110, 255, 185, 1) 0%, rgba(110, 255, 185, 0) 100%);
         /* IE10+ */
-        /* background: radial-gradient(ellipse at center, rgba(110, 255, 185, 1) 0%, rgba(110, 255, 185, 0) 100%); */
+        background: radial-gradient(ellipse at center, rgba(110, 255, 185, 1) 0%, rgba(110, 255, 185, 0) 100%);
         /* W3C */
       }
     }

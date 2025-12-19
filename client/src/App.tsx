@@ -34,7 +34,7 @@ const App: React.FC = () => (
         }}
       >
         <EventSourceProvider>
-          <nav className="navbar ">
+          <nav className="navbar">
             <div className="navbar-brand">
               <Link
                 className="navbar-item"
