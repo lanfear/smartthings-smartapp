@@ -1,10 +1,17 @@
 // src/theme-context.js
-import React, {createContext, useContext, useCallback} from 'react';
+import {useCallback} from 'react';
 import {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import useSWR, {KeyedMutator, unstable_serialize as swrKeySerializer} from 'swr';
 import getLocation from '../operations/getLocation';
 import {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
+import {useLocationContextStore} from './LocationContextStore';
+
+export interface IDeviceContextStore {
+  deviceData: IResponseLocation;
+  setDeviceData: KeyedMutator<IResponseLocation>;
+  loadDeviceDataFromServer: () => Promise<void>;
+}
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -60,21 +67,29 @@ const getFallbackData = (locationId: string): IResponseLocation => {
   };
 };
 
-// create context provider
-const DeviceContext = createContext({deviceData: initialDeviceData} as IDeviceContextStore);
+// SWR hook for device data
+export const useDeviceData = (): IDeviceContextStore => {
+  const activeLocationId = useLocationContextStore(s => s.locationId);
 
-export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({locationId, children}) => {
-  const {data: deviceData, mutate: _setDeviceData} = useSWR(['locationData', locationId], (_, l) => getDeviceDataFromServer(l), {
-    revalidateOnMount: true,
-    dedupingInterval: 5000,
-    fallbackData: getFallbackData(locationId)
-  });
+  const {data: deviceData, mutate: _setDeviceData} = useSWR(
+    activeLocationId ? ['locationData', activeLocationId] : null,
+    (_, l) => getDeviceDataFromServer(l),
+    {
+      revalidateOnMount: true,
+      dedupingInterval: 5000,
+      fallbackData: activeLocationId ? getFallbackData(activeLocationId) : initialDeviceData
+    }
+  );
 
-  const setDeviceData: typeof _setDeviceData = useCallback(async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)) as IResponseLocation, opts), [_setDeviceData]);
+  const setDeviceData: typeof _setDeviceData = useCallback(
+    async (data, opts) => await _setDeviceData(JSON.parse(JSON.stringify(data)) as IResponseLocation, opts),
+    [_setDeviceData]
+  );
 
   // listen to sse events
   const deviceEventSource = useEventSource({
-    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`,
+    options: {enabled: !!activeLocationId}
   });
 
   // when any rules event comes in, just reload data from server
@@ -88,33 +103,12 @@ export const DeviceContextStore: React.FC<IDeviceContextStoreProps> = ({location
   });
 
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
-    // calling mutate w/out any data flags as stale and triggers a revalidate from server wrt the swr hook options
-    // for instance, it respects deduping config so if many components trigger this in quick succession it will dedupe to single call
     await setDeviceData();
   }, [setDeviceData]);
 
-  return (
-    <DeviceContext.Provider value={{
-      deviceData: deviceData ?? initialDeviceData,
-      setDeviceData: setDeviceData,
-      loadDeviceDataFromServer: loadDeviceDataFromServer
-    }}
-    >
-      {children}
-    </DeviceContext.Provider>
-  );
+  return {
+    deviceData: deviceData ?? initialDeviceData,
+    setDeviceData: setDeviceData,
+    loadDeviceDataFromServer: loadDeviceDataFromServer
+  };
 };
-
-// export ability to use the context
-export const useDeviceContext = (): IDeviceContextStore => useContext(DeviceContext);
-
-export interface IDeviceContextStore {
-  deviceData: IResponseLocation;
-  setDeviceData: KeyedMutator<IResponseLocation>;
-  loadDeviceDataFromServer: () => Promise<void>;
-}
-
-export interface IDeviceContextStoreProps {
-  locationId: string;
-  children: React.ReactNode;
-}
