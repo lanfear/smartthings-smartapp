@@ -1,13 +1,16 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
+import {RouteParams} from '../App';
+import getLocations from '../operations/getLocations';
+import {setLocation} from '../store/LocationContextStore';
 
 const printColumnN = (n: number, columns: number): string => `
     .room-grid-container:nth-child(${columns}n${n !== columns ? `+${n}` : ''}) {
@@ -60,12 +63,26 @@ const DeviceControlsGridContainer = styled.div`
 `;
 
 const DashboardRooms: React.FC = () => {
+  const {locationId} = useParams<RouteParams>();
   const {t} = useTranslation();
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
   const [favoriteRoom, setFavoriteRoom] = useLocalStorage<string>('favorite-room', '');
 
-  const routeInfo = useParams<{locationId: string}>();
-  const locationId = routeInfo.locationId ?? ''; // empty location id should not happen
+  // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
+  useEffect(() => {
+    if (locationId && locationId !== deviceData.locationId) {
+      void (async () => {
+        const locationData = (await getLocations()).find(l => l.locationId === locationId);
+        if (locationData) {
+          setLocation(locationId, locationData.name);
+        }
+      })();
+    }
+  }, [locationId, deviceData.locationId]);
+
+  if (!locationId) {
+    return null;
+  }
 
   return (
     <>

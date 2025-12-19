@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,6 +9,9 @@ import global from '../constants/global';
 import {DashboardTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
 import {useDeviceData} from '../store/DeviceContextStore';
 import {IApp, IRule} from '../types/sharedContracts';
+import {RouteParams} from '../App';
+import getLocations from '../operations/getLocations';
+import {setLocation} from '../store/LocationContextStore';
 
 const DashboardRuleGrid = styled.div`
     display: grid;
@@ -58,10 +61,23 @@ const DashboardRules: React.FC = () => {
   const {deviceData} = useDeviceData();
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const [activeRule, setActiveRule] = React.useState<IRule | null>(null);
-  // const [existingAppList, setExistingAppList] = React.useState<Record<string, string>>({});
+  const {locationId} = useParams<RouteParams>();
 
-  const routeInfo = useParams<{locationId: string}>();
-  const locationId = routeInfo.locationId ?? ''; // empty location id should not happen
+  // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
+  useEffect(() => {
+    if (locationId && locationId !== deviceData.locationId) {
+      void (async () => {
+        const locationData = (await getLocations()).find(l => l.locationId === locationId);
+        if (locationData) {
+          setLocation(locationId, locationData.name);
+        }
+      })();
+    }
+  }, [locationId, deviceData.locationId]);
+
+  if (!locationId) {
+    return null;
+  }
 
   const findAppMatchingRule = (ruleName: string): IApp | undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));
 
