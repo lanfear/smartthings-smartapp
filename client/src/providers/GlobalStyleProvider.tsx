@@ -113,21 +113,21 @@ export const GlobalStyles = createGlobalStyle`
     backdrop-filter: blur(10px);
     background-color: rgba(110, 255, 185, 0.25);
     border-bottom: 2px solid rgba(255, 255, 255, .2);
-  }
 
-  nav.navbar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
-    transition: .5s;
-  }
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+      transition: .5s;
+    }
 
-  nav.navbar:hover::before {
-    left: 100%;
+    &:hover::before {
+      left: 100%;
+    }
   }
 
   .navbar-item {
@@ -136,45 +136,46 @@ export const GlobalStyles = createGlobalStyle`
     font-size: 18px;
     transition: .3s;
     color: #536f56;
+
+    &:focus {
+      /* position: absolute;
+      width: calc(100% + 0.05em);
+      height: calc(100% + 0.05em); */
+      background: var(--navbar-focus-gradient);
+      border-radius: 0.3em;
+      content: "";
+      /* animation: spinny 5s linear infinite; */
+    }
+
+    &:hover {
+      text-shadow:
+        0px 0px 2px rgba(220, 255, 240, 0.99),
+        0px 0px 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.4);
+      box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+        0 2px 6px rgba(0, 0, 0, 0.5),
+        0 10px rgba(0, 0, 0, 0.05) inset,
+        0 0px 5px 2px rgba(110, 255, 185, 0.75),
+        0 0px 10px 2px rgba(110, 255, 185, 0.75) inset;
+    }
+
+    &:active {
+      text-shadow:
+        0 0 2px rgba(220, 255, 240, 0.99),
+        0 0 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.6);
+      border-style: solid;
+      border-width: 1px;
+      box-shadow:
+        0 1px 0 0 rgba(110, 255, 185, 0.4) inset,
+        0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
+        0 0 5px 2px rgba(110, 255, 185, 0.75),
+        0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
+      background: var(--navbar-focus-gradient);
+    }
   }
 
-  .navbar-item:focus {
-    /* position: absolute;
-    width: calc(100% + 0.05em);
-    height: calc(100% + 0.05em); */
-    background: var(--navbar-focus-gradient);
-    border-radius: 0.3em;
-    content: "";
-    /* animation: spinny 5s linear infinite; */
-  }
-
-  .navbar-item:hover {
-    text-shadow:
-      0px 0px 2px rgba(220, 255, 240, 0.99),
-      0px 0px 4px rgba(180, 255, 220, 0.99);
-    border-color: rgba(110, 255, 185, 0.4);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
-      0 2px 6px rgba(0, 0, 0, 0.5),
-      0 10px rgba(0, 0, 0, 0.05) inset,
-      0 0px 5px 2px rgba(110, 255, 185, 0.75),
-      0 0px 10px 2px rgba(110, 255, 185, 0.75) inset;
-  }
-
-  .navbar-item:active {
-    text-shadow:
-      0 0 2px rgba(220, 255, 240, 0.99),
-      0 0 4px rgba(180, 255, 220, 0.99);
-    border-color: rgba(110, 255, 185, 0.6);
-    border-style: solid;
-    border-width: 1px;
-    box-shadow:
-      0 1px 0 0 rgba(110, 255, 185, 0.4) inset,
-      0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
-      0 0 5px 2px rgba(110, 255, 185, 0.75),
-      0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
-    background: var(--navbar-focus-gradient);
-  }
 `;
 
 /* old stuff from sass + bulma
