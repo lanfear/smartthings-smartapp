@@ -4,8 +4,8 @@ import getLocations, {IResponseLocations} from '../operations/getLocations';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 
 const DropdownContainer = styled.div`
+  display: flex;
   position: relative;
-  display: inline-block;
 `;
 
 const DropdownButton = styled.button`
