@@ -43,61 +43,59 @@ const App: React.FC = () => {
         >
           <EventSourceProvider>
             <nav className="navbar">
-              <div className="navbar-brand">
-                <LocationDropdown />
-                <Link
-                  key="location-rooms"
-                  className="navbar-item"
-                  to={`/dashboard/${locationId}/rooms`}
-                >
+              <LocationDropdown />
+              <Link
+                key="location-rooms"
+                className="navbar-item flex-column-center"
+                to={`/dashboard/${locationId}/rooms`}
+              >
                   Rooms
-                </Link>
-                <Link
-                  key="location-scenes"
-                  className="navbar-item"
-                  to={`/dashboard/${locationId}/scenes`}
-                >
+              </Link>
+              <Link
+                key="location-scenes"
+                className="navbar-item flex-column-center"
+                to={`/dashboard/${locationId}/scenes`}
+              >
                   Scenes
-                </Link>
-                <Link
-                  key="location-rules"
-                  className="navbar-item"
-                  to={`/dashboard/${locationId}/rules`}
-                >
+              </Link>
+              <Link
+                key="location-rules"
+                className="navbar-item flex-column-center"
+                to={`/dashboard/${locationId}/rules`}
+              >
                   Rules
-                </Link>
-                <Link
-                  key="location-apps"
-                  className="navbar-item"
-                  to={`/dashboard/${locationId}/apps`}
-                >
+              </Link>
+              <Link
+                key="location-apps"
+                className="navbar-item flex-column-center"
+                to={`/dashboard/${locationId}/apps`}
+              >
                   Apps
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/rule-examples"
-                >
+              </Link>
+              <Link
+                className="navbar-item flex-column-center"
+                to="/rule-examples"
+              >
                   Rule Examples
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/basic-templates"
-                >
+              </Link>
+              <Link
+                className="navbar-item flex-column-center"
+                to="/basic-templates"
+              >
                   Basic Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/advanced-templates"
-                >
+              </Link>
+              <Link
+                className="navbar-item flex-column-center"
+                to="/advanced-templates"
+              >
                   Advanced Templates
-                </Link>
-                <Link
-                  className="navbar-item"
-                  to="/smartapps"
-                >
+              </Link>
+              <Link
+                className="navbar-item flex-column-center"
+                to="/smartapps"
+              >
                   Debugging (SmartApps)
-                </Link>
-              </div>
+              </Link>
             </nav>
             <section className="container main-content">
               <Routes>

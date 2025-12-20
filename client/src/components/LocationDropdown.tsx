@@ -17,10 +17,6 @@ const DropdownButton = styled.button`
   font-size: 1rem;
   display: flex;
   align-items: center;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
 `;
 
 const DropdownMenu = styled.div<{$isOpen: boolean}>`
@@ -107,7 +103,7 @@ const LocationDropdown: React.FC = () => {
   return (
     <DropdownContainer ref={dropdownRef}>
       <DropdownButton
-        className="navbar-item"
+        className="navbar-item flex-column-center"
         onClick={() => setIsOpen(!isOpen)}
       >
         {selectedLocation?.name ?? 'Locations'}

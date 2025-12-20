@@ -1,6 +1,20 @@
 import styled, {keyframes} from 'styled-components';
 import global from '../constants/global';
 
+export const FlexRowCenter = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const FlexColumnCenter = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
 const DeviceBorderAnimation = keyframes`
     50% {
         border: 1px solid rgba( 255, 255, 255, 0.18 );
