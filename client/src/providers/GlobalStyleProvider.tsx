@@ -8,7 +8,7 @@ export const GlobalStyles = createGlobalStyle`
     --border-radius-small: 4px;
     --border-radius: 8px;
 
-    --navbar-height: 25px;
+    --navbar-height: 100px;
     --navbar-item-padding: 10px;
     --navbar-item-border-radius: var(--border-radius);
 
@@ -62,7 +62,6 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   .main-content {
-      padding-top: var(--navbar-height);
       max-height: calc(100vh - var(--navbar-height));
       display: flex;
       flex-direction: column;
@@ -127,6 +126,7 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   nav.navbar {
+    height: var(--navbar-height);
     padding: 0 100px;
     background: rgba(255, 255, 255, .1);
     display: flex;

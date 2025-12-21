@@ -4,26 +4,33 @@ import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
-import {DashboardSubTitle, DashboardTitle, FlexRowCenter} from '../factories/styleFactory';
+import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceData} from '../store/DeviceContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
 import {RouteParams} from '../App';
 import getLocations from '../operations/getLocations';
-import {setLocation} from '../store/LocationContextStore';
+import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 
-const DashboardRoomSplit = styled(FlexRowCenter)`
-  align-items: unset;
+const DashboardRoomSplit = styled.div`
+  display: grid;
+  grid-template-areas:
+    "header header subheader"
+    "controls rooms rooms";
+  grid-template-columns: auto 1fr;
+  gap: ${global.measurements.dashboardGridGap};
   overflow: hidden;
 `;
 
 // grid-row constraint set in generated grid class mediaquery statement above
 const DeviceControlsGridContainer = styled.div`
+  grid-area: controls;
   position: sticky;
   top: 0;
 `;
 
 const DashboardRoomGrid = styled.div<{roomCount: number}>`
+  grid-area: rooms;
   display: grid;
   gap: ${global.measurements.dashboardGridGap};
   grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
@@ -39,6 +46,7 @@ const DashboardRooms: React.FC = () => {
   const {t} = useTranslation();
   const {deviceData} = useDeviceData();
   const [favoriteRoom, setFavoriteRoom] = useLocalStorage<string>('favorite-room', '');
+  const locationName = useLocationContextStore(s => s.locationName);
 
   // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
   useEffect(() => {
@@ -57,31 +65,35 @@ const DashboardRooms: React.FC = () => {
   }
 
   return (
-    <>
-      <DashboardTitle>
-        {locationId}
-      </DashboardTitle>
-      <DashboardSubTitle>
+    <DashboardRoomSplit>
+      <DashboardTitle style={{
+        gridArea: 'header'
+      }}
+      >
         {t('dashboard.room.sectionName')}
+      </DashboardTitle>
+      <DashboardSubTitle style={{
+        gridArea: 'subheader'
+      }}
+      >
+        {`${locationName}: ${locationId}`}
       </DashboardSubTitle>
-      <DashboardRoomSplit>
-        <DeviceControlsGridContainer
-          className="device-controls-grid-container"
-        >
-          <DeviceControls />
-        </DeviceControlsGridContainer>
-        <DashboardRoomGrid roomCount={deviceData.rooms.length || 0}>
-          {deviceData.rooms.map(r => (
-            <Room
-              key={`room-${r.roomId!}`}
-              room={r}
-              isFavoriteRoom={favoriteRoom === r.roomId}
-              setFavoriteRoom={setFavoriteRoom}
-            />
-          ))}
-        </DashboardRoomGrid>
-      </DashboardRoomSplit>
-    </>
+      <DeviceControlsGridContainer
+        className="device-controls-grid-container"
+      >
+        <DeviceControls />
+      </DeviceControlsGridContainer>
+      <DashboardRoomGrid roomCount={deviceData.rooms.length || 0}>
+        {deviceData.rooms.map(r => (
+          <Room
+            key={`room-${r.roomId!}`}
+            room={r}
+            isFavoriteRoom={favoriteRoom === r.roomId}
+            setFavoriteRoom={setFavoriteRoom}
+          />
+        ))}
+      </DashboardRoomGrid>
+    </DashboardRoomSplit>
   );
 };
 
