@@ -5,8 +5,10 @@ import '../styles/animations.css';
 
 export const GlobalStyles = createGlobalStyle`
   :root {
+    --border-radius-small: 4px;
     --border-radius: 8px;
 
+    --navbar-height: 25px;
     --navbar-item-padding: 10px;
     --navbar-item-border-radius: var(--border-radius);
 
@@ -33,9 +35,26 @@ export const GlobalStyles = createGlobalStyle`
       #6da8ff,
       #9f97ff,
       #c285ff);
+
+    --grid-room-border: 1px solid gray;
+    --grid-room-border-radius: var(--border-radius-small);
   }
 
   // Style
+
+  body {
+    max-width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #root {
+    max-width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
   .title {
       align-items: center;
@@ -43,7 +62,10 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   .main-content {
-      padding-top: 25px;
+      padding-top: var(--navbar-height);
+      max-height: calc(100vh - var(--navbar-height));
+      display: flex;
+      flex-direction: column;
   }
 
   .text{
@@ -105,7 +127,7 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   nav.navbar {
-    padding: 20px 100px;
+    padding: 0 100px;
     background: rgba(255, 255, 255, .1);
     display: flex;
     justify-content: space-between;

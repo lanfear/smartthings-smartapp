@@ -12,8 +12,6 @@ const ControlsContainer = styled.div`
   flex-direction: column;
   width: 100%;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
 `;
 
 const DeviceControls: React.FC = () => (
