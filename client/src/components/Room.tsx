@@ -171,8 +171,9 @@ const RoomControlDeviceLabel = styled.div`
 `;
 
 const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
+  const localStorageKey = `smartAppRoom-${room.roomId!}-activeDevice`;
   const {deviceData, setDeviceData} = useDeviceData();
-  const [activeDevice, setActiveDevice] = useLocalStorage(`smartAppRoom-${room.roomId!}-activeDevice`, null as IActiveControl | null);
+  const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
