@@ -13,7 +13,8 @@ const submitRules = (client, locationId, smartAppLookupKey, combinedRule, transi
     var _a;
     /* eslint-disable no-console */
     console.log('Submitting Rules', locationId);
-    console.log('Rule', JSON.stringify(combinedRule));
+    console.log('Main Rule', JSON.stringify(combinedRule));
+    console.log('Transition Rule', JSON.stringify(transitionRule));
     /* eslint-enable no-console */
     try {
         yield Promise.allSettled(((yield ((_a = client.rules) === null || _a === void 0 ? void 0 : _a.list(locationId))) || [])

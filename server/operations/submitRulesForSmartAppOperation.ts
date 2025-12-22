@@ -5,7 +5,8 @@ import {IRuleSummary} from 'sharedContracts';
 const submitRules = async (client: SmartThingsClient, locationId: string, smartAppLookupKey: string, combinedRule: RuleRequest, transitionRule: RuleRequest, newRuleSummary: IRuleSummary): Promise<[IRuleSummary, string, string]> => {
   /* eslint-disable no-console */
   console.log('Submitting Rules', locationId);
-  console.log('Rule', JSON.stringify(combinedRule));
+  console.log('Main Rule', JSON.stringify(combinedRule));
+  console.log('Transition Rule', JSON.stringify(transitionRule));
   /* eslint-enable no-console */
 
   try {
