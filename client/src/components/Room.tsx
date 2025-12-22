@@ -336,7 +336,6 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
                 app={a}
                 isRuleEnabled={true}
                 setActiveDevice={setActiveDevice}
-                isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
               />
             </RoomControlRule>
             {ruleParts.dayRule && (
