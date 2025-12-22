@@ -6,7 +6,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
 import global from '../constants/global';
-import {DashboardTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
+import {DashboardTitle, DashboardGridColumnHeader, StyledButton} from '../factories/styleFactory';
 import {useDeviceData} from '../store/DeviceContextStore';
 import {IApp, IRule} from '../types/sharedContracts';
 import {RouteParams} from '../App';
@@ -130,12 +130,12 @@ const DashboardRules: React.FC = () => {
                 {findAppMatchingRule(s.name)?.displayName ?? '(rogue rule)'}
               </DashboardRuleContent>
               <DashboardRuleContent gridArea="manage">
-                <button onClick={() => openRule(s.id)}>
+                <StyledButton onClick={() => openRule(s.id)}>
                   SHOW RULE
-                </button>
-                <button onClick={() => deleteRule(locationId, s.id)}>
+                </StyledButton>
+                <StyledButton onClick={() => deleteRule(locationId, s.id)}>
                   DELETE
-                </button>
+                </StyledButton>
               </DashboardRuleContent>
             </DashboardRuleLineItemGrid>
           </React.Fragment>
