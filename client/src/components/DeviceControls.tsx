@@ -29,6 +29,16 @@ const DeviceControls: React.FC = () => (
     />
     <ActionRuleDisable
       key="control-action-rule-disable"
+      words="Disable 2hrs"
+      reEnableAfter={2}
+    />
+    <ActionRuleDisable
+      key="control-action-rule-disable"
+      words="Disable 8hrs"
+      reEnableAfter={8}
+    />
+    <ActionRuleDisable
+      key="control-action-rule-disable"
       words="Disable"
     />
     <ActionDeviceOff
