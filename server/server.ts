@@ -17,6 +17,7 @@ import submitRulesForSmartAppOperation from './operations/submitRulesForSmartApp
 import storeRulesAndNotifyOperation from './operations/storeRulesAndNotifyOperation';
 import ruleStore from './provider/ruleStore';
 import {listInstalledApps} from './provider/smartAppContextStore';
+import {diff} from 'json-diff-ts';
 
 const defaultPort = 3001;
 
@@ -108,22 +109,21 @@ server.post('/device/:deviceId', async (req, res) => {
   res.send(result);
 });
 
+const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, disableRule: boolean): boolean => {
+  // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
+  // eslint-disable-next-line no-console
+  // console.log('configuring delete for [', ruleComponent, '][', ruleComponentParam, '] from source values -> paramsDisabled [', paramsDisabled, '] ruleIsEnabled [', ruleIsEnabled, '] disableRule [', disableRule, ']');
+  if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
+    // console.log('request was not for this rule component, preserving existing temp disable value [', disableRule, '] for ruleComponent [', ruleComponent, ']');
+    return disableRule;
+  }
+
+  // console.log('request DID match component, setting value for [', disableRule, '] for ruleComponent [', ruleComponent, '] to value [', !ruleIsEnabled ? false : paramsDisabled, ']');
+  return !ruleIsEnabled ? false : paramsDisabled;
+};
+
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{ locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string }>, res) => {
-  const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, ruleIsTemporarilyDisabled: boolean): boolean => {
-    // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
-    // eslint-disable-next-line no-console
-    // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
-    if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
-      // eslint-disable-next-line no-console
-      // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
-      return ruleIsTemporarilyDisabled;
-    }
-
-    // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route does match, setting to !ruleIsEnabled ? false : paramsDisabled', 're', ruleIsEnabled, 'pe', paramsDisabled, '===>', !ruleIsEnabled ? false : paramsDisabled);
-    return !ruleIsEnabled ? false : paramsDisabled;
-  };
-
   const appKey = `app-${req.params.installedAppId}`;
 
   const ruleStoreInfo = await ruleStore.get(req.params.installedAppId);
@@ -148,8 +148,9 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     ruleStoreInfo.newRuleSummary
   );
 
-  // bet on jsonify ordreing matching across saves...
-  if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
+  // this compare should work 100%, but brought in the diff pkg during debugging and using it for now
+  // if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
+  if (diff(ruleStoreInfo, ruleStoreInfoOrig).length === 0) { // diff returns empty array if no differences
     // eslint-disable-next-line no-console
     console.log('Rules not modified, nothing to update');
     res.statusCode = StatusCodes.NOT_MODIFIED;
@@ -168,7 +169,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
   );
 
   await storeRulesAndNotifyOperation(
-    req.params.locationId,
+    req.params.installedAppId,
     ruleStoreInfo.combinedRule,
     newCombinedRuleId,
     ruleStoreInfo.transitionRule,
