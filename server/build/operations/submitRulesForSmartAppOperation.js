@@ -12,21 +12,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const submitRules = (client, locationId, smartAppLookupKey, combinedRule, transitionRule, newRuleSummary) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     /* eslint-disable no-console */
-    console.log('Submitting Rules');
+    console.log('Submitting Rules', locationId);
     console.log('Rule', JSON.stringify(combinedRule));
     /* eslint-enable no-console */
-    yield Promise.all(((yield ((_a = client.rules) === null || _a === void 0 ? void 0 : _a.list(locationId))) || [])
-        .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
-        .map((r) => __awaiter(void 0, void 0, void 0, function* () {
-        yield client.rules.delete(r.id, locationId);
-        newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
-    })));
+    try {
+        yield Promise.allSettled(((yield ((_a = client.rules) === null || _a === void 0 ? void 0 : _a.list(locationId))) || [])
+            .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
+            .map((r) => __awaiter(void 0, void 0, void 0, function* () {
+            yield client.rules.delete(r.id, locationId);
+            newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
+        })));
+    }
+    catch (e) {
+        throw new Error(`Failed to delete existing rules, aborting submitRules operation: [${e}]`);
+    }
     const newCombinedRuleResponse = combinedRule && (yield client.rules.create(combinedRule, locationId)) || null;
     const newTransitionRuleResponse = transitionRule && (yield client.rules.create(transitionRule, locationId)) || null;
     const newRuleIds = [newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id].filter(id => !!id);
     newRuleSummary.ruleIds.push(...newRuleIds);
     // eslint-disable-next-line no-console
-    console.log('Applied Rules', newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.actions, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.actions);
+    // console.log('Applied Rules', newCombinedRuleResponse?.actions, newTransitionRuleResponse?.actions);
     return [newRuleSummary, newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id];
 });
 exports.default = submitRules;

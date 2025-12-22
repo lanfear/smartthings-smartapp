@@ -52,6 +52,7 @@ const submitRulesForSmartAppOperation_1 = __importDefault(require("./operations/
 const storeRulesAndNotifyOperation_1 = __importDefault(require("./operations/storeRulesAndNotifyOperation"));
 const ruleStore_1 = __importDefault(require("./provider/ruleStore"));
 const smartAppContextStore_1 = require("./provider/smartAppContextStore");
+const json_diff_ts_1 = require("json-diff-ts");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
@@ -130,20 +131,19 @@ server.post('/device/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0,
     const result = yield client.devices.executeCommand(req.params.deviceId, req.body);
     res.send(result);
 }));
+const determineTempDisableValue = (ruleComponent, ruleComponentParam, paramsDisabled, ruleIsEnabled, disableRule) => {
+    // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
+    // eslint-disable-next-line no-console
+    // console.log('configuring delete for [', ruleComponent, '][', ruleComponentParam, '] from source values -> paramsDisabled [', paramsDisabled, '] ruleIsEnabled [', ruleIsEnabled, '] disableRule [', disableRule, ']');
+    if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
+        // console.log('request was not for this rule component, preserving existing temp disable value [', disableRule, '] for ruleComponent [', ruleComponent, ']');
+        return disableRule;
+    }
+    // console.log('request DID match component, setting value for [', disableRule, '] for ruleComponent [', ruleComponent, '] to value [', !ruleIsEnabled ? false : paramsDisabled, ']');
+    return !ruleIsEnabled ? false : paramsDisabled;
+};
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const determineTempDisableValue = (ruleComponent, ruleComponentParam, paramsDisabled, ruleIsEnabled, ruleIsTemporarilyDisabled) => {
-        // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
-        // eslint-disable-next-line no-console
-        // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
-        if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
-            // eslint-disable-next-line no-console
-            // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
-            return ruleIsTemporarilyDisabled;
-        }
-        // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route does match, setting to !ruleIsEnabled ? false : paramsDisabled', 're', ruleIsEnabled, 'pe', paramsDisabled, '===>', !ruleIsEnabled ? false : paramsDisabled);
-        return !ruleIsEnabled ? false : paramsDisabled;
-    };
     const appKey = `app-${req.params.installedAppId}`;
     const ruleStoreInfo = yield ruleStore_1.default.get(req.params.installedAppId);
     const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo));
@@ -160,8 +160,9 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
     const combinedRule = (0, createRuleFromSummaryOperation_1.createCombinedRuleFromSummary)(ruleStoreInfo.newRuleSummary);
     const transitionRule = (0, createRuleFromSummaryOperation_1.createTransitionRuleFromSummary)(ruleStoreInfo.newRuleSummary);
-    // bet on jsonify ordreing matching across saves...
-    if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
+    // this compare should work 100%, but brought in the diff pkg during debugging and using it for now
+    // if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
+    if ((0, json_diff_ts_1.diff)(ruleStoreInfo, ruleStoreInfoOrig).length === 0) { // diff returns empty array if no differences
         // eslint-disable-next-line no-console
         console.log('Rules not modified, nothing to update');
         res.statusCode = http_status_codes_1.StatusCodes.NOT_MODIFIED;
@@ -170,7 +171,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     }
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
     const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = yield (0, submitRulesForSmartAppOperation_1.default)(client, req.params.locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);
-    yield (0, storeRulesAndNotifyOperation_1.default)(req.params.locationId, ruleStoreInfo.combinedRule, newCombinedRuleId, ruleStoreInfo.transitionRule, newTransitionRuleId, newRuleSummary);
+    yield (0, storeRulesAndNotifyOperation_1.default)(req.params.installedAppId, ruleStoreInfo.combinedRule, newCombinedRuleId, ruleStoreInfo.transitionRule, newTransitionRuleId, newRuleSummary);
     res.send();
 }));
 server.post('/location/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
