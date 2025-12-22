@@ -47,12 +47,11 @@ const smartAppControl_1 = __importDefault(require("./provider/smartAppControl"))
 const smartAppRule_1 = __importDefault(require("./provider/smartAppRule"));
 const sse_1 = __importDefault(require("./provider/sse"));
 const middlewares_1 = require("./middlewares");
-const createRuleFromSummaryOperation_1 = require("./operations/createRuleFromSummaryOperation");
-const submitRulesForSmartAppOperation_1 = __importDefault(require("./operations/submitRulesForSmartAppOperation"));
-const storeRulesAndNotifyOperation_1 = __importDefault(require("./operations/storeRulesAndNotifyOperation"));
 const ruleStore_1 = __importDefault(require("./provider/ruleStore"));
 const smartAppContextStore_1 = require("./provider/smartAppContextStore");
-const json_diff_ts_1 = require("json-diff-ts");
+const manageRuleApplicationOperation_1 = __importDefault(require("./operations/manageRuleApplicationOperation"));
+const returnResultError_1 = __importDefault(require("./exceptions/returnResultError"));
+const reEnableRuleAfterDelayOperation_1 = require("./operations/reEnableRuleAfterDelayOperation");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
 const PORT = process.env.PORT || defaultPort;
@@ -131,47 +130,29 @@ server.post('/device/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0,
     const result = yield client.devices.executeCommand(req.params.deviceId, req.body);
     res.send(result);
 }));
-const determineTempDisableValue = (ruleComponent, ruleComponentParam, paramsDisabled, ruleIsEnabled, disableRule) => {
-    // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
-    // eslint-disable-next-line no-console
-    // console.log('configuring delete for [', ruleComponent, '][', ruleComponentParam, '] from source values -> paramsDisabled [', paramsDisabled, '] ruleIsEnabled [', ruleIsEnabled, '] disableRule [', disableRule, ']');
-    if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
-        // console.log('request was not for this rule component, preserving existing temp disable value [', disableRule, '] for ruleComponent [', ruleComponent, ']');
-        return disableRule;
-    }
-    // console.log('request DID match component, setting value for [', disableRule, '] for ruleComponent [', ruleComponent, '] to value [', !ruleIsEnabled ? false : paramsDisabled, ']');
-    return !ruleIsEnabled ? false : paramsDisabled;
-};
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const appKey = `app-${req.params.installedAppId}`;
-    const ruleStoreInfo = yield ruleStore_1.default.get(req.params.installedAppId);
-    const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo));
-    if (!ruleStoreInfo) {
-        res.statusCode = 422;
-        res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
-        res.send();
-        return;
+    var _h;
+    try {
+        yield (0, manageRuleApplicationOperation_1.default)(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
     }
-    ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = determineTempDisableValue('daylight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableDaylightRule, ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule);
-    ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = determineTempDisableValue('nightlight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule);
-    ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = determineTempDisableValue('idle', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule);
-    ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = determineTempDisableValue('transition', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule);
-    // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
-    const combinedRule = (0, createRuleFromSummaryOperation_1.createCombinedRuleFromSummary)(ruleStoreInfo.newRuleSummary);
-    const transitionRule = (0, createRuleFromSummaryOperation_1.createTransitionRuleFromSummary)(ruleStoreInfo.newRuleSummary);
-    // this compare should work 100%, but brought in the diff pkg during debugging and using it for now
-    // if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
-    if ((0, json_diff_ts_1.diff)(ruleStoreInfo, ruleStoreInfoOrig).length === 0) { // diff returns empty array if no differences
+    catch (e) {
+        if (e instanceof returnResultError_1.default) {
+            // eslint-disable-next-line no-console
+            console.info('Early return from manageRuleApplicationOperation with status [', e.statusCode, '] message [', e.message, ']');
+            res.statusCode = e.statusCode;
+            res.statusMessage = e.message;
+            res.send();
+            return;
+        }
+        throw e;
+    }
+    const reEnableDelay = (_h = req.body.reEnable) !== null && _h !== void 0 ? _h : 0;
+    if (req.params.enabled === 'false' && reEnableDelay > 0) {
         // eslint-disable-next-line no-console
-        console.log('Rules not modified, nothing to update');
-        res.statusCode = http_status_codes_1.StatusCodes.NOT_MODIFIED;
-        res.send();
-        return;
+        console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
+        (0, reEnableRuleAfterDelayOperation_1.reEnableRuleAfterDelay)(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, reEnableDelay);
     }
-    const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-    const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = yield (0, submitRulesForSmartAppOperation_1.default)(client, req.params.locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);
-    yield (0, storeRulesAndNotifyOperation_1.default)(req.params.installedAppId, ruleStoreInfo.combinedRule, newCombinedRuleId, ruleStoreInfo.transitionRule, newTransitionRuleId, newRuleSummary);
     res.send();
 }));
 server.post('/location/:id/rule', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
