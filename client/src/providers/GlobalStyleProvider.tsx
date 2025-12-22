@@ -8,21 +8,15 @@ export const GlobalStyles = createGlobalStyle`
     --border-radius-small: 4px;
     --border-radius: 8px;
 
-    --navbar-height: 100px;
-    --navbar-item-padding: 10px;
-    --navbar-item-border-radius: var(--border-radius);
-
-    .modal {
-      --bulma-modal-content-width: 90vw;
-    }
-
-    --navbar-focus-gradient: radial-gradient(
+    --button-padding: 10px;
+    --button-border-radius: var(--border-radius);
+    --button-focus-gradient: radial-gradient(
       ellipse at center,
       rgba(110, 255, 185, 1) 0%,
       rgba(110, 255, 185, 0) 100%
     );
 
-    --navbar-focus-gradient-2: conic-gradient(from 240deg at 50% 50%,
+    --button-focus-gradient-2: conic-gradient(from 240deg at 50% 50%,
       #00ffc3,
       #00fad9,
       #00f4f0,
@@ -35,6 +29,14 @@ export const GlobalStyles = createGlobalStyle`
       #6da8ff,
       #9f97ff,
       #c285ff);
+
+    --navbar-height: 100px;
+    --navbar-item-padding: 10px;
+    --navbar-item-border-radius: var(--border-radius);
+
+    .modal {
+      --bulma-modal-content-width: 90vw;
+    }
 
     --grid-room-border: 1px solid gray;
     --grid-room-border-radius: var(--border-radius-small);
@@ -163,7 +165,7 @@ export const GlobalStyles = createGlobalStyle`
       /* position: absolute;
       width: calc(100% + 0.05em);
       height: calc(100% + 0.05em); */
-      background: var(--navbar-focus-gradient);
+      background: var(--button-focus-gradient);
       border-radius: 0.3em;
       content: "";
       /* animation: spinny 5s linear infinite; */
@@ -194,7 +196,53 @@ export const GlobalStyles = createGlobalStyle`
         0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
         0 0 5px 2px rgba(110, 255, 185, 0.75),
         0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
-      background: var(--navbar-focus-gradient);
+      background: var(--button-focus-gradient);
+    }
+  }
+
+  .styled-button {
+    padding: var(--button-padding);
+    border-radius: var(--button-border-radius);
+    font-size: 18px;
+    transition: .3s;
+    color: #536f56;
+
+    &:focus {
+      /* position: absolute;
+      width: calc(100% + 0.05em);
+      height: calc(100% + 0.05em); */
+      background: var(--button-focus-gradient);
+      border-radius: 0.3em;
+      content: "";
+      /* animation: spinny 5s linear infinite; */
+    }
+
+    &:hover {
+      text-shadow:
+        0px 0px 2px rgba(220, 255, 240, 0.99),
+        0px 0px 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.4);
+      box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+        0 2px 6px rgba(0, 0, 0, 0.5),
+        0 10px rgba(0, 0, 0, 0.05) inset,
+        0 0px 5px 2px rgba(110, 255, 185, 0.75),
+        0 0px 10px 2px rgba(110, 255, 185, 0.75) inset;
+    }
+
+    &:active {
+      text-shadow:
+        0 0 2px rgba(220, 255, 240, 0.99),
+        0 0 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.6);
+      border-style: solid;
+      border-width: 1px;
+      box-shadow:
+        0 1px 0 0 rgba(110, 255, 185, 0.4) inset,
+        0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
+        0 0 5px 2px rgba(110, 255, 185, 0.75),
+        0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
+      background: var(--button-focus-gradient);
     }
   }
 
