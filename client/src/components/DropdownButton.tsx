@@ -1,7 +1,6 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect, useState, useRef, memo} from 'react';
 import styled from 'styled-components';
-import getLocations, {IResponseLocations} from '../operations/getLocations';
-import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
+import {useLocationContextStore} from '../store/LocationContextStore';
 import {StyledButton} from '../factories/styleFactory';
 
 const DropdownContainer = styled.div`
@@ -54,20 +53,14 @@ const Checkmark = styled.span`
   display: inline-block;
 `;
 
-const LocationDropdown: React.FC = () => {
-  const locationId = useLocationContextStore(s => s.locationId);
-  const [locations, setLocations] = useState<IResponseLocations>([]);
+interface IPublicProps {
+  children: React.ReactNode;
+}
+
+export const DropdownButton: React.FC<IPublicProps> = ({children}) => {
+  const locationName = useLocationContextStore(s => s.locationName);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const getLocationsAsync = async (): Promise<void> => {
-      const fetchedLocations = await getLocations();
-      setLocations(fetchedLocations);
-    };
-
-    void getLocationsAsync();
-  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -83,36 +76,40 @@ const LocationDropdown: React.FC = () => {
     };
   }, []);
 
-  const handleLocationSelect = (selectedLocationId: string, selectedLocationName: string): void => {
-    setLocation(selectedLocationId, selectedLocationName);
-    setIsOpen(false);
-  };
-
-  const selectedLocation = locations.find(l => l.locationId === locationId);
-
   return (
     <DropdownContainer ref={dropdownRef}>
       <StyledButton
         className="navbar-item flex-column-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {`${selectedLocation?.name ?? 'Locations'} ▾`}
+        {`${locationName ?? 'Locations'} ▾`}
       </StyledButton>
       <DropdownMenu $isOpen={isOpen}>
-        {locations.map(location => (
-          <DropdownItem
-            key={location.locationId}
-            onClick={() => handleLocationSelect(location.locationId, location.name)}
-          >
-            <Checkmark>
-              {location.locationId === locationId ? '✓' : ''}
-            </Checkmark>
-            {location.name}
-          </DropdownItem>
-        ))}
+        {children}
       </DropdownMenu>
     </DropdownContainer>
   );
 };
 
-export default LocationDropdown;
+export default memo(DropdownButton);
+
+interface IDropdownOptionPublicProps {
+  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  isChecked: boolean;
+  children: React.ReactNode;
+}
+
+const BaseDropdownOption: React.FC<IDropdownOptionPublicProps> = ({onClick, isChecked, children}) => (
+  <DropdownItem
+    onClick={onClick}
+  >
+    {isChecked && (
+      <Checkmark>
+        ✓
+      </Checkmark>
+    )}
+    {children}
+  </DropdownItem>
+);
+
+export const DropdownOption = memo(BaseDropdownOption);

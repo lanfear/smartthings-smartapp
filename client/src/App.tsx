@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Routes, Route, Link} from 'react-router-dom';
 import {SWRConfig} from 'swr';
 import {DndProvider} from 'react-dnd';
@@ -15,11 +15,12 @@ import SmartApps from './components/SmartApps';
 import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
-import LocationDropdown from './components/LocationDropdown';
+import DropdownButton, {DropdownOption} from './components/DropdownButton';
 import DashboardApps from './components/DashboardApps';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
-import {useLocationContextStore} from './store/LocationContextStore';
+import {setLocation, useLocationContextStore} from './store/LocationContextStore';
+import getLocations, {IResponseLocations} from './operations/getLocations';
 
 export type RouteParams = Record<string, string> & {
   locationId: string;
@@ -27,6 +28,28 @@ export type RouteParams = Record<string, string> & {
 
 const App: React.FC = () => {
   const locationId = useLocationContextStore(s => s.locationId);
+  const [locations, setLocations] = useState<IResponseLocations>([]);
+
+  useEffect(() => {
+    const getLocationsAsync = async (): Promise<void> => {
+      const fetchedLocations = await getLocations();
+      setLocations(fetchedLocations);
+    };
+
+    void getLocationsAsync();
+  }, []);
+
+  const locationOptions = locations.map(location => (
+    <DropdownOption
+      key={location.locationId}
+      onClick={() => {
+        setLocation(location.locationId, location.name);
+      }}
+      isChecked={location.locationId === locationId}
+    >
+      {location.name}
+    </DropdownOption>
+  ));
 
   return (
     <StyledComponentProvider>
@@ -43,7 +66,9 @@ const App: React.FC = () => {
         >
           <EventSourceProvider>
             <nav className="navbar">
-              <LocationDropdown />
+              <DropdownButton>
+                {locationOptions}
+              </DropdownButton>
               <Link
                 key="location-rooms"
                 className="navbar-item flex-column-center"
