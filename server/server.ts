@@ -5,18 +5,17 @@ import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleReques
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
-import {RuleStoreInfo} from './types';
 import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import sse from './provider/sse';
 import {localOnlyMiddleware} from './middlewares';
-import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './operations/createRuleFromSummaryOperation';
-import submitRulesForSmartAppOperation from './operations/submitRulesForSmartAppOperation';
-import storeRulesAndNotifyOperation from './operations/storeRulesAndNotifyOperation';
 import ruleStore from './provider/ruleStore';
 import {listInstalledApps} from './provider/smartAppContextStore';
+import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
+import ReturnResultError from './exceptions/returnResultError';
+import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 
 const defaultPort = 3001;
 
@@ -110,71 +109,31 @@ server.post('/device/:deviceId', async (req, res) => {
 
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{ locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string }>, res) => {
-  const determineTempDisableValue = (ruleComponent: string, ruleComponentParam: string, paramsDisabled: boolean, ruleIsEnabled: boolean, ruleIsTemporarilyDisabled: boolean): boolean => {
-    // if our route is configuring a different rule, just base decision on the value of the allTempDisabled, which is already set
-    // eslint-disable-next-line no-console
-    // console.log('allinfo', 'ruleComponent', ruleComponent, 'ruleComponentParam', ruleComponentParam, 'paramsDisabled', paramsDisabled, 'ruleIsEnabled', ruleIsEnabled, 'ruleIsTemporarilyDisabled', ruleIsTemporarilyDisabled);
-    if (ruleComponent !== ruleComponentParam && 'all' !== ruleComponentParam) {
+  try {
+    await manageRuleApplicationOperation(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
+  } catch (e) {
+    if (e instanceof ReturnResultError) {
       // eslint-disable-next-line no-console
-      // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route doesnt match, setting to alldisabled || current value of tempDisabled', ruleIsTemporarilyDisabled, '===>', ruleIsTemporarilyDisabled);
-      return ruleIsTemporarilyDisabled;
+      console.info('Early return from manageRuleApplicationOperation with status [', e.statusCode, '] message [', e.message, ']');
+      res.statusCode = e.statusCode;
+      res.statusMessage = e.message;
+      res.send();
+      return;
     }
-
-    // console.log('comp', ruleComponent, 'param', ruleComponentParam, 'route does match, setting to !ruleIsEnabled ? false : paramsDisabled', 're', ruleIsEnabled, 'pe', paramsDisabled, '===>', !ruleIsEnabled ? false : paramsDisabled);
-    return !ruleIsEnabled ? false : paramsDisabled;
-  };
-
-  const appKey = `app-${req.params.installedAppId}`;
-
-  const ruleStoreInfo = await ruleStore.get(req.params.installedAppId);
-  const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;
-
-  if (!ruleStoreInfo) {
-    res.statusCode = 422;
-    res.statusMessage = `No rule stored in database for appId [${req.params.installedAppId}]`;
-    res.send();
-    return;
+    throw e;
   }
 
-  ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = determineTempDisableValue('daylight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableDaylightRule, ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule);
-  ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = determineTempDisableValue('nightlight', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule);
-  ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = determineTempDisableValue('idle', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule);
-  ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = determineTempDisableValue('transition', req.params.ruleComponent, req.params.enabled === 'false', ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule);
-  // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
-  const combinedRule = createCombinedRuleFromSummary(
-    ruleStoreInfo.newRuleSummary
-  );
-  const transitionRule = createTransitionRuleFromSummary(
-    ruleStoreInfo.newRuleSummary
-  );
-
-  // bet on jsonify ordreing matching across saves...
-  if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
+  const reEnableDelay = (req.body as { reEnable?: number }).reEnable ?? 0;
+  if (req.params.enabled === 'false' && reEnableDelay > 0) {
     // eslint-disable-next-line no-console
-    console.log('Rules not modified, nothing to update');
-    res.statusCode = StatusCodes.NOT_MODIFIED;
-    res.send();
-    return;
+    console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
+    reEnableRuleAfterDelay(
+      req.params.locationId,
+      req.params.installedAppId,
+      req.params.ruleComponent,
+      reEnableDelay
+    );
   }
-
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-  const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
-    client,
-    req.params.locationId,
-    appKey,
-    combinedRule,
-    transitionRule,
-    ruleStoreInfo.newRuleSummary
-  );
-
-  await storeRulesAndNotifyOperation(
-    req.params.locationId,
-    ruleStoreInfo.combinedRule,
-    newCombinedRuleId,
-    ruleStoreInfo.transitionRule,
-    newTransitionRuleId,
-    newRuleSummary
-  );
 
   res.send();
 });

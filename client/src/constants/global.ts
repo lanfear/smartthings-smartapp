@@ -32,5 +32,8 @@ export default {
   },
   httpStatusCode: {
     notFound: 404
+  },
+  zIndex: {
+    header: 10
   }
 };

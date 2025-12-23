@@ -12,8 +12,6 @@ const ControlsContainer = styled.div`
   flex-direction: column;
   width: 100%;
   justify-content: space-between;
-  position: sticky;
-  top: 0;
 `;
 
 const DeviceControls: React.FC = () => (
@@ -28,6 +26,16 @@ const DeviceControls: React.FC = () => (
     />
     <ActionDeviceDim
       key="control-action-power-dim"
+    />
+    <ActionRuleDisable
+      key="control-action-rule-disable"
+      words="Disable 2hrs"
+      reEnableAfter={2}
+    />
+    <ActionRuleDisable
+      key="control-action-rule-disable"
+      words="Disable 8hrs"
+      reEnableAfter={8}
     />
     <ActionRuleDisable
       key="control-action-rule-disable"

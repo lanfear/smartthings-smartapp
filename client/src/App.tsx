@@ -1,5 +1,5 @@
 import React from 'react';
-import {Routes, Route, Link} from 'react-router-dom';
+import {Routes, Route} from 'react-router-dom';
 import {SWRConfig} from 'swr';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
@@ -7,6 +7,7 @@ import {TouchBackend} from 'react-dnd-touch-backend';
 import {isMobile} from 'react-device-detect';
 // Components
 import StyledComponentProvider from './providers/StyledComponentProvider';
+import NavMenu from './components/NavMenu';
 import Home from './components/Home';
 import RuleExamples from './components/RuleExamples';
 import BasicTemplates from './components/BasicTemplates';
@@ -15,10 +16,13 @@ import SmartApps from './components/SmartApps';
 import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
 import Locations from './components/Locations';
-import {DeviceContextStore} from './store/DeviceContextStore';
 import DashboardApps from './components/DashboardApps';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
+
+export type RouteParams = Record<string, string> & {
+  locationId: string;
+};
 
 const App: React.FC = () => (
   <StyledComponentProvider>
@@ -34,40 +38,7 @@ const App: React.FC = () => (
         }}
       >
         <EventSourceProvider>
-          <nav className="navbar">
-            <div className="navbar-brand">
-              <Link
-                className="navbar-item"
-                to="/locations"
-              >
-                            Locations
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/rule-examples"
-              >
-                            Rule Examples
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/basic-templates"
-              >
-                            Basic Templates
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/advanced-templates"
-              >
-                            Advanced Templates
-              </Link>
-              <Link
-                className="navbar-item"
-                to="/smartapps"
-              >
-                            Debugging (SmartApps)
-              </Link>
-            </div>
-          </nav>
+          <NavMenu />
           <section className="container main-content">
             <Routes>
               <Route
@@ -96,38 +67,21 @@ const App: React.FC = () => (
               />
               <Route
                 path="dashboard/:locationId/rooms"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardRooms />
-                  </DeviceContextStore>
-                )}
-              >
-              </Route>
+                element={<DashboardRooms />}
+              />
               <Route
                 path="dashboard/:locationId/scenes"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardScenes />
-                  </DeviceContextStore>
-                )}
+                element={(<DashboardScenes />)}
               >
               </Route>
               <Route
                 path="dashboard/:locationId/rules"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardRules />
-                  </DeviceContextStore>
-                )}
+                element={(<DashboardRules />)}
               >
               </Route>
               <Route
                 path="dashboard/:locationId/apps"
-                element={(
-                  <DeviceContextStore locationId="b2f46f0a-a5bf-4265-b206-51fcd14bb58d">
-                    <DashboardApps />
-                  </DeviceContextStore>
-                )}
+                element={(<DashboardApps />)}
               >
               </Route>
             </Routes>

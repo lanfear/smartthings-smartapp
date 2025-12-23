@@ -1,100 +1,99 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
-import {useDeviceContext} from '../store/DeviceContextStore';
+import {useDeviceData} from '../store/DeviceContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
+import {RouteParams} from '../App';
+import getLocations from '../operations/getLocations';
+import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 
-const printColumnN = (n: number, columns: number): string => `
-    .room-grid-container:nth-child(${columns}n${n !== columns ? `+${n}` : ''}) {
-      grid-column: room-start ${n} / room-end ${n};
-    }
-  `;
-
-const printColumns1ToN = (columns: number): string => {
-  const iteratorArray: number[] = [];
-  for (let i = 1; i <= columns; i++) {
-    iteratorArray.push(i);
-  }
-  return iteratorArray
-    .map(i => printColumnN(i, columns))
-    .join('');
-};
-
-const printColumnBreakpoints = (roomCount: number): string => {
-  const deviceControlsContainerWidth = parseFloat(global.measurements.controlsContainerWidth);
-  const roomContainerWidth =
-    (global.measurements.devicesPerRow * (parseFloat(global.measurements.deviceWidth) + (2 * parseFloat(global.measurements.deviceMargin)))) +
-    ((global.measurements.devicesPerRow + 1) * parseFloat(global.measurements.deviceGridGap));
-
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  return [1, 2, 3, 4, 5].map(i => `
-    ${i !== 1 ? `@media (min-width: ${deviceControlsContainerWidth + (i * roomContainerWidth)}rem) {` : ''}
-      ${printColumns1ToN(i)}
-      .device-controls-grid-container {
-        grid-row: 1 / ${Math.ceil((roomCount / i) + 1)};
-      }
-    ${i !== 1 ? '}' : ''}
-  `).join('');
-};
-
-const DashboardRoomGrid = styled.div<{roomCount: number}>`
-    display: grid;
-    grid-template-columns: [control-start] max-content [control-end] repeat(${props => props.roomCount}, [room-start] 1fr [room-end]);
-    gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: 1fr;
-    ${props => printColumnBreakpoints(props.roomCount)}
-`;
-
-// grid-row constraint set in generated grid class mediaquery statement above
-const RoomGridContainer = styled.div`
+const DashboardRoomSplit = styled.div`
+  display: grid;
+  grid-template-areas:
+    "header header subheader"
+    "controls rooms rooms";
+  grid-template-columns: auto 1fr;
+  gap: ${global.measurements.dashboardGridGap};
+  overflow: hidden;
 `;
 
 // grid-row constraint set in generated grid class mediaquery statement above
 const DeviceControlsGridContainer = styled.div`
-  grid-column: control-start / control-end;
+  grid-area: controls;
+  position: sticky;
+  top: 0;
+`;
+
+const DashboardRoomGrid = styled.div<{roomCount: number}>`
+  grid-area: rooms;
+  display: grid;
+  gap: ${global.measurements.dashboardGridGap};
+  grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
+  /* one of these should work, but is not, hardcoding 312px for now, come back later */
+  /* grid-template-columns: repeat(auto-fill, 1fr); */
+  /* grid-template-columns: repeat(auto-fill, minmax(auto, 1fr)); */
+  flex-grow: 1;
+  overflow: auto;
 `;
 
 const DashboardRooms: React.FC = () => {
+  const {locationId} = useParams<RouteParams>();
   const {t} = useTranslation();
-  const {deviceData} = useDeviceContext();
+  const {deviceData} = useDeviceData();
   const [favoriteRoom, setFavoriteRoom] = useLocalStorage<string>('favorite-room', '');
+  const locationName = useLocationContextStore(s => s.locationName);
 
-  const routeInfo = useParams<{locationId: string}>();
-  const locationId = routeInfo.locationId ?? ''; // empty location id should not happen
+  // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
+  useEffect(() => {
+    if (locationId && locationId !== deviceData.locationId) {
+      void (async () => {
+        const locationData = (await getLocations()).find(l => l.locationId === locationId);
+        if (locationData) {
+          setLocation(locationId, locationData.name);
+        }
+      })();
+    }
+  }, [locationId, deviceData.locationId]);
+
+  if (!locationId) {
+    return null;
+  }
 
   return (
-    <>
-      <DashboardTitle>
-        {locationId}
-      </DashboardTitle>
-      <DashboardSubTitle>
+    <DashboardRoomSplit>
+      <DashboardTitle style={{
+        gridArea: 'header'
+      }}
+      >
         {t('dashboard.room.sectionName')}
+      </DashboardTitle>
+      <DashboardSubTitle style={{
+        gridArea: 'subheader'
+      }}
+      >
+        {`${locationName}: ${locationId}`}
       </DashboardSubTitle>
+      <DeviceControlsGridContainer
+        className="device-controls-grid-container"
+      >
+        <DeviceControls />
+      </DeviceControlsGridContainer>
       <DashboardRoomGrid roomCount={deviceData.rooms.length || 0}>
         {deviceData.rooms.map(r => (
-          <RoomGridContainer
+          <Room
             key={`room-${r.roomId!}`}
-            className="room-grid-container"
-          >
-            <Room
-              room={r}
-              isFavoriteRoom={favoriteRoom === r.roomId}
-              setFavoriteRoom={setFavoriteRoom}
-            />
-          </RoomGridContainer>
+            room={r}
+            isFavoriteRoom={favoriteRoom === r.roomId}
+            setFavoriteRoom={setFavoriteRoom}
+          />
         ))}
-        <DeviceControlsGridContainer
-          className="device-controls-grid-container"
-        >
-          <DeviceControls />
-        </DeviceControlsGridContainer>
       </DashboardRoomGrid>
-    </>
+    </DashboardRoomSplit>
   );
 };
 

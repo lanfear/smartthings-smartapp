@@ -14,9 +14,9 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
       ref={drag}
       {...collected}
       rgb={isRuleEnabled ? `${global.palette.control.rgb.app}` : `${global.palette.control.rgb.inactive}`}
-      onMouseEnter={() => setActiveDevice({name: app.displayName!, id: app.appId})}
+      onMouseEnter={() => setActiveDevice({name: app.displayName!, id: app.installedAppId})}
       onMouseLeave={() => setActiveDevice(null)}
-      onTouchStart={() => setActiveDevice({name: app.displayName!, id: app.appId})}
+      onTouchStart={() => setActiveDevice({name: app.displayName!, id: app.installedAppId})}
       onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlLogo>
