@@ -55,9 +55,10 @@ const Checkmark = styled.span`
 interface IPublicProps {
   buttonText: string;
   children: React.ReactNode;
+  isSelected?: boolean;
 }
 
-export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children}) => {
+export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children, isSelected}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +79,7 @@ export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children}) =
   return (
     <DropdownContainer ref={dropdownRef}>
       <StyledButton
-        className="navbar-item flex-column-center"
+        className={`navbar-item flex-column-center ${isSelected ? 'selected' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         {`${buttonText} ▾`}

@@ -209,7 +209,7 @@ export const GlobalStyles = createGlobalStyle`
     text-decoration: none;
     white-space: nowrap;
 
-    &:focus {
+    &:focus,&.selected {
       /* position: absolute;
       width: calc(100% + 0.05em);
       height: calc(100% + 0.05em); */
