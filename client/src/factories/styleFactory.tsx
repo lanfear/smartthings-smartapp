@@ -113,7 +113,6 @@ export const DashboardGridColumnHeader = styled.span`
 export const StyledButton = styled.button.attrs({className: 'flex-row-center styled-button'})`
   background: none;
   border: none;
-  color: inherit;
   cursor: pointer;
   font-size: 1rem;
 `;

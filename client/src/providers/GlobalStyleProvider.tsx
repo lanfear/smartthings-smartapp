@@ -127,79 +127,6 @@ export const GlobalStyles = createGlobalStyle`
     align-items: center;
   }
 
-  nav.navbar {
-    height: var(--navbar-height);
-    padding: 0 100px;
-    background: rgba(255, 255, 255, .1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    backdrop-filter: blur(10px);
-    background-color: rgba(110, 255, 185, 0.25);
-    border-bottom: 2px solid rgba(255, 255, 255, .2);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
-      transition: .5s;
-    }
-
-    &:hover::before {
-      left: 100%;
-    }
-  }
-
-  .navbar-item {
-    padding: var(--navbar-item-padding);
-    border-radius: var(--navbar-item-border-radius);
-    font-size: 18px;
-    transition: .3s;
-    color: #536f56;
-
-    &:focus {
-      /* position: absolute;
-      width: calc(100% + 0.05em);
-      height: calc(100% + 0.05em); */
-      background: var(--button-focus-gradient);
-      border-radius: 0.3em;
-      content: "";
-      /* animation: spinny 5s linear infinite; */
-    }
-
-    &:hover {
-      text-shadow:
-        0px 0px 2px rgba(220, 255, 240, 0.99),
-        0px 0px 4px rgba(180, 255, 220, 0.99);
-      border-color: rgba(110, 255, 185, 0.4);
-      box-shadow:
-        0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
-        0 2px 6px rgba(0, 0, 0, 0.5),
-        0 10px rgba(0, 0, 0, 0.05) inset,
-        0 0px 5px 2px rgba(110, 255, 185, 0.75),
-        0 0px 10px 2px rgba(110, 255, 185, 0.75) inset;
-    }
-
-    &:active {
-      text-shadow:
-        0 0 2px rgba(220, 255, 240, 0.99),
-        0 0 4px rgba(180, 255, 220, 0.99);
-      border-color: rgba(110, 255, 185, 0.6);
-      border-style: solid;
-      border-width: 1px;
-      box-shadow:
-        0 1px 0 0 rgba(110, 255, 185, 0.4) inset,
-        0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
-        0 0 5px 2px rgba(110, 255, 185, 0.75),
-        0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
-      background: var(--button-focus-gradient);
-    }
-  }
-
   .styled-button {
     padding: var(--button-padding);
     border-radius: var(--button-border-radius);
@@ -246,6 +173,80 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 
+  nav.navbar {
+    height: var(--navbar-height);
+    padding: 0 100px;
+    background: rgba(255, 255, 255, .1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    background-color: rgba(110, 255, 185, 0.25);
+    border-bottom: 2px solid rgba(255, 255, 255, .2);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+      transition: .5s;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+  }
+
+  .navbar-item {
+    padding: var(--navbar-item-padding);
+    border-radius: var(--navbar-item-border-radius);
+    font-size: 18px;
+    transition: .3s;
+    color: #536f56;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:focus {
+      /* position: absolute;
+      width: calc(100% + 0.05em);
+      height: calc(100% + 0.05em); */
+      background: var(--button-focus-gradient);
+      border-radius: 0.3em;
+      content: "";
+      /* animation: spinny 5s linear infinite; */
+    }
+
+    &:hover {
+      text-shadow:
+        0px 0px 2px rgba(220, 255, 240, 0.99),
+        0px 0px 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.4);
+      box-shadow:
+        0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+        0 2px 6px rgba(0, 0, 0, 0.5),
+        0 10px rgba(0, 0, 0, 0.05) inset,
+        0 0px 5px 2px rgba(110, 255, 185, 0.75),
+        0 0px 10px 2px rgba(110, 255, 185, 0.75) inset;
+    }
+
+    &:active {
+      text-shadow:
+        0 0 2px rgba(220, 255, 240, 0.99),
+        0 0 4px rgba(180, 255, 220, 0.99);
+      border-color: rgba(110, 255, 185, 0.6);
+      border-style: solid;
+      border-width: 1px;
+      box-shadow:
+        0 1px 0 0 rgba(110, 255, 185, 0.4) inset,
+        0 10px 0 0 rgba(110, 255, 185, 0.5) inset,
+        0 0 5px 2px rgba(110, 255, 185, 0.75),
+        0 0 10px 2px rgba(110, 255, 185, 0.75) inset;
+      background: var(--button-focus-gradient);
+    }
+  }
 `;
 
 /* old stuff from sass + bulma

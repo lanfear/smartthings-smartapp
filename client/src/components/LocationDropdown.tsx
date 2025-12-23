@@ -2,21 +2,11 @@ import React, {useEffect, useState, useRef} from 'react';
 import styled from 'styled-components';
 import getLocations, {IResponseLocations} from '../operations/getLocations';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
+import {StyledButton} from '../factories/styleFactory';
 
 const DropdownContainer = styled.div`
   display: flex;
   position: relative;
-`;
-
-const DropdownButton = styled.button`
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
 `;
 
 const DropdownMenu = styled.div<{$isOpen: boolean}>`
@@ -102,13 +92,12 @@ const LocationDropdown: React.FC = () => {
 
   return (
     <DropdownContainer ref={dropdownRef}>
-      <DropdownButton
+      <StyledButton
         className="navbar-item flex-column-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {selectedLocation?.name ?? 'Locations'}
-        {' ▾'}
-      </DropdownButton>
+        {`${selectedLocation?.name ?? 'Locations'} ▾`}
+      </StyledButton>
       <DropdownMenu $isOpen={isOpen}>
         {locations.map(location => (
           <DropdownItem
