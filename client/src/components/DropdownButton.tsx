@@ -1,6 +1,5 @@
 import React, {useEffect, useState, useRef, memo} from 'react';
 import styled from 'styled-components';
-import {useLocationContextStore} from '../store/LocationContextStore';
 import {StyledButton} from '../factories/styleFactory';
 
 const DropdownContainer = styled.div`
@@ -54,11 +53,11 @@ const Checkmark = styled.span`
 `;
 
 interface IPublicProps {
+  buttonText: string;
   children: React.ReactNode;
 }
 
-export const DropdownButton: React.FC<IPublicProps> = ({children}) => {
-  const locationName = useLocationContextStore(s => s.locationName);
+export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -82,7 +81,7 @@ export const DropdownButton: React.FC<IPublicProps> = ({children}) => {
         className="navbar-item flex-column-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {`${locationName ?? 'Locations'} ▾`}
+        {`${buttonText} ▾`}
       </StyledButton>
       <DropdownMenu $isOpen={isOpen}>
         {children}
@@ -94,7 +93,7 @@ export const DropdownButton: React.FC<IPublicProps> = ({children}) => {
 export default memo(DropdownButton);
 
 interface IDropdownOptionPublicProps {
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   isChecked: boolean;
   children: React.ReactNode;
 }

@@ -6,6 +6,7 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import {TouchBackend} from 'react-dnd-touch-backend';
 import {isMobile} from 'react-device-detect';
 // Components
+import global from './constants/global';
 import StyledComponentProvider from './providers/StyledComponentProvider';
 import Home from './components/Home';
 import RuleExamples from './components/RuleExamples';
@@ -28,6 +29,7 @@ export type RouteParams = Record<string, string> & {
 
 const App: React.FC = () => {
   const locationId = useLocationContextStore(s => s.locationId);
+  const locationName = useLocationContextStore(s => s.locationName);
   const [locations, setLocations] = useState<IResponseLocations>([]);
 
   useEffect(() => {
@@ -51,6 +53,56 @@ const App: React.FC = () => {
     </DropdownOption>
   ));
 
+  const debugOptions = (
+    <>
+      <DropdownOption
+        key="nav-rule-examples"
+        isChecked={false}
+      >
+        <Link
+          className="navbar-item flex-column-center"
+          to="/rule-examples"
+        >
+          Rule Examples
+        </Link>
+      </DropdownOption>
+      <DropdownOption
+        key="nav-basic-templates"
+        isChecked={false}
+      >
+
+        <Link
+          className="navbar-item flex-column-center"
+          to="/basic-templates"
+        >
+          Basic Templates
+        </Link>
+      </DropdownOption>
+      <DropdownOption
+        key="nav-advanced-templates"
+        isChecked={false}
+      >
+        <Link
+          className="navbar-item flex-column-center"
+          to="/advanced-templates"
+        >
+          Advanced Templates
+        </Link>
+      </DropdownOption>
+      <DropdownOption
+        key="nav-smartapps-debug"
+        isChecked={false}
+      >
+        <Link
+          className="navbar-item flex-column-center"
+          to="/smartapps"
+        >
+          Debugging (SmartApps)
+        </Link>
+      </DropdownOption>
+    </>
+  );
+
   return (
     <StyledComponentProvider>
       <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
@@ -65,8 +117,11 @@ const App: React.FC = () => {
           }}
         >
           <EventSourceProvider>
-            <nav className="navbar">
-              <DropdownButton>
+            <nav
+              className="navbar"
+              style={{zIndex: global.zIndex.header}}
+            >
+              <DropdownButton buttonText={locationName ?? 'Locations'}>
                 {locationOptions}
               </DropdownButton>
               <Link
@@ -97,30 +152,9 @@ const App: React.FC = () => {
               >
                   Apps
               </Link>
-              <Link
-                className="navbar-item flex-column-center"
-                to="/rule-examples"
-              >
-                  Rule Examples
-              </Link>
-              <Link
-                className="navbar-item flex-column-center"
-                to="/basic-templates"
-              >
-                  Basic Templates
-              </Link>
-              <Link
-                className="navbar-item flex-column-center"
-                to="/advanced-templates"
-              >
-                  Advanced Templates
-              </Link>
-              <Link
-                className="navbar-item flex-column-center"
-                to="/smartapps"
-              >
-                  Debugging (SmartApps)
-              </Link>
+              <DropdownButton buttonText="Debug">
+                {debugOptions}
+              </DropdownButton>
             </nav>
             <section className="container main-content">
               <Routes>
