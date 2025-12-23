@@ -30,7 +30,7 @@ export const GlobalStyles = createGlobalStyle`
       #9f97ff,
       #c285ff);
 
-    --navbar-height: 100px;
+    --navbar-height: 50px;
     --navbar-item-padding: 10px;
     --navbar-item-border-radius: var(--border-radius);
 

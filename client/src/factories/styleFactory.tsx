@@ -105,7 +105,7 @@ export const DashboardSubTitle = styled.h3`
     font-weight: 600;
 `;
 
-export const DashboardGridColumnHeader = styled.span`
+export const DashboardGridColumnHeader = styled(FlexRowCenter)`
     display: flex;
     justify-content: center;
 `;

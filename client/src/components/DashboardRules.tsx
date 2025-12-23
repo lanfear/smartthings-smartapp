@@ -6,7 +6,7 @@ import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
 import global from '../constants/global';
-import {DashboardTitle, DashboardGridColumnHeader, StyledButton} from '../factories/styleFactory';
+import {DashboardTitle, DashboardGridColumnHeader, StyledButton, FlexRowCenter} from '../factories/styleFactory';
 import {useDeviceData} from '../store/DeviceContextStore';
 import {IApp, IRule} from '../types/sharedContracts';
 import {RouteParams} from '../App';
@@ -15,31 +15,16 @@ import {setLocation} from '../store/LocationContextStore';
 
 const DashboardRuleGrid = styled.div`
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(5, auto);
     gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: minmax(100px, auto);
+    grid-auto-rows: minmax(75px, auto);
 `;
 
-const DashboardRuleLineItemGrid = styled.div`
-    display: grid;
-    grid-template-areas:
-      "name id   status app  manage";
-    grid-template-columns: repeat(5, 1fr);
-    gap: ${global.measurements.dashboardGridGap};
-`;
-
-const DashboardRuleHeader = styled(DashboardGridColumnHeader)<{gridArea: string}>`
-  grid-area: ${props => props.gridArea};
-`;
-
-const DashboardRuleContent = styled.span<{gridArea: string}>`
-  grid-area: ${props => props.gridArea};
-  display: flex;
+const DashboardRuleContent = styled(FlexRowCenter)`
   justify-content: space-evenly;
 `;
 
-const DashboardRuleName = styled.span<{matchesInstalledApp: boolean}>`
-  grid-area: 'name';
+const DashboardRuleName = styled(FlexRowCenter)<{matchesInstalledApp: boolean}>`
   color: ${props => props.matchesInstalledApp ? 'green' : 'red'};
 `;
 
@@ -97,47 +82,43 @@ const DashboardRules: React.FC = () => {
         {locationId}
       </DashboardTitle>
       <DashboardRuleGrid>
-        <DashboardRuleLineItemGrid>
-          <DashboardRuleHeader gridArea="name">
-            {t('dashboard.rule.header.name')}
-          </DashboardRuleHeader>
-          <DashboardRuleHeader gridArea="id">
-            {t('dashboard.rule.header.ruleId')}
-          </DashboardRuleHeader>
-          <DashboardRuleHeader gridArea="status">
-            {t('dashboard.rule.header.status')}
-          </DashboardRuleHeader>
-          <DashboardRuleHeader gridArea="app">
-            {t('dashboard.rule.header.ownerId')}
-          </DashboardRuleHeader>
-          <DashboardRuleHeader gridArea="manage">
-            {t('dashboard.rule.header.manage')}
-          </DashboardRuleHeader>
-        </DashboardRuleLineItemGrid>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.name')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ruleId')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.status')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.ownerId')}
+        </DashboardGridColumnHeader>
+        <DashboardGridColumnHeader>
+          {t('dashboard.rule.header.manage')}
+        </DashboardGridColumnHeader>
         {deviceData.rules.map(s => (
           <React.Fragment key={`rules-${s.id}`}>
-            <DashboardRuleLineItemGrid>
-              <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(s.name)}>
-                {s.name}
-              </DashboardRuleName>
-              <DashboardRuleContent gridArea="id">
-                {s.id}
-              </DashboardRuleContent>
-              <DashboardRuleContent gridArea="status">
-                {s.executionLocation}
-              </DashboardRuleContent>
-              <DashboardRuleContent gridArea="app">
-                {findAppMatchingRule(s.name)?.displayName ?? '(rogue rule)'}
-              </DashboardRuleContent>
-              <DashboardRuleContent gridArea="manage">
-                <StyledButton onClick={() => openRule(s.id)}>
+            <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(s.name)}>
+              {s.name}
+            </DashboardRuleName>
+            <DashboardRuleContent>
+              {s.id}
+            </DashboardRuleContent>
+            <DashboardRuleContent>
+              {s.executionLocation}
+            </DashboardRuleContent>
+            <DashboardRuleContent>
+              {findAppMatchingRule(s.name)?.displayName ?? '(rogue rule)'}
+            </DashboardRuleContent>
+            <DashboardRuleContent>
+              <StyledButton onClick={() => openRule(s.id)}>
                   SHOW RULE
-                </StyledButton>
-                <StyledButton onClick={() => deleteRule(locationId, s.id)}>
+              </StyledButton>
+              <StyledButton onClick={() => deleteRule(locationId, s.id)}>
                   DELETE
-                </StyledButton>
-              </DashboardRuleContent>
-            </DashboardRuleLineItemGrid>
+              </StyledButton>
+            </DashboardRuleContent>
           </React.Fragment>
         ))}
       </DashboardRuleGrid>
