@@ -11,17 +11,16 @@ import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation'
 dayjs.extend(utc);
 
 export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
-  if (!ruleSummary || !ruleSummary.enableAllRules) {
+  if (!ruleSummary?.enableAllRules) {
     return null;
   }
 
-  const dayStartTime = dayjs(ruleSummary.dayStartTime).utc().diff(dayjs(ruleSummary.dayStartTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
-  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
-  const nightEndTime = dayjs(ruleSummary.nightEndTime).utc().diff(dayjs(ruleSummary.nightEndTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
+  const dayStartTime = dayjs(ruleSummary.dayStartTime).utc().diff(dayjs(ruleSummary.dayStartTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
+  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
+  const nightEndTime = dayjs(ruleSummary.nightEndTime).utc().diff(dayjs(ruleSummary.nightEndTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
 
   const uniqueSwitches = uniqueDeviceFactory(ruleSummary.daySwitches.concat(ruleSummary.nightSwitches));
-  
-  /* eslint-disable no-mixed-operators */
+
   const newDayRule = ruleSummary.enableDaylightRule && !ruleSummary.temporaryDisableDaylightRule && createTriggerRuleFromConfig(
     dayStartTime,
     dayNightTime,
@@ -62,11 +61,11 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRe
 };
 
 export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
-  if (!ruleSummary || !ruleSummary.enableAllRules) {
+  if (!ruleSummary?.enableAllRules) {
     return null;
   }
 
-  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
+  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
 
   const appKey = `app-${ruleSummary.installedAppId}`;
   return ruleSummary.enableTransitionRule && !ruleSummary.temporaryDisableTransitionRule && createTransitionRuleFromConfig(
@@ -76,5 +75,4 @@ export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): Rule
     ruleSummary.nightDimmableSwitchLevels,
     ruleSummary.nightNonDimmableSwitches.map(s => s.deviceId)
   ) || null;
-  /* eslint-enable no-mixed-operators */
 };

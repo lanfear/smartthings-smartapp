@@ -26,7 +26,7 @@ const getMinuteOffsetFromNoon = (timeString: string): number => {
     return 0;
   }
   const configDate = dayjs.utc(timeString, 'HH:mm A');
-  // eslint-disable-next-line no-magic-numbers
+
   const noonDate = configDate.hour(12).minute(0).second(0).millisecond(0);
   return configDate.diff(noonDate, 'minute');
 };

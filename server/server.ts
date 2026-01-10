@@ -93,7 +93,7 @@ server.get('/location/:id', async (req, res) => {
 });
 
 /* Execute a scene */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
+
 server.post('/location/:id/scenes/:sceneId', async (req, res) => {
   const context = await smartAppControl.withContext(req.params.id);
   const result = await context.api.scenes.execute(req.params.sceneId);
@@ -108,7 +108,7 @@ server.post('/device/:deviceId', async (req, res) => {
 });
 
 /* Enable/Disable a rule component */
-server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{ locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string }>, res) => {
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
   try {
     await manageRuleApplicationOperation(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
   } catch (e) {
@@ -123,7 +123,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     throw e;
   }
 
-  const reEnableDelay = (req.body as { reEnable?: number }).reEnable ?? 0;
+  const reEnableDelay = (req.body as {reEnable?: number}).reEnable ?? 0;
   if (req.params.enabled === 'false' && reEnableDelay > 0) {
     // eslint-disable-next-line no-console
     console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
@@ -163,6 +163,6 @@ server.listen(PORT, () => {
   console.log(`Server is up and running at http://localhost:${PORT}`);
 });
 
-export type DeviceState = Device & { value: string };
+export type DeviceState = Device & {value: string};
 
 export default server;

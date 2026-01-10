@@ -39,8 +39,7 @@ export interface IResponseLocation {
 
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';
 
-export interface ISseEvent
-{
+export interface ISseEvent {
   deviceId: string;
   value: string;
 }
