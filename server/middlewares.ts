@@ -2,7 +2,7 @@ import {ErrorRequestHandler, RequestParamHandler} from 'express';
 import {StatusCodes} from 'http-status-codes';
 import {IpFilter as ipFilter} from 'express-ipfilter';
 
-const localIps = process.env.LOCALIPS.split(/,\s*/);
+const localIps = process.env.LOCALIPS?.split(/,\s*/) ?? [];
 export const localOnlyMiddleware = ipFilter(localIps, {mode: 'allow'});
 
 export const notFound: RequestParamHandler = (req, res, next): void => {
