@@ -1,16 +1,12 @@
-import {ReportHandler} from 'web-vitals';
+/* eslint-disable no-console */
+import {onCLS, onFCP, onFID, onLCP, onTTFB} from 'web-vitals';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-const reportWebVitals = async (onPerfEntry?: ReportHandler): Promise<void> => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
-    await import('web-vitals').then(({getCLS, getFID, getFCP, getLCP, getTTFB}) => {
-      getCLS(onPerfEntry);
-      getFID(onPerfEntry);
-      getFCP(onPerfEntry);
-      getLCP(onPerfEntry);
-      getTTFB(onPerfEntry);
-    });
-  }
+const reportWebVitals = (): void => {
+  onCLS(console.info);
+  onFID(console.info);
+  onFCP(console.info);
+  onLCP(console.info);
+  onTTFB(console.info);
 };
 
 export default reportWebVitals;
