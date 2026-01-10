@@ -1,3 +1,3 @@
-var process: {
+declare const process: {
   env: Record<string, string>;
 };
