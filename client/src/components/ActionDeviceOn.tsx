@@ -21,7 +21,7 @@ const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
       {...collectedProps}
     >
       <ActionLogo fontSize="larger">
-          ✅
+        ✅
       </ActionLogo>
       <ControlStatus>
         {words}

@@ -22,7 +22,6 @@ const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
     };
 
     return {...(createDropConfig(onDrop, [IDragAndDropType.Rule, IDragAndDropType.App]))};
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locationId]);
 
   const [collectedProps, drop] = useDrop(() => dropHookConfig, [locationId]);
@@ -34,7 +33,7 @@ const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
       {...collectedProps}
     >
       <ActionLogo fontSize="x-large">
-          ▶
+        ▶
       </ActionLogo>
       <ControlStatus>
         {words}

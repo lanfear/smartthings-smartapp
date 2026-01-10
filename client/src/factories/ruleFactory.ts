@@ -47,7 +47,7 @@ export const generateConditionMotion = (motionDeviceId: string): RuleCondition =
       }
     },
     right: {
-      // eslint-disable-next-line id-denylist, id-blacklist
+      // eslint-disable-next-line id-denylist
       string: 'active'
     }
   }

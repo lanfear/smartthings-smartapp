@@ -91,7 +91,6 @@ const Locations: React.FC<LocationsProps> = () => {
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface LocationsProps {
 }
 

@@ -8,7 +8,7 @@ export const executeDeviceCommand = async (deviceId: string, capability: string,
     arguments: commandArgs
   };
 
-  const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/device/${deviceId}`, {
+  const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/device/${deviceId}`, {
     method: 'POST',
     body: JSON.stringify(commandBody),
     headers: {

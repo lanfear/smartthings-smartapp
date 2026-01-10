@@ -96,8 +96,8 @@ const ActionDeviceDim: React.FC = () => {
 
     // take mouse-y - container-top / container-height for '%' of vertical location in container, then min/max it in the allowed range
     const dropTargetBoundingRect = sliderRef.current.getBoundingClientRect();
-    const yScaleOffset = 100 -
-      Math.max(
+    const yScaleOffset = 100
+      - Math.max(
         Math.min(
           dimLevelMax,
           Math.round(

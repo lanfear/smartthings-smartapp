@@ -8,7 +8,6 @@ import {IRuleComponentType} from '../types/sharedContracts';
 
 const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '💤';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleActive, isRuleEnabled, isKeyRule, setActiveDevice, isLinkedActive, isLockedActive}) => {
   const dragId = `${ruleType.toLowerCase()}-${rulePartId}`;
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Rule, rulePartId, ruleName, ruleType)));

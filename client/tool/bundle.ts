@@ -179,7 +179,7 @@ const doReplacesInBundleDir = async (): Promise<void> => {
           return match;
         }
         console.info('  ', match, '->', process.env[matchIndex]);
-        return process.env[matchIndex]!;
+        return process.env[matchIndex];
       }
     ]
   });
