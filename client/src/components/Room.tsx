@@ -47,7 +47,7 @@ const isLinkedDeviceActive = (roomRuleSummaries: Record<string, {dayRule?: IRule
     || Object.entries(roomRuleSummaries).some(([k, v]) => (
       (activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule
         && (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId)))
-
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       || (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule
         && (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
     )));
