@@ -88,7 +88,7 @@ export const useDeviceData = (): IDeviceContextStore => {
 
   // listen to sse events
   const deviceEventSource = useEventSource({
-    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`,
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST}/events`,
     options: {enabled: !!activeLocationId}
   });
 

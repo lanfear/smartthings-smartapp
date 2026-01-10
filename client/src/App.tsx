@@ -72,18 +72,15 @@ const App: React.FC = () => (
               <Route
                 path="dashboard/:locationId/scenes"
                 element={(<DashboardScenes />)}
-              >
-              </Route>
+              />
               <Route
                 path="dashboard/:locationId/rules"
                 element={(<DashboardRules />)}
-              >
-              </Route>
+              />
               <Route
                 path="dashboard/:locationId/apps"
                 element={(<DashboardApps />)}
-              >
-              </Route>
+              />
             </Routes>
           </section>
         </EventSourceProvider>

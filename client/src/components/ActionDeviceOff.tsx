@@ -29,7 +29,7 @@ const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
       {...collectedProps}
     >
       <ActionLogo fontSize="larger">
-          ❎
+        ❎
       </ActionLogo>
       <ControlStatus>
         {words}

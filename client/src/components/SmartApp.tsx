@@ -20,7 +20,7 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
       onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlLogo>
-          🤖
+        🤖
       </ControlLogo>
       <ControlStatus>
         RuleSet

@@ -47,7 +47,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   };
 
   const addRule = async (isaId: string): Promise<Rule> => {
-    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/${isaId}/rule`, {
+    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/${isaId}/rule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -87,37 +87,37 @@ const SmartApps: React.FC<SmartAppProps> = () => {
           <Link to={`/dashboard/${sa.installedAppId}`}>
             <div>
               {t('smartapp.label')}
-:
+              :
               {' '}
               {sa.installedAppId}
             </div>
             <div>
               {t('smartapp.sceneCount')}
-:
+              :
               {' '}
               {sa.scenes.length}
             </div>
             <div>
               {t('smartapp.switchCount')}
-:
+              :
               {' '}
               {sa.switches.length}
             </div>
             <div>
               {t('smartapp.lockCount')}
-:
+              :
               {' '}
               {sa.locks.length}
             </div>
             <div>
               {t('smartapp.motionCount')}
-:
+              :
               {' '}
               {sa.motion.length}
             </div>
           </Link>
           <button onClick={() => addRule(sa.installedAppId)}>
-Add The Rule
+            Add The Rule
           </button>
         </>
       ))}
@@ -125,7 +125,6 @@ Add The Rule
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmartAppProps {
 }
 

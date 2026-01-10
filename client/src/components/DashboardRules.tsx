@@ -67,7 +67,7 @@ const DashboardRules: React.FC = () => {
   const findAppMatchingRule = (ruleName: string): IApp | undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));
 
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
-    await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
+    await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   const openRule = (ruleId: string): void => {
@@ -113,10 +113,10 @@ const DashboardRules: React.FC = () => {
             </DashboardRuleContent>
             <DashboardRuleContent>
               <StyledButton onClick={() => openRule(s.id)}>
-                  SHOW RULE
+                SHOW RULE
               </StyledButton>
               <StyledButton onClick={() => deleteRule(locationId, s.id)}>
-                  DELETE
+                DELETE
               </StyledButton>
             </DashboardRuleContent>
           </React.Fragment>

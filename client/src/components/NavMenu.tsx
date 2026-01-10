@@ -82,10 +82,10 @@ const NavMenu: React.FC = () => {
     </>
   );
 
-  const debugSelected = routeLocation.pathname.endsWith('/rule-examples') ||
-    routeLocation.pathname.endsWith('/basic-templates') ||
-    routeLocation.pathname.endsWith('/advanced-templates') ||
-    routeLocation.pathname.endsWith('/smartapps');
+  const debugSelected = routeLocation.pathname.endsWith('/rule-examples')
+    || routeLocation.pathname.endsWith('/basic-templates')
+    || routeLocation.pathname.endsWith('/advanced-templates')
+    || routeLocation.pathname.endsWith('/smartapps');
 
   return (
     <nav
@@ -100,28 +100,28 @@ const NavMenu: React.FC = () => {
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/rooms') ? 'selected' : ''}`}
         to={`/dashboard/${locationId}/rooms`}
       >
-      Rooms
+        Rooms
       </Link>
       <Link
         key="location-scenes"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/scenes') ? 'selected' : ''}`}
         to={`/dashboard/${locationId}/scenes`}
       >
-      Scenes
+        Scenes
       </Link>
       <Link
         key="location-rules"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/rules') ? 'selected' : ''}`}
         to={`/dashboard/${locationId}/rules`}
       >
-      Rules
+        Rules
       </Link>
       <Link
         key="location-apps"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/apps') ? 'selected' : ''}`}
         to={`/dashboard/${locationId}/apps`}
       >
-      Apps
+        Apps
       </Link>
       <DropdownButton
         buttonText="Debug"
