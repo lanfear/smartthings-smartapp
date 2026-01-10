@@ -18,6 +18,7 @@ import {dotenvRun} from '@dotenv-run/esbuild';
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 const parentDir = path.join(__dirname, '..');
 // const nodeModules = path.join(parentDir, 'node_modules');
 const srcDir = path.join(parentDir, 'src');
