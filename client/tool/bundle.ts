@@ -6,7 +6,7 @@ dotenv.config();
 
 import path from 'path';
 import fs from 'fs/promises';
-import {build, Plugin, BuildOptions} from 'esbuild';
+import {build, Plugin as EsBuildPlugin, BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
 import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
@@ -14,6 +14,10 @@ import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
 import {dotenvRun} from '@dotenv-run/esbuild';
 
+// eslint not happy with path here, not sure why
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 const parentDir = path.join(__dirname, '..');
 // const nodeModules = path.join(parentDir, 'node_modules');
 const srcDir = path.join(parentDir, 'src');
@@ -23,7 +27,7 @@ const buildDir = path.join(parentDir, 'build');
 const buildJsDir = path.join(buildDir, 'static', 'js');
 
 // ***** PLUGINS *****
-const svgrPlugin: Plugin = {
+const svgrPlugin: EsBuildPlugin = {
   name: 'svgr',
   setup: builder => {
     builder.onLoad({filter: /\.svg$/}, async args => {
@@ -47,7 +51,7 @@ const svgrPlugin: Plugin = {
   }
 };
 
-const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; sourceMaps: BuildOptions['sourcemap']}): Plugin => ({
+const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; sourceMaps: BuildOptions['sourcemap']}): EsBuildPlugin => ({
   name: 'url-loader',
   setup: builder => {
     builder.onResolve({filter: /\?dataurl$/}, args => {
@@ -59,7 +63,7 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
     });
     builder.onLoad({filter: /.*/, namespace: 'dataurl'}, async args => {
       const res = await builder.esbuild.build({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
         entryPoints: [args.pluginData.sourcePath], // sourcePath is set from argsin onResolve
         bundle: true,
         minify: minify,
@@ -173,7 +177,7 @@ const doReplacesInBundleDir = async (): Promise<void> => {
       match => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
         // not sure what in the toolchain needs to change for this to be recognized
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!(Object as unknown as any).hasOwn(process.env, matchIndex)) {
           console.info('  ', match, 'not defined in .env, skipping replace in .html');
           return match;
