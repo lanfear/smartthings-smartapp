@@ -66,3 +66,5 @@ export interface RuleStoreInfo extends Record<string, any> {
   transitionRule: RuleRequest;
   newRuleSummary: IRuleSummary;
 }
+
+export type Nullable<T> = T | null;
