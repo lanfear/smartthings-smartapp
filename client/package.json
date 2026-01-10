@@ -52,7 +52,7 @@
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.10",
     "@types/react-router-dom": "^5.3.3",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
     "concurrently": "^9.2.1",
     "cross-replace": "^0.2.0",
     "dotenv": "^16.4.5",
@@ -60,10 +60,11 @@
     "esbuild": "^0.23.1",
     "esbuild-sass-plugin": "^3.3.1",
     "esbuild-scss-modules-plugin": "^1.1.1",
-    "eslint-config-techsmith": "^3.2.1",
+    "eslint": "^9.39.2",
+    "eslint-config-techsmith": "^4.1.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "eslint-plugin-react": "^7.35.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "local-web-server": "^5.4.0",
     "npm-watch": "^0.13.0",
     "replace-in-file": "^7.0.0"
@@ -79,67 +80,6 @@
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
     "start": "npm-watch dev",
     "test": "react-app-rewired test"
-  },
-  "eslintConfig": {
-    "ignorePatterns": [
-      "node_modules/",
-      "data/",
-      "build/"
-    ],
-    "extends": [
-      "techsmith/es6",
-      "techsmith/react"
-    ],
-    "rules": {
-      "no-nested-ternary": "off",
-      "no-console": "warn",
-      "indent": [
-        "error",
-        2,
-        {
-          "SwitchCase": 1
-        }
-      ]
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/*.ts",
-          "**/*.tsx"
-        ],
-        "extends": [
-          "techsmith/ts",
-          "techsmith/react-ts"
-        ],
-        "rules": {
-          "no-nested-ternary": "off",
-          "indent": "off",
-          "no-console": "warn",
-          "@typescript-eslint/no-non-null-assertion": "off",
-          "@typescript-eslint/ban-types": "off",
-          "@typescript-eslint/indent": [
-            "error",
-            2,
-            {
-              "SwitchCase": 1,
-              "FunctionDeclaration": {
-                "parameters": "first"
-              },
-              "FunctionExpression": {
-                "parameters": "first"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020,
-      "project": "./tsconfig.json"
-    },
-    "globals": {
-      "process": "readonly"
-    }
   },
   "browserslist": {
     "production": [
