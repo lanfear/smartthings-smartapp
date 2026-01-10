@@ -17,7 +17,6 @@ const configureRule = async (locationId: string, installedAppId: string, ruleCom
   const ruleStoreInfo = await ruleStore.get(installedAppId);
   const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;
 
-  // eslint-disable-next-line no-console
   // console.log('configuring delete for [', ruleComponent, '] from source values -> paramsDisabled [', paramsDisabled, '] ruleIsEnabled [', ruleIsEnabled, '] disableRule [', disableRule, ']');
   if (!ruleStoreInfo) {
     throw new ReturnResultError(`No rule stored in database for appId [${installedAppId}]`, StatusCodes.UNPROCESSABLE_ENTITY);

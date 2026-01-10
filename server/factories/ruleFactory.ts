@@ -1,4 +1,4 @@
-/* eslint-disable id-blacklist, id-denylist */
+/* eslint-disable id-denylist */
 import {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 

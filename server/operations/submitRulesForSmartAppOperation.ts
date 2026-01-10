@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-operators */
 import {RuleRequest, SmartThingsClient} from '@smartthings/core-sdk';
 import {IRuleSummary} from 'sharedContracts';
 
@@ -12,7 +11,7 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
   try {
     await Promise.allSettled(
       (await client.rules?.list(locationId) || [])
-        .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
+        .filter(r => r.name.includes(smartAppLookupKey))
         .map(async r => {
           await client.rules.delete(r.id, locationId);
           newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
@@ -26,7 +25,6 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
   const newRuleIds = [newCombinedRuleResponse?.id, newTransitionRuleResponse?.id].filter(id => !!id);
   newRuleSummary.ruleIds.push(...newRuleIds);
 
-  // eslint-disable-next-line no-console
   // console.log('Applied Rules', newCombinedRuleResponse?.actions, newTransitionRuleResponse?.actions);
 
   return [newRuleSummary, newCombinedRuleResponse?.id, newTransitionRuleResponse?.id];

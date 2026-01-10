@@ -24,7 +24,6 @@ const noonHour = 12;
 const offset6Hours = 360;
 const increment5 = 5;
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const contextStore: ContextStore = smartAppContextStore(process.env.RULE_APP_ID);
 
@@ -61,26 +60,26 @@ export default new SmartApp()
       const nightEndTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.nightEndOffset, 'minutes').format('hh:mm A');
 
       // these strings are not localized because i'm unsure how to use the built-in I18n mechanics with dynamic config-driven values interpolated
-      const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] ` +
-        `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
-        `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] ` +
-        'will turn ON.';
+      const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] `
+        + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
+        + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] `
+        + 'will turn ON.';
       const daylightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] ` +
-        `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
-        `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] ` +
-        'will turn ON.';
+      const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] `
+        + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
+        + `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] `
+        + 'will turn ON.';
       const nightlightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] ` +
-        `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] ` +
-        'will turn OFF.';
+      const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] `
+        + `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] `
+        + 'will turn OFF.';
       const idleRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableIdleRule ? 'ENABLED' : 'DISABLED'}`;
 
-      const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] ` +
-        `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) ` +
-        `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
+      const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] `
+        + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) `
+        + `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
       const transitionRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
 
       section
@@ -172,17 +171,17 @@ export default new SmartApp()
       section.hideable(true);
       // from 8AM
       section.timeSetting('dayStartOffsetTime')
-        // eslint-disable-next-line no-magic-numbers
+
         .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8PM
       section.timeSetting('dayNightOffsetTime')
-        // eslint-disable-next-line no-magic-numbers
+
         .defaultValue(dayjs().hour(20).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8AM
       section.timeSetting('nightEndOffsetTime')
-        // eslint-disable-next-line no-magic-numbers
+
         .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
     });
 
@@ -223,7 +222,7 @@ export default new SmartApp()
           .defaultValue(global.rule.default.switchDayLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
       });
 
@@ -236,7 +235,7 @@ export default new SmartApp()
           .defaultValue(global.rule.default.switchNightLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        // @ts-expect-error
         // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
       });
     });
@@ -274,7 +273,6 @@ export default new SmartApp()
     // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
     // console.log('newConfig', newConfig);
 
-    /* eslint-disable no-mixed-operators */
     const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
       newConfig.dayStartOffset,
       newConfig.dayNightOffset,
@@ -312,7 +310,6 @@ export default new SmartApp()
       nightDimmableSwitchLevels,
       nightNonDimmableSwitches.map(s => s.deviceId)
     ) || null;
-    /* eslint-enable no-mixed-operators */
 
     const newCombinedRule = createCombinedRuleFromConfig(
       appKey,

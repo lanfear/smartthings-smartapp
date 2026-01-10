@@ -6,7 +6,7 @@ import {ISseEvent, ISseEventType} from 'sharedContracts';
 /*
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-assignment
+
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const contextStore: ContextStore = smartAppContextStore(process.env.CONTROL_APP_ID);
 
