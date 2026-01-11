@@ -1,4 +1,4 @@
-import {RuleStoreInfo} from 'index';
+import {Nullable, RuleStoreInfo} from 'index';
 import {createClient} from 'redis';
 
 const ruleInfoPrefix = 'st-ruleinfo-';
@@ -20,13 +20,17 @@ const redisRuleStore = createClient({
 // process.on('SIGINT', cleanup);
 // process.on('SIGTERM', cleanup);
 
-const get = async (ruleStoreKey: string): Promise<RuleStoreInfo | null> => {
+const get = async (ruleStoreKey: string): Promise<Nullable<RuleStoreInfo>> => {
   if (!redisRuleStore.isOpen) {
     await redisRuleStore.connect();
   }
-  const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
+  const ruleStoreInfoString = await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`);
+  if (!ruleStoreInfoString) {
+    return null;
+  }
+  const ruleStoreInfo = JSON.parse(ruleStoreInfoString) as RuleStoreInfo;
   // console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
-  return ruleStoreInfoRedis;
+  return ruleStoreInfo;
 };
 
 const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<void> => {

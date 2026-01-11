@@ -5,7 +5,7 @@ import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleReques
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
-import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
+import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 // import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
@@ -20,7 +20,12 @@ import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperati
 const defaultPort = 3001;
 
 const server = express();
-const PORT = process.env.PORT || defaultPort;
+const PORT = process.env.PORT ?? defaultPort;
+
+// TODO: move this stuff to a config file
+if (!process.env.CONTROL_APP_ID || !process.env.CONTROL_CLIENT_ID || !process.env.CONTROL_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
+  throw new Error('CONTROL_APP_ID, CONTROL_CLIENT_ID, CONTROL_CLIENT_SECRET, and CONTROL_API_TOKEN environment variables are required but not all have been set.');
+}
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -45,36 +50,36 @@ server.get('/app', async (_, res) => {
 });
 
 server.get('/locations', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-  res.json(await client.locations.list() || []);
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
+  res.json(await client.locations.list());
 });
 
 server.get('/location/:id', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
 
-  const rooms = await client.rooms?.list(req.params.id) || [];
-  const scenes = await client.scenes?.list({locationId: [req.params.id]}) || [];
-  const switches = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'switch'}) || []).map(async (it: DeviceState) => {
+  const rooms = await client.rooms.list(req.params.id);
+  const scenes = await client.scenes.list({locationId: [req.params.id]});
+  const switches = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'switch'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
-    it.value = state.switch.value as string;
-    return it;
+    (it as DeviceState).value = state.switch.value as string;
+    return it as DeviceState;
   }));
-  const locks = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'lock'}) || []).map(async (it: DeviceState) => {
+  const locks = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'lock'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
-    it.value = state.lock.value as string;
-    return it;
+    (it as DeviceState).value = state.lock.value as string;
+    return it as DeviceState;
   }));
-  const motion = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'motionSensor'}) || []).map(async (it: DeviceState) => {
+  const motion = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'motionSensor'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
-    it.value = state.motion.value as string;
-    return it;
+    (it as DeviceState).value = state.motion.value as string;
+    return it as DeviceState;
   }));
-  const apps = (await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+  const apps = (await Promise.all((await client.installedApps.list({locationId: [req.params.id]})).map(async a => {
     const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  }))).filter(a => !!a.ruleSummary); // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
-  const rules = (await client.rules?.list(req.params.id) || []).map(r => {
-    const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
+  }))).filter(a => !!a.ruleSummary) as IResponseApps; // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
+  const rules = (await client.rules.list(req.params.id)).map(r => {
+    const linkedInstalledApp = apps.find(a => a.ruleSummary.ruleIds.find(rid => rid === r.id));
     return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
   });
 
@@ -102,7 +107,7 @@ server.post('/location/:id/scenes/:sceneId', async (req, res) => {
 
 /* Execute a device command */
 server.post('/device/:deviceId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
   const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
@@ -146,7 +151,7 @@ server.post('/location/:id/rule', async (req, res) => {
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
+  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
   await client.rules.delete(req.params.ruleId, req.params.id);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();

@@ -16,6 +16,7 @@ import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
+import {ISmartAppRuleConfigValues, Nullable} from 'index';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -23,13 +24,17 @@ dayjs.extend(utc);
 const noonHour = 12;
 const offset6Hours = 360;
 const increment5 = 5;
+const hourOffset8 = 8;
+const hourOffset20 = 20;
+
+if (!process.env.RULE_APP_ID || !process.env.RULE_CLIENT_ID || !process.env.RULE_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
+  throw new Error('Missing required environment variables for SmartApp configuration (RULE_APP_ID, RULE_CLIENT_ID, RULE_CLIENT_SECRET, CONTROL_API_TOKEN)');
+}
 
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const contextStore: ContextStore = smartAppContextStore(process.env.RULE_APP_ID);
 
-const rulesAreModified = async (ruleStoreKey: string, newRule: RuleRequest): Promise<boolean> => {
-  // todo: get existing rules
-  // const existingRules = ruleStore.get(ruleStoreKey);
+const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequest>): Promise<boolean> => {
   const existingRules = await ruleStore.get(ruleStoreKey);
   return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 };
@@ -49,6 +54,13 @@ export default new SmartApp()
     // eslint-disable-next-line @typescript-eslint/await-thenable
     await page.section('description', async section => {
       const config = await readConfigFromContext(context);
+
+      if (!config.dayControlSwitch || !config.nightControlSwitch) {
+      // eslint-disable-next-line no-console
+        console.warn('Day or Night control switch not configured in main page, cannot create rules');
+        return;
+      }
+
       const uniqueDaySwitches = uniqueDeviceFactory([config.dayControlSwitch].concat(config.dayActiveSwitches));
       const uniqueNightSwitches = uniqueDeviceFactory([config.nightControlSwitch].concat(config.nightActiveSwitches));
       const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
@@ -172,17 +184,17 @@ export default new SmartApp()
       // from 8AM
       section.timeSetting('dayStartOffsetTime')
 
-        .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
+        .defaultValue(dayjs().hour(hourOffset8).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8PM
       section.timeSetting('dayNightOffsetTime')
 
-        .defaultValue(dayjs().hour(20).minute(0).second(0).millisecond(0).toISOString());
+        .defaultValue(dayjs().hour(hourOffset20).minute(0).second(0).millisecond(0).toISOString());
 
       // from 8AM
       section.timeSetting('nightEndOffsetTime')
 
-        .defaultValue(dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString());
+        .defaultValue(dayjs().hour(hourOffset8).minute(0).second(0).millisecond(0).toISOString());
     });
 
     // i know this does something, even though apparently the typedefs say otherwise
@@ -199,16 +211,16 @@ export default new SmartApp()
 
       let allDimmableSwitches: Device[];
       try {
-        allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+        allDimmableSwitches = await context.api.devices.list({capability: 'switchLevel'});
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log('api lookup failed even though isAuthenticated', e);
         return;
       }
 
-      const daySwitches = ((await context.configDevices('dayControlSwitch')) ?? []).concat((await context.configDevices('dayActiveSwitches')) ?? [])
+      const daySwitches = ((await context.configDevices('dayControlSwitch'))).concat((await context.configDevices('dayActiveSwitches')))
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-      const nightSwitches = ((await context.configDevices('nightControlSwitch')) ?? []).concat((await context.configDevices('nightActiveSwitches')) ?? [])
+      const nightSwitches = ((await context.configDevices('nightControlSwitch'))).concat((await context.configDevices('nightActiveSwitches')))
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
       const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
       const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
@@ -221,8 +233,8 @@ export default new SmartApp()
           .step(increment5)
           .defaultValue(global.rule.default.switchDayLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+
+        // @disabled-ts-expect-error
         // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
       });
 
@@ -234,8 +246,8 @@ export default new SmartApp()
           .step(increment5)
           .defaultValue(global.rule.default.switchNightLevel);
         // slider would be nice, but UI provides no numerical feedback, so worthless =\
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
+
+        // @disabled-ts-expect-error
         // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
       });
     });
@@ -251,7 +263,13 @@ export default new SmartApp()
 
     const newConfig = await readConfigFromContext(context);
 
-    const allDimmableSwitches = await Promise.all(await context.api.devices?.list({capability: 'switchLevel'}) || []);
+    if (!newConfig.dayControlSwitch || !newConfig.nightControlSwitch) {
+      // eslint-disable-next-line no-console
+      console.warn('Day or Night control switch not configured in updated, cannot create rules');
+      return;
+    }
+
+    const allDimmableSwitches = await context.api.devices.list({capability: 'switchLevel'});
     const uniqueDaySwitches = uniqueDeviceFactory([newConfig.dayControlSwitch].concat(newConfig.dayActiveSwitches));
     const uniqueNightSwitches = uniqueDeviceFactory([newConfig.nightControlSwitch].concat(newConfig.nightActiveSwitches));
     const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
@@ -262,8 +280,9 @@ export default new SmartApp()
     const dayNonDimmableSwitches = uniqueDaySwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
     const nightNonDimmableSwitches = uniqueNightSwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
 
-    const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchDayLevel} as IRuleSwitchLevelInfo));
-    const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchNightLevel} as IRuleSwitchLevelInfo));
+    // the find here better work because all switches needs to map to the valid dimmable switch the user configured
+    const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchDayLevel} as IRuleSwitchLevelInfo));
+    const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchNightLevel} as IRuleSwitchLevelInfo));
 
     const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
     const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
@@ -273,7 +292,7 @@ export default new SmartApp()
     // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
     // console.log('newConfig', newConfig);
 
-    const newDayRule = dayRuleEnabled && createTriggerRuleFromConfig(
+    const newDayRule = dayRuleEnabled ? createTriggerRuleFromConfig(
       newConfig.dayStartOffset,
       newConfig.dayNightOffset,
       newConfig.motionSensors.map(d => d.deviceId),
@@ -282,9 +301,9 @@ export default new SmartApp()
       dayNonDimmableSwitches.map(s => s.deviceId),
       newConfig.motionMultipleAll,
       newConfig.motionDurationDelay
-    ) || null;
+    ) : null;
 
-    const newNightRule = nightRuleEnabled && createTriggerRuleFromConfig(
+    const newNightRule = nightRuleEnabled ? createTriggerRuleFromConfig(
       newConfig.dayNightOffset,
       newConfig.nightEndOffset,
       newConfig.motionSensors.map(d => d.deviceId),
@@ -293,23 +312,23 @@ export default new SmartApp()
       nightNonDimmableSwitches.map(s => s.deviceId),
       newConfig.motionMultipleAll,
       newConfig.motionDurationDelay
-    ) || null;
+    ) : null;
 
-    const newIdleRule = idleRuleEnabled && createIdleRuleFromConfig(
+    const newIdleRule = idleRuleEnabled ? createIdleRuleFromConfig(
       newConfig.motionSensors.map(d => d.deviceId),
       uniqueSwitches.map(d => d.deviceId),
       newConfig.motionIdleTimeout,
       newConfig.motionIdleTimeoutUnit,
       !newConfig.motionMultipleAll // you invert this setting for the idle case
-    ) || null;
+    ) : null;
 
-    const newTransitionRule = transitionRuleEnabled && createTransitionRuleFromConfig(
+    const newTransitionRule = transitionRuleEnabled ? createTransitionRuleFromConfig(
       appKey,
       newConfig.dayNightOffset,
       uniqueDaySwitches.map(s => s.deviceId),
       nightDimmableSwitchLevels,
       nightNonDimmableSwitches.map(s => s.deviceId)
-    ) || null;
+    ) : null;
 
     const newCombinedRule = createCombinedRuleFromConfig(
       appKey,
@@ -319,7 +338,7 @@ export default new SmartApp()
     );
 
     const newRuleSummary = createRuleSummaryFromConfig(
-      newConfig,
+      newConfig as ISmartAppRuleConfigValues, // above we ensured the conflicting nullable values are not null, so it is this type
       uniqueDaySwitches,
       dayDimmableSwitches,
       dayNonDimmableSwitches,
@@ -338,7 +357,7 @@ export default new SmartApp()
     if (await rulesAreModified(updateData.installedApp.installedAppId, newCombinedRule)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_unused, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
-        new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN)),
+        new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!)),
         context.api.locations.locationId(),
         appKey,
         newCombinedRule,

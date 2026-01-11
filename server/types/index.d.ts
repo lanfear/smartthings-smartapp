@@ -2,6 +2,7 @@ import {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
 import {DeviceContext} from '@smartthings/smartapp';
 import {IRuleSummary} from 'sharedContracts';
 
+export type Nullable<T> = T | null;
 export interface ISmartAppRuleMotion {
   valueType: string; // STValueType?
   deviceConfig: {
@@ -57,14 +58,12 @@ export interface ISmartAppRuleSwitchLevelConfig {
   switchNightLevel: number;
 }
 
-export interface RuleStoreInfo extends Record<string, any> {
-  [key: string]: any; // required for redis
-  [key: number]: any; // required for redis
-  combinedRuleId?: string;
-  combinedRule: RuleRequest;
-  transitionRuleId?: string;
-  transitionRule: RuleRequest;
+export interface RuleStoreInfo extends Record<string, unknown> {
+  [key: string]: unknown; // required for redis
+  [key: number]: unknown; // required for redis
+  combinedRuleId: Nullable<string>;
+  combinedRule: Nullable<RuleRequest>;
+  transitionRuleId: Nullable<string>;
+  transitionRule: Nullable<RuleRequest>;
   newRuleSummary: IRuleSummary;
 }
-
-export type Nullable<T> = T | null;

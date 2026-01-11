@@ -42,7 +42,11 @@ const createStore = (automationId: string): ContextStoreExtended => {
       if (!redisContextStore.isOpen) {
         await redisContextStore.connect();
       }
-      const appRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
+      const appRecordText = await redisContextStore.get(`${appContextPrefix}${installedAppId}`);
+      if (!appRecordText) {
+        throw new Error(`No context record found for installedAppId ${installedAppId}.  This is unexpected and code execution cannot continue.`);
+      }
+      const appRecord = JSON.parse((await redisContextStore.get(`${appContextPrefix}${installedAppId}`))!) as ContextRecord;
       return appRecord;
     },
     put: async contextRecord => {
@@ -63,7 +67,7 @@ const createStore = (automationId: string): ContextStoreExtended => {
       if (!redisContextStore.isOpen) {
         await redisContextStore.connect();
       }
-      const contextRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
+      const contextRecord = JSON.parse((await redisContextStore.get(`${appContextPrefix}${installedAppId}`))!) as ContextRecord;
       await redisContextStore.del(`${appContextPrefix}${installedAppId}`);
       return contextRecord;
     }
