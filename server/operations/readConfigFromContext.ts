@@ -4,6 +4,7 @@ import utc from 'dayjs/plugin/utc';
 import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
 import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
 import global from '../constants/global';
+import {BearerTokenAuthenticator, SmartThingsClient} from '@smartthings/core-sdk';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -15,17 +16,30 @@ type ContextSmartAppConfigValues = Omit<ISmartAppRuleConfigValues, 'dayControlSw
 };
 type ContextNumber = Nullable<number>;
 
-const getDeviceConfigIfAuthenticated = async (context: SmartAppContext, configId: string): Promise<DeviceContext[] | null> => {
-  if (!context.isAuthenticated()) {
-    return null;
+const getAuthenticatedDeviceConfig = async (context: SmartAppContext, configId: string): Promise<DeviceContext[]> => {
+  // if user has not yet configured this option return empty now
+  if (!(configId in context.config)) {
+    return [];
   }
-  try {
-    return await context.configDevices(configId);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log('get config failed even though isAuthenticated', e);
-    return null;
+
+  if (context.isAuthenticated()) {
+    try {
+      return await context.configDevices(configId);
+    } catch (e) {
+    // let if fall through to end
+    }
   }
+  // if user has not yet authenticated this app installation, or other error, we use our direct api token to get device info and turn it into DeviceContext
+  const c = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
+  return Promise.all(context.config[configId].map(async cc => {
+    const d = await c.devices.get(cc.deviceConfig!.deviceId);
+    return {
+      deviceId: d.deviceId,
+      name: d.name,
+      label: d.label,
+      componentId: cc.deviceConfig!.componentId
+    } as DeviceContext;
+  }));
 };
 
 const getMinuteOffsetFromNoon = (timeString: string): number => {
@@ -42,31 +56,26 @@ const getMinuteOffsetFromNoon = (timeString: string): number => {
 type PrimitiveRetrievers = SmartAppContext['configBooleanValue'] | SmartAppContext['configNumberValue'] | SmartAppContext['configStringValue'] | SmartAppContext['configTimeString'];
 const getPrimitiveVarFromContextOrDefault = <T extends number | string | boolean>(context: SmartAppContext, id: string, retriever: PrimitiveRetrievers, defaultValue: T): T => Object.keys(context.config).includes(id) ? (retriever(id).valueOf() as T) : defaultValue;
 
-const readConfigFromContext = async (context: SmartAppContext): Promise<ContextSmartAppConfigValues> => {
-  console.log('Reading config from context');
-  console.log(await context.retrieveTokens());
-
-  return {
-    enableAllRules: getPrimitiveVarFromContextOrDefault(context, 'enableAllRules', context.configBooleanValue.bind(context), true as boolean),
-    enableDaylightRule: getPrimitiveVarFromContextOrDefault(context, 'enableDaylightRule', context.configBooleanValue.bind(context), true as boolean),
-    enableNightlightRule: getPrimitiveVarFromContextOrDefault(context, 'enableNightlightRule', context.configBooleanValue.bind(context), true as boolean),
-    enableIdleRule: getPrimitiveVarFromContextOrDefault(context, 'enableIdleRule', context.configBooleanValue.bind(context), true as boolean),
-    motionSensors: await getDeviceConfigIfAuthenticated(context, 'motionSensor') ?? [],
-    motionMultipleAll: getPrimitiveVarFromContextOrDefault(context, 'motionMultipleAll', context.configBooleanValue.bind(context), false as boolean),
-    motionIdleTimeout: getPrimitiveVarFromContextOrDefault(context, 'motionIdleTimeout', context.configNumberValue.bind(context), 0 as number),
-    motionIdleTimeoutUnit: getPrimitiveVarFromContextOrDefault(context, 'motionIdleTimeoutUnit', context.configBooleanValue.bind(context), false as boolean) ? 'Minute' : 'Second',
-    motionDurationDelay: getPrimitiveVarFromContextOrDefault(context, 'motionDurationDelay', context.configNumberValue.bind(context), 0 as number),
-    dayControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'dayControlSwitch') ?? [null])[0],
-    dayActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'dayActiveSwitches') ?? [],
-    nightControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'nightControlSwitch') ?? [null])[0],
-    nightActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'nightActiveSwitches') ?? [],
-    /* eslint-disable @typescript-eslint/no-magic-numbers */
-    dayNightOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'dayNightOffsetTime', context.configTimeString.bind(context), dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString())),
-    nightEndOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'nightEndOffsetTime', context.configTimeString.bind(context), dayjs().hour(20).minute(0).second(0).millisecond(0).toISOString())),
-    dayStartOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'dayStartOffsetTime', context.configTimeString.bind(context), dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString()))
-    /* eslint-enable @typescript-eslint/no-magic-numbers */
-  };
-};
+const readConfigFromContext = async (context: SmartAppContext): Promise<ContextSmartAppConfigValues> => ({
+  enableAllRules: getPrimitiveVarFromContextOrDefault(context, 'enableAllRules', context.configBooleanValue.bind(context), true as boolean),
+  enableDaylightRule: getPrimitiveVarFromContextOrDefault(context, 'enableDaylightRule', context.configBooleanValue.bind(context), true as boolean),
+  enableNightlightRule: getPrimitiveVarFromContextOrDefault(context, 'enableNightlightRule', context.configBooleanValue.bind(context), true as boolean),
+  enableIdleRule: getPrimitiveVarFromContextOrDefault(context, 'enableIdleRule', context.configBooleanValue.bind(context), true as boolean),
+  motionSensors: await getAuthenticatedDeviceConfig(context, 'motionSensor'),
+  motionMultipleAll: getPrimitiveVarFromContextOrDefault(context, 'motionMultipleAll', context.configBooleanValue.bind(context), false as boolean),
+  motionIdleTimeout: getPrimitiveVarFromContextOrDefault(context, 'motionIdleTimeout', context.configNumberValue.bind(context), 0 as number),
+  motionIdleTimeoutUnit: getPrimitiveVarFromContextOrDefault(context, 'motionIdleTimeoutUnit', context.configBooleanValue.bind(context), false as boolean) ? 'Minute' : 'Second',
+  motionDurationDelay: getPrimitiveVarFromContextOrDefault(context, 'motionDurationDelay', context.configNumberValue.bind(context), 0 as number),
+  dayControlSwitch: (await getAuthenticatedDeviceConfig(context, 'dayControlSwitch'))[0] ?? null,
+  dayActiveSwitches: await getAuthenticatedDeviceConfig(context, 'dayActiveSwitches'),
+  nightControlSwitch: (await getAuthenticatedDeviceConfig(context, 'nightControlSwitch'))[0] ?? null,
+  nightActiveSwitches: await getAuthenticatedDeviceConfig(context, 'nightActiveSwitches'),
+  /* eslint-disable @typescript-eslint/no-magic-numbers */
+  dayNightOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'dayNightOffsetTime', context.configTimeString.bind(context), dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString())),
+  nightEndOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'nightEndOffsetTime', context.configTimeString.bind(context), dayjs().hour(20).minute(0).second(0).millisecond(0).toISOString())),
+  dayStartOffset: getMinuteOffsetFromNoon(getPrimitiveVarFromContextOrDefault(context, 'dayStartOffsetTime', context.configTimeString.bind(context), dayjs().hour(8).minute(0).second(0).millisecond(0).toISOString()))
+  /* eslint-enable @typescript-eslint/no-magic-numbers */
+});
 
 export const readDeviceLevelConfigFromContext = (context: SmartAppContext, devices: DeviceContext[]): ISmartAppRuleSwitchLevelConfig[] => devices.map(d => ({
   deviceId: d.deviceId,
