@@ -7,6 +7,10 @@ import {ISseEvent, ISseEventType} from 'sharedContracts';
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
 
+if (!process.env.CONTROL_APP_ID || !process.env.CONTROL_CLIENT_ID || !process.env.CONTROL_CLIENT_SECRET) {
+  throw new Error('CONTROL_APP_ID, CONTROL_CLIENT_ID, and CONTROL_CLIENT_SECRET environment variables are required but not all have been set.');
+}
+
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const contextStore: ContextStore = smartAppContextStore(process.env.CONTROL_APP_ID);
 
@@ -16,7 +20,7 @@ const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
 
 /* Define the SmartApp */
 export default new SmartApp()
-  .enableEventLogging(2, process.env.LOGGING_EVENTS_ENABLED.toLowerCase() === 'true')
+  .enableEventLogging(2, process.env.LOGGING_EVENTS_ENABLED?.toLowerCase() === 'true')
   .configureI18n()
   .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
   .appId(process.env.CONTROL_APP_ID)

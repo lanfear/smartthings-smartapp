@@ -2,11 +2,18 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
-import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig} from '../types';
+import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
 import global from '../constants/global';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
+
+// while a user is editing the smartapp, some values may be missing, but contain that to this editor page
+type ContextSmartAppConfigValues = Omit<ISmartAppRuleConfigValues, 'dayControlSwitch' | 'nightControlSwitch'> & {
+  dayControlSwitch: Nullable<DeviceContext>;
+  nightControlSwitch: Nullable<DeviceContext>;
+};
+type ContextNumber = Nullable<number>;
 
 const getDeviceConfigIfAuthenticated = async (context: SmartAppContext, configId: string): Promise<DeviceContext[] | null> => {
   if (!context.isAuthenticated()) {
@@ -27,33 +34,34 @@ const getMinuteOffsetFromNoon = (timeString: string): number => {
   }
   const configDate = dayjs.utc(timeString, 'HH:mm A');
 
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const noonDate = configDate.hour(12).minute(0).second(0).millisecond(0);
   return configDate.diff(noonDate, 'minute');
 };
 
-const readConfigFromContext = async (context: SmartAppContext): Promise<ISmartAppRuleConfigValues> => ({
-  enableAllRules: context.configBooleanValue('enableAllRules')?.valueOf(),
-  enableDaylightRule: context.configBooleanValue('enableDaylightRule')?.valueOf(),
-  enableNightlightRule: context.configBooleanValue('enableNightlightRule')?.valueOf(),
-  enableIdleRule: context.configBooleanValue('enableIdleRule')?.valueOf(),
+const readConfigFromContext = async (context: SmartAppContext): Promise<ContextSmartAppConfigValues> => ({
+  enableAllRules: context.configBooleanValue('enableAllRules').valueOf(),
+  enableDaylightRule: context.configBooleanValue('enableDaylightRule').valueOf(),
+  enableNightlightRule: context.configBooleanValue('enableNightlightRule').valueOf(),
+  enableIdleRule: context.configBooleanValue('enableIdleRule').valueOf(),
   motionSensors: await getDeviceConfigIfAuthenticated(context, 'motionSensor') ?? [],
-  motionMultipleAll: context.configBooleanValue('motionMultipleAll')?.valueOf(),
-  motionIdleTimeout: context.configNumberValue('motionIdleTimeout')?.valueOf(),
+  motionMultipleAll: context.configBooleanValue('motionMultipleAll').valueOf(),
+  motionIdleTimeout: context.configNumberValue('motionIdleTimeout').valueOf(),
   motionIdleTimeoutUnit: context.configBooleanValue('motionIdleTimeoutUnit') ? 'Minute' : 'Second',
-  motionDurationDelay: context.configNumberValue('motionDurationDelay')?.valueOf(),
+  motionDurationDelay: context.configNumberValue('motionDurationDelay').valueOf(),
   dayControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'dayControlSwitch') ?? [null])[0],
   dayActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'dayActiveSwitches') ?? [],
   nightControlSwitch: (await getDeviceConfigIfAuthenticated(context, 'nightControlSwitch') ?? [null])[0],
   nightActiveSwitches: await getDeviceConfigIfAuthenticated(context, 'nightActiveSwitches') ?? [],
-  dayNightOffset: getMinuteOffsetFromNoon(context.configTimeString('dayNightOffsetTime')?.valueOf()),
-  nightEndOffset: getMinuteOffsetFromNoon(context.configTimeString('nightEndOffsetTime')?.valueOf()),
-  dayStartOffset: getMinuteOffsetFromNoon(context.configTimeString('dayStartOffsetTime')?.valueOf())
+  dayNightOffset: getMinuteOffsetFromNoon(context.configTimeString('dayNightOffsetTime').valueOf()),
+  nightEndOffset: getMinuteOffsetFromNoon(context.configTimeString('nightEndOffsetTime').valueOf()),
+  dayStartOffset: getMinuteOffsetFromNoon(context.configTimeString('dayStartOffsetTime').valueOf())
 });
 
 export const readDeviceLevelConfigFromContext = (context: SmartAppContext, devices: DeviceContext[]): ISmartAppRuleSwitchLevelConfig[] => devices.map(d => ({
   deviceId: d.deviceId,
-  switchDayLevel: context.configNumberValue(`dayLevel${d.deviceId}`) ?? global.rule.default.switchDayLevel,
-  switchNightLevel: context.configNumberValue(`nightLevel${d.deviceId}`) ?? global.rule.default.switchNightLevel
+  switchDayLevel: context.configNumberValue(`dayLevel${d.deviceId}`) as ContextNumber ?? global.rule.default.switchDayLevel,
+  switchNightLevel: context.configNumberValue(`nightLevel${d.deviceId}`) as ContextNumber ?? global.rule.default.switchNightLevel
 }));
 
 export default readConfigFromContext;

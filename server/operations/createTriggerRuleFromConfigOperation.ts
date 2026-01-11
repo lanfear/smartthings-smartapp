@@ -10,6 +10,7 @@ import {
 } from '../factories/ruleFactory';
 import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 
+// eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const _24hours = 24 * 60;
 
 const createTriggerRuleFromConfig = (

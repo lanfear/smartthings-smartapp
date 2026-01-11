@@ -1,14 +1,14 @@
 import {RuleRequest} from '@smartthings/core-sdk';
 import sse from '../provider/sse';
 import {IRuleSummary, ISseRuleEvent} from 'sharedContracts';
-import {RuleStoreInfo} from '../types';
+import {Nullable, RuleStoreInfo} from '../types';
 import ruleStore from '../provider/ruleStore';
 
 const sendSSEEvent = (data: ISseRuleEvent): void => {
   sse.send(JSON.stringify(data), 'rule');
 };
 
-const storeRulesAndNotifyOperation = async (smartAppLookupKey: string, combinedRule: RuleRequest, combinbedRuleId: string, transitionRule: RuleRequest, transitionRuleId: string, newRuleSummary: IRuleSummary): Promise<void> => {
+const storeRulesAndNotifyOperation = async (smartAppLookupKey: string, combinedRule: Nullable<RuleRequest>, combinbedRuleId: Nullable<string>, transitionRule: Nullable<RuleRequest>, transitionRuleId: Nullable<string>, newRuleSummary: IRuleSummary): Promise<void> => {
   const newRuleInfo: RuleStoreInfo = {
     combinedRule: combinedRule,
     combinedRuleId: combinbedRuleId,
