@@ -43,10 +43,7 @@ const createStore = (automationId: string): ContextStoreExtended => {
         await redisContextStore.connect();
       }
       const appRecordText = await redisContextStore.get(`${appContextPrefix}${installedAppId}`);
-      if (!appRecordText) {
-        throw new Error(`No context record found for installedAppId ${installedAppId}.  This is unexpected and code execution cannot continue.`);
-      }
-      const appRecord = JSON.parse((await redisContextStore.get(`${appContextPrefix}${installedAppId}`))!) as ContextRecord;
+      const appRecord = (appRecordText ? JSON.parse(appRecordText) : null as unknown) as ContextRecord;
       return appRecord;
     },
     put: async contextRecord => {
