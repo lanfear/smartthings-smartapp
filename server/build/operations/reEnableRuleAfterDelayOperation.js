@@ -13,6 +13,7 @@ const reEnableRuleAfterDelay = (locationId, installedAppId, ruleComponent, delay
     const cacheKey = `${locationId}-${installedAppId}`;
     if (restartDelayTimers[cacheKey]) {
         clearTimeout(restartDelayTimers[cacheKey]);
+        restartDelayTimers[cacheKey] = null;
     }
     setTimeout(() => {
         void (0, manageRuleApplicationOperation_1.default)(locationId, installedAppId, ruleComponent, false);

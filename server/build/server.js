@@ -34,6 +34,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const dotenv = __importStar(require("dotenv"));
@@ -54,7 +55,11 @@ const returnResultError_1 = __importDefault(require("./exceptions/returnResultEr
 const reEnableRuleAfterDelayOperation_1 = require("./operations/reEnableRuleAfterDelayOperation");
 const defaultPort = 3001;
 const server = (0, express_1.default)();
-const PORT = process.env.PORT || defaultPort;
+const PORT = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : defaultPort;
+// TODO: move this stuff to a config file
+if (!process.env.CONTROL_APP_ID || !process.env.CONTROL_CLIENT_ID || !process.env.CONTROL_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
+    throw new Error('CONTROL_APP_ID, CONTROL_CLIENT_ID, CONTROL_CLIENT_SECRET, and CONTROL_API_TOKEN environment variables are required but not all have been set.');
+}
 server.use((0, cors_1.default)()); // TODO: this could be improved
 server.use(express_1.default.json());
 // server.use(express.static(path.join(__dirname, '../public')));
@@ -75,34 +80,33 @@ server.get('/app', (_, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 server.get('/locations', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-    res.json((yield client.locations.list()) || []);
+    res.json(yield client.locations.list());
 }));
 server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g;
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-    const rooms = (yield ((_a = client.rooms) === null || _a === void 0 ? void 0 : _a.list(req.params.id))) || [];
-    const scenes = (yield ((_b = client.scenes) === null || _b === void 0 ? void 0 : _b.list({ locationId: [req.params.id] }))) || [];
-    const switches = yield Promise.all(((yield ((_c = client.devices) === null || _c === void 0 ? void 0 : _c.list({ locationId: [req.params.id], capability: 'switch' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+    const rooms = yield client.rooms.list(req.params.id);
+    const scenes = yield client.scenes.list({ locationId: [req.params.id] });
+    const switches = yield Promise.all((yield client.devices.list({ locationId: [req.params.id], capability: 'switch' })).map((it) => __awaiter(void 0, void 0, void 0, function* () {
         const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
         it.value = state.switch.value;
         return it;
     })));
-    const locks = yield Promise.all(((yield ((_d = client.devices) === null || _d === void 0 ? void 0 : _d.list({ locationId: [req.params.id], capability: 'lock' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+    const locks = yield Promise.all((yield client.devices.list({ locationId: [req.params.id], capability: 'lock' })).map((it) => __awaiter(void 0, void 0, void 0, function* () {
         const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
         it.value = state.lock.value;
         return it;
     })));
-    const motion = yield Promise.all(((yield ((_e = client.devices) === null || _e === void 0 ? void 0 : _e.list({ locationId: [req.params.id], capability: 'motionSensor' }))) || []).map((it) => __awaiter(void 0, void 0, void 0, function* () {
+    const motion = yield Promise.all((yield client.devices.list({ locationId: [req.params.id], capability: 'motionSensor' })).map((it) => __awaiter(void 0, void 0, void 0, function* () {
         const state = yield client.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
         it.value = state.motion.value;
         return it;
     })));
-    const apps = (yield Promise.all(((yield ((_f = client.installedApps) === null || _f === void 0 ? void 0 : _f.list({ locationId: [req.params.id] }))) || []).map((a) => __awaiter(void 0, void 0, void 0, function* () {
+    const apps = (yield Promise.all((yield client.installedApps.list({ locationId: [req.params.id] })).map((a) => __awaiter(void 0, void 0, void 0, function* () {
         const ruleStoreInfo = yield ruleStore_1.default.get(a.installedAppId);
         return Object.assign(Object.assign({}, a), { ruleSummary: ruleStoreInfo === null || ruleStoreInfo === void 0 ? void 0 : ruleStoreInfo.newRuleSummary });
     })))).filter(a => !!a.ruleSummary); // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
-    const rules = ((yield ((_g = client.rules) === null || _g === void 0 ? void 0 : _g.list(req.params.id))) || []).map(r => {
-        const linkedInstalledApp = apps.find(a => { var _a; return (_a = a.ruleSummary) === null || _a === void 0 ? void 0 : _a.ruleIds.find(rid => rid === r.id); });
+    const rules = (yield client.rules.list(req.params.id)).map(r => {
+        const linkedInstalledApp = apps.find(a => a.ruleSummary.ruleIds.find(rid => rid === r.id));
         return Object.assign(Object.assign({}, r), { dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp === null || linkedInstalledApp === void 0 ? void 0 : linkedInstalledApp.ruleSummary });
     });
     const response = {
@@ -118,7 +122,6 @@ server.get('/location/:id', (req, res) => __awaiter(void 0, void 0, void 0, func
     res.json(response);
 }));
 /* Execute a scene */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
 server.post('/location/:id/scenes/:sceneId', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const context = yield smartAppControl_1.default.withContext(req.params.id);
     const result = yield context.api.scenes.execute(req.params.sceneId);
@@ -132,7 +135,7 @@ server.post('/device/:deviceId', (req, res) => __awaiter(void 0, void 0, void 0,
 }));
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h;
+    var _b;
     try {
         yield (0, manageRuleApplicationOperation_1.default)(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
     }
@@ -147,7 +150,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
         }
         throw e;
     }
-    const reEnableDelay = (_h = req.body.reEnable) !== null && _h !== void 0 ? _h : 0;
+    const reEnableDelay = (_b = req.body.reEnable) !== null && _b !== void 0 ? _b : 0;
     if (req.params.enabled === 'false' && reEnableDelay > 0) {
         // eslint-disable-next-line no-console
         console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
