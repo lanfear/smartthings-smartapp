@@ -44,8 +44,10 @@
     "typescript": "^5.1.6"
   },
   "scripts": {
-    "lint": "npx -no -- concurrently -n tsc,lint -c cyan,green \"tsc --noEmit\" \"eslint --cache --color **/*.{js,jsx,ts,tsx}\"",
+    "lint": "npx -no -- concurrently -n tsc,lint -c cyan,green \"npm:lint:tsc\" \"npm:lint:eslint -- --cache\"",
     "lint-fix": "eslint --cache --color **/*.{js,jsx,ts,tsx} --fix",
+    "lint:tsc": "tsc --noEmit",
+    "lint:eslint": "eslint --color **/*.{js,jsx,ts,tsx}",
     "build": "tsc",
     "build:watch": "npm-watch build",
     "prod": "node build/server.js",
