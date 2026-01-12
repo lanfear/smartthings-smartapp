@@ -98,8 +98,7 @@ server.get('/location/:id', async (req, res) => {
 /* Execute a scene */
 
 server.post('/location/:id/scenes/:sceneId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  const result = await context.api.scenes.execute(req.params.sceneId);
+  const result = await getSmartThingsClient().scenes.execute(req.params.sceneId);
   res.send(result);
 });
 
@@ -141,9 +140,8 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
 });
 
 server.post('/location/:id/rule', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
   // someday we can do better than this, TS 4.17+ should support generic for Request type
-  const result = await context.api.rules.create(req.body as RuleRequest);
+  const result = await getSmartThingsClient().rules.create(req.body as RuleRequest);
   res.send(result);
 });
 
