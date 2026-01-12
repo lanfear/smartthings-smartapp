@@ -1,7 +1,7 @@
 import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
-import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
+import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
 import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceData} from '../store/DeviceContextStore';

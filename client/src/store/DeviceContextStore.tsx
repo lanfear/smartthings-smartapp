@@ -1,10 +1,10 @@
 // src/theme-context.js
+import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {useCallback} from 'react';
-import {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
-import useSWR, {KeyedMutator, unstable_serialize as swrKeySerializer} from 'swr';
-import getLocation from '../operations/getLocation';
-import {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
+import useSWR, {unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
+import getLocation from '../operations/getLocation';
+import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
 import {useLocationContextStore} from './LocationContextStore';
 
 export interface IDeviceContextStore {

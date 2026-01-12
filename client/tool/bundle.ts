@@ -1,12 +1,11 @@
+/* eslint-disable import/order */
 /* eslint-disable no-console */
 import dotenv from 'dotenv';
-
 // dotenv.config({path: './.env-sample'});
 dotenv.config();
-
 import path from 'path';
 import fs from 'fs/promises';
-import {build, Plugin as EsBuildPlugin, BuildOptions} from 'esbuild';
+import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
 import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';

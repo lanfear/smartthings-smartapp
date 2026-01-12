@@ -1,17 +1,17 @@
 import React, {useEffect} from 'react';
+import AceEditor from 'react-ace';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
+import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardTitle, DashboardGridColumnHeader, StyledButton, FlexRowCenter} from '../factories/styleFactory';
-import {useDeviceData} from '../store/DeviceContextStore';
-import {IApp, IRule} from '../types/sharedContracts';
-import {RouteParams} from '../App';
 import getLocations from '../operations/getLocations';
+import {useDeviceData} from '../store/DeviceContextStore';
 import {setLocation} from '../store/LocationContextStore';
+import type {IApp, IRule} from '../types/sharedContracts';
 
 const DashboardRuleGrid = styled.div`
     display: grid;

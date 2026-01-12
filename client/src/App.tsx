@@ -1,24 +1,24 @@
 import React from 'react';
-import {Routes, Route} from 'react-router-dom';
-import {SWRConfig} from 'swr';
+import {isMobile} from 'react-device-detect';
 import {DndProvider} from 'react-dnd';
 import {HTML5Backend} from 'react-dnd-html5-backend';
 import {TouchBackend} from 'react-dnd-touch-backend';
-import {isMobile} from 'react-device-detect';
+import {Routes, Route} from 'react-router-dom';
 // Components
-import StyledComponentProvider from './providers/StyledComponentProvider';
-import NavMenu from './components/NavMenu';
-import Home from './components/Home';
-import RuleExamples from './components/RuleExamples';
-import BasicTemplates from './components/BasicTemplates';
-import AdvancedTemplates from './components/AdvancedTemplates';
-import SmartApps from './components/SmartApps';
-import DashboardRooms from './components/DashboardRooms';
 import {EventSourceProvider} from 'react-sse-hooks';
-import Locations from './components/Locations';
+import {SWRConfig} from 'swr';
+import AdvancedTemplates from './components/AdvancedTemplates';
+import BasicTemplates from './components/BasicTemplates';
 import DashboardApps from './components/DashboardApps';
+import DashboardRooms from './components/DashboardRooms';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
+import Home from './components/Home';
+import Locations from './components/Locations';
+import NavMenu from './components/NavMenu';
+import RuleExamples from './components/RuleExamples';
+import SmartApps from './components/SmartApps';
+import StyledComponentProvider from './providers/StyledComponentProvider';
 
 export type RouteParams = Record<string, string> & {
   locationId: string;

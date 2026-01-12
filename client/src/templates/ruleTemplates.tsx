@@ -2,6 +2,9 @@
 import and from './templates/and.json';
 import between from './templates/between.json';
 import command from './templates/command.json';
+import daylightRoutine from './templates/daylightRoutine.json';
+import daylightRoutineDelayed from './templates/daylightRoutineDelayed.json';
+import delayedCommand from './templates/delayedCommand.json';
 import dropsBelow from './templates/dropsBelow.json';
 import dropsToOrBelow from './templates/dropsToOrBelow.json';
 import ifElse from './templates/ifElse.json';
@@ -10,16 +13,13 @@ import ifGreaterThanOrEquals from './templates/ifGreaterThanOrEquals.json';
 import ifNot from './templates/ifNot.json';
 import lessThan from './templates/lessThan.json';
 import lessThanOrEquals from './templates/lessThanOrEquals.json';
+import morningSchedule from './templates/morningSchedule.json';
+import nestedIf from './templates/nestedIf.json';
 import or from './templates/or.json';
 import risesAbove from './templates/risesAbove.json';
 import risesToOrAbove from './templates/risesToOrAbove.json';
 import setLocationMode from './templates/setLocationMode.json';
 // Advanced templates
-import daylightRoutine from './templates/daylightRoutine.json';
-import daylightRoutineDelayed from './templates/daylightRoutineDelayed.json';
-import delayedCommand from './templates/delayedCommand.json';
-import nestedIf from './templates/nestedIf.json';
-import morningSchedule from './templates/morningSchedule.json';
 
 const BasicTemp = [
   {label: 'And operator', value: and},

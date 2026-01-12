@@ -1,19 +1,19 @@
-import React, {useEffect, useRef} from 'react';
-import dayjs, {Dayjs} from 'dayjs';
+import type {Room as IRoom} from '@smartthings/core-sdk';
+import dayjs, {type Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
-import {Room as IRoom} from '@smartthings/core-sdk';
+import React, {useEffect, useRef} from 'react';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
-import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import global from '../constants/global';
+import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
+import {useDeviceData} from '../store/DeviceContextStore';
+import type {IActiveControl} from '../types/interfaces';
+import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
-import {useDeviceData} from '../store/DeviceContextStore';
-import SmartApp from './SmartApp';
-import getRulesFromSummary, {IRuleIdle, IRuleRange, IRuleTransition} from '../operations/getRulesFromSummary';
 import Rule from './Rule';
-import {IActiveControl} from '../types/interfaces';
+import SmartApp from './SmartApp';
 
 dayjs.extend(isBetween);
 

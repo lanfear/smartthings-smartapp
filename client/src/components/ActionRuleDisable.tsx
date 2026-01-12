@@ -1,11 +1,11 @@
 import React, {useMemo} from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
-import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
+import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
 import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
 import executeRuleControl from '../operations/executeRuleControl';
-import {IRuleComponentType} from '../types/sharedContracts';
 import {useLocationContextStore} from '../store/LocationContextStore';
+import type {IRuleComponentType} from '../types/sharedContracts';
 
 const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words, reEnableAfter}) => {
   const locationId = useLocationContextStore(s => s.locationId);

@@ -1,10 +1,10 @@
+import type {Room as IRoom} from '@smartthings/core-sdk';
 import React from 'react';
-import {Room as IRoom} from '@smartthings/core-sdk';
-import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import {IActiveControl} from '../types/interfaces';
-import global from '../constants/global';
 import {useDrag} from 'react-dnd';
+import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
+import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
+import type {IActiveControl} from '../types/interfaces';
 
 const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Power, room.roomId!, room.name!)));

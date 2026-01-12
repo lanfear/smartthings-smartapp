@@ -3,8 +3,8 @@ import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import {IActiveControl} from '../types/interfaces';
-import {IRuleComponentType} from '../types/sharedContracts';
+import type {IActiveControl} from '../types/interfaces';
+import type {IRuleComponentType} from '../types/sharedContracts';
 
 const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '💤';
 

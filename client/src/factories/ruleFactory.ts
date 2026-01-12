@@ -1,4 +1,4 @@
-import {RuleAction, RuleCondition} from '@smartthings/core-sdk';
+import type {RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
 export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): RuleCondition => ({

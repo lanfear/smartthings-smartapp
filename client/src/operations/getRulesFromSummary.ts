@@ -1,7 +1,7 @@
-import dayjs, {Dayjs} from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import dayjs, {type Dayjs} from 'dayjs';
 import objectSupport from 'dayjs/plugin/objectSupport';
-import {DeviceContext, IRuleSummary} from '../types/sharedContracts';
+import utc from 'dayjs/plugin/utc';
+import type {DeviceContext, IRuleSummary} from '../types/sharedContracts';
 dayjs.extend(utc);
 dayjs.extend(objectSupport);
 

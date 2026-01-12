@@ -1,12 +1,12 @@
+import type {Rule, RuleRequest} from '@smartthings/core-sdk';
 import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
+import {Link} from 'react-router-dom';
 import styled from 'styled-components';
 import global from '../constants/global';
-import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
-import getInstalledSmartApps, {IResponseSmartApps} from '../operations/getInstalledSmartApps';
-import {Rule, RuleRequest} from '@smartthings/core-sdk';
 import {generateActionSwitchLevel, generateConditionBetween, generateConditionMotion} from '../factories/ruleFactory';
+import getInstalledSmartApp, {type IResponseSmartApp} from '../operations/getInstalledSmartApp';
+import getInstalledSmartApps, {type IResponseSmartApps} from '../operations/getInstalledSmartApps';
 
 const SmartAppGrid = styled.div`
     display: grid;

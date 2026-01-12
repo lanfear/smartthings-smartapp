@@ -1,9 +1,9 @@
 import {useState, useEffect, memo} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import global from '../constants/global';
-import DropdownButton, {DropdownOption} from './DropdownButton';
+import getLocations, {type IResponseLocations} from '../operations/getLocations';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
-import getLocations, {IResponseLocations} from '../operations/getLocations';
+import DropdownButton, {DropdownOption} from './DropdownButton';
 
 const NavMenu: React.FC = () => {
   const routeLocation = useLocation();

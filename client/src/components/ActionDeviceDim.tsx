@@ -1,12 +1,12 @@
 import React, {useMemo, useRef, useState} from 'react';
-import {DropTargetMonitor, useDrop} from 'react-dnd';
+import {useDrop, type DropTargetMonitor} from 'react-dnd';
 import styled from 'styled-components';
 import global from '../constants/global';
-import {createDropConfig, IDragAndDropItem, IDragAndDropType} from '../factories/dragAndDropFactory';
+import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
 import {ControlActionContainer} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceData} from '../store/DeviceContextStore';
-import {IResponseSwitches} from '../types/sharedContracts';
+import type {IResponseSwitches} from '../types/sharedContracts';
 
 const dimLevelMin = 5;
 const dimLevelMax = 95;
