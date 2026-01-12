@@ -1,12 +1,11 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
+import {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
 import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
-// import process from './provider/env';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import sse from './provider/sse';
@@ -16,6 +15,7 @@ import {listInstalledApps} from './provider/smartAppContextStore';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
 import ReturnResultError from './exceptions/returnResultError';
 import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
+import getSmartThingsClient from './provider/smartThingsClient';
 
 const defaultPort = 3001;
 
@@ -50,13 +50,11 @@ server.get('/app', async (_, res) => {
 });
 
 server.get('/locations', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
-  res.json(await client.locations.list());
+  res.json(await getSmartThingsClient().locations.list());
 });
 
 server.get('/location/:id', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
-
+  const client = getSmartThingsClient();
   const rooms = await client.rooms.list(req.params.id);
   const scenes = await client.scenes.list({locationId: [req.params.id]});
   const switches = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'switch'})).map(async it => {
@@ -107,8 +105,7 @@ server.post('/location/:id/scenes/:sceneId', async (req, res) => {
 
 /* Execute a device command */
 server.post('/device/:deviceId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
-  const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
+  const result = await getSmartThingsClient().devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
 
@@ -151,8 +148,7 @@ server.post('/location/:id/rule', async (req, res) => {
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
-  await client.rules.delete(req.params.ruleId, req.params.id);
+  await getSmartThingsClient().rules.delete(req.params.ruleId, req.params.id);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();
 });

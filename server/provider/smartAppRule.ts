@@ -1,5 +1,5 @@
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {SmartThingsClient, BearerTokenAuthenticator, Device, RuleRequest} from '@smartthings/core-sdk';
+import {Device, RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
@@ -18,6 +18,7 @@ import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConf
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 import {ISmartAppRuleConfigValues, Nullable} from 'index';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
+import getSmartThingsClient from './smartThingsClient';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -355,7 +356,7 @@ export default new SmartApp()
     if (await rulesAreModified(updateData.installedApp.installedAppId, newCombinedRule)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const [_unused, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
-        new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!)),
+        getSmartThingsClient(),
         context.api.locations.locationId(),
         appKey,
         newCombinedRule,

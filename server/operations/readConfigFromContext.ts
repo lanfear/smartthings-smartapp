@@ -4,7 +4,7 @@ import utc from 'dayjs/plugin/utc';
 import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
 import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
 import global from '../constants/global';
-import {BearerTokenAuthenticator, SmartThingsClient} from '@smartthings/core-sdk';
+import getSmartThingsClient from '../provider/smartThingsClient';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -30,9 +30,8 @@ const getAuthenticatedDeviceConfig = async (context: SmartAppContext, configId: 
     }
   }
   // if user has not yet authenticated this app installation, or other error, we use our direct api token to get device info and turn it into DeviceContext
-  const c = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN!));
   return Promise.all(context.config[configId].map(async cc => {
-    const d = await c.devices.get(cc.deviceConfig!.deviceId);
+    const d = await getSmartThingsClient().devices.get(cc.deviceConfig!.deviceId);
     return {
       deviceId: d.deviceId,
       name: d.name,

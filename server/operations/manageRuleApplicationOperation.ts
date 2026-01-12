@@ -1,4 +1,3 @@
-import {BearerTokenAuthenticator, SmartThingsClient} from '@smartthings/core-sdk';
 import {StatusCodes} from 'http-status-codes';
 import {diff} from 'json-diff-ts';
 import ruleStore from '../provider/ruleStore';
@@ -7,6 +6,7 @@ import ReturnResultError from '../exceptions/returnResultError';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './createRuleFromSummaryOperation';
 import submitRulesForSmartAppOperation from './submitRulesForSmartAppOperation';
 import storeRulesAndNotifyOperation from './storeRulesAndNotifyOperation';
+import getSmartThingsClient from '../provider/smartThingsClient';
 
 const determineTempDisableValue = (matchingRuleComponent: string, targetRuleComponent: string, coreRuleIsEnabled: boolean, existingValue: boolean, newValue: boolean): boolean =>
   ((targetRuleComponent !== matchingRuleComponent && targetRuleComponent !== 'all') || !coreRuleIsEnabled) ? existingValue : newValue;
@@ -43,9 +43,8 @@ const configureRule = async (locationId: string, installedAppId: string, ruleCom
   if (!process.env.CONTROL_API_TOKEN) {
     throw new Error('process.env.CONTROL_API_TOKEN not configured');
   }
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
   const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
-    client,
+    getSmartThingsClient(),
     locationId,
     appKey,
     combinedRule,
