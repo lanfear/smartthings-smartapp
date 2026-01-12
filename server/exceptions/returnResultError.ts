@@ -1,4 +1,4 @@
-import {StatusCodes} from 'http-status-codes';
+import type {StatusCodes} from 'http-status-codes';
 
 export default class ReturnResultError extends Error {
   statusCode: number;

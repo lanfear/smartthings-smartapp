@@ -1,4 +1,4 @@
-import {Nullable} from 'types';
+import type {Nullable} from 'types';
 import manageRuleApplicationOperation from './manageRuleApplicationOperation';
 
 // global cache of promises

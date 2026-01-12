@@ -1,11 +1,11 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {Device, Command, RuleRequest} from '@smartthings/core-sdk'; // eslint-disable-line import/order
-import express, {Request} from 'express';
+import type {Device, Command, RuleRequest} from '@smartthings/core-sdk'; // eslint-disable-line import/order
+import express, {type Request} from 'express';
 import cors from 'cors'; // eslint-disable-line import/order
 import {StatusCodes} from 'http-status-codes';
-import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
+import type {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
 import ReturnResultError from './exceptions/returnResultError';
 import {localOnlyMiddleware} from './middlewares';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';

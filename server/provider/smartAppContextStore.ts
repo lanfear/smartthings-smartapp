@@ -1,4 +1,4 @@
-import {ContextRecord, ContextStore} from '@smartthings/smartapp';
+import type {ContextRecord, ContextStore} from '@smartthings/smartapp';
 import {createClient} from 'redis';
 
 // this is the full interface of context store, the type is incorrect

@@ -1,10 +1,10 @@
-import {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
+import type {DeviceContext, SmartAppContext} from '@smartthings/smartapp';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import global from '../constants/global';
 import getSmartThingsClient from '../provider/smartThingsClient';
-import {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
+import type {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);

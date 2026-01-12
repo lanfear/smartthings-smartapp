@@ -1,4 +1,4 @@
-import {ESLint} from 'eslint';
+import type {ESLint} from 'eslint';
 import getTscLintingConfig from 'eslint-config-techsmith';
 import importPlugin from 'eslint-plugin-import';
 
@@ -40,7 +40,7 @@ export default [
     }
   },
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['**/*.ts', '**/*.tsx', '**/*.mts'],
     rules: {
       strict: 'off',
       'no-nested-ternary': 'off',
@@ -55,6 +55,7 @@ export default [
           parameters: 'first'
         }
       }],
+      '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-non-null-assertion': 'off'
     }
   } as ESLint.ConfigData,

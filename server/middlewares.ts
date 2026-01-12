@@ -1,4 +1,4 @@
-import {ErrorRequestHandler, RequestParamHandler} from 'express';
+import type {ErrorRequestHandler, RequestParamHandler} from 'express';
 import {IpFilter as ipFilter} from 'express-ipfilter';
 import {StatusCodes} from 'http-status-codes';
 

@@ -1,8 +1,8 @@
-import {RuleRequest} from '@smartthings/core-sdk';
+import type {RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import {Nullable} from 'types';
-import {IRuleSummary} from 'types/sharedContracts';
+import type {Nullable} from 'types';
+import type {IRuleSummary} from 'types/sharedContracts';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from './createCombinedRuleFromConfigOperation';
 import createIdleRuleFromConfig from './createIdleRuleFromConfigOperation';

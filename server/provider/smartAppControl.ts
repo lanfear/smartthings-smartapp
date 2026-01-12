@@ -1,5 +1,5 @@
-import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import {ISseEventType, ISseEvent} from 'types/sharedContracts';
+import {SmartApp, type ContextStore} from '@smartthings/smartapp';
+import type {ISseEventType, ISseEvent} from 'types/sharedContracts';
 import smartAppContextStore from './smartAppContextStore';
 import sse from './sse';
 

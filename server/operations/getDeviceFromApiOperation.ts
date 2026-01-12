@@ -1,5 +1,5 @@
-import {Device} from '@smartthings/core-sdk';
-import {Nullable} from 'types';
+import type {Device} from '@smartthings/core-sdk';
+import type {Nullable} from 'types';
 import getSmartThingsClient from '../provider/smartThingsClient';
 
 const getDeviceFromApiOperation = async (deviceId: string): Promise<Nullable<Device>> => {

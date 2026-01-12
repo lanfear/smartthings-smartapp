@@ -1,4 +1,4 @@
-import {RuleAction} from '@smartthings/core-sdk';
+import type {RuleAction} from '@smartthings/core-sdk';
 import global from '../constants/global';
 import {
   generateConditionDeviceOff,
@@ -8,7 +8,7 @@ import {
   generateActionSwitchLevel,
   generateActionSleep
 } from '../factories/ruleFactory';
-import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
+import type {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 
 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
 const _24hours = 24 * 60;

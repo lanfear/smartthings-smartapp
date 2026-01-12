@@ -1,4 +1,4 @@
-import {RuleRequest} from '@smartthings/core-sdk';
+import type {RuleRequest} from '@smartthings/core-sdk';
 import global from '../constants/global';
 import {
   generateConditionTrigger,
@@ -7,7 +7,7 @@ import {
   generateActionSwitchOff,
   generateActionSwitchLevel
 } from '../factories/ruleFactory';
-import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
+import type {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 
 const createTransitionRuleFromConfig = (
   appKey: string,
