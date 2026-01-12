@@ -1,21 +1,21 @@
 import fs from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {Device, Command, RuleRequest} from '@smartthings/core-sdk';
+import {Device, Command, RuleRequest} from '@smartthings/core-sdk'; // eslint-disable-line import/order
 import express, {Request} from 'express';
-import cors from 'cors';
+import cors from 'cors'; // eslint-disable-line import/order
 import {StatusCodes} from 'http-status-codes';
-import smartAppControl from './provider/smartAppControl';
-import smartAppRule from './provider/smartAppRule';
-import sse from './provider/sse';
+import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
+import ReturnResultError from './exceptions/returnResultError';
 import {localOnlyMiddleware} from './middlewares';
+import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
+import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import ruleStore from './provider/ruleStore';
 import {listInstalledApps} from './provider/smartAppContextStore';
-import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
-import ReturnResultError from './exceptions/returnResultError';
-import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
+import smartAppControl from './provider/smartAppControl';
+import smartAppRule from './provider/smartAppRule';
 import getSmartThingsClient from './provider/smartThingsClient';
-import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
+import sse from './provider/sse';
 
 const defaultPort = 3001;
 

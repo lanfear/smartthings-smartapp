@@ -1,6 +1,6 @@
-import { ESLint } from 'eslint';
-import importPlugin from 'eslint-plugin-import';
+import {ESLint} from 'eslint';
 import getTscLintingConfig from 'eslint-config-techsmith';
+import importPlugin from 'eslint-plugin-import';
 
 export default [
   ...getTscLintingConfig(
@@ -29,15 +29,14 @@ export default [
       '@stylistic/indent': ['error', 2, {
         SwitchCase: 1
       }],
-      "import/order": ["error", {
-          "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-          "newlines-between": "never",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
+      'import/order': ['error', {
+        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'never',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true
         }
-      ]
+      }]
     }
   },
   {

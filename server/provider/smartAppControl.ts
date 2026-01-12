@@ -1,7 +1,7 @@
 import {ContextStore, SmartApp} from '@smartthings/smartapp';
-import sse from './sse';
-import smartAppContextStore from './smartAppContextStore';
 import {ISseEventType, ISseEvent} from 'types/sharedContracts';
+import smartAppContextStore from './smartAppContextStore';
+import sse from './sse';
 
 /*
  * Persistent storage of SmartApp tokens and configuration data in local files

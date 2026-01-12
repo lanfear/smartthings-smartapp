@@ -1,12 +1,12 @@
 import {StatusCodes} from 'http-status-codes';
 import {diff} from 'json-diff-ts';
-import ruleStore from '../provider/ruleStore';
-import {type RuleStoreInfo} from '../types';
 import ReturnResultError from '../exceptions/returnResultError';
-import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './createRuleFromSummaryOperation';
-import submitRulesForSmartAppOperation from './submitRulesForSmartAppOperation';
-import storeRulesAndNotifyOperation from './storeRulesAndNotifyOperation';
+import ruleStore from '../provider/ruleStore';
 import getSmartThingsClient from '../provider/smartThingsClient';
+import {type RuleStoreInfo} from '../types';
+import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from './createRuleFromSummaryOperation';
+import storeRulesAndNotifyOperation from './storeRulesAndNotifyOperation';
+import submitRulesForSmartAppOperation from './submitRulesForSmartAppOperation';
 
 const determineTempDisableValue = (matchingRuleComponent: string, targetRuleComponent: string, coreRuleIsEnabled: boolean, existingValue: boolean, newValue: boolean): boolean =>
   ((targetRuleComponent !== matchingRuleComponent && targetRuleComponent !== 'all') || !coreRuleIsEnabled) ? existingValue : newValue;
