@@ -1,10 +1,12 @@
+import { ESLint } from 'eslint';
+import importPlugin from 'eslint-plugin-import';
 import getTscLintingConfig from 'eslint-config-techsmith';
 
 export default [
   ...getTscLintingConfig(
     ['**/node_modules/', '**/data/', '**/build/'],
     {
-      process: 'readonly'
+      process: false
     }
   ),
   {
@@ -14,6 +16,9 @@ export default [
       // parserOptions: {
       //   project: "./tsconfig.json",
       // },
+    },
+    plugins: {
+      import: importPlugin
     }
   },
   {
@@ -23,7 +28,16 @@ export default [
       indent: 'off',
       '@stylistic/indent': ['error', 2, {
         SwitchCase: 1
-      }]
+      }],
+      "import/order": ["error", {
+          "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+          "newlines-between": "never",
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ]
     }
   },
   {
@@ -44,9 +58,9 @@ export default [
       }],
       '@typescript-eslint/no-non-null-assertion': 'off'
     }
-  },
+  } as ESLint.ConfigData,
   {
-    files: ['**/*.mjs'],
+    files: ['**/*.mjs', '**/*.mts'],
     languageOptions: {
       sourceType: 'module'
     }
