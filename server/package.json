@@ -53,57 +53,6 @@
     "start": "npx -no -- concurrently -c gray,white \"npm:build:watch\" \"npm:prod:watch\"",
     "tunnel": "npx -no -p @ngrok/ngrok -p dotenv-cli -p cross-replace -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %PORT% --log=stdout\""
   },
-  "eslintConfig": {
-    "ignorePatterns": [
-      "node_modules/",
-      "data/",
-      "build/"
-    ],
-    "extends": [
-      "techsmith/es6"
-    ],
-    "rules": {
-      "indent": [
-        "error",
-        2,
-        {
-          "SwitchCase": 1
-        }
-      ]
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/*.ts"
-        ],
-        "extends": [
-          "techsmith/ts"
-        ],
-        "rules": {
-          "indent": "off",
-          "@typescript-eslint/indent": [
-            "error",
-            2,
-            {
-              "SwitchCase": 1,
-              "FunctionDeclaration": {
-                "parameters": "first"
-              },
-              "FunctionExpression": {
-                "parameters": "first"
-              }
-            }
-          ]
-        }
-      }
-    ],
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "globals": {
-      "process": "readonly"
-    }
-  },
   "browserslist": {
     "production": [
       ">0.2%",
