@@ -17,6 +17,7 @@ import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromCo
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 import {ISmartAppRuleConfigValues, Nullable} from 'index';
+import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
@@ -51,10 +52,9 @@ export default new SmartApp()
 
 // Configuration page definition
   .page('rulesMainPage', async (context, page /* , configData */) => {
-    // eslint-disable-next-line @typescript-eslint/await-thenable
-    await page.section('description', async section => {
-      const config = await readConfigFromContext(context);
+    const config = await readConfigFromContext(context);
 
+    page.section('description', section => {
       if (!config.dayControlSwitch || !config.nightControlSwitch) {
       // eslint-disable-next-line no-console
         console.warn('Day or Night control switch not configured in main page, cannot create rules');
@@ -202,28 +202,26 @@ export default new SmartApp()
     await page.section('levels', async section => {
       section.hideable(true);
 
-      if (!context.isAuthenticated()) {
-        section
-          .paragraphSetting('levelNotAuthorized');
-        // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
-        return;
-      }
-
       let allDimmableSwitches: Device[];
       try {
-        allDimmableSwitches = await context.api.devices.list({capability: 'switchLevel'});
+        allDimmableSwitches = await listDevicesFromApiOperation({capability: 'switchLevel'});
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log('api lookup failed even though isAuthenticated', e);
         return;
       }
 
-      const daySwitches = ((await context.configDevices('dayControlSwitch'))).concat((await context.configDevices('dayActiveSwitches')))
+      const daySwitches = (config.dayControlSwitch ? [config.dayControlSwitch] : []).concat(config.dayActiveSwitches)
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-      const nightSwitches = ((await context.configDevices('nightControlSwitch'))).concat((await context.configDevices('nightActiveSwitches')))
+      const nightSwitches = (config.nightControlSwitch ? [config.nightControlSwitch] : []).concat(config.nightActiveSwitches)
         .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
       const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
       const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+
+      if (dayDimmableSwitches.length === 0 && nightDimmableSwitches.length === 0) {
+        section.paragraphSetting('levelEmpty');
+        return;
+      }
 
       dayDimmableSwitches.forEach(s => {
         section.numberSetting(`dayLevel${s.deviceId}`)
@@ -269,7 +267,7 @@ export default new SmartApp()
       return;
     }
 
-    const allDimmableSwitches = await context.api.devices.list({capability: 'switchLevel'});
+    const allDimmableSwitches = await listDevicesFromApiOperation({capability: 'switchLevel'});
     const uniqueDaySwitches = uniqueDeviceFactory([newConfig.dayControlSwitch].concat(newConfig.dayActiveSwitches));
     const uniqueNightSwitches = uniqueDeviceFactory([newConfig.nightControlSwitch].concat(newConfig.nightActiveSwitches));
     const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
