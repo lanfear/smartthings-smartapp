@@ -1,5 +1,5 @@
-import {Nullable, RuleStoreInfo} from 'index';
 import {createClient} from 'redis';
+import {Nullable, RuleStoreInfo} from 'types';
 
 const ruleInfoPrefix = 'st-ruleinfo-';
 const redisRuleStore = createClient({

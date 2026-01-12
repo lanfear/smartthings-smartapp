@@ -3,6 +3,7 @@ import {Device, RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
+import {ISmartAppRuleConfigValues, Nullable} from 'types';
 import {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 import global from '../constants/global';
 import ruleStore from './ruleStore';
@@ -16,7 +17,6 @@ import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
-import {ISmartAppRuleConfigValues, Nullable} from 'index';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 import getSmartThingsClient from './smartThingsClient';
 

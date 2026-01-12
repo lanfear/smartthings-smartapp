@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import {RuleRequest} from '@smartthings/core-sdk';
-import {IRuleSummary} from 'sharedContracts';
+import {IRuleSummary} from 'types/sharedContracts';
+import {Nullable} from 'types';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from './createCombinedRuleFromConfigOperation';
 import createIdleRuleFromConfig from './createIdleRuleFromConfigOperation';
 import createTransitionRuleFromConfig from './createTransitionRuleFromConfigOperation';
 import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation';
-import {Nullable} from 'index';
 
 dayjs.extend(utc);
 

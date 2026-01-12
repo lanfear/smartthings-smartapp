@@ -10,14 +10,7 @@
     "outDir": "build",
     "lib": [
       "es6"
-    ],
-    "paths": {
-      "*": [
-        "node_modules/*",
-        "types/*",
-        "*.d.ts"
-      ]
-    }
+    ]
   },
   "include": [
     "**/*"

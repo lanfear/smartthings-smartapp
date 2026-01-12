@@ -1,7 +1,7 @@
 import {DeviceContext} from '@smartthings/smartapp';
 import dayjs from 'dayjs';
-import {IRuleSummary, IRuleSwitchLevelInfo} from 'sharedContracts';
 import {ISmartAppRuleConfigValues} from '../types';
+import {IRuleSummary, IRuleSwitchLevelInfo} from 'types/sharedContracts';
 
 const noonHour = 12;
 

@@ -1,8 +1,6 @@
-// options?: DeviceListOptions
-
 import {Device} from '@smartthings/core-sdk';
-import {Nullable} from 'index';
 import getSmartThingsClient from '../provider/smartThingsClient';
+import {Nullable} from 'types';
 
 const getDeviceFromApiOperation = async (deviceId: string): Promise<Nullable<Device>> => {
   try {

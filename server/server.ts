@@ -5,7 +5,6 @@ import {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import express, {Request} from 'express';
 import cors from 'cors';
 import {StatusCodes} from 'http-status-codes';
-import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import sse from './provider/sse';
@@ -16,6 +15,7 @@ import manageRuleApplicationOperation from './operations/manageRuleApplicationOp
 import ReturnResultError from './exceptions/returnResultError';
 import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import getSmartThingsClient from './provider/smartThingsClient';
+import {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
 
 const defaultPort = 3001;
 

@@ -1,5 +1,5 @@
 import {BearerTokenAuthenticator, SmartThingsClient} from '@smartthings/core-sdk';
-import {Nullable} from 'index';
+import {Nullable} from 'types';
 
 // singleton client instance
 let stClient: Nullable<SmartThingsClient> = null;

@@ -1,7 +1,7 @@
 import {RuleRequest} from '@smartthings/core-sdk';
 import sse from '../provider/sse';
-import {IRuleSummary, ISseRuleEvent} from 'sharedContracts';
 import {Nullable, RuleStoreInfo} from '../types';
+import {IRuleSummary, ISseRuleEvent} from 'types/sharedContracts';
 import ruleStore from '../provider/ruleStore';
 
 const sendSSEEvent = (data: ISseRuleEvent): void => {

@@ -1,3 +1,4 @@
+// sourceType: module
 import getTscLintingConfig from "eslint-config-techsmith";
 
 export default [
