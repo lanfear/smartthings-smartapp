@@ -1,9 +1,10 @@
+/// <reference types="node" />
 /* eslint-disable import/order */
 /* eslint-disable no-console */
 import dotenv from 'dotenv';
 // dotenv.config({path: './.env-sample'});
 dotenv.config();
-import path from 'path';
+import path, {dirname} from 'path';
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
@@ -12,13 +13,11 @@ import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
 import {dotenvRun} from '@dotenv-run/esbuild';
+import {fileURLToPath} from 'url';
 
-// eslint not happy with path here, not sure why
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-const parentDir = path.join(__dirname, '..');
+// Get the directory name of the current module
+const localDir = dirname(fileURLToPath(import.meta.url));
+const parentDir = path.join(localDir, '..');
 // const nodeModules = path.join(parentDir, 'node_modules');
 const srcDir = path.join(parentDir, 'src');
 const staticSrcDir = path.join(parentDir, 'public');
@@ -64,7 +63,7 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
     builder.onLoad({filter: /.*/, namespace: 'dataurl'}, async args => {
       const res = await builder.esbuild.build({
 
-        entryPoints: [args.pluginData.sourcePath], // sourcePath is set from argsin onResolve
+        entryPoints: [(args.pluginData as {sourcePath: string}).sourcePath], // sourcePath is set from argsin onResolve
         bundle: true,
         minify: minify,
         sourcemap: sourceMaps,
@@ -177,8 +176,8 @@ const doReplacesInBundleDir = async (): Promise<void> => {
       match => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
         // not sure what in the toolchain needs to change for this to be recognized
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (!(Object as unknown as any).hasOwn(process.env, matchIndex)) {
+
+        if (!(process.env[matchIndex])) {
           console.info('  ', match, 'not defined in .env, skipping replace in .html');
           return match;
         }
