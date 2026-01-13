@@ -18,7 +18,6 @@ import {fileURLToPath} from 'url';
 // Get the directory name of the current module
 const localDir = dirname(fileURLToPath(import.meta.url));
 const parentDir = path.join(localDir, '..');
-// const nodeModules = path.join(parentDir, 'node_modules');
 const srcDir = path.join(parentDir, 'src');
 const staticSrcDir = path.join(parentDir, 'public');
 const buildDir = path.join(parentDir, 'build');
@@ -87,16 +86,16 @@ const dotEnv = dotenvRun({
 // ***** STEPS *****
 
 const bundleIndex = async (isLocal: boolean): Promise<void> => {
-  const uwcEntryPoint = path.join(srcDir, 'index.tsx');
-  const uwcOutput = path.join(buildJsDir, 'index.js');
+  const entryPoint = path.join(srcDir, 'index.tsx');
+  const output = path.join(buildJsDir, 'index.js');
 
   await build({
-    entryPoints: [uwcEntryPoint],
+    entryPoints: [entryPoint],
     bundle: true,
     minify: true,
     sourcemap: isLocal ? 'inline' : true,
     target: 'chrome106',
-    outfile: uwcOutput,
+    outfile: output,
     plugins: [
       dotEnv,
       svgrPlugin,
@@ -108,17 +107,17 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
   });
 };
 
-// const bundleUwcWorkers = async (isLocal: boolean): Promise<void> => {
-//    const workerFileNames = ['recording-storage.worker.ts', 'shader-thumbnailing.worker.ts'];
-//    const uwcWorkerEntryPoints = workerFileNames.map(f => path.join(buildPaths.uwcWorkerSourceDir, f));
+// const bundleWorkers = async (isLocal: boolean): Promise<void> => {
+//    const workerFileNames = ['storage.worker.ts', 'other.worker.ts'];
+//    const workerEntryPoints = workerFileNames.map(f => path.join(buildPaths.workerSourceDir, f));
 
 //    await build({
-//       entryPoints: uwcWorkerEntryPoints,
+//       entryPoints: workerEntryPoints,
 //       bundle: true,
 //       minify: true,
 //       sourcemap: isLocal ? 'inline' : true,
 //       target: 'chrome106',
-//       outdir: uwcDistDir,
+//       outdir: buildJsDir,
 //       plugins: [],
 //       loader: {
 //          '.png': 'binary'
@@ -129,33 +128,9 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
 //    if (isLocal) {
 //       for (const workerFile of workerFileNames) {
 //          const jsWorker = workerFile.replace('.ts', '.js');
-//          await fs.copyFile(path.join(uwcDistDir, jsWorker), path.join(uwcHarnessDistDir, jsWorker));
+//          await fs.copyFile(path.join(buildJsDir, jsWorker), path.join(distDir, jsWorker));
 //       }
 //    }
-// };
-
-// const copyCommonCppArtifactsToDist = async (): Promise<void> => {
-//    console.info('Copying luma-wasm runtime files');
-//    console.info('  FROM [', lumaArtifactDir, ']');
-//    console.info('  TO   [', uwcDistDir, ']');
-//    const ffmpegFiles = ['libavcodec.so', 'libavformat.so', 'libavutil.so', 'libswresample.so', 'libswscale.so'];
-//    const lumaFiles = ['luma.js', 'luma.wasm'];
-//    await Promise.all([...lumaFiles, ...ffmpegFiles].map(async f => {
-//       console.info('  - ', f);
-//       await fs.copyFile(path.join(lumaArtifactDir, f), path.join(uwcDistDir, f));
-//    }));
-//    // copy the ai model pairs by extension
-//    await Promise.all(['.json', '.bin'].map(async ext => {
-//       try {
-//          await fs.rm(path.join(uwcDistDir, `${modelFileDestBaseName}${ext}`));
-//       } catch {
-//          // don't care, workflow seemed to require deletion of these files before re-creating, but if they dont exist or otherwise fail, nbd, continue procedure
-//       }
-//    }));
-//    console.info('  - ', `${modelFileSourceBaseName}.bin`, '->', `${modelFileDestBaseName}.bin`);
-//    await fs.copyFile(path.join(lumaArtifactDir, `${modelFileSourceBaseName}.bin`), path.join(uwcDistDir, `${modelFileDestBaseName}.bin`));
-//    console.info('  - ', `${modelFileSourceBaseName}.json`, '->', `${modelFileDestBaseName}.json`);
-//    await fs.copyFile(path.join(lumaArtifactDir, `${modelFileSourceBaseName}.json`), path.join(uwcDistDir, `${modelFileDestBaseName}.json`));
 // };
 
 const copyStaticAssetsToDist = async (): Promise<void> => {
@@ -200,7 +175,6 @@ const bundle = async (isLocal: boolean): Promise<void> => {
     }
 
     await Promise.all([bundleIndex(isLocal)]);
-    // await copyCommonCppArtifactsToDist();
     await copyStaticAssetsToDist();
     await fs.copyFile(path.join(staticSrcDir, 'index.html'), path.join(buildDir, 'index.html'));
     await doReplacesInBundleDir();
