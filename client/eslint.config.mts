@@ -12,9 +12,6 @@ export default [
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: 'script'
-      // parserOptions: {
-      //   project: "./tsconfig.json",
-      // },
     },
     plugins: {
       import: importPlugin

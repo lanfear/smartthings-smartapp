@@ -20,6 +20,8 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
+    "src",
+    "tool",
+    "eslint.config.mts"
   ]
 }
