@@ -1,5 +1,6 @@
 import {SmartApp, type ContextStore} from '@smartthings/smartapp';
 import type {ISseEventType, ISseEvent} from 'types/sharedContracts';
+import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';
 import sse from './sse';
 
@@ -7,12 +8,8 @@ import sse from './sse';
  * Persistent storage of SmartApp tokens and configuration data in local files
  */
 
-if (!process.env.CONTROL_APP_ID || !process.env.CONTROL_CLIENT_ID || !process.env.CONTROL_CLIENT_SECRET) {
-  throw new Error('CONTROL_APP_ID, CONTROL_CLIENT_ID, and CONTROL_CLIENT_SECRET environment variables are required but not all have been set.');
-}
-
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const contextStore: ContextStore = smartAppContextStore(process.env.CONTROL_APP_ID);
+const contextStore: ContextStore = smartAppContextStore(settings.controlAppId);
 
 const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
   sse.send(JSON.stringify(data), type);
@@ -20,12 +17,12 @@ const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
 
 /* Define the SmartApp */
 export default new SmartApp()
-  .enableEventLogging(2, process.env.LOGGING_EVENTS_ENABLED?.toLowerCase() === 'true')
+  .enableEventLogging(2, settings.debugLogging)
   .configureI18n()
   .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
-  .appId(process.env.CONTROL_APP_ID)
-  .clientId(process.env.CONTROL_CLIENT_ID)
-  .clientSecret(process.env.CONTROL_CLIENT_SECRET)
+  .appId(settings.controlAppId)
+  .clientId(settings.controlClientId)
+  .clientSecret(settings.controlClientSecret)
   .contextStore(contextStore)
 
   .page('mainPage', (_, page) => {

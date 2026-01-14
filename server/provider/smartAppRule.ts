@@ -17,6 +17,7 @@ import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOpera
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
 import type {IRuleSwitchLevelInfo} from '../types/sharedContracts';
 import ruleStore from './ruleStore';
+import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';
 import getSmartThingsClient from './smartThingsClient';
 
@@ -29,12 +30,8 @@ const increment5 = 5;
 const hourOffset8 = 8;
 const hourOffset20 = 20;
 
-if (!process.env.RULE_APP_ID || !process.env.RULE_CLIENT_ID || !process.env.RULE_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
-  throw new Error('Missing required environment variables for SmartApp configuration (RULE_APP_ID, RULE_CLIENT_ID, RULE_CLIENT_SECRET, CONTROL_API_TOKEN)');
-}
-
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
-const contextStore: ContextStore = smartAppContextStore(process.env.RULE_APP_ID);
+const contextStore: ContextStore = smartAppContextStore(settings.ruleAppId);
 
 const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequest>): Promise<boolean> => {
   const existingRules = await ruleStore.get(ruleStoreKey);
@@ -46,9 +43,9 @@ export default new SmartApp()
   .enableEventLogging()
   .configureI18n()
   .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
-  .appId(process.env.RULE_APP_ID)
-  .clientId(process.env.RULE_CLIENT_ID)
-  .clientSecret(process.env.RULE_CLIENT_SECRET)
+  .appId(settings.ruleAppId)
+  .clientId(settings.ruleClientId)
+  .clientSecret(settings.ruleClientSecret)
   .contextStore(contextStore)
 
 // Configuration page definition

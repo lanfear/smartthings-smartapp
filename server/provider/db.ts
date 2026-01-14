@@ -1,10 +1,10 @@
 import fs from 'fs';
-const dataDirectory = process.env.DATA_DIRECTORY ?? 'data';
-const ruleStore = process.env.DATA_RULESTORE ?? 'rules.json';
+import settings from './settings';
+
 const extLength = 5;
 
 export default {
-  listInstalledApps: (): string[] => fs.readdirSync(dataDirectory).map((it: string) => it.substring(0, it.length - extLength)),
-  dataDirectory: dataDirectory,
-  ruleStorePath: `${dataDirectory}/${ruleStore}`
+  listInstalledApps: (): string[] => fs.readdirSync(settings.dataDirectory).map((it: string) => it.substring(0, it.length - extLength)),
+  dataDirectory: settings.dataDirectory,
+  ruleStorePath: `${settings.dataDirectory}/${settings.dataRuleSet}`
 };

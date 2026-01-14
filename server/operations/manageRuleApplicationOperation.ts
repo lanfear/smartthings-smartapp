@@ -40,9 +40,6 @@ const configureRule = async (locationId: string, installedAppId: string, ruleCom
     throw new ReturnResultError('Rules not modified, nothing to update', StatusCodes.NOT_MODIFIED);
   }
 
-  if (!process.env.CONTROL_API_TOKEN) {
-    throw new Error('process.env.CONTROL_API_TOKEN not configured');
-  }
   const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = await submitRulesForSmartAppOperation(
     getSmartThingsClient(),
     locationId,

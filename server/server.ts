@@ -1,9 +1,10 @@
 import fs from 'fs';
+// eslint-disable-next-line import/order
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import type {Device, Command, RuleRequest} from '@smartthings/core-sdk'; // eslint-disable-line import/order
+import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
+import cors from 'cors';
 import express, {type Request} from 'express';
-import cors from 'cors'; // eslint-disable-line import/order
 import {StatusCodes} from 'http-status-codes';
 import type {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
 import ReturnResultError from './exceptions/returnResultError';
@@ -11,21 +12,14 @@ import {localOnlyMiddleware} from './middlewares';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
 import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import ruleStore from './provider/ruleStore';
+import settings from './provider/settings';
 import {listInstalledApps} from './provider/smartAppContextStore';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
 import getSmartThingsClient from './provider/smartThingsClient';
 import sse from './provider/sse';
 
-const defaultPort = 3001;
-
 const server = express();
-const PORT = process.env.PORT ?? defaultPort;
-
-// TODO: move this stuff to a config file
-if (!process.env.CONTROL_APP_ID || !process.env.CONTROL_CLIENT_ID || !process.env.CONTROL_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
-  throw new Error('CONTROL_APP_ID, CONTROL_CLIENT_ID, CONTROL_CLIENT_SECRET, and CONTROL_API_TOKEN environment variables are required but not all have been set.');
-}
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -157,9 +151,9 @@ server.delete('/location/:id/rule/:ruleId', async (req, res) => {
 server.get('/events', sse.init);
 
 /* Start listening at your defined PORT */
-server.listen(PORT, () => {
+server.listen(settings.hostPort, settings.hostName, () => {
   // eslint-disable-next-line no-console
-  console.log(`Server is up and running at http://localhost:${PORT}`);
+  console.log(`Server is up and running at http://${settings.hostName}:${settings.hostPort}`);
 });
 
 export type DeviceState = Device & {value: string};

@@ -1,5 +1,6 @@
 import type {ContextRecord, ContextStore} from '@smartthings/smartapp';
 import {createClient} from 'redis';
+import settings from './settings';
 
 // this is the full interface of context store, the type is incorrect
 export interface ContextStoreExtended extends ContextStore {
@@ -8,7 +9,7 @@ export interface ContextStoreExtended extends ContextStore {
 }
 
 const redisContextStore = createClient({
-  url: process.env.REDIS_SERVER
+  url: settings.redisServer
 });
 
 // none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself up

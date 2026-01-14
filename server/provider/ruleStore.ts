@@ -1,9 +1,10 @@
 import {createClient} from 'redis';
 import type {Nullable, RuleStoreInfo} from 'types';
+import settings from './settings';
 
 const ruleInfoPrefix = 'st-ruleinfo-';
 const redisRuleStore = createClient({
-  url: process.env.REDIS_SERVER
+  url: settings.redisServer
 });
 
 // none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself
