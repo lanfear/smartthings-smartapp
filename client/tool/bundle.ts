@@ -150,14 +150,12 @@ const doReplacesInBundleDir = async (): Promise<void> => {
     to: [
       match => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
-        // not sure what in the toolchain needs to change for this to be recognized
-
-        if (!(process.env[matchIndex])) {
-          console.info('  ', match, 'not defined in .env, skipping replace in .html');
+        if (!(matchIndex in process.env)) {
+          console.info('  ', matchIndex, 'not defined in .env, skipping replace', match, 'in .html');
           return match;
         }
-        console.info('  ', match, '->', process.env[matchIndex]);
-        return process.env[matchIndex];
+        console.info('  ', match, '->', process.env[matchIndex]!);
+        return process.env[matchIndex]!;
       }
     ]
   });
