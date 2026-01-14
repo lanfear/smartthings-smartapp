@@ -1,11 +1,13 @@
 // src/theme-context.js
 import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
-import {useCallback} from 'react';
+import {useCallback, useEffect} from 'react';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import useSWR, {unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
 import getLocation from '../operations/getLocation';
 import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
-import {useLocationContextStore} from './LocationContextStore';
+import {setLocation, useLocationContextStore} from './LocationContextStore';
+import {useParams} from 'react-router-dom';
+import {RouteParams} from '../App';
 
 export interface IDeviceContextStore {
   deviceData: IResponseLocation;
@@ -69,6 +71,7 @@ const getFallbackData = (locationId: string): IResponseLocation => {
 
 // SWR hook for device data
 export const useDeviceData = (): IDeviceContextStore => {
+  const {locationId} = useParams<RouteParams>();
   const activeLocationId = useLocationContextStore(s => s.locationId);
 
   const {data: deviceData, mutate: _setDeviceData} = useSWR(
@@ -105,6 +108,12 @@ export const useDeviceData = (): IDeviceContextStore => {
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
     await setDeviceData();
   }, [setDeviceData]);
+
+  useEffect(() => {
+    if (locationId && locationId !== (deviceData ?? initialDeviceData).locationId) {
+      setLocation(locationId);
+    }
+  }, [locationId, deviceData]);
 
   return {
     deviceData: deviceData ?? initialDeviceData,
