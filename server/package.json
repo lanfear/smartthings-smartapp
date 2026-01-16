@@ -55,7 +55,7 @@
     "prod": "node build/server.js",
     "prod:watch": "npm-watch prod",
     "start": "npx -no -- concurrently -c gray,white \"npm:build:watch\" \"npm:prod:watch\"",
-    "tunnel": "npx -no -p @ngrok/ngrok -p dotenv-cli -p cross-replace -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %PORT% --log=stdout\""
+    "tunnel": "npx -no -p @ngrok/ngrok -p dotenv-cli -p cross-replace -c \"dotenv -e .env -e .env-sample -- cross-replace ngrok http %STPORT% --log=stdout\""
   },
   "browserslist": {
     "production": [
@@ -90,7 +90,9 @@
     },
     "prod": {
       "patterns": [
-        "build/server.js"
+        "build/server.js",
+        "package.json",
+        ".env"
       ],
       "extensions": "js",
       "runOnChangeOnly": false,

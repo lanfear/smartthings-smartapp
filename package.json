@@ -22,7 +22,7 @@
     "kill-node-win": "taskkill -F -IM node.exe",
     "kill-node-linux": "killall .node.bin",
     "kill-client": "npx --no -p killport -p dotenv-cli -p cross-replace -c \"dotenv -e client/.env -- cross-replace kill-port %SMARTAPP_WEBHARNESS_PORT%\"",
-    "kill-server": "npx --no -p killport -p dotenv-cli -p cross-replace -c \"dotenv -e server/.env -- cross-replace kill-port %PORT%\""
+    "kill-server": "npx --no -p killport -p dotenv-cli -p cross-replace -c \"dotenv -e server/.env -- cross-replace kill-port %STPORT%\""
   },
   "devDependencies": {
     "cross-replace": "^0.2.0",
