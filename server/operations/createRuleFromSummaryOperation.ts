@@ -1,7 +1,8 @@
+import type {RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import {RuleRequest} from '@smartthings/core-sdk';
-import {IRuleSummary} from 'sharedContracts';
+import type {Nullable} from 'types';
+import type {IRuleSummary} from 'types/sharedContracts';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from './createCombinedRuleFromConfigOperation';
 import createIdleRuleFromConfig from './createIdleRuleFromConfigOperation';
@@ -10,19 +11,20 @@ import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation'
 
 dayjs.extend(utc);
 
-export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
-  if (!ruleSummary || !ruleSummary.enableAllRules) {
+export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullable<RuleRequest> => {
+  if (!ruleSummary.enableAllRules) {
     return null;
   }
 
-  const dayStartTime = dayjs(ruleSummary.dayStartTime).utc().diff(dayjs(ruleSummary.dayStartTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
-  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
-  const nightEndTime = dayjs(ruleSummary.nightEndTime).utc().diff(dayjs(ruleSummary.nightEndTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
+  /* eslint-disable @typescript-eslint/no-magic-numbers */
+  const dayStartTime = dayjs(ruleSummary.dayStartTime).utc().diff(dayjs(ruleSummary.dayStartTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
+  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
+  const nightEndTime = dayjs(ruleSummary.nightEndTime).utc().diff(dayjs(ruleSummary.nightEndTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
+  /* eslint-enable @typescript-eslint/no-magic-numbers */
 
   const uniqueSwitches = uniqueDeviceFactory(ruleSummary.daySwitches.concat(ruleSummary.nightSwitches));
-  
-  /* eslint-disable no-mixed-operators */
-  const newDayRule = ruleSummary.enableDaylightRule && !ruleSummary.temporaryDisableDaylightRule && createTriggerRuleFromConfig(
+
+  const newDayRule = (ruleSummary.enableDaylightRule && !ruleSummary.temporaryDisableDaylightRule) ? createTriggerRuleFromConfig(
     dayStartTime,
     dayNightTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -31,9 +33,9 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRe
     ruleSummary.dayNonDimmableSwitches.map(s => s.deviceId),
     ruleSummary.motionMultipleAll,
     ruleSummary.motionDurationDelay
-  ) || null;
+  ) : null;
 
-  const newNightRule = ruleSummary.enableNightlightRule && !ruleSummary.temporaryDisableNightlightRule && createTriggerRuleFromConfig(
+  const newNightRule = (ruleSummary.enableNightlightRule && !ruleSummary.temporaryDisableNightlightRule) ? createTriggerRuleFromConfig(
     dayNightTime,
     nightEndTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -42,15 +44,15 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRe
     ruleSummary.nightNonDimmableSwitches.map(s => s.deviceId),
     ruleSummary.motionMultipleAll,
     ruleSummary.motionDurationDelay
-  ) || null;
+  ) : null;
 
-  const newIdleRule = ruleSummary.enableIdleRule && !ruleSummary.temporaryDisableIdleRule && createIdleRuleFromConfig(
+  const newIdleRule = (ruleSummary.enableIdleRule && !ruleSummary.temporaryDisableIdleRule) ? createIdleRuleFromConfig(
     ruleSummary.motionSensors.map(d => d.deviceId),
     uniqueSwitches.map(d => d.deviceId),
     ruleSummary.motionIdleTimeout,
     ruleSummary.motionIdleTimeoutUnit,
     !ruleSummary.motionMultipleAll // you invert this setting for the idle case
-  ) || null;
+  ) : null;
 
   const appKey = `app-${ruleSummary.installedAppId}`;
   return createCombinedRuleFromConfig(
@@ -61,20 +63,20 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): RuleRe
   );
 };
 
-export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): RuleRequest => {
-  if (!ruleSummary || !ruleSummary.enableAllRules) {
+export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): Nullable<RuleRequest> => {
+  if (!ruleSummary.enableAllRules) {
     return null;
   }
 
-  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute'); // eslint-disable-line no-magic-numbers
+  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
 
   const appKey = `app-${ruleSummary.installedAppId}`;
-  return ruleSummary.enableTransitionRule && !ruleSummary.temporaryDisableTransitionRule && createTransitionRuleFromConfig(
+  return (ruleSummary.enableTransitionRule && !ruleSummary.temporaryDisableTransitionRule) ? createTransitionRuleFromConfig(
     appKey,
     dayNightTime,
     ruleSummary.daySwitches.map(s => s.deviceId),
     ruleSummary.nightDimmableSwitchLevels,
     ruleSummary.nightNonDimmableSwitches.map(s => s.deviceId)
-  ) || null;
-  /* eslint-enable no-mixed-operators */
+  ) : null;
 };

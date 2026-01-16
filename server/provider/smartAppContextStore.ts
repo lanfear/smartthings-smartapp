@@ -1,5 +1,6 @@
-import {ContextRecord, ContextStore} from '@smartthings/smartapp';
+import type {ContextRecord, ContextStore} from '@smartthings/smartapp';
 import {createClient} from 'redis';
+import settings from './settings';
 
 // this is the full interface of context store, the type is incorrect
 export interface ContextStoreExtended extends ContextStore {
@@ -8,7 +9,7 @@ export interface ContextStoreExtended extends ContextStore {
 }
 
 const redisContextStore = createClient({
-  url: process.env.REDIS_SERVER
+  url: settings.redisServer
 });
 
 // none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself up
@@ -42,7 +43,8 @@ const createStore = (automationId: string): ContextStoreExtended => {
       if (!redisContextStore.isOpen) {
         await redisContextStore.connect();
       }
-      const appRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
+      const appRecordText = await redisContextStore.get(`${appContextPrefix}${installedAppId}`);
+      const appRecord = (appRecordText ? JSON.parse(appRecordText) : null as unknown) as ContextRecord;
       return appRecord;
     },
     put: async contextRecord => {
@@ -63,7 +65,7 @@ const createStore = (automationId: string): ContextStoreExtended => {
       if (!redisContextStore.isOpen) {
         await redisContextStore.connect();
       }
-      const contextRecord = JSON.parse(await redisContextStore.get(`${appContextPrefix}${installedAppId}`)) as ContextRecord;
+      const contextRecord = JSON.parse((await redisContextStore.get(`${appContextPrefix}${installedAppId}`))!) as ContextRecord;
       await redisContextStore.del(`${appContextPrefix}${installedAppId}`);
       return contextRecord;
     }

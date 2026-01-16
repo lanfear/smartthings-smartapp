@@ -2,11 +2,11 @@ import React, {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
+import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
-import {useDeviceData} from '../store/DeviceContextStore';
-import {RouteParams} from '../App';
 import getLocations from '../operations/getLocations';
+import {useDeviceData} from '../store/DeviceContextStore';
 import {setLocation} from '../store/LocationContextStore';
 
 const DashboardSceneGrid = styled.div`

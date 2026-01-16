@@ -1,7 +1,7 @@
 // types in this file should be copied to corresponding file in server directory as these
 // contracts are shared from server to client
-import {DeviceContext} from '@smartthings/smartapp';
-import {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
+import type {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
+import type {DeviceContext} from '@smartthings/smartapp';
 
 export type IRoom = Room;
 export type IScene = SceneSummary;
@@ -39,8 +39,7 @@ export interface IResponseLocation {
 
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';
 
-export interface ISseEvent
-{
+export interface ISseEvent {
   deviceId: string;
   value: string;
 }

@@ -1,7 +1,7 @@
-import dayjs, {Dayjs} from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import dayjs, {type Dayjs} from 'dayjs';
 import objectSupport from 'dayjs/plugin/objectSupport';
-import {DeviceContext, IRuleSummary} from '../types/sharedContracts';
+import utc from 'dayjs/plugin/utc';
+import type {DeviceContext, IRuleSummary} from '../types/sharedContracts';
 dayjs.extend(utc);
 dayjs.extend(objectSupport);
 
@@ -34,11 +34,10 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): {dayRule?: IRuleRange; 
   let dayStartTime = dayjs(ruleSummary.dayStartTime);
   let dayNightTime = dayjs(ruleSummary.dayNightTime);
   let nightEndTime = dayjs(ruleSummary.nightEndTime);
-  /* eslint-disable @typescript-eslint/ban-ts-comment */
+
   dayStartTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayStartTime.utc().hour(), minute: dayStartTime.utc().minute(), second: 0, milliseconds: 0});
   dayNightTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: dayNightTime.utc().hour(), minute: dayNightTime.utc().minute(), second: 0, milliseconds: 0});
   nightEndTime = dayjs({year: now.year(), month: now.month(), day: now.date(), hour: nightEndTime.utc().hour(), minute: nightEndTime.utc().minute(), second: 0, milliseconds: 0});
-  /* eslint-enable @typescript-eslint/ban-ts-comment */
 
   // first we order the time ranges
   if (dayStartTime.isAfter(dayNightTime)) {
@@ -61,9 +60,9 @@ const getRulesFromSummary = (ruleSummary: IRuleSummary): {dayRule?: IRuleRange; 
 
   if (ruleSummary.enableDaylightRule) {
     ruleParts.dayRule = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+
       startTime: dayStartTime,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-assignment
+
       endTime: dayNightTime,
       motionDevices: ruleSummary.motionSensors,
       controlDevice: ruleSummary.dayControlSwitch,

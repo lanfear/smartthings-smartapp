@@ -1,26 +1,25 @@
 import fs from 'fs';
+// eslint-disable-next-line import/order
 import * as dotenv from 'dotenv';
 dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
-import {SmartThingsClient, BearerTokenAuthenticator, Device, Command, RuleRequest} from '@smartthings/core-sdk';
-import express, {Request} from 'express';
+import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import cors from 'cors';
+import express, {type Request} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {IResponseLocation, IRule, IRuleComponentType} from 'sharedContracts';
-// import process from './provider/env';
+import type {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
+import ReturnResultError from './exceptions/returnResultError';
+import {localOnlyMiddleware} from './middlewares';
+import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
+import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
+import ruleStore from './provider/ruleStore';
+import settings from './provider/settings';
+import {listInstalledApps} from './provider/smartAppContextStore';
 import smartAppControl from './provider/smartAppControl';
 import smartAppRule from './provider/smartAppRule';
+import getSmartThingsClient from './provider/smartThingsClient';
 import sse from './provider/sse';
-import {localOnlyMiddleware} from './middlewares';
-import ruleStore from './provider/ruleStore';
-import {listInstalledApps} from './provider/smartAppContextStore';
-import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
-import ReturnResultError from './exceptions/returnResultError';
-import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
-
-const defaultPort = 3001;
 
 const server = express();
-const PORT = process.env.PORT || defaultPort;
 
 server.use(cors()); // TODO: this could be improved
 server.use(express.json());
@@ -45,36 +44,34 @@ server.get('/app', async (_, res) => {
 });
 
 server.get('/locations', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-  res.json(await client.locations.list() || []);
+  res.json(await getSmartThingsClient().locations.list());
 });
 
 server.get('/location/:id', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-
-  const rooms = await client.rooms?.list(req.params.id) || [];
-  const scenes = await client.scenes?.list({locationId: [req.params.id]}) || [];
-  const switches = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'switch'}) || []).map(async (it: DeviceState) => {
+  const client = getSmartThingsClient();
+  const rooms = await client.rooms.list(req.params.id);
+  const scenes = await client.scenes.list({locationId: [req.params.id]});
+  const switches = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'switch'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
-    it.value = state.switch.value as string;
-    return it;
+    (it as DeviceState).value = state.switch.value as string;
+    return it as DeviceState;
   }));
-  const locks = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'lock'}) || []).map(async (it: DeviceState) => {
+  const locks = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'lock'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'lock');
-    it.value = state.lock.value as string;
-    return it;
+    (it as DeviceState).value = state.lock.value as string;
+    return it as DeviceState;
   }));
-  const motion = await Promise.all((await client.devices?.list({locationId: [req.params.id], capability: 'motionSensor'}) || []).map(async (it: DeviceState) => {
+  const motion = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'motionSensor'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'motionSensor');
-    it.value = state.motion.value as string;
-    return it;
+    (it as DeviceState).value = state.motion.value as string;
+    return it as DeviceState;
   }));
-  const apps = (await Promise.all((await client.installedApps?.list({locationId: [req.params.id]}) || []).map(async a => {
+  const apps = (await Promise.all((await client.installedApps.list({locationId: [req.params.id]})).map(async a => {
     const ruleStoreInfo = await ruleStore.get(a.installedAppId);
     return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  }))).filter(a => !!a.ruleSummary); // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
-  const rules = (await client.rules?.list(req.params.id) || []).map(r => {
-    const linkedInstalledApp = apps.find(a => a.ruleSummary?.ruleIds.find(rid => rid === r.id));
+  }))).filter(a => !!a.ruleSummary) as IResponseApps; // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
+  const rules = (await client.rules.list(req.params.id)).map(r => {
+    const linkedInstalledApp = apps.find(a => a.ruleSummary.ruleIds.find(rid => rid === r.id));
     return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
   });
 
@@ -93,22 +90,20 @@ server.get('/location/:id', async (req, res) => {
 });
 
 /* Execute a scene */
-// eslint-disable-next-line @typescript-eslint/no-misused-promises
+
 server.post('/location/:id/scenes/:sceneId', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
-  const result = await context.api.scenes.execute(req.params.sceneId);
+  const result = await getSmartThingsClient().scenes.execute(req.params.sceneId);
   res.send(result);
 });
 
 /* Execute a device command */
 server.post('/device/:deviceId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-  const result = await client.devices.executeCommand(req.params.deviceId, req.body as Command);
+  const result = await getSmartThingsClient().devices.executeCommand(req.params.deviceId, req.body as Command);
   res.send(result);
 });
 
 /* Enable/Disable a rule component */
-server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{ locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string }>, res) => {
+server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
   try {
     await manageRuleApplicationOperation(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
   } catch (e) {
@@ -123,7 +118,7 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
     throw e;
   }
 
-  const reEnableDelay = (req.body as { reEnable?: number }).reEnable ?? 0;
+  const reEnableDelay = (req.body as {reEnable?: number}).reEnable ?? 0;
   if (req.params.enabled === 'false' && reEnableDelay > 0) {
     // eslint-disable-next-line no-console
     console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
@@ -139,15 +134,13 @@ server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled',
 });
 
 server.post('/location/:id/rule', async (req, res) => {
-  const context = await smartAppControl.withContext(req.params.id);
   // someday we can do better than this, TS 4.17+ should support generic for Request type
-  const result = await context.api.rules.create(req.body as RuleRequest);
+  const result = await getSmartThingsClient().rules.create(req.body as RuleRequest);
   res.send(result);
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  const client = new SmartThingsClient(new BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
-  await client.rules.delete(req.params.ruleId, req.params.id);
+  await getSmartThingsClient().rules.delete(req.params.ruleId, req.params.id);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();
 });
@@ -158,11 +151,11 @@ server.delete('/location/:id/rule/:ruleId', async (req, res) => {
 server.get('/events', sse.init);
 
 /* Start listening at your defined PORT */
-server.listen(PORT, () => {
+server.listen(settings.hostPort, settings.hostName, () => {
   // eslint-disable-next-line no-console
-  console.log(`Server is up and running at http://localhost:${PORT}`);
+  console.log(`Server is up and running at http://${settings.hostName}:${settings.hostPort}`);
 });
 
-export type DeviceState = Device & { value: string };
+export type DeviceState = Device & {value: string};
 
 export default server;

@@ -3,14 +3,14 @@ import {useTranslation} from 'react-i18next';
 import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
+import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
+import getLocations from '../operations/getLocations';
 import {useDeviceData} from '../store/DeviceContextStore';
+import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
-import {RouteParams} from '../App';
-import getLocations from '../operations/getLocations';
-import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 
 const DashboardRoomSplit = styled.div`
   display: grid;

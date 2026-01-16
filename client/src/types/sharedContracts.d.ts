@@ -1,6 +1,6 @@
 // types in this file should be copied to corresponding file in server directory as these
 // contracts are shared from server to client
-import {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
+import type {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
 
 export type IRoom = Room;
 export type IScene = SceneSummary;

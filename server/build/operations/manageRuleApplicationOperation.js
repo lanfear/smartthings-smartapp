@@ -25,7 +25,6 @@ const configureRule = (locationId, installedAppId, ruleComponent, ruleDisabled) 
     const appKey = `app-${installedAppId}`;
     const ruleStoreInfo = yield ruleStore_1.default.get(installedAppId);
     const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo));
-    // eslint-disable-next-line no-console
     // console.log('configuring delete for [', ruleComponent, '] from source values -> paramsDisabled [', paramsDisabled, '] ruleIsEnabled [', ruleIsEnabled, '] disableRule [', disableRule, ']');
     if (!ruleStoreInfo) {
         throw new returnResultError_1.default(`No rule stored in database for appId [${installedAppId}]`, http_status_codes_1.StatusCodes.UNPROCESSABLE_ENTITY);
@@ -41,6 +40,9 @@ const configureRule = (locationId, installedAppId, ruleComponent, ruleDisabled) 
     // if (JSON.stringify(ruleStoreInfo) === JSON.stringify(ruleStoreInfoOrig)) {
     if ((0, json_diff_ts_1.diff)(ruleStoreInfo, ruleStoreInfoOrig).length === 0) { // diff returns empty array if no differences
         throw new returnResultError_1.default('Rules not modified, nothing to update', http_status_codes_1.StatusCodes.NOT_MODIFIED);
+    }
+    if (!process.env.CONTROL_API_TOKEN) {
+        throw new Error('process.env.CONTROL_API_TOKEN not configured');
     }
     const client = new core_sdk_1.SmartThingsClient(new core_sdk_1.BearerTokenAuthenticator(process.env.CONTROL_API_TOKEN));
     const [newRuleSummary, newCombinedRuleId, newTransitionRuleId] = yield (0, submitRulesForSmartAppOperation_1.default)(client, locationId, appKey, combinedRule, transitionRule, ruleStoreInfo.newRuleSummary);

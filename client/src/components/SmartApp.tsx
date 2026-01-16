@@ -3,8 +3,8 @@ import {useDrag} from 'react-dnd';
 import global from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import {IActiveControl} from '../types/interfaces';
-import {IApp} from '../types/sharedContracts';
+import type {IActiveControl} from '../types/interfaces';
+import type {IApp} from '../types/sharedContracts';
 
 const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.App, app.installedAppId, app.displayName!)));
@@ -20,7 +20,7 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
       onTouchEnd={() => setActiveDevice(null)}
     >
       <ControlLogo>
-          🤖
+        🤖
       </ControlLogo>
       <ControlStatus>
         RuleSet

@@ -1,4 +1,4 @@
-import {DragSourceMonitor, DropTargetMonitor} from 'react-dnd';
+import type {DragSourceMonitor, DropTargetMonitor} from 'react-dnd';
 
 export enum IDragAndDropType {
   App = 'app',

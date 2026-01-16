@@ -1,4 +1,4 @@
-import {IntervalUnit, RuleAction, IfAction} from '@smartthings/core-sdk';
+import type {IntervalUnit, RuleAction, IfAction} from '@smartthings/core-sdk';
 import {
   generateConditionsNoMotion,
   generateActionSwitchOff,

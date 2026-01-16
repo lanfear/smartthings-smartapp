@@ -1,4 +1,4 @@
-import {RuleAction, RuleCondition} from '@smartthings/core-sdk';
+import type {RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
 export const generateConditionBetween = (noonOffsetStart: number, noonOffsetEnd: number): RuleCondition => ({
@@ -47,7 +47,7 @@ export const generateConditionMotion = (motionDeviceId: string): RuleCondition =
       }
     },
     right: {
-      // eslint-disable-next-line id-denylist, id-blacklist
+      // eslint-disable-next-line id-denylist
       string: 'active'
     }
   }

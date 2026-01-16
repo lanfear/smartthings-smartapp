@@ -1,21 +1,23 @@
+/// <reference types="node" />
+/* eslint-disable import/order */
 /* eslint-disable no-console */
 import dotenv from 'dotenv';
-
 // dotenv.config({path: './.env-sample'});
 dotenv.config();
-
-import path from 'path';
+import path, {dirname} from 'path';
 import fs from 'fs/promises';
-import {build, Plugin, BuildOptions} from 'esbuild';
+import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
 import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
 import {dotenvRun} from '@dotenv-run/esbuild';
+import {fileURLToPath} from 'url';
 
-const parentDir = path.join(__dirname, '..');
-// const nodeModules = path.join(parentDir, 'node_modules');
+// Get the directory name of the current module
+const localDir = dirname(fileURLToPath(import.meta.url));
+const parentDir = path.join(localDir, '..');
 const srcDir = path.join(parentDir, 'src');
 const staticSrcDir = path.join(parentDir, 'public');
 const buildDir = path.join(parentDir, 'build');
@@ -23,7 +25,7 @@ const buildDir = path.join(parentDir, 'build');
 const buildJsDir = path.join(buildDir, 'static', 'js');
 
 // ***** PLUGINS *****
-const svgrPlugin: Plugin = {
+const svgrPlugin: EsBuildPlugin = {
   name: 'svgr',
   setup: builder => {
     builder.onLoad({filter: /\.svg$/}, async args => {
@@ -47,7 +49,7 @@ const svgrPlugin: Plugin = {
   }
 };
 
-const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; sourceMaps: BuildOptions['sourcemap']}): Plugin => ({
+const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; sourceMaps: BuildOptions['sourcemap']}): EsBuildPlugin => ({
   name: 'url-loader',
   setup: builder => {
     builder.onResolve({filter: /\?dataurl$/}, args => {
@@ -59,8 +61,8 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
     });
     builder.onLoad({filter: /.*/, namespace: 'dataurl'}, async args => {
       const res = await builder.esbuild.build({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        entryPoints: [args.pluginData.sourcePath], // sourcePath is set from argsin onResolve
+
+        entryPoints: [(args.pluginData as {sourcePath: string}).sourcePath], // sourcePath is set from argsin onResolve
         bundle: true,
         minify: minify,
         sourcemap: sourceMaps,
@@ -84,16 +86,16 @@ const dotEnv = dotenvRun({
 // ***** STEPS *****
 
 const bundleIndex = async (isLocal: boolean): Promise<void> => {
-  const uwcEntryPoint = path.join(srcDir, 'index.tsx');
-  const uwcOutput = path.join(buildJsDir, 'index.js');
+  const entryPoint = path.join(srcDir, 'index.tsx');
+  const output = path.join(buildJsDir, 'index.js');
 
   await build({
-    entryPoints: [uwcEntryPoint],
+    entryPoints: [entryPoint],
     bundle: true,
     minify: true,
     sourcemap: isLocal ? 'inline' : true,
     target: 'chrome106',
-    outfile: uwcOutput,
+    outfile: output,
     plugins: [
       dotEnv,
       svgrPlugin,
@@ -105,17 +107,17 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
   });
 };
 
-// const bundleUwcWorkers = async (isLocal: boolean): Promise<void> => {
-//    const workerFileNames = ['recording-storage.worker.ts', 'shader-thumbnailing.worker.ts'];
-//    const uwcWorkerEntryPoints = workerFileNames.map(f => path.join(buildPaths.uwcWorkerSourceDir, f));
+// const bundleWorkers = async (isLocal: boolean): Promise<void> => {
+//    const workerFileNames = ['storage.worker.ts', 'other.worker.ts'];
+//    const workerEntryPoints = workerFileNames.map(f => path.join(buildPaths.workerSourceDir, f));
 
 //    await build({
-//       entryPoints: uwcWorkerEntryPoints,
+//       entryPoints: workerEntryPoints,
 //       bundle: true,
 //       minify: true,
 //       sourcemap: isLocal ? 'inline' : true,
 //       target: 'chrome106',
-//       outdir: uwcDistDir,
+//       outdir: buildJsDir,
 //       plugins: [],
 //       loader: {
 //          '.png': 'binary'
@@ -126,33 +128,9 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
 //    if (isLocal) {
 //       for (const workerFile of workerFileNames) {
 //          const jsWorker = workerFile.replace('.ts', '.js');
-//          await fs.copyFile(path.join(uwcDistDir, jsWorker), path.join(uwcHarnessDistDir, jsWorker));
+//          await fs.copyFile(path.join(buildJsDir, jsWorker), path.join(distDir, jsWorker));
 //       }
 //    }
-// };
-
-// const copyCommonCppArtifactsToDist = async (): Promise<void> => {
-//    console.info('Copying luma-wasm runtime files');
-//    console.info('  FROM [', lumaArtifactDir, ']');
-//    console.info('  TO   [', uwcDistDir, ']');
-//    const ffmpegFiles = ['libavcodec.so', 'libavformat.so', 'libavutil.so', 'libswresample.so', 'libswscale.so'];
-//    const lumaFiles = ['luma.js', 'luma.wasm'];
-//    await Promise.all([...lumaFiles, ...ffmpegFiles].map(async f => {
-//       console.info('  - ', f);
-//       await fs.copyFile(path.join(lumaArtifactDir, f), path.join(uwcDistDir, f));
-//    }));
-//    // copy the ai model pairs by extension
-//    await Promise.all(['.json', '.bin'].map(async ext => {
-//       try {
-//          await fs.rm(path.join(uwcDistDir, `${modelFileDestBaseName}${ext}`));
-//       } catch {
-//          // don't care, workflow seemed to require deletion of these files before re-creating, but if they dont exist or otherwise fail, nbd, continue procedure
-//       }
-//    }));
-//    console.info('  - ', `${modelFileSourceBaseName}.bin`, '->', `${modelFileDestBaseName}.bin`);
-//    await fs.copyFile(path.join(lumaArtifactDir, `${modelFileSourceBaseName}.bin`), path.join(uwcDistDir, `${modelFileDestBaseName}.bin`));
-//    console.info('  - ', `${modelFileSourceBaseName}.json`, '->', `${modelFileDestBaseName}.json`);
-//    await fs.copyFile(path.join(lumaArtifactDir, `${modelFileSourceBaseName}.json`), path.join(uwcDistDir, `${modelFileDestBaseName}.json`));
 // };
 
 const copyStaticAssetsToDist = async (): Promise<void> => {
@@ -172,13 +150,11 @@ const doReplacesInBundleDir = async (): Promise<void> => {
     to: [
       match => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
-        // not sure what in the toolchain needs to change for this to be recognized
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        if (!(Object as unknown as any).hasOwn(process.env, matchIndex)) {
-          console.info('  ', match, 'not defined in .env, skipping replace in .html');
+        if (!(matchIndex in process.env)) {
+          console.info('  ', matchIndex, 'not defined in .env, skipping replace', match, 'in .html');
           return match;
         }
-        console.info('  ', match, '->', process.env[matchIndex]);
+        console.info('  ', match, '->', process.env[matchIndex]!);
         return process.env[matchIndex]!;
       }
     ]
@@ -197,7 +173,6 @@ const bundle = async (isLocal: boolean): Promise<void> => {
     }
 
     await Promise.all([bundleIndex(isLocal)]);
-    // await copyCommonCppArtifactsToDist();
     await copyStaticAssetsToDist();
     await fs.copyFile(path.join(staticSrcDir, 'index.html'), path.join(buildDir, 'index.html'));
     await doReplacesInBundleDir();

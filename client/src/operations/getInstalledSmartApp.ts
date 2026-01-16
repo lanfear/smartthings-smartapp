@@ -1,7 +1,7 @@
-import {IResponseLocks, IResponseMotion, IResponseRooms, IResponseRules, IResponseScenes, IResponseSwitches} from '../types/sharedContracts';
+import type {IResponseLocks, IResponseMotion, IResponseRooms, IResponseRules, IResponseScenes, IResponseSwitches} from '../types/sharedContracts';
 
 const getInstalledSmartApp = async (isaId: string): Promise<IResponseSmartApp> => {
-  const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/app/${isaId}`);
+  const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/app/${isaId}`);
   return await response.json() as IResponseSmartApp;
 };
 

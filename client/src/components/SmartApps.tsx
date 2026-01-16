@@ -1,12 +1,12 @@
+import type {Rule, RuleRequest} from '@smartthings/core-sdk';
 import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
+import {Link} from 'react-router-dom';
 import styled from 'styled-components';
 import global from '../constants/global';
-import getInstalledSmartApp, {IResponseSmartApp} from '../operations/getInstalledSmartApp';
-import getInstalledSmartApps, {IResponseSmartApps} from '../operations/getInstalledSmartApps';
-import {Rule, RuleRequest} from '@smartthings/core-sdk';
 import {generateActionSwitchLevel, generateConditionBetween, generateConditionMotion} from '../factories/ruleFactory';
+import getInstalledSmartApp, {type IResponseSmartApp} from '../operations/getInstalledSmartApp';
+import getInstalledSmartApps, {type IResponseSmartApps} from '../operations/getInstalledSmartApps';
 
 const SmartAppGrid = styled.div`
     display: grid;
@@ -47,7 +47,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
   };
 
   const addRule = async (isaId: string): Promise<Rule> => {
-    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST!}/${isaId}/rule`, {
+    const response = await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/${isaId}/rule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -87,37 +87,37 @@ const SmartApps: React.FC<SmartAppProps> = () => {
           <Link to={`/dashboard/${sa.installedAppId}`}>
             <div>
               {t('smartapp.label')}
-:
+              :
               {' '}
               {sa.installedAppId}
             </div>
             <div>
               {t('smartapp.sceneCount')}
-:
+              :
               {' '}
               {sa.scenes.length}
             </div>
             <div>
               {t('smartapp.switchCount')}
-:
+              :
               {' '}
               {sa.switches.length}
             </div>
             <div>
               {t('smartapp.lockCount')}
-:
+              :
               {' '}
               {sa.locks.length}
             </div>
             <div>
               {t('smartapp.motionCount')}
-:
+              :
               {' '}
               {sa.motion.length}
             </div>
           </Link>
           <button onClick={() => addRule(sa.installedAppId)}>
-Add The Rule
+            Add The Rule
           </button>
         </>
       ))}
@@ -125,7 +125,6 @@ Add The Rule
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface SmartAppProps {
 }
 

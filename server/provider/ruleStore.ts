@@ -1,9 +1,10 @@
-import {RuleStoreInfo} from 'index';
 import {createClient} from 'redis';
+import type {Nullable, RuleStoreInfo} from 'types';
+import settings from './settings';
 
 const ruleInfoPrefix = 'st-ruleinfo-';
 const redisRuleStore = createClient({
-  url: process.env.REDIS_SERVER
+  url: settings.redisServer
 });
 
 // none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself
@@ -20,13 +21,17 @@ const redisRuleStore = createClient({
 // process.on('SIGINT', cleanup);
 // process.on('SIGTERM', cleanup);
 
-const get = async (ruleStoreKey: string): Promise<RuleStoreInfo | null> => {
+const get = async (ruleStoreKey: string): Promise<Nullable<RuleStoreInfo>> => {
   if (!redisRuleStore.isOpen) {
     await redisRuleStore.connect();
   }
-  const ruleStoreInfoRedis = JSON.parse(await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`)) as RuleStoreInfo;
+  const ruleStoreInfoString = await redisRuleStore.get(`${ruleInfoPrefix}${ruleStoreKey}`);
+  if (!ruleStoreInfoString) {
+    return null;
+  }
+  const ruleStoreInfo = JSON.parse(ruleStoreInfoString) as RuleStoreInfo;
   // console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
-  return ruleStoreInfoRedis;
+  return ruleStoreInfo;
 };
 
 const set = async (ruleStoreInfo: RuleStoreInfo, ruleStoreKey: string): Promise<void> => {

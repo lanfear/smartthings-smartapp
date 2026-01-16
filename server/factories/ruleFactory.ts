@@ -1,5 +1,5 @@
-/* eslint-disable id-blacklist, id-denylist */
-import {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
+/* eslint-disable id-denylist */
+import type {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
 export const generateConditionTrigger = (noonOffsetTime: number, actions: RuleAction[]): RuleAction => ({

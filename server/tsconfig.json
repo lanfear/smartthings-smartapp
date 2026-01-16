@@ -1,24 +1,16 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es6",
+    "target": "esnext",
+    "strict": true,
     "noImplicitAny": true,
-    "moduleResolution": "node",
     "sourceMap": true,
     "baseUrl": ".",
     "outDir": "build",
     "lib": [
-      "es6"
-    ],
-    "paths": {
-      "*": [
-        "node_modules/*",
-        "types/*",
-        "*.d.ts"
-      ]
-    }
+      "esnext"
+    ]
   },
   "include": [
     "**/*"

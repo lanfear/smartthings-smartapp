@@ -10,15 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const submitRules = (client, locationId, smartAppLookupKey, combinedRule, transitionRule, newRuleSummary) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     /* eslint-disable no-console */
     console.log('Submitting Rules', locationId);
     console.log('Main Rule', JSON.stringify(combinedRule));
     console.log('Transition Rule', JSON.stringify(transitionRule));
     /* eslint-enable no-console */
     try {
-        yield Promise.allSettled(((yield ((_a = client.rules) === null || _a === void 0 ? void 0 : _a.list(locationId))) || [])
-            .filter(r => r.name.indexOf(smartAppLookupKey) !== -1)
+        yield Promise.allSettled((yield client.rules.list(locationId))
+            .filter(r => r.name.includes(smartAppLookupKey))
             .map((r) => __awaiter(void 0, void 0, void 0, function* () {
             yield client.rules.delete(r.id, locationId);
             newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
@@ -27,13 +27,12 @@ const submitRules = (client, locationId, smartAppLookupKey, combinedRule, transi
     catch (e) {
         throw new Error(`Failed to delete existing rules, aborting submitRules operation: [${e}]`);
     }
-    const newCombinedRuleResponse = combinedRule && (yield client.rules.create(combinedRule, locationId)) || null;
-    const newTransitionRuleResponse = transitionRule && (yield client.rules.create(transitionRule, locationId)) || null;
+    const newCombinedRuleResponse = combinedRule ? yield client.rules.create(combinedRule, locationId) : null;
+    const newTransitionRuleResponse = transitionRule ? yield client.rules.create(transitionRule, locationId) : null;
     const newRuleIds = [newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id].filter(id => !!id);
-    newRuleSummary.ruleIds.push(...newRuleIds);
-    // eslint-disable-next-line no-console
+    newRuleSummary.ruleIds.push(...newRuleIds.filter(id => id));
     // console.log('Applied Rules', newCombinedRuleResponse?.actions, newTransitionRuleResponse?.actions);
-    return [newRuleSummary, newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id, newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id];
+    return [newRuleSummary, (_a = newCombinedRuleResponse === null || newCombinedRuleResponse === void 0 ? void 0 : newCombinedRuleResponse.id) !== null && _a !== void 0 ? _a : null, (_b = newTransitionRuleResponse === null || newTransitionRuleResponse === void 0 ? void 0 : newTransitionRuleResponse.id) !== null && _b !== void 0 ? _b : null];
 });
 exports.default = submitRules;
 //# sourceMappingURL=submitRulesForSmartAppOperation.js.map

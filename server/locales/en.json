@@ -64,6 +64,6 @@
 	"pages.rulesMainPage.settings.nightEndOffsetTime.name": "End of Day (Do Not Choose Time >24h From Start)",
 	"pages.rulesMainPage.settings.nightEndOffsetTime.description": "",
 
-	"pages.rulesMainPage.settings.levelNotAuthorized.name": "Until you have saved this app at least once and authorized it's required scopes, this section cannot properly render because we cannot query your selected devices for information.\n\nSave the app and reload it to enable the ability to set specific levels for individual devices.",
-	"pages.rulesMainPage.settings.levelNotAuthorized.description": "This message only shows when the app is not fully authorized"
+	"pages.rulesMainPage.settings.levelEmpty.name": "No valid devices",
+	"pages.rulesMainPage.settings.levelEmpty.description": "Once you select dimmable devices in your config you can set levels here"
 }

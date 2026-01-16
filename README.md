@@ -25,22 +25,23 @@ These steps are intentionally different than may of the example SmartApp Communi
    - After installing and setting it up, you do not need to manually run it, the node scripts `tunnel` runs ngrok internally
 
 3) Create a file named `server/.env.local` containing the following text
+
 ```
-NODE_ENV=development
-PORT=SETLOCALPORTNUMBER
-RULE_APP_ID=SEENEXTSTEP
-RULE_CLIENT_ID=SEENEXTSTEP
-RULE_CLIENT_SECRET=SEENEXTSTEP
+ENV_TYPE=dev|prod
+STHOST=localhost # (empty for *)
+STPORT=SETLOCALPORTNUMBER
+API_TOKEN=SEENEXTSTEPPART2
 CONTROL_APP_ID=SEENEXTSTEP
 CONTROL_CLIENT_ID=SEENEXTSTEP
 CONTROL_CLIENT_SECRET=SEENEXTSTEP
-CONTROL_API_TOKEN=SEENEXTSTEPPART2
 RULE_APP_ID=SEENEXTSTEP
 RULE_CLIENT_ID=SEENEXTSTEP
 RULE_CLIENT_SECRET=SEENEXTSTEP
+LOCALIPS=192.168.1.1/24,127.0.0.1,::ffff:127.0.0.1,::1 # (your local nets)
 LOGGING_EVENTS_ENABLED=false # or true
 REDIS_SERVER=LOCALREDISPORT # TODO: document redis setup
 ```
+
 > Replace in `SETLOCALPORTNUMBER` with a local port of your choosing (suggest anything 5000-64000).
 
 > Replace `LOCALIPLIST` with a comma-separated list of IPV4, IPV6 and CIDR-Range addresses (i.e. `192.168.1.0/28,127.0.0.1,::ffff:127.0.0.1,::1`)

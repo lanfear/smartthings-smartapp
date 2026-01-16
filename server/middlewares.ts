@@ -1,9 +1,9 @@
-import {ErrorRequestHandler, RequestParamHandler} from 'express';
-import {StatusCodes} from 'http-status-codes';
+import type {ErrorRequestHandler, RequestParamHandler} from 'express';
 import {IpFilter as ipFilter} from 'express-ipfilter';
+import {StatusCodes} from 'http-status-codes';
+import settings from './provider/settings';
 
-const localIps = process.env.LOCALIPS.split(/,\s*/);
-export const localOnlyMiddleware = ipFilter(localIps, {mode: 'allow'});
+export const localOnlyMiddleware = ipFilter(settings.localIps, {mode: 'allow'});
 
 export const notFound: RequestParamHandler = (req, res, next): void => {
   if (process.env.REACT_APP) {
@@ -20,6 +20,6 @@ export const errorHandler: ErrorRequestHandler = (err: Error, _, res): void => {
   res.status(statusCode);
   res.json({
     message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+    stack: settings.environment === 'dev' ? err.stack : '🥞'
   });
 };

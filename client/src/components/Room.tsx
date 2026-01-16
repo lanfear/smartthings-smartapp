@@ -1,19 +1,19 @@
-import React, {useEffect, useRef} from 'react';
-import dayjs, {Dayjs} from 'dayjs';
+import type {Room as IRoom} from '@smartthings/core-sdk';
+import dayjs, {type Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
-import {Room as IRoom} from '@smartthings/core-sdk';
+import React, {useEffect, useRef} from 'react';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
-import {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import global from '../constants/global';
+import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
+import {useDeviceData} from '../store/DeviceContextStore';
+import type {IActiveControl} from '../types/interfaces';
+import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
-import {useDeviceData} from '../store/DeviceContextStore';
-import SmartApp from './SmartApp';
-import getRulesFromSummary, {IRuleIdle, IRuleRange, IRuleTransition} from '../operations/getRulesFromSummary';
 import Rule from './Rule';
-import {IActiveControl} from '../types/interfaces';
+import SmartApp from './SmartApp';
 
 dayjs.extend(isBetween);
 
@@ -27,37 +27,37 @@ const isRuleActive = (startTime: Dayjs, endTime: Dayjs): boolean => dayjs().isBe
 const isLinkedRuleSetActive = (ruleSetId: string, activeDeviceId?: string): boolean => !!activeDeviceId && activeDeviceId === ruleSetId;
 
 const isLinkedRuleActive = (rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean => !!activeDeviceId && (
-  rule.controlDevice.deviceId === activeDeviceId ||
-    Object.values(rule.switchDevices).some(d => d.deviceId === activeDeviceId) ||
-    activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
+  rule.controlDevice.deviceId === activeDeviceId
+    || Object.values(rule.switchDevices).some(d => d.deviceId === activeDeviceId)
+    || activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
 );
 
 const isLockedRuleActive = (lockedDevices: IDevice[], rule: IRuleRange, rulePart: string, ruleBaseId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
     rule.controlDevice.deviceId === activeDeviceId || (
-      lockedDevices.length > 0 &&
-      isRuleActive(rule.startTime, rule.endTime) &&
-      activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
+      lockedDevices.length > 0
+      && isRuleActive(rule.startTime, rule.endTime)
+      && activeDeviceId.endsWith(`${rulePart.toLowerCase()}-${ruleBaseId}`)
     )
   );
 
 const isLinkedDeviceActive = (roomRuleSummaries: Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>, deviceId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
-    (deviceId === activeDeviceId) ||
-    Object.entries(roomRuleSummaries).some(([k, v]) => (
-      (activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule &&
-        (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId))) || // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
-
-      (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule &&
-        (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
+    (deviceId === activeDeviceId)
+    || Object.entries(roomRuleSummaries).some(([k, v]) => (
+      (activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule
+        && (v.dayRule.controlDevice.deviceId === deviceId || Object.values(v.dayRule.switchDevices).some(d => d.deviceId === deviceId)))
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      || (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule
+        && (v.nightRule.controlDevice.deviceId === deviceId || Object.values(v.nightRule.switchDevices).some(d => d.deviceId === deviceId)))
     )));
 
 const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>, deviceId: string, activeDeviceId?: string): boolean =>
   !!activeDeviceId && (
-    (lockedDevices.some(d => d.deviceId === deviceId) && deviceId === activeDeviceId) ||
-    (Object.entries(roomRuleSummaries).some(([k, v]) =>
-      ((activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule && v.dayRule.controlDevice.deviceId === deviceId && isRuleActive(v.dayRule.startTime, v.dayRule.endTime)) || // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing
-       (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule && v.nightRule.controlDevice.deviceId === deviceId && isRuleActive(v.nightRule.startTime, v.nightRule.endTime)))))
+    (lockedDevices.some(d => d.deviceId === deviceId) && deviceId === activeDeviceId)
+    || (Object.entries(roomRuleSummaries).some(([k, v]) =>
+      ((activeDeviceId.endsWith(`daylight-${k}`) && v.dayRule?.controlDevice.deviceId === deviceId && isRuleActive(v.dayRule.startTime, v.dayRule.endTime))
+       || (activeDeviceId.endsWith(`nightlight-${k}`) && v.nightRule?.controlDevice.deviceId === deviceId && isRuleActive(v.nightRule.startTime, v.nightRule.endTime)))))
   );
 
 // each 'app' gets a row, up to 5 devices / row, plus reserved rows
@@ -215,7 +215,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
 
   const deviceEventSource = useEventSource({
-    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST!}/events`
+    source: `${process.env.SMARTAPP_BUILDTIME_APIHOST}/events`
   });
 
   const roomParts = room.name!.split(' - ');
@@ -281,7 +281,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
   }, [deviceEventSource]);
 
   return (
-    // eslint-disable-next-line no-undefined
+
     <RoomControlGrid
       ref={domRef}
       numDevices={numDevices}

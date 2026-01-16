@@ -1,11 +1,12 @@
-import {RuleRequest, RuleAction} from '@smartthings/core-sdk';
+import type {RuleRequest, RuleAction} from '@smartthings/core-sdk';
+import type {Nullable} from 'types';
 
 const createCombinedRuleFromConfig = (
   appKey: string,
-  dayTriggerAction: RuleAction,
-  nightTriggerAction: RuleAction,
-  idleAction: RuleAction
-): RuleRequest => {
+  dayTriggerAction: Nullable<RuleAction>,
+  nightTriggerAction: Nullable<RuleAction>,
+  idleAction: Nullable<RuleAction>
+): Nullable<RuleRequest> => {
   const ruleLabel = `${appKey}-rule`;
 
   if (!dayTriggerAction && !nightTriggerAction && !idleAction) {
@@ -13,7 +14,7 @@ const createCombinedRuleFromConfig = (
   }
 
   // array of rules excluding nulls
-  const actions = [dayTriggerAction, nightTriggerAction, idleAction].filter(a => a);
+  const actions = [dayTriggerAction, nightTriggerAction, idleAction].filter(a => a) as RuleAction[];
 
   return {
     name: `${ruleLabel}`,

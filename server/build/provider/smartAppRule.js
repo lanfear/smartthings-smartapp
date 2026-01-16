@@ -57,12 +57,14 @@ dayjs_1.default.extend(utc_1.default);
 const noonHour = 12;
 const offset6Hours = 360;
 const increment5 = 5;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+const hourOffset8 = 8;
+const hourOffset20 = 20;
+if (!process.env.RULE_APP_ID || !process.env.RULE_CLIENT_ID || !process.env.RULE_CLIENT_SECRET || !process.env.CONTROL_API_TOKEN) {
+    throw new Error('Missing required environment variables for SmartApp configuration (RULE_APP_ID, RULE_CLIENT_ID, RULE_CLIENT_SECRET, CONTROL_API_TOKEN)');
+}
 // const contextStore: ContextStore = new FileContextStore(db.dataDirectory);
 const contextStore = (0, smartAppContextStore_1.default)(process.env.RULE_APP_ID);
 const rulesAreModified = (ruleStoreKey, newRule) => __awaiter(void 0, void 0, void 0, function* () {
-    // todo: get existing rules
-    // const existingRules = ruleStore.get(ruleStoreKey);
     const existingRules = yield ruleStore_1.default.get(ruleStoreKey);
     return (!existingRules || JSON.stringify(newRule) !== JSON.stringify(existingRules.combinedRule));
 });
@@ -80,6 +82,11 @@ exports.default = new smartapp_1.SmartApp()
     // eslint-disable-next-line @typescript-eslint/await-thenable
     yield page.section('description', (section) => __awaiter(void 0, void 0, void 0, function* () {
         const config = yield (0, readConfigFromContext_1.default)(context);
+        if (!config.dayControlSwitch || !config.nightControlSwitch) {
+            // eslint-disable-next-line no-console
+            console.warn('Day or Night control switch not configured in main page, cannot create rules');
+            return;
+        }
         const uniqueDaySwitches = (0, uniqueDeviceFactory_1.default)([config.dayControlSwitch].concat(config.dayActiveSwitches));
         const uniqueNightSwitches = (0, uniqueDeviceFactory_1.default)([config.nightControlSwitch].concat(config.nightActiveSwitches));
         const uniqueSwitches = (0, uniqueDeviceFactory_1.default)(uniqueDaySwitches.concat(uniqueNightSwitches));
@@ -89,23 +96,23 @@ exports.default = new smartapp_1.SmartApp()
         const dayNightTime = (0, dayjs_1.default)().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.dayNightOffset, 'minutes').format('hh:mm A');
         const nightEndTime = (0, dayjs_1.default)().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.nightEndOffset, 'minutes').format('hh:mm A');
         // these strings are not localized because i'm unsure how to use the built-in I18n mechanics with dynamic config-driven values interpolated
-        const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] ` +
-            `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
-            `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] ` +
-            'will turn ON.';
+        const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] `
+            + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
+            + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] `
+            + 'will turn ON.';
         const daylightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule ? 'ENABLED' : 'DISABLED'}`;
-        const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] ` +
-            `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] ` +
-            `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] ` +
-            'will turn ON.';
+        const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] `
+            + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
+            + `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] `
+            + 'will turn ON.';
         const nightlightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
-        const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] ` +
-            `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] ` +
-            'will turn OFF.';
+        const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] `
+            + `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] `
+            + 'will turn OFF.';
         const idleRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableIdleRule ? 'ENABLED' : 'DISABLED'}`;
-        const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] ` +
-            `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) ` +
-            `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
+        const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] `
+            + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) `
+            + `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
         const transitionRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
         section
             .paragraphSetting('daylightRuleSummary')
@@ -182,21 +189,17 @@ exports.default = new smartapp_1.SmartApp()
         section.hideable(true);
         // from 8AM
         section.timeSetting('dayStartOffsetTime')
-            // eslint-disable-next-line no-magic-numbers
-            .defaultValue((0, dayjs_1.default)().hour(8).minute(0).second(0).millisecond(0).toISOString());
+            .defaultValue((0, dayjs_1.default)().hour(hourOffset8).minute(0).second(0).millisecond(0).toISOString());
         // from 8PM
         section.timeSetting('dayNightOffsetTime')
-            // eslint-disable-next-line no-magic-numbers
-            .defaultValue((0, dayjs_1.default)().hour(20).minute(0).second(0).millisecond(0).toISOString());
+            .defaultValue((0, dayjs_1.default)().hour(hourOffset20).minute(0).second(0).millisecond(0).toISOString());
         // from 8AM
         section.timeSetting('nightEndOffsetTime')
-            // eslint-disable-next-line no-magic-numbers
-            .defaultValue((0, dayjs_1.default)().hour(8).minute(0).second(0).millisecond(0).toISOString());
+            .defaultValue((0, dayjs_1.default)().hour(hourOffset8).minute(0).second(0).millisecond(0).toISOString());
     });
     // i know this does something, even though apparently the typedefs say otherwise
     // eslint-disable-next-line @typescript-eslint/await-thenable
     yield page.section('levels', (section) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a, _b, _c, _d, _e;
         section.hideable(true);
         if (!context.isAuthenticated()) {
             section
@@ -206,16 +209,16 @@ exports.default = new smartapp_1.SmartApp()
         }
         let allDimmableSwitches;
         try {
-            allDimmableSwitches = yield Promise.all((yield ((_a = context.api.devices) === null || _a === void 0 ? void 0 : _a.list({ capability: 'switchLevel' }))) || []);
+            allDimmableSwitches = yield context.api.devices.list({ capability: 'switchLevel' });
         }
         catch (e) {
             // eslint-disable-next-line no-console
             console.log('api lookup failed even though isAuthenticated', e);
             return;
         }
-        const daySwitches = ((_b = (yield context.configDevices('dayControlSwitch'))) !== null && _b !== void 0 ? _b : []).concat((_c = (yield context.configDevices('dayActiveSwitches'))) !== null && _c !== void 0 ? _c : [])
+        const daySwitches = ((yield context.configDevices('dayControlSwitch'))).concat((yield context.configDevices('dayActiveSwitches')))
             .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
-        const nightSwitches = ((_d = (yield context.configDevices('nightControlSwitch'))) !== null && _d !== void 0 ? _d : []).concat((_e = (yield context.configDevices('nightActiveSwitches'))) !== null && _e !== void 0 ? _e : [])
+        const nightSwitches = ((yield context.configDevices('nightControlSwitch'))).concat((yield context.configDevices('nightActiveSwitches')))
             .filter((s, i, self) => self.findIndex(c => c.deviceId === s.deviceId) === i);
         const dayDimmableSwitches = daySwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
         const nightDimmableSwitches = nightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
@@ -227,8 +230,7 @@ exports.default = new smartapp_1.SmartApp()
                 .step(increment5)
                 .defaultValue(global_1.default.rule.default.switchDayLevel);
             // slider would be nice, but UI provides no numerical feedback, so worthless =\
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @disabled-ts-expect-error
             // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
         });
         nightDimmableSwitches.forEach(s => {
@@ -239,21 +241,24 @@ exports.default = new smartapp_1.SmartApp()
                 .step(increment5)
                 .defaultValue(global_1.default.rule.default.switchNightLevel);
             // slider would be nice, but UI provides no numerical feedback, so worthless =\
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @disabled-ts-expect-error
             // .style('SLIDER'); //NumberStyle.SLIDER translates to undefined because typescript things
         });
     }));
 }))
     .updated((context, updateData) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f;
     if (!context.isAuthenticated()) {
         // if you havent ever accepted scopes (new install, etc) we cannot do device lookups below successfully, bail now
         return;
     }
     const appKey = `app-${updateData.installedApp.installedAppId}`;
     const newConfig = yield (0, readConfigFromContext_1.default)(context);
-    const allDimmableSwitches = yield Promise.all((yield ((_f = context.api.devices) === null || _f === void 0 ? void 0 : _f.list({ capability: 'switchLevel' }))) || []);
+    if (!newConfig.dayControlSwitch || !newConfig.nightControlSwitch) {
+        // eslint-disable-next-line no-console
+        console.warn('Day or Night control switch not configured in updated, cannot create rules');
+        return;
+    }
+    const allDimmableSwitches = yield context.api.devices.list({ capability: 'switchLevel' });
     const uniqueDaySwitches = (0, uniqueDeviceFactory_1.default)([newConfig.dayControlSwitch].concat(newConfig.dayActiveSwitches));
     const uniqueNightSwitches = (0, uniqueDeviceFactory_1.default)([newConfig.nightControlSwitch].concat(newConfig.nightActiveSwitches));
     const uniqueSwitches = (0, uniqueDeviceFactory_1.default)(uniqueDaySwitches.concat(uniqueNightSwitches));
@@ -262,6 +267,7 @@ exports.default = new smartapp_1.SmartApp()
     const nightDimmableSwitches = uniqueNightSwitches.filter(s => allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
     const dayNonDimmableSwitches = uniqueDaySwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
     const nightNonDimmableSwitches = uniqueNightSwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
+    // the find here better work because all switches needs to map to the valid dimmable switch the user configured
     const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({ deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchDayLevel }));
     const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({ deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId).switchNightLevel }));
     const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
@@ -270,15 +276,14 @@ exports.default = new smartapp_1.SmartApp()
     const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
     // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
     // console.log('newConfig', newConfig);
-    /* eslint-disable no-mixed-operators */
-    const newDayRule = dayRuleEnabled && (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayStartOffset, newConfig.dayNightOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.dayControlSwitch.deviceId, dayDimmableSwitchLevels, dayNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) || null;
-    const newNightRule = nightRuleEnabled && (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayNightOffset, newConfig.nightEndOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.nightControlSwitch.deviceId, nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) || null;
-    const newIdleRule = idleRuleEnabled && (0, createIdleRuleFromConfigOperation_1.default)(newConfig.motionSensors.map(d => d.deviceId), uniqueSwitches.map(d => d.deviceId), newConfig.motionIdleTimeout, newConfig.motionIdleTimeoutUnit, !newConfig.motionMultipleAll // you invert this setting for the idle case
-    ) || null;
-    const newTransitionRule = transitionRuleEnabled && (0, createTransitionRuleFromConfigOperation_1.default)(appKey, newConfig.dayNightOffset, uniqueDaySwitches.map(s => s.deviceId), nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId)) || null;
-    /* eslint-enable no-mixed-operators */
+    const newDayRule = dayRuleEnabled ? (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayStartOffset, newConfig.dayNightOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.dayControlSwitch.deviceId, dayDimmableSwitchLevels, dayNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) : null;
+    const newNightRule = nightRuleEnabled ? (0, createTriggerRuleFromConfigOperation_1.default)(newConfig.dayNightOffset, newConfig.nightEndOffset, newConfig.motionSensors.map(d => d.deviceId), newConfig.nightControlSwitch.deviceId, nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId), newConfig.motionMultipleAll, newConfig.motionDurationDelay) : null;
+    const newIdleRule = idleRuleEnabled ? (0, createIdleRuleFromConfigOperation_1.default)(newConfig.motionSensors.map(d => d.deviceId), uniqueSwitches.map(d => d.deviceId), newConfig.motionIdleTimeout, newConfig.motionIdleTimeoutUnit, !newConfig.motionMultipleAll // you invert this setting for the idle case
+    ) : null;
+    const newTransitionRule = transitionRuleEnabled ? (0, createTransitionRuleFromConfigOperation_1.default)(appKey, newConfig.dayNightOffset, uniqueDaySwitches.map(s => s.deviceId), nightDimmableSwitchLevels, nightNonDimmableSwitches.map(s => s.deviceId)) : null;
     const newCombinedRule = (0, createCombinedRuleFromConfigOperation_1.default)(appKey, newDayRule, newNightRule, newIdleRule);
-    const newRuleSummary = (0, createRuleSummaryFromConfigOperation_1.default)(newConfig, uniqueDaySwitches, dayDimmableSwitches, dayNonDimmableSwitches, dayDimmableSwitchLevels, uniqueNightSwitches, nightDimmableSwitches, nightNonDimmableSwitches, nightDimmableSwitchLevels, updateData.installedApp.installedAppId, [] // will be filled in
+    const newRuleSummary = (0, createRuleSummaryFromConfigOperation_1.default)(newConfig, // above we ensured the conflicting nullable values are not null, so it is this type
+    uniqueDaySwitches, dayDimmableSwitches, dayNonDimmableSwitches, dayDimmableSwitchLevels, uniqueNightSwitches, nightDimmableSwitches, nightNonDimmableSwitches, nightDimmableSwitchLevels, updateData.installedApp.installedAppId, [] // will be filled in
     );
     // TODO: somewhere around here we could sync this against the exiting rulestore, to sync webapp side with the smartapp side
     //       the way things are now, changes to an app just steamroll the webapp side with a new config created from scratch

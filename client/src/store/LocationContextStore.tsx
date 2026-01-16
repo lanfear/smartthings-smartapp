@@ -1,5 +1,5 @@
 import {create} from 'zustand';
-import {Nullable} from '../types/interfaces';
+import type {Nullable} from '../types/interfaces';
 
 export interface ILocationContextStore {
   locationId: Nullable<string>;
