@@ -1,14 +1,14 @@
 // src/theme-context.js
 import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
-import {useCallback} from 'react';
+import {useCallback, useEffect} from 'react';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import useSWR, {unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
+import {create} from 'zustand/react';
 import getLocation from '../operations/getLocation';
 import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
 import {useLocationContextStore} from './LocationContextStore';
 
 export interface IDeviceContextStore {
-  deviceData: IResponseLocation;
   setDeviceData: KeyedMutator<IResponseLocation>;
   loadDeviceDataFromServer: () => Promise<void>;
 }
@@ -67,6 +67,8 @@ const getFallbackData = (locationId: string): IResponseLocation => {
   };
 };
 
+export const useDeviceData = create<IResponseLocation>(() => initialDeviceData);
+
 // SWR hook for device data
 export const useDeviceStore = (): IDeviceContextStore => {
   const activeLocationId = useLocationContextStore(s => s.locationId);
@@ -106,9 +108,12 @@ export const useDeviceStore = (): IDeviceContextStore => {
     await setDeviceData();
   }, [setDeviceData]);
 
+  useEffect(() => {
+    useDeviceData.setState(s => ({...s, deviceData: deviceData ?? initialDeviceData}));
+  }, [deviceData]);
+
   return {
-    deviceData: deviceData ?? initialDeviceData,
-    setDeviceData: setDeviceData,
-    loadDeviceDataFromServer: loadDeviceDataFromServer
+    setDeviceData,
+    loadDeviceDataFromServer
   };
 };
