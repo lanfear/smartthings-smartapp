@@ -9,7 +9,7 @@ import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardTitle, DashboardGridColumnHeader, StyledButton, FlexRowCenter} from '../factories/styleFactory';
 import getLocations from '../operations/getLocations';
-import {useDeviceData} from '../store/DeviceContextStore';
+import {useDeviceStore} from '../store/DeviceContextStore';
 import {setLocation} from '../store/LocationContextStore';
 import type {IApp, IRule} from '../types/sharedContracts';
 
@@ -43,7 +43,7 @@ const DashboardModalButton = styled.button`
 
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
-  const {deviceData} = useDeviceData();
+  const {deviceData} = useDeviceStore();
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const [activeRule, setActiveRule] = React.useState<IRule | null>(null);
   const {locationId} = useParams<RouteParams>();

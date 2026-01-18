@@ -4,10 +4,10 @@ import global from '../constants/global';
 import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
 import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
-import {useDeviceData} from '../store/DeviceContextStore';
+import {useDeviceStore} from '../store/DeviceContextStore';
 
 const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
-  const {deviceData} = useDeviceData();
+  const {deviceData} = useDeviceStore();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
     if (item.type === IDragAndDropType.Device) {

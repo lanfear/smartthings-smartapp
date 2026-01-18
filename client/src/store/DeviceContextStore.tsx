@@ -68,7 +68,7 @@ const getFallbackData = (locationId: string): IResponseLocation => {
 };
 
 // SWR hook for device data
-export const useDeviceData = (): IDeviceContextStore => {
+export const useDeviceStore = (): IDeviceContextStore => {
   const activeLocationId = useLocationContextStore(s => s.locationId);
 
   const {data: deviceData, mutate: _setDeviceData} = useSWR(

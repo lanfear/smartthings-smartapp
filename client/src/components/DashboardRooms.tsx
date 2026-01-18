@@ -7,7 +7,7 @@ import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
 import getLocations from '../operations/getLocations';
-import {useDeviceData} from '../store/DeviceContextStore';
+import {useDeviceStore} from '../store/DeviceContextStore';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 import DeviceControls from './DeviceControls';
 import Room from './Room';
@@ -44,7 +44,7 @@ const DashboardRoomGrid = styled.div<{roomCount: number}>`
 const DashboardRooms: React.FC = () => {
   const {locationId} = useParams<RouteParams>();
   const {t} = useTranslation();
-  const {deviceData} = useDeviceData();
+  const {deviceData} = useDeviceStore();
   const [favoriteRoom, setFavoriteRoom] = useLocalStorage<string>('favorite-room', '');
   const locationName = useLocationContextStore(s => s.locationName);
 
