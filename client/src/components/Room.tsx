@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {useDeviceStore} from '../store/DeviceContextStore';
+import {useDeviceData, useDeviceStore} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
@@ -175,7 +175,8 @@ const RoomControlDeviceLabel = styled.div`
 
 const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
   const localStorageKey = `smartAppRoom-${room.roomId!}-activeDevice`;
-  const {deviceData, setDeviceData} = useDeviceStore();
+  const {setDeviceData} = useDeviceStore();
+  const deviceData = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
 

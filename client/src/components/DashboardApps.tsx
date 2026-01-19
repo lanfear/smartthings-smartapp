@@ -1,13 +1,9 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {useParams} from 'react-router-dom';
 import styled from 'styled-components';
-import type {RouteParams} from '../App';
 import global from '../constants/global';
 import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
-import getLocations from '../operations/getLocations';
-import {useDeviceStore} from '../store/DeviceContextStore';
-import {setLocation} from '../store/LocationContextStore';
+import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 
 const DashboardAppGrid = styled.div`
     display: grid;
@@ -18,29 +14,17 @@ const DashboardAppGrid = styled.div`
 
 const DashboardApps: React.FC = () => {
   const {t} = useTranslation();
-  const {deviceData} = useDeviceStore();
-  const {locationId} = useParams<RouteParams>();
+  useLocationIdParam();
+  const deviceData = useDeviceData();
 
-  // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
-  useEffect(() => {
-    if (locationId && locationId !== deviceData.locationId) {
-      void (async () => {
-        const locationData = (await getLocations()).find(l => l.locationId === locationId);
-        if (locationData) {
-          setLocation(locationId, locationData.name);
-        }
-      })();
-    }
-  }, [locationId, deviceData.locationId]);
-
-  if (!locationId) {
+  if (!deviceData.locationId) {
     return null;
   }
 
   return (
     <>
       <DashboardTitle>
-        {locationId}
+        {deviceData.locationId}
       </DashboardTitle>
       <DashboardSubTitle>
         {t('dashboard.installedApp.sectionName')}

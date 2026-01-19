@@ -19,74 +19,79 @@ import NavMenu from './components/NavMenu';
 import RuleExamples from './components/RuleExamples';
 import SmartApps from './components/SmartApps';
 import StyledComponentProvider from './providers/StyledComponentProvider';
+import {useDeviceStore} from './store/DeviceContextStore';
 
 export type RouteParams = Record<string, string> & {
   locationId: string;
 };
 
-const App: React.FC = () => (
-  <StyledComponentProvider>
-    <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
-      <SWRConfig
-        value={{
-          onSuccess: (d, k) => {
-            localStorage.setItem(k, JSON.stringify(d));
-          },
-          onError: (_, k) => {
-            localStorage.removeItem(k);
-          }
-        }}
-      >
-        <EventSourceProvider>
-          <NavMenu />
-          <section className="container main-content">
-            <Routes>
-              <Route
-                path="/"
-                element={<Home />}
-              />
-              <Route
-                path="rule-examples"
-                element={<RuleExamples />}
-              />
-              <Route
-                path="basic-templates"
-                element={<BasicTemplates />}
-              />
-              <Route
-                path="advanced-templates"
-                element={<AdvancedTemplates />}
-              />
-              <Route
-                path="smartapps"
-                element={<SmartApps />}
-              />
-              <Route
-                path="locations"
-                element={<Locations />}
-              />
-              <Route
-                path="dashboard/:locationId/rooms"
-                element={<DashboardRooms />}
-              />
-              <Route
-                path="dashboard/:locationId/scenes"
-                element={(<DashboardScenes />)}
-              />
-              <Route
-                path="dashboard/:locationId/rules"
-                element={(<DashboardRules />)}
-              />
-              <Route
-                path="dashboard/:locationId/apps"
-                element={(<DashboardApps />)}
-              />
-            </Routes>
-          </section>
-        </EventSourceProvider>
-      </SWRConfig>
-    </DndProvider>
-  </StyledComponentProvider>
-);
+const App: React.FC = () => {
+  useDeviceStore();
+
+  return (
+    <StyledComponentProvider>
+      <DndProvider backend={isMobile ? TouchBackend : HTML5Backend}>
+        <SWRConfig
+          value={{
+            onSuccess: (d, k) => {
+              localStorage.setItem(k, JSON.stringify(d));
+            },
+            onError: (_, k) => {
+              localStorage.removeItem(k);
+            }
+          }}
+        >
+          <EventSourceProvider>
+            <NavMenu />
+            <section className="container main-content">
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Home />}
+                />
+                <Route
+                  path="rule-examples"
+                  element={<RuleExamples />}
+                />
+                <Route
+                  path="basic-templates"
+                  element={<BasicTemplates />}
+                />
+                <Route
+                  path="advanced-templates"
+                  element={<AdvancedTemplates />}
+                />
+                <Route
+                  path="smartapps"
+                  element={<SmartApps />}
+                />
+                <Route
+                  path="locations"
+                  element={<Locations />}
+                />
+                <Route
+                  path="dashboard/:locationId/rooms"
+                  element={<DashboardRooms />}
+                />
+                <Route
+                  path="dashboard/:locationId/scenes"
+                  element={(<DashboardScenes />)}
+                />
+                <Route
+                  path="dashboard/:locationId/rules"
+                  element={(<DashboardRules />)}
+                />
+                <Route
+                  path="dashboard/:locationId/apps"
+                  element={(<DashboardApps />)}
+                />
+              </Routes>
+            </section>
+          </EventSourceProvider>
+        </SWRConfig>
+      </DndProvider>
+    </StyledComponentProvider>
+  );
+};
 
 export default App;
