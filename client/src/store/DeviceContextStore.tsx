@@ -104,14 +104,15 @@ export const useDeviceStore = (): IDeviceContextStore => {
       name: 'rule',
       listener: () => _setDeviceData()
     }
-  });
+  }, [deviceEventSource, _setDeviceData]);
 
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
     await _setDeviceData();
   }, [_setDeviceData]);
 
   useEffect(() => {
-    useDeviceData.setState(s => ({...s, ...(deviceData ?? initialDeviceData)}));
+    // TODO: dont love this json stringify compare, it inefficient, but we have to do some compare to prevent update loop
+    useDeviceData.setState(s => JSON.stringify(s) === JSON.stringify(deviceData) ? s : ({...s, ...(deviceData ?? initialDeviceData)}));
   }, [deviceData]);
 
   useEffect(() => {

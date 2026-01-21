@@ -72,7 +72,7 @@ const DashboardRooms: React.FC = () => {
         {deviceData.rooms.map(r => (
           <Room
             key={`room-${r.roomId!}`}
-            room={r}
+            roomId={r.roomId!}
             isFavoriteRoom={favoriteRoom === r.roomId}
             setFavoriteRoom={setFavoriteRoom}
           />
