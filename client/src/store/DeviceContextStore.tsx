@@ -1,5 +1,6 @@
 // src/theme-context.js
 import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
+import {deepEqual} from 'fast-equals';
 import {useCallback, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
@@ -111,8 +112,8 @@ export const useDeviceStore = (): IDeviceContextStore => {
   }, [_setDeviceData]);
 
   useEffect(() => {
-    // TODO: dont love this json stringify compare, it inefficient, but we have to do some compare to prevent update loop
-    useDeviceData.setState(s => JSON.stringify(s) === JSON.stringify(deviceData) ? s : ({...s, ...(deviceData ?? initialDeviceData)}));
+    // we need to do deep compare here to avoid infinate render loop
+    useDeviceData.setState(s => deepEqual(s, deviceData) ? s : ({...s, ...(deviceData ?? initialDeviceData)}));
   }, [deviceData]);
 
   useEffect(() => {
