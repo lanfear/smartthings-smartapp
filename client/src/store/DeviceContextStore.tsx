@@ -117,9 +117,7 @@ export const useDeviceStore = (): IDeviceContextStore => {
   }, [deviceData]);
 
   useEffect(() => {
-    // TODO: something here?  ideally we only want to load if location has just changed
-    // if (locationId && locationId !== deviceData?.locationId) ... but these are already equal
-    if (locationId) {
+    if (locationId && locationId !== deviceData?.locationId) {
       void loadDeviceDataFromServer();
     }
   }, [locationId, deviceData?.locationId, loadDeviceDataFromServer]);

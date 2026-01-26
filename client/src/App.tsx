@@ -18,6 +18,7 @@ import Locations from './components/Locations';
 import NavMenu from './components/NavMenu';
 import RuleExamples from './components/RuleExamples';
 import SmartApps from './components/SmartApps';
+import global from './constants/global';
 import StyledComponentProvider from './providers/StyledComponentProvider';
 import {useDeviceStore} from './store/DeviceContextStore';
 
@@ -70,19 +71,19 @@ const App: React.FC = () => {
                   element={<Locations />}
                 />
                 <Route
-                  path="dashboard/:locationId/rooms"
+                  path={`${global.routing.dashboardSegment}/:locationId/rooms`}
                   element={<DashboardRooms />}
                 />
                 <Route
-                  path="dashboard/:locationId/scenes"
+                  path={`${global.routing.dashboardSegment}/:locationId/scenes`}
                   element={(<DashboardScenes />)}
                 />
                 <Route
-                  path="dashboard/:locationId/rules"
+                  path={`${global.routing.dashboardSegment}/:locationId/rules`}
                   element={(<DashboardRules />)}
                 />
                 <Route
-                  path="dashboard/:locationId/apps"
+                  path={`${global.routing.dashboardSegment}/:locationId/apps`}
                   element={(<DashboardApps />)}
                 />
               </Routes>
