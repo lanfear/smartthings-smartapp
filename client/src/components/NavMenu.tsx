@@ -1,11 +1,12 @@
 import {useState, useEffect, memo} from 'react';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useNavigate} from 'react-router-dom';
 import global from '../constants/global';
 import getLocations, {type IResponseLocations} from '../operations/getLocations';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 import DropdownButton, {DropdownOption} from './DropdownButton';
 
 const NavMenu: React.FC = () => {
+  const navigate = useNavigate();
   const routeLocation = useLocation();
   const locationId = useLocationContextStore(s => s.locationId);
   const locationName = useLocationContextStore(s => s.locationName);
@@ -24,7 +25,12 @@ const NavMenu: React.FC = () => {
     <DropdownOption
       key={location.locationId}
       onClick={() => {
-        setLocation(location.locationId, location.name);
+        // if we on a location path, properly update the route to trigger update, else, just set the locationId directly
+        if (routeLocation.pathname.startsWith(`/${global.routing.dashboardSegment}/`)) {
+          navigate(routeLocation.pathname.replace(new RegExp(`/${global.routing.dashboardSegment}/[^/]+`), `/${global.routing.dashboardSegment}/${location.locationId}`));
+        } else {
+          setLocation(location.locationId, location.name);
+        }
       }}
       isChecked={location.locationId === locationId}
     >
@@ -98,28 +104,28 @@ const NavMenu: React.FC = () => {
       <Link
         key="location-rooms"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/rooms') ? 'selected' : ''}`}
-        to={`/dashboard/${locationId}/rooms`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/rooms`}
       >
         Rooms
       </Link>
       <Link
         key="location-scenes"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/scenes') ? 'selected' : ''}`}
-        to={`/dashboard/${locationId}/scenes`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/scenes`}
       >
         Scenes
       </Link>
       <Link
         key="location-rules"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/rules') ? 'selected' : ''}`}
-        to={`/dashboard/${locationId}/rules`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/rules`}
       >
         Rules
       </Link>
       <Link
         key="location-apps"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/apps') ? 'selected' : ''}`}
-        to={`/dashboard/${locationId}/apps`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/apps`}
       >
         Apps
       </Link>

@@ -35,5 +35,8 @@ export default {
   },
   zIndex: {
     header: 10
+  },
+  routing: {
+    dashboardSegment: 'dashboard'
   }
-};
+} as const;

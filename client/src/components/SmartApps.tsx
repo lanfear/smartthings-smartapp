@@ -80,11 +80,12 @@ const SmartApps: React.FC<SmartAppProps> = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [smartApps]); // ignore smartAppData
 
+  // TODO: the Link here is broken
   return (
     <SmartAppGrid>
       {Object.values(smartAppData).map(sa => (
         <>
-          <Link to={`/dashboard/${sa.installedAppId}`}>
+          <Link to={`/${global.routing.dashboardSegment}/${sa.installedAppId}`}>
             <div>
               {t('smartapp.label')}
               :

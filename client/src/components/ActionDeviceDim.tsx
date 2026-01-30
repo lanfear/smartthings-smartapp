@@ -83,7 +83,7 @@ const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitch
 };
 
 const ActionDeviceDim: React.FC = () => {
-  const {deviceData} = useDeviceData();
+  const deviceData = useDeviceData();
 
   const [dimLevelSliderValue, setDimLevelSliderValue] = useState(0);
 

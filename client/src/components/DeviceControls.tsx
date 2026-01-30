@@ -28,12 +28,12 @@ const DeviceControls: React.FC = () => (
       key="control-action-power-dim"
     />
     <ActionRuleDisable
-      key="control-action-rule-disable"
+      key="control-action-rule-disable-2h"
       words="Disable 2hrs"
       reEnableAfter={2}
     />
     <ActionRuleDisable
-      key="control-action-rule-disable"
+      key="control-action-rule-disable-8h"
       words="Disable 8hrs"
       reEnableAfter={8}
     />

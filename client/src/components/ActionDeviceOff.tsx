@@ -7,7 +7,7 @@ import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceData} from '../store/DeviceContextStore';
 
 const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
-  const {deviceData} = useDeviceData();
+  const deviceData = useDeviceData();
 
   const onDrop = async (item: IDragAndDropItem): Promise<IDragAndDropItem> => {
     if (item.type === IDragAndDropType.Device) {

@@ -1,14 +1,17 @@
 // src/theme-context.js
 import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
-import {useCallback} from 'react';
+import {deepEqual} from 'fast-equals';
+import {useCallback, useEffect} from 'react';
+import {useParams} from 'react-router-dom';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import useSWR, {unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
+import {create} from 'zustand';
+import type {RouteParams} from '../App';
 import getLocation from '../operations/getLocation';
 import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
-import {useLocationContextStore} from './LocationContextStore';
+import {setLocation, useLocationContextStore} from './LocationContextStore';
 
 export interface IDeviceContextStore {
-  deviceData: IResponseLocation;
   setDeviceData: KeyedMutator<IResponseLocation>;
   loadDeviceDataFromServer: () => Promise<void>;
 }
@@ -67,17 +70,19 @@ const getFallbackData = (locationId: string): IResponseLocation => {
   };
 };
 
+export const useDeviceData = create<IResponseLocation>(() => initialDeviceData);
+
 // SWR hook for device data
-export const useDeviceData = (): IDeviceContextStore => {
-  const activeLocationId = useLocationContextStore(s => s.locationId);
+export const useDeviceStore = (): IDeviceContextStore => {
+  const locationId = useLocationContextStore(s => s.locationId);
 
   const {data: deviceData, mutate: _setDeviceData} = useSWR(
-    activeLocationId ? ['locationData', activeLocationId] : null,
+    locationId ? ['locationData', locationId] : null,
     (_, l) => getDeviceDataFromServer(l),
     {
       revalidateOnMount: true,
       dedupingInterval: 5000,
-      fallbackData: activeLocationId ? getFallbackData(activeLocationId) : initialDeviceData
+      fallbackData: locationId ? getFallbackData(locationId) : initialDeviceData
     }
   );
 
@@ -89,7 +94,7 @@ export const useDeviceData = (): IDeviceContextStore => {
   // listen to sse events
   const deviceEventSource = useEventSource({
     source: `${process.env.SMARTAPP_BUILDTIME_APIHOST}/events`,
-    options: {enabled: !!activeLocationId}
+    options: {enabled: !!locationId}
   });
 
   // when any rules event comes in, just reload data from server
@@ -100,15 +105,37 @@ export const useDeviceData = (): IDeviceContextStore => {
       name: 'rule',
       listener: () => _setDeviceData()
     }
-  });
+  }, [deviceEventSource, _setDeviceData]);
 
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
-    await setDeviceData();
-  }, [setDeviceData]);
+    await _setDeviceData();
+  }, [_setDeviceData]);
+
+  useEffect(() => {
+    // we need to do deep compare here to avoid infinate render loop
+    useDeviceData.setState(s => deepEqual(s, deviceData) ? s : ({...s, ...(deviceData ?? initialDeviceData)}));
+  }, [deviceData]);
+
+  useEffect(() => {
+    if (locationId && locationId !== deviceData?.locationId) {
+      void loadDeviceDataFromServer();
+    }
+  }, [locationId, deviceData?.locationId, loadDeviceDataFromServer]);
 
   return {
-    deviceData: deviceData ?? initialDeviceData,
-    setDeviceData: setDeviceData,
-    loadDeviceDataFromServer: loadDeviceDataFromServer
+    setDeviceData,
+    loadDeviceDataFromServer
   };
+};
+
+export const useLocationIdParam = (): void => {
+  const {locationId} = useParams<RouteParams>();
+  const activeLocationId = useLocationContextStore(s => s.locationId);
+
+  // if you nav directly to location we have to setup location (itd be nice not to do this in each of the 4 components)
+  useEffect(() => {
+    if (locationId && locationId !== activeLocationId) {
+      setLocation(locationId);
+    }
+  }, [locationId, activeLocationId]);
 };

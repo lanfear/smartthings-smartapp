@@ -35,7 +35,7 @@ const Locations: React.FC<LocationsProps> = () => {
         <React.Fragment key={`location-${l.locationId}`}>
           <Link
             key={`location-${l.locationId}-rooms`}
-            to={`/dashboard/${l.locationId}/rooms`}
+            to={`/${global.routing.dashboardSegment}/${l.locationId}/rooms`}
           >
             <LocationGroup className="box">
               <h2>
@@ -48,7 +48,7 @@ const Locations: React.FC<LocationsProps> = () => {
           </Link>
           <Link
             key={`location-${l.locationId}-scenes`}
-            to={`/dashboard/${l.locationId}/scenes`}
+            to={`/${global.routing.dashboardSegment}/${l.locationId}/scenes`}
           >
             <LocationGroup className="box">
               <h2>
@@ -61,7 +61,7 @@ const Locations: React.FC<LocationsProps> = () => {
           </Link>
           <Link
             key={`location-${l.locationId}-rules`}
-            to={`/dashboard/${l.locationId}/rules`}
+            to={`/${global.routing.dashboardSegment}/${l.locationId}/rules`}
           >
             <LocationGroup className="box">
               <h2>
@@ -74,7 +74,7 @@ const Locations: React.FC<LocationsProps> = () => {
           </Link>
           <Link
             key={`location-${l.locationId}-apps`}
-            to={`/dashboard/${l.locationId}/apps`}
+            to={`/${global.routing.dashboardSegment}/${l.locationId}/apps`}
           >
             <LocationGroup className="box">
               <h2>

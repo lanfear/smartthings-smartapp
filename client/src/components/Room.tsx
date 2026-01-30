@@ -1,4 +1,3 @@
-import type {Room as IRoom} from '@smartthings/core-sdk';
 import dayjs, {type Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import React, {useEffect, useRef} from 'react';
@@ -7,7 +6,7 @@ import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {useDeviceData} from '../store/DeviceContextStore';
+import {useDeviceData, useDeviceStore} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
@@ -173,9 +172,11 @@ const RoomControlDeviceLabel = styled.div`
   min-height: 2rem;
 `;
 
-const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => {
-  const localStorageKey = `smartAppRoom-${room.roomId!}-activeDevice`;
-  const {deviceData, setDeviceData} = useDeviceData();
+const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) => {
+  const localStorageKey = `smartAppRoom-${roomId}-activeDevice`;
+  const {setDeviceData} = useDeviceStore();
+  const room = useDeviceData(d => d.rooms.find(r => r.roomId === roomId))!;
+  const deviceData = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
   const domRef = useRef<HTMLDivElement>(null);
 
@@ -428,7 +429,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
           {roomName}
         </RoomControlTitleText>
       </RoomControlTitle>
-      <RoomControlFavorite onClick={() => setFavoriteRoom(room.roomId!)}>
+      <RoomControlFavorite onClick={() => setFavoriteRoom(roomId)}>
         {!!roomFloor && (
           <RoomControlTitleFloor>
             {roomFloor}
@@ -444,7 +445,7 @@ const Room: React.FC<IRoomProps> = ({room, isFavoriteRoom, setFavoriteRoom}) => 
 };
 
 export interface IRoomProps {
-  room: IRoom;
+  roomId: string;
   isFavoriteRoom: boolean;
   setFavoriteRoom: (roomId: string) => void;
 }
