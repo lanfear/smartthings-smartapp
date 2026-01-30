@@ -198,7 +198,7 @@ const RoomControlRule = styled.div<{gridLineName: string}>`
   display: flex;
   justify-content: center;
   align-items: center;
-  grid-column: ${props => props.gridLineName}-start / ${props => props.gridLineName}-end
+  grid-column: ${props => props.gridLineName}-start / ${props => props.gridLineName}-end;
 `;
 
 const RoomControlDeviceLabel = styled.div`
