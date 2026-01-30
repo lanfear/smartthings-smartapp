@@ -72,8 +72,12 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   // grid-template-columns: repeat(5, 1fr);
   // grid-template-rows: max-content 1fr 2rem;
   gap: ${global.measurements.deviceGridGap};
-  border: var(--grid-room-border);
-  border-radius: var(--grid-room-border-radius);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 `;
 
 const RoomControlPower = styled.div`
@@ -95,28 +99,54 @@ const RoomControlTitle = styled.div`
   grid-row-end: 1;
   justify-content: center;
   align-items: center;
-  font-size: larger;
-  font-weight: 700;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 `;
 
 const RoomControlTitleText = styled.span`
-  padding: 0 0.5rem;
-  background: #${global.palette.control.rgb.inactive}${global.palette.control.alpha};
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-  backdrop-filter: blur( 15px );
-  border-radius: 10px;
-  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6),
+               0 1px 2px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
 `;
 
 const RoomControlTitleFloor = styled.span`
-  padding: 0 0.5rem;
-  background: #${global.palette.control.rgb.floor}${global.palette.control.alpha};
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-  backdrop-filter: blur( 15px );
+  padding: 0.35rem 0.65rem;
+  background: linear-gradient(135deg, #${global.palette.control.rgb.floor} 0%, #${global.palette.control.rgb.floor}dd 100%);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  /* backdrop-filter: blur(20px); */
   border-radius: 50%;
-  border: 1px solid rgba( 255, 255, 255, 0.18 );
-  font-size: small;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  font-weight: 700;
   color: #000;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-right: 0.25rem;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
 `;
 
 const RoomControlFavorite = styled.button`
@@ -128,9 +158,19 @@ const RoomControlFavorite = styled.button`
   grid-row-end: 1;
   justify-content: center;
   align-items: center;
-  font-size: larger;
-  font-weight: 700;
+  font-size: 1.25rem;
   cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
+
+  &:hover {
+    transform: scale(1.15) translateY(-2px);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  }
+
+  &:active {
+    transform: scale(1.05);
+  }
 `;
 
 const RoomControlDevice = styled.div`

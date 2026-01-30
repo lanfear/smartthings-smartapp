@@ -35,7 +35,7 @@ export const ControlLogo = styled(ActionLogo)`
   opacity: 0.75;
   z-index: 0;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.15));
-  font-size: 4rem;
+  font-size: 3.25rem;
   pointer-events: none;
 `;
 
