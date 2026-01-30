@@ -63,28 +63,63 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
   align-content: center;
   align-items: center;
   justify-content: space-between;
-  background: #${props => props.rgb}${global.palette.control.alpha};
-  box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
-  backdrop-filter: blur( 15px );
-  border-radius: 10px;
-  border: 1px solid rgba( 255, 255, 255, 0.18 );
+  background: linear-gradient(135deg, #${props => props.rgb}${global.palette.control.alpha} 0%, #${props => props.rgb}dd 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+              0 8px 32px rgba(31, 38, 135, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(1.2);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   margin: ${global.measurements.deviceMargin};
-  transition : border 500ms pulse;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12),
+                0 12px 40px rgba(31, 38, 135, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
+                0 4px 16px rgba(31, 38, 135, 0.15);
+  }
 
   &.linkedActive {
-    border: 1px solid #000;
+    border: 1px solid rgba(0, 0, 0, 0.5);
     animation-name: ${DeviceBorderAnimation};
     animation-duration: 2.0s;
     animation-timing-function: ease-in-out;
-    animation-iteration-count:infinite;
+    animation-iteration-count: infinite;
   }
 
   &.lockedActive {
-    border: 1px solid #f00;
+    border: 1px solid rgba(255, 0, 0, 0.7);
     animation-name: ${DeviceBorderAnimation};
     animation-duration: 2.0s;
     animation-timing-function: ease-in-out;
-    animation-iteration-count:infinite;
+    animation-iteration-count: infinite;
   }
 `;
 
