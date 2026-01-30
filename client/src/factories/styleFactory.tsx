@@ -32,24 +32,37 @@ export const ControlLogo = styled(ActionLogo)`
   display: flex;
   justify-content: center;
   align-items: center;
-  opacity: 50%;
-  z-index: -1;
+  opacity: 0.75;
+  z-index: 0;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.15));
+  font-size: 4rem;
+  pointer-events: none;
 `;
 
 export const ControlStatus = styled.div`
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1;
-    background: #9995;
-    border-radius: 10px;
-    padding: 0.125rem 0;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 0.25rem 0.5rem;
     min-width: 80%;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+    z-index: 1;
+    position: relative;
 `;
 
 export const ControlIcon = styled.div<{fontSize?: string}>`
-  font-size: ${props => props.fontSize ?? 'unset'};
+  font-size: ${props => props.fontSize ?? '1.5rem'};
   display: flex;
   width: 100%;
   justify-content: space-between;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  z-index: 2;
+  position: relative;
 `;
 
 export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; isLockedActive?: boolean}>(p => ({
