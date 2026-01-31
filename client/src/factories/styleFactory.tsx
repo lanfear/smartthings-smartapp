@@ -101,7 +101,7 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
   }
 
   &:hover {
-    transform: translateY(-2px);
+    transform: scale(1.15);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12),
                 0 12px 40px rgba(31, 38, 135, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.15);
