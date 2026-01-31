@@ -151,8 +151,8 @@ export const DashboardTitle = styled.h2`
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    margin: 0;
+    padding: 1rem 0;
     position: relative;
     box-shadow: 0 15px 25px -15px rgba(0, 0, 0, 0.15);
 
