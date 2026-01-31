@@ -53,6 +53,15 @@ export const ControlStatus = styled.div`
     position: relative;
 `;
 
+export const ActionStatus = styled(ControlStatus)`
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease-in-out;
+`;
+
 export const ControlIcon = styled.div<{fontSize?: string}>`
   top: -.75rem;
   left: -.75rem;
@@ -138,10 +147,17 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
 export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boolean}>`
   opacity: ${props => props.canDrop === false ? '.25' : '1'};
   transition: opacity .25s ease-in-out;
+  justify-content: center;
 
   input[type="range"] {
     -webkit-appearance: slider-vertical;
   }
+
+  ${props => props.canDrop && `
+    div:nth-child(2) {
+      display: flex;
+    }
+  `};
 `;
 
 export const DashboardTitle = styled.h2`

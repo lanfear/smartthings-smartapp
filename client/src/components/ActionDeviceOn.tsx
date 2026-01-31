@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ActionLogo, ActionStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 
 const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
@@ -23,9 +23,9 @@ const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
       <ActionLogo>
         ✅
       </ActionLogo>
-      <ControlStatus>
+      <ActionStatus>
         {words}
-      </ControlStatus>
+      </ActionStatus>
     </ControlActionContainer>
   );
 
