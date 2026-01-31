@@ -23,10 +23,10 @@ const DashboardScenes: React.FC = () => {
   return (
     <>
       <DashboardTitle>
-        {deviceData.locationId}
+        {t('dashboard.scene.sectionName')}
       </DashboardTitle>
       <DashboardSubTitle>
-        {t('dashboard.scene.sectionName')}
+        {deviceData.locationId}
       </DashboardSubTitle>
       <DashboardSceneGrid>
         <DashboardGridColumnHeader>

@@ -145,11 +145,49 @@ export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boole
 `;
 
 export const DashboardTitle = styled.h2`
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    &::before {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to left, currentColor, transparent);
+        opacity: 0.3;
+        max-width: 100px;
+    }
+
+    &::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(to right, currentColor, transparent);
+        opacity: 0.3;
+    }
 `;
 
 export const DashboardSubTitle = styled.h3`
-    font-weight: 600;
+    font-weight: 500;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    display: none;
+
+    &::before {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to left, currentColor, transparent);
+        opacity: 0.3;
+    }
 `;
 
 export const DashboardGridColumnHeader = styled(FlexRowCenter)`

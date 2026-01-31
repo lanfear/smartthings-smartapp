@@ -24,10 +24,10 @@ const DashboardApps: React.FC = () => {
   return (
     <>
       <DashboardTitle>
-        {deviceData.locationId}
+        {t('dashboard.installedApp.sectionName')}
       </DashboardTitle>
       <DashboardSubTitle>
-        {t('dashboard.installedApp.sectionName')}
+        {deviceData.locationId}
       </DashboardSubTitle>
       <DashboardAppGrid>
         <DashboardGridColumnHeader>
