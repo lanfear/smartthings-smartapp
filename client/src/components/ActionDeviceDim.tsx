@@ -14,7 +14,7 @@ const negative100Percent = -100;
 
 const DimLevelUpDownArrowContainer = styled.div`
   display: flex;
-  font-size: x-large;
+  font-size: 3rem;
 `;
 
 const DimLevelSliderContainer = styled.div`
