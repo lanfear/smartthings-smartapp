@@ -28,7 +28,7 @@ const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
       ref={drop}
       {...collectedProps}
     >
-      <ActionLogo fontSize="larger">
+      <ActionLogo>
         ❎
       </ActionLogo>
       <ControlStatus>

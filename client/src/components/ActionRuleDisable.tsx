@@ -35,7 +35,7 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words, reEnableAf
       ref={drop}
       {...collectedProps}
     >
-      <ActionLogo fontSize="x-large">
+      <ActionLogo>
         {iconography}
       </ActionLogo>
       <ControlStatus>

@@ -21,11 +21,7 @@ const DeviceBorderAnimation = keyframes`
     }
 `;
 
-export const ActionLogo = styled.div<{fontSize?: string}>`
-  font-size: ${props => props.fontSize ?? 'x-large'};
-`;
-
-export const ControlLogo = styled(ActionLogo)`
+export const ActionLogo = styled.div`
   position: absolute;
   height: 100%;
   top: 0;
@@ -33,9 +29,12 @@ export const ControlLogo = styled(ActionLogo)`
   justify-content: center;
   align-items: center;
   opacity: 0.75;
-  z-index: 0;
   filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 16px rgba(0, 0, 0, 0.15));
-  font-size: 3.25rem;
+  font-size: 2.5rem;
+`;
+
+export const ControlLogo = styled(ActionLogo)`
+  z-index: 0;
   pointer-events: none;
 `;
 
@@ -44,11 +43,10 @@ export const ControlStatus = styled.div`
     line-height: 1;
     font-size: 0.85rem;
     background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
     border-radius: 12px;
     padding: 0.25rem 0.5rem;
     min-width: 80%;
-    color: rgba(255, 255, 255, 0.85);
+    color: darkred;
     text-transform: lowercase;
     letter-spacing: 0.5px;
     z-index: 1;
@@ -56,13 +54,15 @@ export const ControlStatus = styled.div`
 `;
 
 export const ControlIcon = styled.div<{fontSize?: string}>`
+  top: -.75rem;
+  left: -.75rem;
   font-size: ${props => props.fontSize ?? '1.5rem'};
   display: flex;
   width: 100%;
   justify-content: space-between;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
   z-index: 2;
-  position: relative;
+  position: absolute;
 `;
 
 export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; isLockedActive?: boolean}>(p => ({
@@ -87,7 +87,6 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
-  overflow: hidden;
 
   &::before {
     content: '';
