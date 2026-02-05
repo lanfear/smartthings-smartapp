@@ -2,7 +2,7 @@ import React from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ActionLogo, ActionStatus} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceData} from '../store/DeviceContextStore';
 
@@ -28,12 +28,12 @@ const ActionDeviceOff: React.FC<IDeviceOffActionProps> = ({words}) => {
       ref={drop}
       {...collectedProps}
     >
-      <ActionLogo fontSize="larger">
+      <ActionLogo>
         ❎
       </ActionLogo>
-      <ControlStatus>
+      <ActionStatus>
         {words}
-      </ControlStatus>
+      </ActionStatus>
     </ControlActionContainer>
   );
 

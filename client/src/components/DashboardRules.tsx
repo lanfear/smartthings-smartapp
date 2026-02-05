@@ -63,7 +63,7 @@ const DashboardRules: React.FC = () => {
   return (
     <>
       <DashboardTitle>
-        {deviceData.locationId}
+        {t('dashboard.rule.sectionName')}
       </DashboardTitle>
       <DashboardRuleGrid>
         <DashboardGridColumnHeader>

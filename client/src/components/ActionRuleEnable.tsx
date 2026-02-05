@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import {useDrop} from 'react-dnd';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
-import {ControlActionContainer, ActionLogo, ControlStatus} from '../factories/styleFactory';
+import {ControlActionContainer, ActionLogo, ActionStatus} from '../factories/styleFactory';
 import executeRuleControl from '../operations/executeRuleControl';
 import {useLocationContextStore} from '../store/LocationContextStore';
 import type {IRuleComponentType} from '../types/sharedContracts';
@@ -32,12 +32,12 @@ const ActionRuleEnable: React.FC<IActionRuleEnableProps> = ({words}) => {
       ref={drop}
       {...collectedProps}
     >
-      <ActionLogo fontSize="x-large">
+      <ActionLogo>
         ▶
       </ActionLogo>
-      <ControlStatus>
+      <ActionStatus>
         {words}
-      </ControlStatus>
+      </ActionStatus>
     </ControlActionContainer>
   );
 

@@ -67,6 +67,7 @@ export const GlobalStyles = createGlobalStyle`
       max-height: calc(100vh - var(--navbar-height));
       display: flex;
       flex-direction: column;
+      gap: 0.625rem;
   }
 
   .text{
