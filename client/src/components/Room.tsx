@@ -82,7 +82,26 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   &:hover,
   &:focus-within,
   &.is-active {
-    animation: room-grid-pulse 2.8s ease-in-out infinite;
+    &::after {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(110deg,
+      transparent 0%,
+      rgba(130, 210, 255, 0.0) 30%,
+      rgba(130, 210, 255, 0.5) 45%,
+      rgba(230, 250, 255, 0.85) 52%,
+      rgba(130, 210, 255, 0.5) 60%,
+      rgba(130, 210, 255, 0.0) 75%,
+      transparent 100%);
+      opacity:0.20;
+      background-size:240% 100%;
+      background-position:200% 0;
+      filter:drop-shadow(0 0 10px rgba(120, 200, 255, 0.5));
+      mix-blend-mode:screen;
+      pointer-events:none;
+      animation:dashboard-room-lightning 2.6s linear infinite;
+    }
   }
 `;
 
