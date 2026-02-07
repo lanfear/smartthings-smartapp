@@ -64,3 +64,22 @@ linear-gradient(-45deg, #ff408c, #ff4040, #6666ff);
   }
 }
 
+/* this is the room background pulse, not sure if i like it yet */
+@keyframes room-grid-pulse {
+
+  0%,
+  100% {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 0 0 0 rgba(120, 200, 255, 0);
+  }
+
+  50% {
+    background: linear-gradient(145deg, rgba(120, 200, 255, 0.12) 0%, rgba(120, 200, 255, 0.04) 100%);
+    box-shadow: 0 14px 46px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 0 34px 6px rgba(120, 200, 255, 0.22);
+  }
+}
+

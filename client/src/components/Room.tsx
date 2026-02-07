@@ -78,6 +78,12 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
               inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+
+  &:hover,
+  &:focus-within,
+  &.is-active {
+    animation: room-grid-pulse 2.8s ease-in-out infinite;
+  }
 `;
 
 const RoomControlPower = styled.div`
