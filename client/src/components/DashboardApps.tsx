@@ -34,15 +34,15 @@ const DashboardApps: React.FC = () => {
           {t('dashboard.installedApp.header.name')}
         </DashboardGridColumnHeader>
         <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.ruleId')}
+          {t('dashboard.installedApp.header.appId')}
         </DashboardGridColumnHeader>
         <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.status')}
+          {t('dashboard.installedApp.header.installedAppId')}
         </DashboardGridColumnHeader>
         <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.ownerId')}
+          {t('dashboard.installedApp.header.lastUpdatedDate')}
         </DashboardGridColumnHeader>
-        {deviceData.apps.map(a => (
+        {deviceData.apps.sort((a, b) => a.displayName!.localeCompare(b.displayName!)).map(a => (
           <React.Fragment key={`apps-${a.installedAppId}`}>
             <span>
               {a.displayName}
