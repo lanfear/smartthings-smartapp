@@ -121,6 +121,16 @@ export default new SmartApp()
       section.booleanSetting('enableIdleRule').defaultValue('true');
     });
 
+    page.section('tempDisable', section => {
+      section.hideable(true);
+      section.hidden(true);
+      section.booleanSetting('tempDisableAllRules').defaultValue('false');
+      section.booleanSetting('tempDisableDaylightRule').defaultValue('false');
+      section.booleanSetting('tempDisableNightlightRule').defaultValue('false');
+      section.booleanSetting('tempDisableIdleRule').defaultValue('false');
+      section.booleanSetting('tempDisableTransitionRule').defaultValue('false');
+    });
+
     page.section('sensors', section => {
       section.hideable(true);
       section
