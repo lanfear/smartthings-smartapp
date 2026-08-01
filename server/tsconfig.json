@@ -3,7 +3,6 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
-    "ignoreDeprecations": "6.0",
     "strict": true,
     "noImplicitAny": true,
     "sourceMap": true,
