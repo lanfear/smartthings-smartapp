@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {useDeviceData, useDeviceStore} from '../store/DeviceContextStore';
+import {setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
@@ -239,7 +239,6 @@ const RoomControlDeviceLabel = styled.div`
 
 const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) => {
   const localStorageKey = `smartAppRoom-${roomId}-activeDevice`;
-  const {setDeviceData} = useDeviceStore();
   const room = useDeviceData(d => d.rooms.find(r => r.roomId === roomId))!;
   const deviceData = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
@@ -292,7 +291,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
@@ -300,7 +299,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
@@ -308,7 +307,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
