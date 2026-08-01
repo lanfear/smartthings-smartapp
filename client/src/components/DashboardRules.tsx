@@ -37,6 +37,22 @@ const DashboardModalContent = styled.div`
 const DashboardModalButton = styled.button`
 `;
 
+const recursiveSearch = (obj: object, keyToFind: string): string[] => {
+  let result: string[] = [];
+  // eslint-disable-next-line guard-for-in
+  for (const key in obj) {
+    if (key === keyToFind) {
+      result.push((obj[key] as string[])[0]);
+    }
+    if (typeof obj[key] === 'object' && obj[key] !== null) {
+      result = result.concat(recursiveSearch(obj[key] as object, keyToFind));
+    }
+  }
+  return result;
+};
+
+const findRuleDevices = (ruleData: object, keyToFind: string): string[] => recursiveSearch(ruleData, keyToFind);
+
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
   useLocationIdParam();
@@ -50,12 +66,23 @@ const DashboardRules: React.FC = () => {
 
   const findAppMatchingRule = (ruleName: string): IApp | undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));
 
+  const findRuleDeviceNames = (ruleData: IRule): string[] => {
+    const ruleDeviceIds = findRuleDevices(ruleData, 'devices');
+    const matchingDevices = deviceData.switches.filter(d => ruleDeviceIds.includes(d.deviceId)).concat(
+      deviceData.motion.filter(d => ruleDeviceIds.includes(d.deviceId)).concat(
+        deviceData.locks.filter(d => ruleDeviceIds.includes(d.deviceId))));
+    const matchedIds = matchingDevices.map(d => d.deviceId);
+    const missingIds = Array.from(ruleDeviceIds.filter(id => !matchedIds.includes(id)));
+    return matchingDevices.map(d => d.label!).concat(missingIds.map(id => `missing device ${id}`));
+  };
+
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
     await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
   };
 
   const openRule = (ruleId: string): void => {
-    setActiveRule(deviceData.rules.find(r => r.id === ruleId) ?? null);
+    const ruleData = deviceData.rules.find(r => r.id === ruleId) ?? null;
+    setActiveRule(ruleData);
     setModalOpen(true);
   };
 
@@ -81,25 +108,25 @@ const DashboardRules: React.FC = () => {
         <DashboardGridColumnHeader>
           {t('dashboard.rule.header.manage')}
         </DashboardGridColumnHeader>
-        {deviceData.rules.map(s => (
-          <React.Fragment key={`rules-${s.id}`}>
-            <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(s.name)}>
-              {s.name}
+        {deviceData.rules.sort((a, b) => a.name.localeCompare(b.name)).map(r => (
+          <React.Fragment key={`rules-${r.id}`}>
+            <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(r.name)}>
+              {r.name}
             </DashboardRuleName>
             <DashboardRuleContent>
-              {s.id}
+              {r.id}
             </DashboardRuleContent>
             <DashboardRuleContent>
-              {s.executionLocation}
+              {findRuleDeviceNames(r).join(', ')}
             </DashboardRuleContent>
             <DashboardRuleContent>
-              {findAppMatchingRule(s.name)?.displayName ?? '(rogue rule)'}
+              {findAppMatchingRule(r.name)?.displayName ?? '(rogue rule)'}
             </DashboardRuleContent>
             <DashboardRuleContent>
-              <StyledButton onClick={() => openRule(s.id)}>
+              <StyledButton onClick={() => openRule(r.id)}>
                 SHOW RULE
               </StyledButton>
-              <StyledButton onClick={() => deleteRule(deviceData.locationId, s.id)}>
+              <StyledButton onClick={() => deleteRule(deviceData.locationId, r.id)}>
                 DELETE
               </StyledButton>
             </DashboardRuleContent>

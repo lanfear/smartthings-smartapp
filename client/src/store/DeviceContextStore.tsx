@@ -4,7 +4,7 @@ import {deepEqual} from 'fast-equals';
 import {useCallback, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
-import useSWR, {unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
+import useSWR, {mutate as swrMutate, unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
 import {create} from 'zustand';
 import type {RouteParams} from '../App';
 import getLocation from '../operations/getLocation';
@@ -71,6 +71,13 @@ const getFallbackData = (locationId: string): IResponseLocation => {
 };
 
 export const useDeviceData = create<IResponseLocation>(() => initialDeviceData);
+
+// pushes an optimistic local update into the shared 'locationData' SWR cache entry without subscribing to it -
+// use this from components that just need to write device state (e.g. per-room SSE handlers) instead of calling
+// useDeviceStore(), which would spin up another copy of the mount/'rule'-event revalidation logic below per instance
+export const setDeviceDataForLocation = async (locationId: string, data: IResponseLocation): Promise<void> => {
+  await swrMutate(['locationData', locationId], JSON.parse(JSON.stringify(data)) as IResponseLocation, {revalidate: false});
+};
 
 // SWR hook for device data
 export const useDeviceStore = (): IDeviceContextStore => {

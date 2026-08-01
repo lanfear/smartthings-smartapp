@@ -7,6 +7,26 @@ const redisRuleStore = createClient({
   url: settings.redisServer
 });
 
+// pre-existing renamed keys (see git history 'align the names of these vars on the server'); kept only so older stored rule
+// summaries can be migrated forward instead of silently losing whatever temp-disable state was set via the web dashboard
+const legacyTempDisableFieldNames = {
+  tempDisableDaylightRule: 'temporaryDisableDaylightRule',
+  tempDisableNightlightRule: 'temporaryDisableNightlightRule',
+  tempDisableIdleRule: 'temporaryDisableIdleRule',
+  tempDisableTransitionRule: 'temporaryDisableTransitionRule'
+} as const;
+
+// older stored rule summaries may predate these fields entirely, or store them under the legacy names above;
+// normalize so callers always get real booleans instead of `undefined`
+const backfillTempDisableFields = (ruleStoreInfo: RuleStoreInfo): void => {
+  const ruleSummary = ruleStoreInfo.newRuleSummary as unknown as Record<string, boolean | undefined>;
+  ruleSummary.tempDisableAllRules ??= false;
+  Object.entries(legacyTempDisableFieldNames).forEach(([currentName, legacyName]) => {
+    ruleSummary[currentName] ??= ruleSummary[legacyName] ?? false;
+    delete ruleSummary[legacyName];
+  });
+};
+
 // none of this was working, maybe have to deal with it someday, but :shrug: we dont have that many open redis connections, can clean itself
 // const cleanup = async (): Promise<void> => {
 //   if (redisRuleStore.isOpen) {
@@ -30,6 +50,7 @@ const get = async (ruleStoreKey: string): Promise<Nullable<RuleStoreInfo>> => {
     return null;
   }
   const ruleStoreInfo = JSON.parse(ruleStoreInfoString) as RuleStoreInfo;
+  backfillTempDisableFields(ruleStoreInfo);
   // console.log('redis rule', !!ruleStoreInfoRedis, 'looking for', `${ruleInfoPrefix}${ruleStoreKey}`);
   return ruleStoreInfo;
 };

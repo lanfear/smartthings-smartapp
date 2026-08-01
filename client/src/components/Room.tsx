@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {useDeviceData, useDeviceStore} from '../store/DeviceContextStore';
+import {setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
@@ -78,6 +78,31 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
               inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+
+  &:hover,
+  &:focus-within,
+  &.is-active {
+    &::after {
+      content:'';
+      position:absolute;
+      inset:0;
+      background:linear-gradient(110deg,
+      transparent 0%,
+      rgba(130, 210, 255, 0.0) 30%,
+      rgba(130, 210, 255, 0.5) 45%,
+      rgba(230, 250, 255, 0.85) 52%,
+      rgba(130, 210, 255, 0.5) 60%,
+      rgba(130, 210, 255, 0.0) 75%,
+      transparent 100%);
+      opacity:0.20;
+      background-size:240% 100%;
+      background-position:200% 0;
+      filter:drop-shadow(0 0 10px rgba(120, 200, 255, 0.5));
+      mix-blend-mode:screen;
+      pointer-events:none;
+      animation:dashboard-room-lightning 2.6s linear infinite;
+    }
+  }
 `;
 
 const RoomControlPower = styled.div`
@@ -214,7 +239,6 @@ const RoomControlDeviceLabel = styled.div`
 
 const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) => {
   const localStorageKey = `smartAppRoom-${roomId}-activeDevice`;
-  const {setDeviceData} = useDeviceStore();
   const room = useDeviceData(d => d.rooms.find(r => r.roomId === roomId))!;
   const deviceData = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
@@ -267,7 +291,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomSwitches.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
@@ -275,7 +299,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomLocks.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
@@ -283,7 +307,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
     const targetDevice = roomMotion.find(s => s.deviceId === eventData.deviceId);
     if (targetDevice) {
       targetDevice.value = eventData.value;
-      await setDeviceData({...deviceData}, {revalidate: false});
+      await setDeviceDataForLocation(deviceData.locationId, {...deviceData});
     }
   };
 
@@ -390,7 +414,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="daylight"
                   time={`${ruleParts.dayRule.startTime.format('hA')} - ${ruleParts.dayRule.endTime.format('hA')}`}
                   isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
-                  isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
+                  isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.tempDisableDaylightRule}
                   isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.length > 0}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleActive(ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -409,7 +433,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="transition"
                   time={ruleParts.transitionRule.time.format('hA')}
                   isRuleActive={true}
-                  isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
+                  isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.tempDisableTransitionRule}
                   isKeyRule={false}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -427,7 +451,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="nightlight"
                   time={`${ruleParts.nightRule.startTime.format('hA')} - ${ruleParts.nightRule.endTime.format('hA')}`}
                   isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
-                  isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
+                  isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.tempDisableNightlightRule}
                   isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.length > 0}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleActive(ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -446,7 +470,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="idle"
                   time={ruleParts.idleRule.motionTimeout}
                   isRuleActive={true}
-                  isRuleEnabled={a.ruleSummary.enableIdleRule && !a.ruleSummary.temporaryDisableIdleRule}
+                  isRuleEnabled={a.ruleSummary.enableIdleRule && !a.ruleSummary.tempDisableIdleRule}
                   isKeyRule={false}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}

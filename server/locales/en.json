@@ -28,6 +28,19 @@
 	"pages.rulesMainPage.settings.enableIdleRule.name": "Disable ⇔ Enable — The Idle Rule",
 	"pages.rulesMainPage.settings.enableIdleRule.description": "Enables/Disables 'Turn off if no motion' rule",
 
+	"pages.rulesMainPage.sections.tempDisable.name": "(DO NOT USE) Web Control Disable",
+	"pages.rulesMainPage.sections.tempDisable.description": "Normally leave these settings alone, they are used by web control",
+	"pages.rulesMainPage.settings.tempDisableAllRules.name": "Enable ⇔ Disable — All Rules",
+	"pages.rulesMainPage.settings.tempDisableAllRules.description": "Temporarily disables all rules from web dashboard",
+	"pages.rulesMainPage.settings.tempDisableDaylightRule.name": "Enable ⇔ Disable — The Daylight Rule",
+	"pages.rulesMainPage.settings.tempDisableDaylightRule.description": "Temporarily disable Daylight Rule",
+	"pages.rulesMainPage.settings.tempDisableNightlightRule.name": "Enable ⇔ Disable — The Nightlight Rule",
+	"pages.rulesMainPage.settings.tempDisableNightlightRule.description": "Temporarily disable Nightlight Rule",
+	"pages.rulesMainPage.settings.tempDisableIdleRule.name": "Enable ⇔ Disable — The Idle Rule",
+	"pages.rulesMainPage.settings.tempDisableIdleRule.description": "Temporarily disable Idle Rule",
+	"pages.rulesMainPage.settings.tempDisableTransitionRule.name": "Enable ⇔ Disable — The Transition Rule",
+	"pages.rulesMainPage.settings.tempDisableTransitionRule.description": "Temporarily disable Transition Rule",
+
 	"pages.rulesMainPage.sections.sensors.name": "Sensors",
 	"pages.rulesMainPage.sections.sensors.description": "Choose the motion detector to activate triggers",
 	"pages.rulesMainPage.settings.motionSensor.name": "Motion Sensor",
@@ -51,10 +64,10 @@
 	"pages.rulesMainPage.settings.nightControlSwitch.description": "If this switch is off, trigger Nigthlight switches to on",
 	"pages.rulesMainPage.settings.nightActiveSwitches.name": "Nigthlight Active Switches",
 	"pages.rulesMainPage.settings.nightActiveSwitches.description": "When Nigthlight trigger activates, all these switches (plus control switch) wll be affected",
-	
+
 	"pages.rulesMainPage.sections.levels.name": "Levels",
 	"pages.rulesMainPage.sections.levels.description": "Adjust the Daylight and Nightlight levels",
-	
+
 	"pages.rulesMainPage.sections.timings.name": "Timings",
 	"pages.rulesMainPage.sections.timings.description": "Adjust offsets from the default time ranges",
 	"pages.rulesMainPage.settings.dayStartOffsetTime.name": "Start of Day",
