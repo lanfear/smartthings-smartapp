@@ -1,16 +1,17 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import styled from 'styled-components';
-import global from '../constants/global';
-import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
+import {
+  DashboardTitle,
+  DashboardSubTitle,
+  DashboardCardGrid,
+  DashboardCard,
+  DashboardCardTitle,
+  DashboardCardBody,
+  DashboardCardField,
+  DashboardCardFieldLabel,
+  DashboardCardFieldValue
+} from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-
-const DashboardAppGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: minmax(100px, auto);
-`;
 
 const DashboardApps: React.FC = () => {
   const {t} = useTranslation();
@@ -29,36 +30,41 @@ const DashboardApps: React.FC = () => {
       <DashboardSubTitle>
         {deviceData.locationId}
       </DashboardSubTitle>
-      <DashboardAppGrid>
-        <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.name')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.appId')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.installedAppId')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.installedApp.header.lastUpdatedDate')}
-        </DashboardGridColumnHeader>
+      <DashboardCardGrid>
         {deviceData.apps.sort((a, b) => a.displayName!.localeCompare(b.displayName!)).map(a => (
-          <React.Fragment key={`apps-${a.installedAppId}`}>
-            <span>
+          <DashboardCard key={`apps-${a.installedAppId}`}>
+            <DashboardCardTitle>
               {a.displayName}
-            </span>
-            <span>
-              {a.appId}
-            </span>
-            <span>
-              {a.installedAppId}
-            </span>
-            <span>
-              {a.lastUpdatedDate}
-            </span>
-          </React.Fragment>
+            </DashboardCardTitle>
+            <DashboardCardBody>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.installedApp.header.appId')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {a.appId}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.installedApp.header.installedAppId')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {a.installedAppId}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.installedApp.header.lastUpdatedDate')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {a.lastUpdatedDate}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+            </DashboardCardBody>
+          </DashboardCard>
         ))}
-      </DashboardAppGrid>
+      </DashboardCardGrid>
     </>
   );
 };

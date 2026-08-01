@@ -25,6 +25,7 @@ export default {
         motion: '32E624',
         rule: 'E68C24',
         app: 'E68C24',
+        scene: '24AAE6',
         locked: 'E65E24',
         floor: 'F35506'
       }

@@ -79,6 +79,12 @@ export const setDeviceDataForLocation = async (locationId: string, data: IRespon
   await swrMutate(['locationData', locationId], JSON.parse(JSON.stringify(data)) as IResponseLocation, {revalidate: false});
 };
 
+// re-fetches the shared 'locationData' SWR cache entry (e.g. after executing a scene, to pick up its updated
+// lastExecutedDate) without subscribing to it - same rationale as setDeviceDataForLocation above
+export const revalidateDeviceDataForLocation = async (locationId: string): Promise<void> => {
+  await swrMutate(['locationData', locationId]);
+};
+
 // SWR hook for device data
 export const useDeviceStore = (): IDeviceContextStore => {
   const locationId = useLocationContextStore(s => s.locationId);

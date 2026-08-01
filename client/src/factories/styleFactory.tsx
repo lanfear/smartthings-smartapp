@@ -160,6 +160,188 @@ export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boole
   `};
 `;
 
+// shared "glass" visual language reused across the room grid and the scene/rule/app dashboard cards
+export const GlassPanel = styled.div`
+  position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+
+  &:hover,
+  &:focus-within,
+  &.is-active {
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(110deg,
+        transparent 0%,
+        rgba(130, 210, 255, 0.0) 30%,
+        rgba(130, 210, 255, 0.5) 45%,
+        rgba(230, 250, 255, 0.85) 52%,
+        rgba(130, 210, 255, 0.5) 60%,
+        rgba(130, 210, 255, 0.0) 75%,
+        transparent 100%);
+      opacity: 0.20;
+      background-size: 240% 100%;
+      background-position: 200% 0;
+      filter: drop-shadow(0 0 10px rgba(120, 200, 255, 0.5));
+      mix-blend-mode: screen;
+      pointer-events: none;
+      animation: dashboard-room-lightning 2.6s linear infinite;
+    }
+  }
+`;
+
+export const GlassPill = styled.span`
+  display: inline-flex;
+  padding: 0.4rem 0.75rem;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px) saturate(1.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6),
+               0 1px 2px rgba(0, 0, 0, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+`;
+
+// shared card layout for the scene/rule/app dashboard tabs
+export const DashboardCardGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: ${global.measurements.dashboardGridGap};
+  align-content: start;
+  overflow: auto;
+`;
+
+export const DashboardCard = styled(GlassPanel)`
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem;
+  min-width: 0;
+`;
+
+export const DashboardCardTitle = styled(GlassPill)`
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const DashboardCardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+`;
+
+export const DashboardCardField = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  overflow: hidden;
+`;
+
+export const DashboardCardFieldLabel = styled.span`
+  opacity: 0.6;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex: none;
+`;
+
+export const DashboardCardFieldValue = styled.span`
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const DashboardCardActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  flex-wrap: wrap;
+`;
+
+export const DashboardActionButton = styled.button<{rgb?: string}>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #${props => props.rgb ?? global.palette.control.rgb.switch};
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.3) 100%);
+  border: 1px solid #${props => props.rgb ?? global.palette.control.rgb.switch}66;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.4) 100%);
+    border-color: #${props => props.rgb ?? global.palette.control.rgb.switch};
+    transform: translateY(-1px) scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+export const DashboardCardBadge = styled.span<{rgb: string}>`
+  position: absolute;
+  bottom: 0.6rem;
+  left: 1rem;
+  z-index: 1;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.85);
+  background: linear-gradient(135deg, #${props => props.rgb} 0%, #${props => props.rgb}cc 100%);
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+`;
+
 export const DashboardTitle = styled.h2`
     font-weight: 700;
     font-size: 2rem;

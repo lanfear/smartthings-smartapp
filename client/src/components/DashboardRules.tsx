@@ -5,36 +5,53 @@ import styled from 'styled-components';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
 import global from '../constants/global';
-import {DashboardTitle, DashboardGridColumnHeader, StyledButton, FlexRowCenter} from '../factories/styleFactory';
-import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
+import {
+  DashboardTitle,
+  DashboardSubTitle,
+  DashboardCardGrid,
+  DashboardCard,
+  DashboardCardTitle,
+  DashboardCardBadge,
+  DashboardCardBody,
+  DashboardCardField,
+  DashboardCardFieldLabel,
+  DashboardCardFieldValue,
+  DashboardCardActions,
+  DashboardActionButton,
+  GlassPanel
+} from '../factories/styleFactory';
+import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 import type {IApp, IRule} from '../types/sharedContracts';
 
-const DashboardRuleGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(5, auto);
-    gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: minmax(75px, auto);
+const DashboardRuleTitle = styled(DashboardCardTitle)<{matchesInstalledApp: boolean}>`
+  color: ${props => props.matchesInstalledApp ? '#7CE624' : '#E66B24'};
 `;
 
-const DashboardRuleContent = styled(FlexRowCenter)`
-  justify-content: space-evenly;
+const RuleModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: ${global.zIndex.header + 10};
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const DashboardRuleName = styled(FlexRowCenter)<{matchesInstalledApp: boolean}>`
-  color: ${props => props.matchesInstalledApp ? 'green' : 'red'};
+const RuleModalBackground = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
 `;
 
-const DashboardModal = styled.div`
-`;
-
-const DashboardModalBackground = styled.div`
-  backdrop-filter: blur(10px);
-`;
-
-const DashboardModalContent = styled.div`
-`;
-
-const DashboardModalButton = styled.button`
+const RuleModalContent = styled(GlassPanel)`
+  position: relative;
+  width: min(90vw, 900px);
+  max-height: 85vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
 `;
 
 const recursiveSearch = (obj: object, keyToFind: string): string[] => {
@@ -52,6 +69,11 @@ const recursiveSearch = (obj: object, keyToFind: string): string[] => {
 };
 
 const findRuleDevices = (ruleData: object, keyToFind: string): string[] => recursiveSearch(ruleData, keyToFind);
+
+// rule names are generated as 'app-<installedAppId>-rule' (the combined day/night/idle rule) or
+// 'app-<installedAppId>-transition-rule' - the suffix is the only thing distinguishing the two, and it's
+// exactly the part that gets cut off once the name is truncated to fit the card title
+const getRuleType = (name: string): 'Transition' | 'Main' => name.endsWith('-transition-rule') ? 'Transition' : 'Main';
 
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
@@ -78,6 +100,7 @@ const DashboardRules: React.FC = () => {
 
   const deleteRule = async (location: string, ruleId: string): Promise<void> => {
     await fetch(`${process.env.SMARTAPP_BUILDTIME_APIHOST}/location/${location}/rule/${ruleId}`, {method: 'DELETE'});
+    await revalidateDeviceDataForLocation(location);
   };
 
   const openRule = (ruleId: string): void => {
@@ -92,69 +115,92 @@ const DashboardRules: React.FC = () => {
       <DashboardTitle>
         {t('dashboard.rule.sectionName')}
       </DashboardTitle>
-      <DashboardRuleGrid>
-        <DashboardGridColumnHeader>
-          {t('dashboard.rule.header.name')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.rule.header.ruleId')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.rule.header.status')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.rule.header.ownerId')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.rule.header.manage')}
-        </DashboardGridColumnHeader>
-        {deviceData.rules.sort((a, b) => a.name.localeCompare(b.name)).map(r => (
-          <React.Fragment key={`rules-${r.id}`}>
-            <DashboardRuleName matchesInstalledApp={!!findAppMatchingRule(r.name)}>
-              {r.name}
-            </DashboardRuleName>
-            <DashboardRuleContent>
-              {r.id}
-            </DashboardRuleContent>
-            <DashboardRuleContent>
-              {findRuleDeviceNames(r).join(', ')}
-            </DashboardRuleContent>
-            <DashboardRuleContent>
-              {findAppMatchingRule(r.name)?.displayName ?? '(rogue rule)'}
-            </DashboardRuleContent>
-            <DashboardRuleContent>
-              <StyledButton onClick={() => openRule(r.id)}>
-                SHOW RULE
-              </StyledButton>
-              <StyledButton onClick={() => deleteRule(deviceData.locationId, r.id)}>
-                DELETE
-              </StyledButton>
-            </DashboardRuleContent>
-          </React.Fragment>
-        ))}
-      </DashboardRuleGrid>
-      <DashboardModal className={modalOpen ? 'modal is-active' : 'modal'}>
-        <DashboardModalBackground className="modal-background" />
-        <DashboardModalContent className="modal-content">
-          <AceEditor
-            width="100%"
-            height="80vh"
-            mode="json"
-            theme="monokai"
-            name="textarea"
-            value={JSON.stringify(activeRule, undefined, 2)}
-            editorProps={{$blockScrolling: true}}
-            setOptions={{fontSize: 15}}
-          />
-        </DashboardModalContent>
-        <DashboardModalButton
-          className="modal-close"
-          aria-label="close"
-          onClick={() => setModalOpen(false)}
-        >
-          Close
-        </DashboardModalButton>
-      </DashboardModal>
+      <DashboardSubTitle>
+        {deviceData.locationId}
+      </DashboardSubTitle>
+      <DashboardCardGrid>
+        {deviceData.rules.sort((a, b) => a.name.localeCompare(b.name)).map(r => {
+          const matchingApp = findAppMatchingRule(r.name);
+          const ruleType = getRuleType(r.name);
+          return (
+            <DashboardCard key={`rules-${r.id}`}>
+              <DashboardCardBadge rgb={ruleType === 'Transition' ? global.palette.control.rgb.scene : global.palette.control.rgb.inactive}>
+                {ruleType}
+              </DashboardCardBadge>
+              <DashboardRuleTitle matchesInstalledApp={!!matchingApp}>
+                {r.name}
+              </DashboardRuleTitle>
+              <DashboardCardBody>
+                <DashboardCardField>
+                  <DashboardCardFieldLabel>
+                    {t('dashboard.rule.header.ruleId')}
+                  </DashboardCardFieldLabel>
+                  <DashboardCardFieldValue>
+                    {r.id}
+                  </DashboardCardFieldValue>
+                </DashboardCardField>
+                <DashboardCardField>
+                  <DashboardCardFieldLabel>
+                    {t('dashboard.rule.header.devices')}
+                  </DashboardCardFieldLabel>
+                  <DashboardCardFieldValue>
+                    {findRuleDeviceNames(r).join(', ')}
+                  </DashboardCardFieldValue>
+                </DashboardCardField>
+                <DashboardCardField>
+                  <DashboardCardFieldLabel>
+                    {t('dashboard.rule.header.ownerId')}
+                  </DashboardCardFieldLabel>
+                  <DashboardCardFieldValue>
+                    {matchingApp?.displayName ?? '(rogue rule)'}
+                  </DashboardCardFieldValue>
+                </DashboardCardField>
+              </DashboardCardBody>
+              <DashboardCardActions>
+                <DashboardActionButton
+                  rgb={global.palette.control.rgb.app}
+                  onClick={() => openRule(r.id)}
+                >
+                  {t('dashboard.rule.action.show')}
+                </DashboardActionButton>
+                <DashboardActionButton
+                  rgb={global.palette.control.rgb.locked}
+                  onClick={() => {
+                    void deleteRule(deviceData.locationId, r.id);
+                  }}
+                >
+                  {t('dashboard.rule.action.delete')}
+                </DashboardActionButton>
+              </DashboardCardActions>
+            </DashboardCard>
+          );
+        })}
+      </DashboardCardGrid>
+      {modalOpen && (
+        <RuleModalOverlay>
+          <RuleModalBackground onClick={() => setModalOpen(false)} />
+          <RuleModalContent>
+            <AceEditor
+              width="100%"
+              height="70vh"
+              mode="json"
+              theme="monokai"
+              name="textarea"
+              value={JSON.stringify(activeRule, undefined, 2)}
+              editorProps={{$blockScrolling: true}}
+              setOptions={{fontSize: 15}}
+            />
+            <DashboardCardActions>
+              <DashboardActionButton
+                aria-label="close"
+                onClick={() => setModalOpen(false)}
+              >
+                {t('dashboard.rule.action.close')}
+              </DashboardActionButton>
+            </DashboardCardActions>
+          </RuleModalContent>
+        </RuleModalOverlay>
+      )}
     </>
   );
   /* eslint-enable no-undefined */

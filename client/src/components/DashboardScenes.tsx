@@ -1,24 +1,41 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import styled from 'styled-components';
 import global from '../constants/global';
-import {DashboardTitle, DashboardSubTitle, DashboardGridColumnHeader} from '../factories/styleFactory';
-import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-
-const DashboardSceneGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: ${global.measurements.dashboardGridGap};
-`;
+import {
+  DashboardTitle,
+  DashboardSubTitle,
+  DashboardCardGrid,
+  DashboardCard,
+  DashboardCardTitle,
+  DashboardCardBody,
+  DashboardCardField,
+  DashboardCardFieldLabel,
+  DashboardCardFieldValue,
+  DashboardCardActions,
+  DashboardActionButton
+} from '../factories/styleFactory';
+import executeScene from '../operations/executeScene';
+import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 
 const DashboardScenes: React.FC = () => {
   const {t} = useTranslation();
   useLocationIdParam();
   const deviceData = useDeviceData();
+  const [executingSceneId, setExecutingSceneId] = useState<string | null>(null);
 
   if (!deviceData.locationId) {
     return null;
   }
+
+  const handleExecuteScene = async (sceneId: string): Promise<void> => {
+    setExecutingSceneId(sceneId);
+    try {
+      await executeScene(deviceData.locationId, sceneId);
+      await revalidateDeviceDataForLocation(deviceData.locationId);
+    } finally {
+      setExecutingSceneId(null);
+    }
+  };
 
   return (
     <>
@@ -28,42 +45,60 @@ const DashboardScenes: React.FC = () => {
       <DashboardSubTitle>
         {deviceData.locationId}
       </DashboardSubTitle>
-      <DashboardSceneGrid>
-        <DashboardGridColumnHeader>
-          {t('dashboard.scene.header.sceneName')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.scene.header.sceneId')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.scene.header.createdBy')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.scene.header.createdDate')}
-        </DashboardGridColumnHeader>
-        <DashboardGridColumnHeader>
-          {t('dashboard.scene.header.lastExecutedDate')}
-        </DashboardGridColumnHeader>
+      <DashboardCardGrid>
         {deviceData.scenes.map(s => (
-          <React.Fragment key={`scene-${s.sceneId!}`}>
-            <span>
+          <DashboardCard key={`scene-${s.sceneId!}`}>
+            <DashboardCardTitle>
               {s.sceneName}
-            </span>
-            <span>
-              {s.sceneId}
-            </span>
-            <span>
-              {s.createdBy}
-            </span>
-            <span>
-              {s.createdDate}
-            </span>
-            <span>
-              {s.lastExecutedDate}
-            </span>
-          </React.Fragment>
+            </DashboardCardTitle>
+            <DashboardCardBody>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.scene.header.sceneId')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {s.sceneId}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.scene.header.createdBy')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {s.createdBy}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.scene.header.createdDate')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {s.createdDate}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+              <DashboardCardField>
+                <DashboardCardFieldLabel>
+                  {t('dashboard.scene.header.lastExecutedDate')}
+                </DashboardCardFieldLabel>
+                <DashboardCardFieldValue>
+                  {s.lastExecutedDate}
+                </DashboardCardFieldValue>
+              </DashboardCardField>
+            </DashboardCardBody>
+            <DashboardCardActions>
+              <DashboardActionButton
+                rgb={global.palette.control.rgb.scene}
+                disabled={executingSceneId === s.sceneId}
+                onClick={() => {
+                  void handleExecuteScene(s.sceneId!);
+                }}
+              >
+                {executingSceneId === s.sceneId ? t('dashboard.scene.action.executing') : `▶ ${t('dashboard.scene.action.execute')}`}
+              </DashboardActionButton>
+            </DashboardCardActions>
+          </DashboardCard>
         ))}
-      </DashboardSceneGrid>
+      </DashboardCardGrid>
     </>
   );
 };
