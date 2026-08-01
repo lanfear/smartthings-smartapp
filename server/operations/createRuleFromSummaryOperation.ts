@@ -12,7 +12,7 @@ import createTriggerRuleFromConfig from './createTriggerRuleFromConfigOperation'
 dayjs.extend(utc);
 
 export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullable<RuleRequest> => {
-  if (!ruleSummary.enableAllRules) {
+  if (!ruleSummary.enableAllRules || ruleSummary.tempDisableAllRules) {
     return null;
   }
 
@@ -24,7 +24,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullab
 
   const uniqueSwitches = uniqueDeviceFactory(ruleSummary.daySwitches.concat(ruleSummary.nightSwitches));
 
-  const newDayRule = (ruleSummary.enableDaylightRule && !ruleSummary.temporaryDisableDaylightRule) ? createTriggerRuleFromConfig(
+  const newDayRule = (ruleSummary.enableDaylightRule && !ruleSummary.tempDisableDaylightRule) ? createTriggerRuleFromConfig(
     dayStartTime,
     dayNightTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -35,7 +35,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullab
     ruleSummary.motionDurationDelay
   ) : null;
 
-  const newNightRule = (ruleSummary.enableNightlightRule && !ruleSummary.temporaryDisableNightlightRule) ? createTriggerRuleFromConfig(
+  const newNightRule = (ruleSummary.enableNightlightRule && !ruleSummary.tempDisableNightlightRule) ? createTriggerRuleFromConfig(
     dayNightTime,
     nightEndTime,
     ruleSummary.motionSensors.map(d => d.deviceId),
@@ -46,7 +46,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullab
     ruleSummary.motionDurationDelay
   ) : null;
 
-  const newIdleRule = (ruleSummary.enableIdleRule && !ruleSummary.temporaryDisableIdleRule) ? createIdleRuleFromConfig(
+  const newIdleRule = (ruleSummary.enableIdleRule && !ruleSummary.tempDisableIdleRule) ? createIdleRuleFromConfig(
     ruleSummary.motionSensors.map(d => d.deviceId),
     uniqueSwitches.map(d => d.deviceId),
     ruleSummary.motionIdleTimeout,
@@ -72,7 +72,7 @@ export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): Null
   const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
 
   const appKey = `app-${ruleSummary.installedAppId}`;
-  return (ruleSummary.enableTransitionRule && !ruleSummary.temporaryDisableTransitionRule) ? createTransitionRuleFromConfig(
+  return (ruleSummary.enableTransitionRule && !ruleSummary.tempDisableTransitionRule) ? createTransitionRuleFromConfig(
     appKey,
     dayNightTime,
     ruleSummary.daySwitches.map(s => s.deviceId),
