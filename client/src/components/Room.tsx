@@ -415,7 +415,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="daylight"
                   time={`${ruleParts.dayRule.startTime.format('hA')} - ${ruleParts.dayRule.endTime.format('hA')}`}
                   isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
-                  isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.temporaryDisableDaylightRule}
+                  isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.tempDisableDaylightRule}
                   isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.length > 0}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleActive(ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -434,7 +434,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="transition"
                   time={ruleParts.transitionRule.time.format('hA')}
                   isRuleActive={true}
-                  isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.temporaryDisableTransitionRule}
+                  isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.tempDisableTransitionRule}
                   isKeyRule={false}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -452,7 +452,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="nightlight"
                   time={`${ruleParts.nightRule.startTime.format('hA')} - ${ruleParts.nightRule.endTime.format('hA')}`}
                   isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
-                  isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.temporaryDisableNightlightRule}
+                  isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.tempDisableNightlightRule}
                   isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.length > 0}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleActive(ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -471,7 +471,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                   ruleType="idle"
                   time={ruleParts.idleRule.motionTimeout}
                   isRuleActive={true}
-                  isRuleEnabled={a.ruleSummary.enableIdleRule && !a.ruleSummary.temporaryDisableIdleRule}
+                  isRuleEnabled={a.ruleSummary.enableIdleRule && !a.ruleSummary.tempDisableIdleRule}
                   isKeyRule={false}
                   setActiveDevice={setActiveDevice}
                   isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}

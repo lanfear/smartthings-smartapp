@@ -22,10 +22,11 @@ const configureRule = async (locationId: string, installedAppId: string, ruleCom
     throw new ReturnResultError(`No rule stored in database for appId [${installedAppId}]`, StatusCodes.UNPROCESSABLE_ENTITY);
   }
 
-  ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule = determineTempDisableValue('daylight', ruleComponent, ruleStoreInfo.newRuleSummary.enableDaylightRule, ruleStoreInfo.newRuleSummary.temporaryDisableDaylightRule, ruleDisabled);
-  ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule = determineTempDisableValue('nightlight', ruleComponent, ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.temporaryDisableNightlightRule, ruleDisabled);
-  ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule = determineTempDisableValue('idle', ruleComponent, ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.temporaryDisableIdleRule, ruleDisabled);
-  ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule = determineTempDisableValue('transition', ruleComponent, ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.temporaryDisableTransitionRule, ruleDisabled);
+  ruleStoreInfo.newRuleSummary.tempDisableAllRules = determineTempDisableValue('all', ruleComponent, ruleStoreInfo.newRuleSummary.enableAllRules, ruleStoreInfo.newRuleSummary.tempDisableAllRules, ruleDisabled);
+  ruleStoreInfo.newRuleSummary.tempDisableDaylightRule = determineTempDisableValue('daylight', ruleComponent, ruleStoreInfo.newRuleSummary.enableDaylightRule, ruleStoreInfo.newRuleSummary.tempDisableDaylightRule, ruleDisabled);
+  ruleStoreInfo.newRuleSummary.tempDisableNightlightRule = determineTempDisableValue('nightlight', ruleComponent, ruleStoreInfo.newRuleSummary.enableNightlightRule, ruleStoreInfo.newRuleSummary.tempDisableNightlightRule, ruleDisabled);
+  ruleStoreInfo.newRuleSummary.tempDisableIdleRule = determineTempDisableValue('idle', ruleComponent, ruleStoreInfo.newRuleSummary.enableIdleRule, ruleStoreInfo.newRuleSummary.tempDisableIdleRule, ruleDisabled);
+  ruleStoreInfo.newRuleSummary.tempDisableTransitionRule = determineTempDisableValue('transition', ruleComponent, ruleStoreInfo.newRuleSummary.enableTransitionRule, ruleStoreInfo.newRuleSummary.tempDisableTransitionRule, ruleDisabled);
   // do not write these to ruleStoreInfo actual objects because we do not want to actually write temporarily modified rule info there, we want to preserve the native app configured rules
   const combinedRule = createCombinedRuleFromSummary(
     ruleStoreInfo.newRuleSummary
