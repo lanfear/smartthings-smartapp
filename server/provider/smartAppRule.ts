@@ -6,11 +6,8 @@ import utc from 'dayjs/plugin/utc';
 import type {ISmartAppRuleConfigValues, Nullable} from 'types';
 import global from '../constants/global';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
-import createCombinedRuleFromConfig from '../operations/createCombinedRuleFromConfigOperation';
-import createIdleRuleFromConfig from '../operations/createIdleRuleFromConfigOperation';
+import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from '../operations/createRuleFromSummaryOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
-import createTransitionRuleFromConfig from '../operations/createTransitionRuleFromConfigOperation';
-import createTriggerRuleFromConfig from '../operations/createTriggerRuleFromConfigOperation';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
@@ -290,59 +287,6 @@ export default new SmartApp()
     const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchDayLevel} as IRuleSwitchLevelInfo));
     const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchNightLevel} as IRuleSwitchLevelInfo));
 
-    const dayRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule');
-    const nightRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableNightlightRule');
-    const idleRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableIdleRule');
-    const transitionRuleEnabled = context.configBooleanValue('enableAllRules') && context.configBooleanValue('enableDaylightRule') && context.configBooleanValue('enableNightlightRule');
-
-    // console.log('e1', dayRuleEnabled, 'e2', nightRuleEnabled, 'e3', idleRuleEnabled, 'e4', transitionRuleEnabled, 'e0', context.configBooleanValue('enableAllRules'));
-    // console.log('newConfig', newConfig);
-
-    const newDayRule = dayRuleEnabled ? createTriggerRuleFromConfig(
-      newConfig.dayStartOffset,
-      newConfig.dayNightOffset,
-      newConfig.motionSensors.map(d => d.deviceId),
-      newConfig.dayControlSwitch.deviceId,
-      dayDimmableSwitchLevels,
-      dayNonDimmableSwitches.map(s => s.deviceId),
-      newConfig.motionMultipleAll,
-      newConfig.motionDurationDelay
-    ) : null;
-
-    const newNightRule = nightRuleEnabled ? createTriggerRuleFromConfig(
-      newConfig.dayNightOffset,
-      newConfig.nightEndOffset,
-      newConfig.motionSensors.map(d => d.deviceId),
-      newConfig.nightControlSwitch.deviceId,
-      nightDimmableSwitchLevels,
-      nightNonDimmableSwitches.map(s => s.deviceId),
-      newConfig.motionMultipleAll,
-      newConfig.motionDurationDelay
-    ) : null;
-
-    const newIdleRule = idleRuleEnabled ? createIdleRuleFromConfig(
-      newConfig.motionSensors.map(d => d.deviceId),
-      uniqueSwitches.map(d => d.deviceId),
-      newConfig.motionIdleTimeout,
-      newConfig.motionIdleTimeoutUnit,
-      !newConfig.motionMultipleAll // you invert this setting for the idle case
-    ) : null;
-
-    const newTransitionRule = transitionRuleEnabled ? createTransitionRuleFromConfig(
-      appKey,
-      newConfig.dayNightOffset,
-      uniqueDaySwitches.map(s => s.deviceId),
-      nightDimmableSwitchLevels,
-      nightNonDimmableSwitches.map(s => s.deviceId)
-    ) : null;
-
-    const newCombinedRule = createCombinedRuleFromConfig(
-      appKey,
-      newDayRule,
-      newNightRule,
-      newIdleRule
-    );
-
     const newRuleSummary = createRuleSummaryFromConfig(
       newConfig as ISmartAppRuleConfigValues, // above we ensured the conflicting nullable values are not null, so it is this type
       uniqueDaySwitches,
@@ -357,8 +301,21 @@ export default new SmartApp()
       [] // will be filled in
     );
 
-    // TODO: somewhere around here we could sync this against the exiting rulestore, to sync webapp side with the smartapp side
-    //       the way things are now, changes to an app just steamroll the webapp side with a new config created from scratch
+    // the smartapp's own tempDisable* config fields are hidden/unused (see the 'tempDisable' page section above) - the
+    // web dashboard is the only real writer of this state, so preserve whatever it last set instead of letting an
+    // ordinary config resave (e.g. just opening/closing the settings screen) silently reset it back to false
+    const existingRuleStoreInfo = await ruleStore.get(updateData.installedApp.installedAppId);
+    if (existingRuleStoreInfo) {
+      newRuleSummary.tempDisableAllRules = existingRuleStoreInfo.newRuleSummary.tempDisableAllRules;
+      newRuleSummary.tempDisableDaylightRule = existingRuleStoreInfo.newRuleSummary.tempDisableDaylightRule;
+      newRuleSummary.tempDisableNightlightRule = existingRuleStoreInfo.newRuleSummary.tempDisableNightlightRule;
+      newRuleSummary.tempDisableIdleRule = existingRuleStoreInfo.newRuleSummary.tempDisableIdleRule;
+      newRuleSummary.tempDisableTransitionRule = existingRuleStoreInfo.newRuleSummary.tempDisableTransitionRule;
+    }
+
+    const newCombinedRule = createCombinedRuleFromSummary(newRuleSummary);
+    const newTransitionRule = createTransitionRuleFromSummary(newRuleSummary);
+
     // TODO: think rulesAreModified should really check both combined rule and transition rule
     if (await rulesAreModified(updateData.installedApp.installedAppId, newCombinedRule)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
