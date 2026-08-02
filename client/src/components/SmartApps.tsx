@@ -2,18 +2,11 @@ import type {Rule, RuleRequest} from '@smartthings/core-sdk';
 import React, {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Link} from 'react-router-dom';
-import styled from 'styled-components';
 import global from '../constants/global';
 import {generateActionSwitchLevel, generateConditionBetween, generateConditionMotion} from '../factories/ruleFactory';
+import {DashboardDataGrid} from '../factories/styleFactory';
 import getInstalledSmartApp, {type IResponseSmartApp} from '../operations/getInstalledSmartApp';
 import getInstalledSmartApps, {type IResponseSmartApps} from '../operations/getInstalledSmartApps';
-
-const SmartAppGrid = styled.div`
-    display: grid;
-    grid-template-columns: 3fr repeat(3, 1fr);
-    gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: minmax(100px, auto);
-`;
 
 interface ISmartAppData {
   [isaId: string]: IResponseSmartApp;
@@ -82,7 +75,10 @@ const SmartApps: React.FC<SmartAppProps> = () => {
 
   // TODO: the Link here is broken
   return (
-    <SmartAppGrid>
+    <DashboardDataGrid
+      columns="3fr repeat(3, 1fr)"
+      rowMinHeight="100px"
+    >
       {Object.values(smartAppData).map(sa => (
         <>
           <Link to={`/${global.routing.dashboardSegment}/${sa.installedAppId}`}>
@@ -122,7 +118,7 @@ const SmartApps: React.FC<SmartAppProps> = () => {
           </button>
         </>
       ))}
-    </SmartAppGrid>
+    </DashboardDataGrid>
   );
 };
 

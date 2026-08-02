@@ -21,6 +21,11 @@ const DeviceBorderAnimation = keyframes`
     }
 `;
 
+// builds the shared "glass tile" gradient recipe (a device/rule color fading from a translucent start stop to a
+// near-opaque 'dd' end stop) - pass startAlpha to make the start stop translucent (e.g. global.palette.control.alpha),
+// or omit it for a fully-opaque start stop (e.g. a solid badge)
+export const createControlGradient = (rgb: string, startAlpha = '', endAlpha = 'dd'): string => `linear-gradient(135deg, #${rgb}${startAlpha} 0%, #${rgb}${endAlpha} 100%)`;
+
 export const ActionLogo = styled.div`
   position: absolute;
   height: 100%;
@@ -85,15 +90,13 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
   align-content: center;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, #${props => props.rgb}${global.palette.control.alpha} 0%, #${props => props.rgb}dd 100%);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
-              0 8px 32px rgba(31, 38, 135, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px) saturate(1.2);
-  border-radius: 16px;
+  background: ${props => createControlGradient(props.rgb, global.palette.control.alpha)};
+  box-shadow: ${global.shadows.tile};
+  backdrop-filter: ${global.blur.lg};
+  border-radius: ${global.borderRadius.md};
   border: 1px solid rgba(255, 255, 255, 0.12);
   margin: ${global.measurements.deviceMargin};
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: ${global.transitions.smooth};
   cursor: pointer;
   position: relative;
 
@@ -111,9 +114,7 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
 
   &:hover {
     transform: scale(1.15);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12),
-                0 12px 40px rgba(31, 38, 135, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow: ${global.shadows.tileHover};
     border-color: rgba(255, 255, 255, 0.2);
   }
 
@@ -123,8 +124,7 @@ export const ControlContainer = styled.button.attrs<{isLinkedActive?: boolean; i
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
-                0 4px 16px rgba(31, 38, 135, 0.15);
+    box-shadow: ${global.shadows.tileActive};
   }
 
   &.linkedActive {
@@ -165,10 +165,9 @@ export const GlassPanel = styled.div`
   position: relative;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
+  border-radius: ${global.borderRadius.lg};
+  box-shadow: ${global.shadows.panel};
+  backdrop-filter: ${global.blur.md};
 
   &:hover,
   &:focus-within,
@@ -200,22 +199,18 @@ export const GlassPill = styled.span`
   display: inline-flex;
   padding: 0.4rem 0.75rem;
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.15),
-              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px) saturate(1.3);
-  border-radius: 12px;
+  box-shadow: ${global.shadows.pill};
+  backdrop-filter: ${global.blur.lg};
+  border-radius: ${global.borderRadius.sm};
   border: 1px solid rgba(255, 255, 255, 0.25);
   color: rgba(255, 255, 255, 1);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6),
                0 1px 2px rgba(0, 0, 0, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: ${global.transitions.smooth};
 
   &:hover {
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+    box-shadow: ${global.shadows.pillHover};
     border-color: rgba(255, 255, 255, 0.3);
   }
 `;
@@ -416,6 +411,15 @@ export const DashboardSubTitle = styled.h3`
 export const DashboardGridColumnHeader = styled(FlexRowCenter)`
     display: flex;
     justify-content: center;
+`;
+
+// shared grid wrapper for tabular debug pages (locations/smartapps) that don't fit the DashboardCardGrid auto-fill
+// card layout - each page supplies its own column template, and rowMinHeight only where rows need a minimum height
+export const DashboardDataGrid = styled.div<{columns: string; rowMinHeight?: string}>`
+    display: grid;
+    grid-template-columns: ${props => props.columns};
+    gap: ${global.measurements.dashboardGridGap};
+    ${props => props.rowMinHeight && `grid-auto-rows: minmax(${props.rowMinHeight}, auto);`}
 `;
 
 export const StyledButton = styled.button.attrs({className: 'flex-row-center styled-button'})`

@@ -5,7 +5,7 @@ import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
-import {GlassPanel, GlassPill} from '../factories/styleFactory';
+import {createControlGradient, FlexRowCenter, GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
@@ -76,10 +76,7 @@ const RoomControlGrid = styled(GlassPanel)<{numDevices: number; numApps: number}
   gap: ${global.measurements.deviceGridGap};
 `;
 
-const RoomControlPower = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const RoomControlPower = styled(FlexRowCenter)`
   grid-column-start: 1;
   grid-column-end: 1;
   grid-row-start: 1;
@@ -104,23 +101,21 @@ const RoomControlTitleText = styled(GlassPill)``;
 
 const RoomControlTitleFloor = styled.span`
   padding: 0.35rem 0.65rem;
-  background: linear-gradient(135deg, #${global.palette.control.rgb.floor} 0%, #${global.palette.control.rgb.floor}dd 100%);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2),
-              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: ${createControlGradient(global.palette.control.rgb.floor)};
+  box-shadow: ${global.shadows.badge};
   /* backdrop-filter: blur(20px); */
-  border-radius: 50%;
+  border-radius: ${global.borderRadius.circle};
   border: 1.5px solid rgba(255, 255, 255, 0.4);
   font-size: 0.8rem;
   font-weight: 700;
   color: #000;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: ${global.transitions.smooth};
   margin-right: 0.25rem;
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    box-shadow: ${global.shadows.badgeHover};
   }
 `;
 
@@ -135,7 +130,7 @@ const RoomControlFavorite = styled.button`
   align-items: center;
   font-size: 1.25rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: ${global.transitions.smooth};
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2));
 
   &:hover {
@@ -148,10 +143,7 @@ const RoomControlFavorite = styled.button`
   }
 `;
 
-const RoomControlDevice = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+const RoomControlDevice = styled(FlexRowCenter)`
   &:nth-child(5n+1) {
     grid-column: device-start 1 / device-end 1
   }
