@@ -19,7 +19,7 @@ const DashboardRoomSplit = styled.div`
   overflow: hidden;
 `;
 
-// grid-row constraint set in generated grid class mediaquery statement above
+// sticky left sidebar, always - not worth the complexity of collapsing to a bottom bar for narrow phones
 const DeviceControlsGridContainer = styled.div`
   grid-area: controls;
   position: sticky;
@@ -34,6 +34,9 @@ const DashboardRoomGrid = styled.div<{roomCount: number}>`
   /* one of these should work, but is not, hardcoding 312px for now, come back later */
   /* grid-template-columns: repeat(auto-fill, 1fr); */
   /* grid-template-columns: repeat(auto-fill, minmax(auto, 1fr)); */
+  /* cards stretch (the grid default) to match the tallest card in their row, so every row reads as a clean,
+     uniform strip - RoomCard is a flex column with no justify-content override, so its own content still packs
+     to the top, and any leftover height just becomes empty space at the bottom of the shorter cards */
   flex-grow: 1;
   overflow: auto;
 `;

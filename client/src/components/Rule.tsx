@@ -1,6 +1,6 @@
 import React from 'react';
 import {useDrag} from 'react-dnd';
-import global from '../constants/global';
+import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import type {IActiveControl} from '../types/interfaces';
@@ -28,9 +28,11 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
       <ControlLogo>
         {getRuleIcon(ruleType)}
       </ControlLogo>
-      <ControlStatus>
-        {time}
-      </ControlStatus>
+      {showControlCaptions && (
+        <ControlStatus>
+          {time}
+        </ControlStatus>
+      )}
       {!!iconography && (
         <ControlIcon>
           {iconography}

@@ -1,6 +1,6 @@
 import React from 'react';
 import {useDrag} from 'react-dnd';
-import global from '../constants/global';
+import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import type {IActiveControl} from '../types/interfaces';
@@ -25,9 +25,11 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       <ControlLogo>
         💡
       </ControlLogo>
-      <ControlStatus>
-        {device.value}
-      </ControlStatus>
+      {showControlCaptions && (
+        <ControlStatus>
+          {device.value}
+        </ControlStatus>
+      )}
       {isLocked && (
         <ControlIcon>
           🔒
@@ -48,9 +50,11 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       <ControlLogo>
         {device.value === 'locked' ? '🔒' : '🔓'}
       </ControlLogo>
-      <ControlStatus>
-        {device.value}
-      </ControlStatus>
+      {showControlCaptions && (
+        <ControlStatus>
+          {device.value}
+        </ControlStatus>
+      )}
     </ControlContainer>
   ) : (
     <ControlContainer
@@ -68,9 +72,11 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
       <ControlLogo>
         {device.value === 'active' ? '🏃' : '🧍'}
       </ControlLogo>
-      <ControlStatus>
-        {device.value}
-      </ControlStatus>
+      {showControlCaptions && (
+        <ControlStatus>
+          {device.value}
+        </ControlStatus>
+      )}
     </ControlContainer>
   );
 };
