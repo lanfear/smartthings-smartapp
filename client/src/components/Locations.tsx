@@ -3,14 +3,8 @@ import {useTranslation} from 'react-i18next';
 import {Link} from 'react-router-dom';
 import styled from 'styled-components';
 import global from '../constants/global';
+import {DashboardDataGrid} from '../factories/styleFactory';
 import getLocations, {type IResponseLocations} from '../operations/getLocations';
-
-const LocationsGrid = styled.div`
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: ${global.measurements.dashboardGridGap};
-    grid-auto-rows: minmax(100px, auto);
-`;
 
 const LocationGroup = styled.div`
   display: flex;
@@ -30,7 +24,11 @@ const Locations: React.FC<LocationsProps> = () => {
   }, []);
 
   return (
-    <LocationsGrid className="content">
+    <DashboardDataGrid
+      className="content"
+      columns="1fr"
+      rowMinHeight="100px"
+    >
       {Object.values(locations).map(l => (
         <React.Fragment key={`location-${l.locationId}`}>
           <Link
@@ -87,7 +85,7 @@ const Locations: React.FC<LocationsProps> = () => {
           </Link>
         </React.Fragment>
       ))}
-    </LocationsGrid>
+    </DashboardDataGrid>
   );
 };
 

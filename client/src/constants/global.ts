@@ -31,6 +31,32 @@ export default {
       }
     }
   },
+  // shared "glass" visual language tokens - reused across GlassPanel/GlassPill/ControlContainer in styleFactory.tsx
+  // and the tiles/badges in Room.tsx
+  borderRadius: {
+    sm: '12px',
+    md: '16px',
+    lg: '20px',
+    circle: '50%'
+  },
+  blur: {
+    sm: 'blur(5px)',
+    md: 'blur(10px)',
+    lg: 'blur(20px) saturate(1.2)'
+  },
+  transitions: {
+    smooth: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  },
+  shadows: {
+    panel: '0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+    pill: '0 4px 16px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 0 0 1px rgba(255, 255, 255, 0.1)',
+    pillHover: '0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.15)',
+    badge: '0 3px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4)',
+    badgeHover: '0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5)',
+    tile: '0 4px 16px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(31, 38, 135, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+    tileHover: '0 6px 20px rgba(0, 0, 0, 0.12), 0 12px 40px rgba(31, 38, 135, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15)',
+    tileActive: '0 2px 8px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(31, 38, 135, 0.15)'
+  },
   httpStatusCode: {
     notFound: 404
   },
