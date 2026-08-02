@@ -103,17 +103,6 @@ export const GlobalStyles = createGlobalStyle`
       margin-left: 37px;
   }
 
-  // #welcomeMessage figcaption h1 b a:hover svg {
-  //   filter: grayscale(0%) brightness(1);
-  //   transition: all 200ms ease-in-out;
-  // }
-
-  // #welcomeMessage figcaption h1 b a:focus svg {
-  //   filter: grayscale(0%) brightness(1);
-  //   transform: rotateY(-180deg) scale(0.9);
-  //   transition: all 70ms linear;
-  // }
-
   .flex-column-center {
     display: flex;
     flex-direction: column;
@@ -249,53 +238,3 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 `;
-
-/* old stuff from sass + bulma
-@charset "utf-8";
-
-// Import a Google Font
-@import url('https://fonts.googleapis.com/css?family=Nunito:400,700');
-
-// Set your brand colors
-$purple: #8a4d76;
-$pink: #fa7c91;
-$brown: #757763;
-$beige-light: #d0d1cd;
-$beige-lighter: #eff0eb;
-
-// Update Bulma's global variables
-$family-sans-serif: 'Nunito', sans-serif;
-$grey-dark: $brown;
-$grey-light: $beige-light;
-$primary: $purple;
-$link: $pink;
-$widescreen-enabled: true;
-$fullhd-enabled: true;
-
-// Update some of Bulma's component variables
-$body-background-color: $beige-lighter;
-$control-border-width: 2px;
-$input-border-color: transparent;
-$input-shadow: none;
-$bulma-modal-content-width: 90vw;
-
-:root {
-  --bulma-modal-content-width: 90vw;
-}
-
-// Import only what you need from Bulma
-// @import '../node_modules/bulma/sass/utilities/_index.scss';
-// @import '../node_modules/bulma/sass/base/_index.scss';
-// @import '../node_modules/bulma/sass/elements/box.scss';
-// @import '../node_modules/bulma/sass/elements/button.scss';
-// @import '../node_modules/bulma/sass/elements/content.scss';
-// @import '../node_modules/bulma/sass/form/_index.scss';
-// @import '../node_modules/bulma/sass/elements/title.scss';
-// @import '../node_modules/bulma/sass/components/modal.scss';
-// @import '../node_modules/bulma/sass/components/navbar.scss';
-// @import '../node_modules/bulma/sass/layout/hero.scss';
-// @import '../node_modules/bulma/sass/layout/section.scss';
-// @import '../node_modules/bulma/sass/grid/columns.scss';
-// @import '../node_modules/bulma/sass/themes/light.scss';
-
-*/

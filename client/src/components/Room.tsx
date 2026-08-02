@@ -9,7 +9,7 @@ import {GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
-import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
+import type {DeviceContext, IApp, IDevice, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import Rule from './Rule';
@@ -199,17 +199,11 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
   const roomScenes = deviceData.scenes.filter(s => getSceneRoomIds(s).includes(room.roomId!));
 
-  const findRuleForRoom = (): IRule[] => {
-    const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
-    return iRoomRules;
-  };
   const findAppsForRoom = (): IApp[] => {
     const iRoomApps = deviceData.apps.filter(a => a.ruleSummary.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomApps;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const roomRules = findRuleForRoom();
   const roomApps = findAppsForRoom();
 
   const roomRuleSummaries = roomApps.reduce<Record<string, {dayRule?: IRuleRange; nightRule?: IRuleRange; transitionRule?: IRuleTransition; idleRule?: IRuleIdle}>>((p, c) => {
