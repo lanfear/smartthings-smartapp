@@ -5,7 +5,7 @@ import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
-import {createControlGradient, FlexRowCenter, GlassPanel, GlassPill} from '../factories/styleFactory';
+import {createControlGradient, GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
@@ -133,40 +133,17 @@ const RoomFavoriteButton = styled.button`
   }
 `;
 
-// devices, locks, motion sensors, scenes, and the room power toggle all flow through this one responsive grid -
-// auto-fill naturally goes to fewer columns on a narrow phone and more on a wide screen, no manual row math needed
-const RoomTileGrid = styled.div`
+const RoomStrip = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(${global.measurements.deviceWidth}, 1fr));
   gap: ${global.measurements.deviceGridGap};
   justify-items: center;
 `;
 
-// apps and their associated rules render as one wrapping strip instead of being pinned into fixed named grid
-// columns - each app's rule tiles are visually grouped together but the whole strip reflows freely
-const RoomRuleStrip = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${global.measurements.deviceGridGap};
-`;
-
-// scenes get their own wrapping row between the device grid and the rule strip, rather than mixing into
-// either one
-const RoomSceneStrip = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: ${global.measurements.deviceGridGap};
-`;
-
-const RoomAppGroup = styled(FlexRowCenter)`
-  flex-wrap: wrap;
-  gap: ${global.measurements.deviceGridGap};
-  padding: 0.3rem;
-  border-radius: ${global.borderRadius.md};
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-`;
+// there is no difference between these 3 styles, but we declare them uniquely for future differentiation
+const RoomTileGrid = styled(RoomStrip)``;
+const RoomRuleStrip = styled(RoomStrip)``;
+const RoomSceneStrip = styled(RoomStrip)``;
 
 const RoomActiveLabel = styled.div`
   display: flex;
@@ -348,7 +325,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
             const ruleParts = getRulesFromSummary(a.ruleSummary);
 
             return (
-              <RoomAppGroup key={`rulesection-${a.installedAppId}`}>
+              <React.Fragment key={`rulesection-${a.installedAppId}`}>
                 <SmartApp
                   app={a}
                   isRuleEnabled={true}
@@ -408,7 +385,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
                   />
                 )}
-              </RoomAppGroup>
+              </React.Fragment>
             );
           })}
         </RoomRuleStrip>
