@@ -4,7 +4,8 @@ export enum IDragAndDropType {
   App = 'app',
   Power = 'power',
   Device = 'device',
-  Rule = 'rule'
+  Rule = 'rule',
+  Scene = 'scene'
 }
 
 export interface IDragAndDropItem {

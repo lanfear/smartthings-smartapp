@@ -5,13 +5,15 @@ import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
+import {GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
+import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import Rule from './Rule';
+import Scene from './Scene';
 import SmartApp from './SmartApp';
 
 dayjs.extend(isBetween);
@@ -60,7 +62,7 @@ const isLockedDeviceActive = (lockedDevices: IDevice[], roomRuleSummaries: Recor
   );
 
 // each 'app' gets a row, up to 5 devices / row, plus reserved rows
-const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
+const RoomControlGrid = styled(GlassPanel)<{numDevices: number; numApps: number}>`
   width: 100%;
   height: 100%;
   display: grid;
@@ -72,37 +74,6 @@ const RoomControlGrid = styled.div<{numDevices: number; numApps: number}>`
   // grid-template-columns: repeat(5, 1fr);
   // grid-template-rows: max-content 1fr 2rem;
   gap: ${global.measurements.deviceGridGap};
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-
-  &:hover,
-  &:focus-within,
-  &.is-active {
-    &::after {
-      content:'';
-      position:absolute;
-      inset:0;
-      background:linear-gradient(110deg,
-      transparent 0%,
-      rgba(130, 210, 255, 0.0) 30%,
-      rgba(130, 210, 255, 0.5) 45%,
-      rgba(230, 250, 255, 0.85) 52%,
-      rgba(130, 210, 255, 0.5) 60%,
-      rgba(130, 210, 255, 0.0) 75%,
-      transparent 100%);
-      opacity:0.20;
-      background-size:240% 100%;
-      background-position:200% 0;
-      filter:drop-shadow(0 0 10px rgba(120, 200, 255, 0.5));
-      mix-blend-mode:screen;
-      pointer-events:none;
-      animation:dashboard-room-lightning 2.6s linear infinite;
-    }
-  }
 `;
 
 const RoomControlPower = styled.div`
@@ -129,28 +100,7 @@ const RoomControlTitle = styled.div`
   letter-spacing: 0.5px;
 `;
 
-const RoomControlTitleText = styled.span`
-  padding: 0.4rem 0.75rem;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.25) 100%);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.15),
-              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px) saturate(1.3);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: rgba(255, 255, 255, 1);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6),
-               0 1px 2px rgba(0, 0, 0, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-`;
+const RoomControlTitleText = styled(GlassPill)``;
 
 const RoomControlTitleFloor = styled.span`
   padding: 0.35rem 0.65rem;
@@ -247,6 +197,8 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
   const roomLocks = deviceData.locks.filter(d => d.roomId === room.roomId);
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
+  const roomScenes = deviceData.scenes.filter(s => getSceneRoomIds(s).includes(room.roomId!));
+
   const findRuleForRoom = (): IRule[] => {
     const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomRules;
@@ -277,7 +229,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
 
   const lockedDevices = roomSwitches.filter(r => activeRuleControlSwitches.some(did => r.deviceId === did.deviceId));
 
-  const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length;
+  const numDevices = roomSwitches.length + roomLocks.length + roomMotion.length + roomScenes.length;
 
   const deviceEventSource = useEventSource({
     source: `${process.env.SMARTAPP_BUILDTIME_APIHOST}/events`
@@ -385,6 +337,16 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
             device={s}
             deviceType="Motion"
             setActiveDevice={setActiveDevice}
+          />
+        </RoomControlDevice>
+      ))}
+      {roomScenes.map(s => (
+        <RoomControlDevice
+          key={`scene-${s.sceneId!}`}
+        >
+          <Scene
+            scene={s}
+            locationId={deviceData.locationId}
           />
         </RoomControlDevice>
       ))}

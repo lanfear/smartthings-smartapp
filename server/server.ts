@@ -12,6 +12,7 @@ import {localOnlyMiddleware} from './middlewares';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
 import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import ruleStore from './provider/ruleStore';
+import sceneRoomStore from './provider/sceneRoomStore';
 import settings from './provider/settings';
 import {listInstalledApps} from './provider/smartAppContextStore';
 import smartAppControl from './provider/smartAppControl';
@@ -50,7 +51,8 @@ server.get('/locations', async (req, res) => {
 server.get('/location/:id', async (req, res) => {
   const client = getSmartThingsClient();
   const rooms = await client.rooms.list(req.params.id);
-  const scenes = await client.scenes.list({locationId: [req.params.id]});
+  const sceneRoomMap = await sceneRoomStore.get(req.params.id);
+  const scenes = (await client.scenes.list({locationId: [req.params.id]})).map(s => ({...s, roomIds: sceneRoomMap[s.sceneId!] ?? []}));
   const switches = await Promise.all((await client.devices.list({locationId: [req.params.id], capability: 'switch'})).map(async it => {
     const state = await client.devices.getCapabilityStatus(it.deviceId, 'main', 'switch');
     (it as DeviceState).value = state.switch.value as string;
@@ -90,10 +92,15 @@ server.get('/location/:id', async (req, res) => {
 });
 
 /* Execute a scene */
-
 server.post('/location/:id/scenes/:sceneId', async (req, res) => {
   const result = await getSmartThingsClient().scenes.execute(req.params.sceneId);
   res.send(result);
+});
+
+/* Associate a scene with (zero or more of) our own rooms - SmartThings has no concept of this itself */
+server.put('/location/:locationId/scenes/:sceneId/rooms', async (req: Request<{locationId: string; sceneId: string}>, res) => {
+  await sceneRoomStore.setRoomsForScene(req.params.locationId, req.params.sceneId, (req.body as {roomIds: string[]}).roomIds);
+  res.send();
 });
 
 /* Execute a device command */

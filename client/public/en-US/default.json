@@ -19,7 +19,12 @@
         "sceneId": "Scene ID",
         "createdBy": "Created By",
         "createdDate": "Created Date",
-        "lastExecutedDate": "Last Executed"
+        "lastExecutedDate": "Last Executed",
+        "rooms": "Rooms"
+      },
+      "action": {
+        "execute": "Execute",
+        "executing": "Executing..."
       }
     },
     "switch": {
@@ -53,7 +58,13 @@
         "ruleId": "Device ID",
         "status": "Status",
         "ownerId": "Owner",
+        "devices": "Devices",
         "manage": "Manage"
+      },
+      "action": {
+        "show": "Show Rule",
+        "delete": "Delete",
+        "close": "Close"
       }
     },
     "installedApp": {

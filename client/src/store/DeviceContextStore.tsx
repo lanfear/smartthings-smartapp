@@ -8,13 +8,17 @@ import useSWR, {mutate as swrMutate, unstable_serialize as swrKeySerializer, typ
 import {create} from 'zustand';
 import type {RouteParams} from '../App';
 import getLocation from '../operations/getLocation';
-import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
+import type {IResponseLocation, IScene, ISseRuleEvent} from '../types/sharedContracts';
 import {setLocation, useLocationContextStore} from './LocationContextStore';
 
 export interface IDeviceContextStore {
   setDeviceData: KeyedMutator<IResponseLocation>;
   loadDeviceDataFromServer: () => Promise<void>;
 }
+
+// scenes cached in localStorage (see getFallbackData below) from before `roomIds` was added to IScene won't have
+// it yet - treat those as untagged rather than crashing, until the next real fetch replaces the stale cache entry
+export const getSceneRoomIds = (scene: IScene): string[] => (scene as Partial<IScene>).roomIds ?? [];
 
 const filteredRooms = ['DO NOT USE'];
 
@@ -77,6 +81,12 @@ export const useDeviceData = create<IResponseLocation>(() => initialDeviceData);
 // useDeviceStore(), which would spin up another copy of the mount/'rule'-event revalidation logic below per instance
 export const setDeviceDataForLocation = async (locationId: string, data: IResponseLocation): Promise<void> => {
   await swrMutate(['locationData', locationId], JSON.parse(JSON.stringify(data)) as IResponseLocation, {revalidate: false});
+};
+
+// re-fetches the shared 'locationData' SWR cache entry (e.g. after executing a scene, to pick up its updated
+// lastExecutedDate) without subscribing to it - same rationale as setDeviceDataForLocation above
+export const revalidateDeviceDataForLocation = async (locationId: string): Promise<void> => {
+  await swrMutate(['locationData', locationId]);
 };
 
 // SWR hook for device data

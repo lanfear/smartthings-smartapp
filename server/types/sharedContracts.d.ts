@@ -4,7 +4,9 @@ import type {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from 
 import type {DeviceContext} from '@smartthings/smartapp';
 
 export type IRoom = Room;
-export type IScene = SceneSummary;
+// roomIds is not part of the SmartThings scenes API (it has no concept of rooms) - we maintain our own
+// scene-to-room association (see server/provider/sceneRoomStore.ts) and merge it in here
+export type IScene = (SceneSummary & {roomIds: string[]});
 export type IDevice = (Device & {value: string});
 export type IApp = (InstalledApp & {ruleSummary: IRuleSummary});
 export type IRule = (Rule & {
