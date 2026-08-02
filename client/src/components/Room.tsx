@@ -1,19 +1,19 @@
 import dayjs, {type Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
-import {ControlContainer, ControlLogo, ControlStatus, GlassPanel, GlassPill} from '../factories/styleFactory';
-import executeScene from '../operations/executeScene';
+import {GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
-import {getSceneRoomIds, revalidateDeviceDataForLocation, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
+import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, IRule, ISseEvent} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import Rule from './Rule';
+import Scene from './Scene';
 import SmartApp from './SmartApp';
 
 dayjs.extend(isBetween);
@@ -192,7 +192,6 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   const room = useDeviceData(d => d.rooms.find(r => r.roomId === roomId))!;
   const deviceData = useDeviceData();
   const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
-  const [executingSceneId, setExecutingSceneId] = useState<string | null>(null);
   const domRef = useRef<HTMLDivElement>(null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);
@@ -200,15 +199,6 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   const roomMotion = deviceData.motion.filter(d => d.roomId === room.roomId);
   const roomScenes = deviceData.scenes.filter(s => getSceneRoomIds(s).includes(room.roomId!));
 
-  const handleExecuteScene = async (sceneId: string): Promise<void> => {
-    setExecutingSceneId(sceneId);
-    try {
-      await executeScene(deviceData.locationId, sceneId);
-      await revalidateDeviceDataForLocation(deviceData.locationId);
-    } finally {
-      setExecutingSceneId(null);
-    }
-  };
   const findRuleForRoom = (): IRule[] => {
     const iRoomRules = deviceData.rules.filter(r => r.ruleSummary?.motionSensors.some((m: DeviceContext) => roomMotion.some(rm => rm.deviceId === m.deviceId)));
     return iRoomRules;
@@ -354,20 +344,10 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
         <RoomControlDevice
           key={`scene-${s.sceneId!}`}
         >
-          <ControlContainer
-            rgb={global.palette.control.rgb.scene}
-            disabled={executingSceneId === s.sceneId}
-            onClick={() => {
-              void handleExecuteScene(s.sceneId!);
-            }}
-          >
-            <ControlLogo>
-              {executingSceneId === s.sceneId ? '⏳' : '▶️'}
-            </ControlLogo>
-            <ControlStatus>
-              {s.sceneName}
-            </ControlStatus>
-          </ControlContainer>
+          <Scene
+            scene={s}
+            locationId={deviceData.locationId}
+          />
         </RoomControlDevice>
       ))}
       {roomApps.map(a => {

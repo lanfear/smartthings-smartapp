@@ -5,6 +5,7 @@ import ActionDeviceOff from './ActionDeviceOff';
 import ActionDeviceOn from './ActionDeviceOn';
 import ActionRuleDisable from './ActionRuleDisable';
 import ActionRuleEnable from './ActionRuleEnable';
+import ActionSceneExecute from './ActionSceneExecute';
 
 const ControlsContainer = styled.div`
   height: 75vh;
@@ -19,6 +20,10 @@ const DeviceControls: React.FC = () => (
     <ActionDeviceOn
       key="control-action-power-on"
       words="On"
+    />
+    <ActionSceneExecute
+      key="control-action-scene-execute"
+      words="Play Scene"
     />
     <ActionRuleEnable
       key="control-action-rule-enable"
