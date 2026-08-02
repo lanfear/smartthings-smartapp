@@ -21,12 +21,11 @@
     "start": "concurrently -n \"server:tunnel,server:host,client:start\" -c \"blue,cyan,green\" \"cd server && npm run tunnel\" \"cd server && npm run start\" \"cd client && npm run start\"",
     "kill-node-win": "taskkill -F -IM node.exe",
     "kill-node-linux": "killall .node.bin",
-    "kill-client": "npx --no -p kill-port -p dotenv-cli -p cross-replace -c \"dotenv -e client/.env -- cross-replace kill-port %SMARTAPP_WEBHARNESS_PORT%\"",
-    "kill-server": "npx --no -p kill-port -p dotenv-cli -p cross-replace -c \"dotenv -e server/.env -- cross-replace kill-port %STPORT%\""
+    "kill-client": "npx --no -p dotenv-cli -p cross-replace -c \"dotenv -e client/.env -- cross-replace node tools/killPort.ts %SMARTAPP_WEBHARNESS_PORT%\"",
+    "kill-server": "npx --no -p dotenv-cli -p cross-replace -c \"dotenv -e server/.env -- cross-replace node tools/killPort.ts %STPORT%\""
   },
   "devDependencies": {
     "cross-replace": "^0.2.0",
-    "dotenv-cli": "^11.0.0",
-    "kill-port": "^2.0.1"
+    "dotenv-cli": "^11.0.0"
   }
 }

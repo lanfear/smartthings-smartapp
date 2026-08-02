@@ -1,3 +1,10 @@
+// toggle off to experiment with icon-only tiles - hides the status captions (on/off/active, 'power', 'RuleSet',
+// rule time ranges) on Device/Power/Rule/SmartApp; device/scene labels are unaffected by this flag.
+// the explicit `: boolean` annotation is required, not redundant - a bare `const x = true` keeps the literal
+// type `true`, which would trip @typescript-eslint/no-unnecessary-condition at every call site
+// eslint-disable-next-line @typescript-eslint/no-inferrable-types
+export const showControlCaptions: boolean = true;
+
 export default {
   rule: {
     default: {
