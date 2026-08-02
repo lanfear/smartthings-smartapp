@@ -19,7 +19,8 @@
         "sceneId": "Scene ID",
         "createdBy": "Created By",
         "createdDate": "Created Date",
-        "lastExecutedDate": "Last Executed"
+        "lastExecutedDate": "Last Executed",
+        "rooms": "Rooms"
       },
       "action": {
         "execute": "Execute",

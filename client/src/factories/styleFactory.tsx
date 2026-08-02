@@ -342,6 +342,27 @@ export const DashboardCardBadge = styled.span<{rgb: string}>`
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
 `;
 
+export const DashboardChipToggle = styled.button<{selected: boolean; rgb?: string}>`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: ${props => props.selected ? 'rgba(0, 0, 0, 0.85)' : `#${props.rgb ?? global.palette.control.rgb.inactive}`};
+  background: ${props => props.selected
+    ? `linear-gradient(135deg, #${props.rgb ?? global.palette.control.rgb.inactive} 0%, #${props.rgb ?? global.palette.control.rgb.inactive}cc 100%)`
+    : 'rgba(0, 0, 0, 0.3)'};
+  border: 1px solid ${props => props.selected ? 'transparent' : `#${props.rgb ?? global.palette.control.rgb.inactive}55`};
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+`;
+
 export const DashboardTitle = styled.h2`
     font-weight: 700;
     font-size: 2rem;

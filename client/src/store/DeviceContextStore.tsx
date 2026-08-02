@@ -8,13 +8,17 @@ import useSWR, {mutate as swrMutate, unstable_serialize as swrKeySerializer, typ
 import {create} from 'zustand';
 import type {RouteParams} from '../App';
 import getLocation from '../operations/getLocation';
-import type {IResponseLocation, ISseRuleEvent} from '../types/sharedContracts';
+import type {IResponseLocation, IScene, ISseRuleEvent} from '../types/sharedContracts';
 import {setLocation, useLocationContextStore} from './LocationContextStore';
 
 export interface IDeviceContextStore {
   setDeviceData: KeyedMutator<IResponseLocation>;
   loadDeviceDataFromServer: () => Promise<void>;
 }
+
+// scenes cached in localStorage (see getFallbackData below) from before `roomIds` was added to IScene won't have
+// it yet - treat those as untagged rather than crashing, until the next real fetch replaces the stale cache entry
+export const getSceneRoomIds = (scene: IScene): string[] => (scene as Partial<IScene>).roomIds ?? [];
 
 const filteredRooms = ['DO NOT USE'];
 
