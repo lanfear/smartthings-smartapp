@@ -50,6 +50,11 @@ const DimLevelSlider = styled.div`
 const BleedingControlActionContainer = styled(ControlActionContainer) <{progressPercentage: number; isOverCurrent?: boolean}>`
   flex-grow: 1;
 
+  /* the shared tile hover scale is fine on a small square, but on a full-height column it overflows the sidebar */
+  &:hover {
+    transform: none;
+  }
+
   .dim-level-slider {
     bottom: ${props => props.isOverCurrent ? negative100Percent + props.progressPercentage : negative100Percent}%;
   }
