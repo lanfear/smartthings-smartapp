@@ -6,7 +6,7 @@ import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../fact
 import type {IActiveControl} from '../types/interfaces';
 import type {IRuleComponentType} from '../types/sharedContracts';
 
-const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '💤' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '💤';
+const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '⏳' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '⏳';
 
 const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRuleActive, isRuleEnabled, isKeyRule, setActiveDevice, isLinkedActive, isLockedActive}) => {
   const dragId = `${ruleType.toLowerCase()}-${rulePartId}`;

@@ -22,7 +22,7 @@ const ActionSceneExecute: React.FC<IActionSceneExecuteProps> = ({words}) => {
 
   const leftControl = (
     <ControlActionContainer
-      rgb={global.palette.control.rgb.scene}
+      rgb={global.palette.control.rgb.inactive}
       ref={drop}
       {...collectedProps}
     >

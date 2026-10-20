@@ -30,10 +30,8 @@ const DashboardRoomGrid = styled.div<{roomCount: number}>`
   grid-area: rooms;
   display: grid;
   gap: ${global.measurements.dashboardGridGap};
-  grid-template-columns: repeat(auto-fill, minmax(312px, 1fr));
-  /* one of these should work, but is not, hardcoding 312px for now, come back later */
-  /* grid-template-columns: repeat(auto-fill, 1fr); */
-  /* grid-template-columns: repeat(auto-fill, minmax(auto, 1fr)); */
+  /* cards never shrink below the width that fits a full row of devicesPerRow tiles, see global.measurements.minRoomSize */
+  grid-template-columns: repeat(auto-fill, minmax(${global.measurements.minRoomSize}, 1fr));
   /* cards stretch (the grid default) to match the tallest card in their row, so every row reads as a clean,
      uniform strip - RoomCard is a flex column with no justify-content override, so its own content still packs
      to the top, and any leftover height just becomes empty space at the bottom of the shorter cards */

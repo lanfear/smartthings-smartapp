@@ -5,22 +5,29 @@
 // eslint-disable-next-line @typescript-eslint/no-inferrable-types
 export const showControlCaptions: boolean = true;
 
+const devicesPerRow = 5;
+const deviceWidth = '3.5rem';
+const deviceGridGap = '0.125rem';
+const roomPadding = '0.85rem';
+// narrowest room card that still fits devicesPerRow grid columns (each column's min is deviceWidth) plus the gaps between
+// them, the card padding, GlassPanel's 1px border on each side, and 1px slack so sub-pixel rounding never drops a column
+const minRoomSize = `calc(${devicesPerRow} * ${deviceWidth} + ${devicesPerRow - 1} * ${deviceGridGap} + 2 * ${roomPadding} + 3px)`;
+
 export default {
   rule: {
     default: {
       switchLevelRate: 20
     }
   },
-  // side-bar: (3.5rem+0.125rem+0.125rem);
-  // room-width = 5x(3.5rem+0.125rem+0.125rem)+6x(0.125rem)
   measurements: {
     dashboardGridGap: '0.625rem',
-    deviceWidth: '3.5rem',
+    deviceWidth: deviceWidth,
     deviceMargin: '0.125rem',
-    deviceGridGap: '0.125rem',
-    devicesPerRow: 5,
+    deviceGridGap: deviceGridGap,
+    devicesPerRow: devicesPerRow,
     controlsContainerWidth: '3.75rem',
-    minRoomSize: '19.25rem'
+    roomPadding: roomPadding,
+    minRoomSize: minRoomSize
   },
   palette: {
     control: {

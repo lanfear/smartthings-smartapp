@@ -67,15 +67,15 @@ linear-gradient(-45deg, #ff408c, #ff4040, #6666ff);
 @keyframes dashboard-room-lightning {
     0% {
       background-position: 200% 0;
-      opacity: 0.2;
+      opacity: 0.1;
     }
 
     40% {
-      opacity: 0.55;
+      opacity: 0.3;
     }
 
     100% {
       background-position: -200% 0;
-      opacity: 0.2;
+      opacity: 0.1;
     }
 }

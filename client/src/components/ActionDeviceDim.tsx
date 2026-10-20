@@ -3,57 +3,22 @@ import {useDrop, type DropTargetMonitor} from 'react-dnd';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {createDropConfig, IDragAndDropType, type IDragAndDropItem} from '../factories/dragAndDropFactory';
-import {ControlActionContainer} from '../factories/styleFactory';
+import {SliderActionContainer, SliderFill, SliderTrack} from '../factories/styleFactory';
 import executeDeviceCommand from '../operations/executeDeviceCommand';
 import {useDeviceData} from '../store/DeviceContextStore';
 import type {IResponseSwitches} from '../types/sharedContracts';
 
 const dimLevelMin = 5;
 const dimLevelMax = 95;
-const negative100Percent = -100;
 
 const DimLevelUpDownArrowContainer = styled.div`
   display: flex;
   font-size: 3rem;
 `;
 
-const DimLevelSliderContainer = styled.div`
-  height: 80%;
-  width: 50%;
-  border-radius: 2rem;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.5s;
-  will-change: transform;
-  box-shadow: 0 0 5px #e76f51;
-`;
+const dimSliderColor = '#e76f51';
 
-const DimLevelSlider = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  content: "";
-  background-color: #e76f51;
-  left: 0;
-  right: 0;
-  bottom: -100%;
-  border-radius: inherit;
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  color: white;
-  font-family: sans-serif;
-  transition: all 0.15s;
-`;
-
-// slider level bottom is controlled here so we can rely on isOverCurrent also
-const BleedingControlActionContainer = styled(ControlActionContainer) <{progressPercentage: number; isOverCurrent?: boolean}>`
-  flex-grow: 1;
-
-  .dim-level-slider {
-    bottom: ${props => props.isOverCurrent ? negative100Percent + props.progressPercentage : negative100Percent}%;
-  }
-`;
+export const dimAcceptTypes = [IDragAndDropType.Power, IDragAndDropType.Device];
 
 const onDropStatic = async (item: IDragAndDropItem, allSwitches: IResponseSwitches, dimLevelSliderValue: number, setDimLevelSliderValue: (value: React.SetStateAction<number>) => void): Promise<IDragAndDropItem> => {
   // component: 'main',
@@ -113,14 +78,14 @@ const ActionDeviceDim: React.FC = () => {
   // create a standard hook config from factory like elsewhere, then spread additional 'hover' prop onto it
   const dropHookConfig = useMemo(() => {
     const onDrop = (item: IDragAndDropItem): Promise<IDragAndDropItem> => onDropStatic(item, deviceData.switches, dimLevelSliderValue, setDimLevelSliderValue);
-    return {...(createDropConfig(onDrop, [IDragAndDropType.Power, IDragAndDropType.Device])), hover: onDragHover};
+    return {...(createDropConfig(onDrop, dimAcceptTypes)), hover: onDragHover};
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dimLevelSliderValue]);
 
   const [collectedProps, drop] = useDrop(() => dropHookConfig, [dimLevelSliderValue]);
 
   const leftControl = (
-    <BleedingControlActionContainer
+    <SliderActionContainer
       rgb={global.palette.control.rgb.inactive}
       ref={drop}
       progressPercentage={dimLevelSliderValue}
@@ -129,16 +94,17 @@ const ActionDeviceDim: React.FC = () => {
       <DimLevelUpDownArrowContainer>
         🔺
       </DimLevelUpDownArrowContainer>
-      <DimLevelSliderContainer
+      <SliderTrack
         className="dim-level-slider-container"
         ref={sliderRef}
+        fillColor={dimSliderColor}
       >
-        <DimLevelSlider className="dim-level-slider" />
-      </DimLevelSliderContainer>
+        <SliderFill fillColor={dimSliderColor} />
+      </SliderTrack>
       <DimLevelUpDownArrowContainer>
         🔻
       </DimLevelUpDownArrowContainer>
-    </BleedingControlActionContainer>
+    </SliderActionContainer>
   );
 
   return leftControl;
