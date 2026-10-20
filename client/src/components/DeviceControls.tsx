@@ -43,13 +43,13 @@ const DeviceControls: React.FC = () => {
           key="control-action-power-on"
           words="On"
         />
-        <ActionSceneExecute
-          key="control-action-scene-execute"
-          words="Play Scene"
-        />
         <ActionRuleEnable
           key="control-action-rule-enable"
           words="Enable"
+        />
+        <ActionSceneExecute
+          key="control-action-scene-execute"
+          words="Play Scene"
         />
         <ActionRuleDisable
           key="control-action-rule-disable"
