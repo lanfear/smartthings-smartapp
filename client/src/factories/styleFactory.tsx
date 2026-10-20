@@ -176,21 +176,22 @@ export const GlassPanel = styled.div`
       content: '';
       position: absolute;
       inset: 0;
+      border-radius: inherit;
+      /* wide, low-alpha band with no white-hot core so it reads as a soft sheen rather than a glint */
       background: linear-gradient(110deg,
         transparent 0%,
-        rgba(130, 210, 255, 0.0) 30%,
-        rgba(130, 210, 255, 0.5) 45%,
-        rgba(230, 250, 255, 0.85) 52%,
-        rgba(130, 210, 255, 0.5) 60%,
-        rgba(130, 210, 255, 0.0) 75%,
+        rgba(130, 210, 255, 0.0) 25%,
+        rgba(130, 210, 255, 0.18) 42%,
+        rgba(200, 235, 255, 0.3) 52%,
+        rgba(130, 210, 255, 0.18) 62%,
+        rgba(130, 210, 255, 0.0) 80%,
         transparent 100%);
-      opacity: 0.20;
+      opacity: 0.1;
       background-size: 240% 100%;
       background-position: 200% 0;
-      filter: drop-shadow(0 0 10px rgba(120, 200, 255, 0.5));
       mix-blend-mode: screen;
       pointer-events: none;
-      animation: dashboard-room-lightning 2.6s linear infinite;
+      animation: dashboard-room-lightning 4s ease-in-out infinite;
     }
   }
 `;
