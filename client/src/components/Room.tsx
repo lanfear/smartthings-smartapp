@@ -65,7 +65,7 @@ const RoomCard = styled(GlassPanel)`
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  padding: 0.85rem;
+  padding: ${global.measurements.roomPadding};
 `;
 
 const RoomHeader = styled.div`
