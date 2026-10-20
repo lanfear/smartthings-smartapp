@@ -142,8 +142,15 @@ const RoomStrip = styled.div`
 
 // there is no difference between these 3 styles, but we declare them uniquely for future differentiation
 const RoomTileGrid = styled(RoomStrip)``;
-const RoomRuleStrip = styled(RoomStrip)``;
 const RoomSceneStrip = styled(RoomStrip)``;
+
+// each app's ruleset gets its own strip so sets never share a row, same column template keeps tiles aligned with the device grid
+const RoomRuleStrip = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${global.measurements.deviceGridGap};
+`;
+const RoomRuleSet = styled(RoomStrip)``;
 
 const RoomActiveLabel = styled.div`
   display: flex;
@@ -325,7 +332,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
             const ruleParts = getRulesFromSummary(a.ruleSummary);
 
             return (
-              <React.Fragment key={`rulesection-${a.installedAppId}`}>
+              <RoomRuleSet key={`rulesection-${a.installedAppId}`}>
                 <SmartApp
                   app={a}
                   isRuleEnabled={true}
@@ -385,7 +392,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
                   />
                 )}
-              </React.Fragment>
+              </RoomRuleSet>
             );
           })}
         </RoomRuleStrip>
