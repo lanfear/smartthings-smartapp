@@ -160,6 +160,51 @@ export const ControlActionContainer = styled(ControlContainer) <{canDrop?: boole
   `};
 `;
 
+const sliderFillHiddenPercent = -100;
+
+// full-height drag-hover slider shared by the dimmer and timed rule disable - fill height follows progressPercentage while a drag is over it
+export const SliderActionContainer = styled(ControlActionContainer) <{progressPercentage: number; isOverCurrent?: boolean}>`
+  flex-grow: 1;
+
+  /* the shared tile hover scale is fine on a small square, but on a full-height column it overflows the sidebar */
+  &:hover {
+    transform: none;
+  }
+
+  .slider-fill {
+    bottom: ${props => props.isOverCurrent ? sliderFillHiddenPercent + props.progressPercentage : sliderFillHiddenPercent}%;
+  }
+`;
+
+export const SliderTrack = styled.div<{fillColor: string}>`
+  height: 80%;
+  width: 50%;
+  border-radius: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s;
+  will-change: transform;
+  box-shadow: 0 0 5px ${props => props.fillColor};
+`;
+
+export const SliderFill = styled.div.attrs({className: 'slider-fill'})<{fillColor: string}>`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  content: "";
+  background-color: ${props => props.fillColor};
+  left: 0;
+  right: 0;
+  bottom: -100%;
+  border-radius: inherit;
+  display: flex;
+  justify-content: center;
+  align-items:center;
+  color: white;
+  font-family: sans-serif;
+  transition: all 0.15s;
+`;
+
 // shared "glass" visual language reused across the room grid and the scene/rule/app dashboard cards
 export const GlassPanel = styled.div`
   position: relative;
