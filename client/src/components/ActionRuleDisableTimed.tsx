@@ -96,7 +96,7 @@ const ActionRuleDisableTimed: React.FC = () => {
       {...collectedProps}
     >
       <TimedLabelContainer>
-        {showStep ? reEnableSteps[stepIndex].label : '⏱️'}
+        {showStep ? reEnableSteps[stepIndex].label : '💤'}
       </TimedLabelContainer>
       <SliderTrack
         ref={sliderRef}
