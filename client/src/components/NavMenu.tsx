@@ -27,7 +27,7 @@ const NavMenu: React.FC = () => {
       onClick={() => {
         // if we on a location path, properly update the route to trigger update, else, just set the locationId directly
         if (routeLocation.pathname.startsWith(`/${global.routing.dashboardSegment}/`)) {
-          navigate(routeLocation.pathname.replace(new RegExp(`/${global.routing.dashboardSegment}/[^/]+`), `/${global.routing.dashboardSegment}/${location.locationId}`));
+          void navigate(routeLocation.pathname.replace(new RegExp(`/${global.routing.dashboardSegment}/[^/]+`), `/${global.routing.dashboardSegment}/${location.locationId}`));
         } else {
           setLocation(location.locationId, location.name);
         }

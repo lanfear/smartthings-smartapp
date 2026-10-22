@@ -91,7 +91,9 @@ const ActionRuleDisableTimed: React.FC = () => {
   return (
     <SliderActionContainer
       rgb={global.palette.control.rgb.inactive}
-      ref={drop}
+      ref={node => {
+        drop(node);
+      }}
       progressPercentage={showStep ? ((stepIndex + 1) / reEnableSteps.length) * 100 : 0}
       {...collectedProps}
     >
