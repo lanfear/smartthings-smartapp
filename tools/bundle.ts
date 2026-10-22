@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', 'client', '.env')});
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
-import replaceInFile from 'replace-in-file';
+import {replaceInFile} from 'replace-in-file';
 import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
