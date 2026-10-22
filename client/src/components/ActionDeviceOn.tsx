@@ -17,7 +17,9 @@ const ActionDeviceOn: React.FC<IActionDeviceOnProps> = ({words}) => {
   const leftControl = (
     <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
-      ref={drop}
+      ref={node => {
+        drop(node);
+      }}
       {...collectedProps}
     >
       <ActionLogo>

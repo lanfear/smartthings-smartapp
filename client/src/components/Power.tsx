@@ -11,7 +11,9 @@ const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
 
   return (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={isPowerOn ? `${global.palette.control.rgb.power}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: room.name!, id: room.roomId!})}

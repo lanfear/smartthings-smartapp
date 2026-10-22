@@ -1,26 +1,26 @@
 /// <reference types="node" />
 /* eslint-disable import/order */
 /* eslint-disable no-console */
-import dotenv from 'dotenv';
-// dotenv.config({path: './.env-sample'});
-dotenv.config();
 import path, {dirname} from 'path';
+import {fileURLToPath} from 'url';
+import dotenv from 'dotenv';
+// load client/.env regardless of the cwd this script is run from
+dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', 'client', '.env')});
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
-import replaceInFile from 'replace-in-file';
+import {replaceInFile} from 'replace-in-file';
 import {transform} from '@svgr/core';
 import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
 import {dotenvRun} from '@dotenv-run/esbuild';
-import {fileURLToPath} from 'url';
 
 // Get the directory name of the current module
 const localDir = dirname(fileURLToPath(import.meta.url));
-const parentDir = path.join(localDir, '..');
-const srcDir = path.join(parentDir, 'src');
-const staticSrcDir = path.join(parentDir, 'public');
-const buildDir = path.join(parentDir, 'build');
+const clientDir = path.join(localDir, '..', 'client');
+const srcDir = path.join(clientDir, 'src');
+const staticSrcDir = path.join(clientDir, 'public');
+const buildDir = path.join(clientDir, 'build');
 // const buildCssDir = path.join(buildDir, 'static', 'css');
 const buildJsDir = path.join(buildDir, 'static', 'js');
 
@@ -80,7 +80,9 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
 });
 
 const dotEnv = dotenvRun({
-  prefix: 'SMARTAPP_BUILDTIME_'
+  prefix: 'SMARTAPP_BUILDTIME_',
+  cwd: clientDir,
+  root: clientDir
 });
 
 // ***** STEPS *****
@@ -143,7 +145,7 @@ const copyStaticAssetsToDist = async (): Promise<void> => {
 const doReplacesInBundleDir = async (): Promise<void> => {
   console.info('replacing .env vars in destination .html files');
   await replaceInFile({
-    files: 'build/**/*.html', // this can be a glob
+    files: `${buildDir.replace(/\\/g, '/')}/**/*.html`, // this can be a glob (globs need forward slashes)
     from: [
       /__PROCESSENV__\w+__/g
     ],

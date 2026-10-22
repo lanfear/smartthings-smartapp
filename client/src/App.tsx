@@ -5,7 +5,6 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import {TouchBackend} from 'react-dnd-touch-backend';
 import {Routes, Route} from 'react-router-dom';
 // Components
-import {EventSourceProvider} from 'react-sse-hooks';
 import {SWRConfig} from 'swr';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import BasicTemplates from './components/BasicTemplates';
@@ -42,53 +41,51 @@ const App: React.FC = () => {
             }
           }}
         >
-          <EventSourceProvider>
-            <NavMenu />
-            <section className="container main-content">
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Home />}
-                />
-                <Route
-                  path="rule-examples"
-                  element={<RuleExamples />}
-                />
-                <Route
-                  path="basic-templates"
-                  element={<BasicTemplates />}
-                />
-                <Route
-                  path="advanced-templates"
-                  element={<AdvancedTemplates />}
-                />
-                <Route
-                  path="smartapps"
-                  element={<SmartApps />}
-                />
-                <Route
-                  path="locations"
-                  element={<Locations />}
-                />
-                <Route
-                  path={`${global.routing.dashboardSegment}/:locationId/rooms`}
-                  element={<DashboardRooms />}
-                />
-                <Route
-                  path={`${global.routing.dashboardSegment}/:locationId/scenes`}
-                  element={(<DashboardScenes />)}
-                />
-                <Route
-                  path={`${global.routing.dashboardSegment}/:locationId/rules`}
-                  element={(<DashboardRules />)}
-                />
-                <Route
-                  path={`${global.routing.dashboardSegment}/:locationId/apps`}
-                  element={(<DashboardApps />)}
-                />
-              </Routes>
-            </section>
-          </EventSourceProvider>
+          <NavMenu />
+          <section className="container main-content">
+            <Routes>
+              <Route
+                path="/"
+                element={<Home />}
+              />
+              <Route
+                path="rule-examples"
+                element={<RuleExamples />}
+              />
+              <Route
+                path="basic-templates"
+                element={<BasicTemplates />}
+              />
+              <Route
+                path="advanced-templates"
+                element={<AdvancedTemplates />}
+              />
+              <Route
+                path="smartapps"
+                element={<SmartApps />}
+              />
+              <Route
+                path="locations"
+                element={<Locations />}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/rooms`}
+                element={<DashboardRooms />}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/scenes`}
+                element={(<DashboardScenes />)}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/rules`}
+                element={(<DashboardRules />)}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/apps`}
+                element={(<DashboardApps />)}
+              />
+            </Routes>
+          </section>
         </SWRConfig>
       </DndProvider>
     </StyledComponentProvider>

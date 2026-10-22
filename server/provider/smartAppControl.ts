@@ -17,7 +17,7 @@ const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
 /* Define the SmartApp */
 export default new SmartApp()
   .enableEventLogging(2, settings.debugLogging)
-  .configureI18n()
+  .configureI18n({directory: settings.localesDirectory})
   .permissions(['r:locations:*', 'r:devices:*', 'x:devices:*', 'r:scenes:*', 'x:scenes:*', 'r:rules:*', 'w:rules:*'])
   .appId(settings.controlAppId)
   .clientId(settings.controlClientId)

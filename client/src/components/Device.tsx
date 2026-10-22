@@ -11,7 +11,9 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
 
   return deviceType === 'Switch' ? (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={device.value === 'on' ? isLocked ? `${global.palette.control.rgb.locked}` : `${global.palette.control.rgb.switch}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
@@ -38,7 +40,9 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
     </ControlContainer>
   ) : deviceType === 'Lock' ? (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={`${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}
@@ -58,7 +62,9 @@ const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, is
     </ControlContainer>
   ) : (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={device.value === 'active' ? `${global.palette.control.rgb.motion}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: device.label! || device.deviceId, id: device.deviceId})}

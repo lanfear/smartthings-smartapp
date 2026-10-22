@@ -15,7 +15,9 @@ const Rule: React.FC<IRuleProps> = ({rulePartId, ruleName, ruleType, time, isRul
 
   return (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={isRuleActive ? `${global.palette.control.rgb.rule}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: ruleName, id: `${IDragAndDropType.Rule}-${dragId}`})}

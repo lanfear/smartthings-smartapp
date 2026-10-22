@@ -32,7 +32,9 @@ const ActionRuleDisable: React.FC<IActionRuleDisableProps> = ({words, reEnableAf
   const leftControl = (
     <ControlActionContainer
       rgb={global.palette.control.rgb.inactive}
-      ref={drop}
+      ref={node => {
+        drop(node);
+      }}
       {...collectedProps}
     >
       <ActionLogo>

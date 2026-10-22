@@ -11,7 +11,9 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
 
   return (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={isRuleEnabled ? `${global.palette.control.rgb.app}` : `${global.palette.control.rgb.inactive}`}
       onMouseEnter={() => setActiveDevice({name: app.displayName!, id: app.installedAppId})}
