@@ -1,10 +1,11 @@
 /// <reference types="node" />
 /* eslint-disable import/order */
 /* eslint-disable no-console */
-import dotenv from 'dotenv';
-// dotenv.config({path: './.env-sample'});
-dotenv.config();
 import path, {dirname} from 'path';
+import {fileURLToPath} from 'url';
+import dotenv from 'dotenv';
+// load client/.env regardless of the cwd this script is run from
+dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', '.env')});
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
@@ -13,7 +14,6 @@ import svgo from '@svgr/plugin-svgo';
 import prettier from '@svgr/plugin-prettier';
 import jsx from '@svgr/plugin-jsx';
 import {dotenvRun} from '@dotenv-run/esbuild';
-import {fileURLToPath} from 'url';
 
 // Get the directory name of the current module
 const localDir = dirname(fileURLToPath(import.meta.url));
@@ -80,7 +80,9 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
 });
 
 const dotEnv = dotenvRun({
-  prefix: 'SMARTAPP_BUILDTIME_'
+  prefix: 'SMARTAPP_BUILDTIME_',
+  cwd: parentDir,
+  root: parentDir
 });
 
 // ***** STEPS *****
@@ -143,7 +145,7 @@ const copyStaticAssetsToDist = async (): Promise<void> => {
 const doReplacesInBundleDir = async (): Promise<void> => {
   console.info('replacing .env vars in destination .html files');
   await replaceInFile({
-    files: 'build/**/*.html', // this can be a glob
+    files: `${buildDir.replace(/\\/g, '/')}/**/*.html`, // this can be a glob (globs need forward slashes)
     from: [
       /__PROCESSENV__\w+__/g
     ],

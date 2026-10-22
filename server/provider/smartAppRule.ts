@@ -38,7 +38,7 @@ const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequ
 /* Define the SmartApp */
 export default new SmartApp()
   .enableEventLogging()
-  .configureI18n()
+  .configureI18n({directory: settings.localesDirectory})
   .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
   .appId(settings.ruleAppId)
   .clientId(settings.ruleClientId)

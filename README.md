@@ -22,7 +22,7 @@ These steps are intentionally different than may of the example SmartApp Communi
 2) [Download NGrok](https://ngrok.com/download) and set up a **FREE** account, then configure NGrok according to the basic setup instructions on the download page.
    - This is required assuming your development environment does not have a public-facing internet address
    - this service sets up a secure tunnel that is required for proper OAuth communication between Samsung Cloud, your SmartThings Hub and your locally running development web-server
-   - After installing and setting it up, you do not need to manually run it, the node scripts `tunnel` runs ngrok internally
+   - After installing and setting it up, you do not need to manually run it, the node script `server-tunnel` runs ngrok internally
 
 3) Create a file named `server/.env.local` containing the following text
 
@@ -53,18 +53,18 @@ REDIS_SERVER=LOCALREDISPORT # TODO: document redis setup
 
 ## Everyday development instructions
 
-Run all of these from the `package.json` located in the 'server' directory (`cd server` or point-click from VS code UI)
-   1) `npm install && npm run inst` (to install the top-level npm dependencies, then the dependencies of each subdir)
-   2) `npm run start` from the top-level directories will start entire dev environment in a single console session (using concurrently)
-      1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually 
+Run all of these from the single top-level `package.json` (there are no per-folder `package.json` files; client scripts are prefixed `client-` and server scripts `server-`)
+   1) `npm install` (installs dependencies for both client and server)
+   2) `npm run start` will start entire dev environment in a single console session (using concurrently)
+      1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually (`npm run server-tunnel`, `npm run server-start`, `npm run client-start`)
    3) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
-      - **You must do this every time you start/restart `npm run tunnel` task which includes every time you run the main `npm run start` command**
+      - **You must do this every time you start/restart `npm run server-tunnel` task which includes every time you run the main `npm run start` command**
 
 ## Runtime Development
 
-Finally! You are ready to develop!  Once you make changes, you need to **stop and start ONLY the `npm run server` task**  
+Finally! You are ready to develop!  Once you make changes, you need to **stop and start ONLY the `npm run server-start` task**  
 
-You **do not want or need to restart the `npm run tunnel` task**.  If you do so, you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
+You **do not want or need to restart the `npm run server-tunnel` task**.  If you do so, you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
 
 When you make changes to the server/smartapp, and restart you do not need to uninstall or re-install a working development app.
 
@@ -93,11 +93,11 @@ When you make changes to the server/smartapp, and restart you do not need to uni
    - I feel that the 'default' ESLint ruleset, while a good start, does not demand enough coding standards and consistent practices, so I leveraged a specific ruleset with which I am familiar that is a lot more explicit.  Relax or tune this as you wish if you do not like the standards that are defined.
 
 # RELEASE/PRODUCTION
-1) run `npm run build` (builds into `/build` directory)
+1) run `npm run build` (builds into `server/build` and `client/build` directories)
 2) check-in or otherwise copy that output to build server hosting directory
-3) be sure to configure the `.env` file on the server checkout directory
-4) `npm --prod` on server to install neccessary runtime libs
-5) `npm run prod` to run the server environment (or put the code in the script in a .service file)
+3) be sure to configure the `server/.env` (or `server/.env.local`) file on the server checkout directory
+4) `npm install --omit=dev` on server to install neccessary runtime libs (client libraries are dev dependencies since they are bundled at build time)
+5) `npm run server-prod` to run the server environment (or put the code in the script in a .service file)
 
 # CREDITS
 

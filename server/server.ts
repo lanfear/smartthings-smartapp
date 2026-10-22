@@ -1,7 +1,11 @@
 import fs from 'fs';
+import path from 'path';
 // eslint-disable-next-line import/order
 import * as dotenv from 'dotenv';
-dotenv.config({path: `./${fs.existsSync('./.env.local') ? '.env.local' : '.env'}`});
+// .env files live in server/, one level up from the compiled server/build/server.js
+const serverDir = path.resolve(__dirname, '..');
+const envLocalPath = path.join(serverDir, '.env.local');
+dotenv.config({path: fs.existsSync(envLocalPath) ? envLocalPath : path.join(serverDir, '.env')});
 import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import cors from 'cors';
 import express, {type Request} from 'express';

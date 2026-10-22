@@ -10,6 +10,9 @@
     "outDir": "build",
     "lib": [
       "esnext"
+    ],
+    "types": [
+      "node"
     ]
   },
   "include": [
