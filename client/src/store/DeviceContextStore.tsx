@@ -3,11 +3,11 @@ import type {Device, Room as IRoom, SceneSummary} from '@smartthings/core-sdk';
 import {deepEqual} from 'fast-equals';
 import {useCallback, useEffect} from 'react';
 import {useParams} from 'react-router-dom';
-import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import useSWR, {mutate as swrMutate, unstable_serialize as swrKeySerializer, type KeyedMutator} from 'swr';
 import {create} from 'zustand';
 import type {RouteParams} from '../App';
 import getLocation from '../operations/getLocation';
+import {useEventSource, useEventSourceListener} from '../providers/EventSourceProvider';
 import type {IResponseLocation, IScene, ISseRuleEvent} from '../types/sharedContracts';
 import {setLocation, useLocationContextStore} from './LocationContextStore';
 
@@ -111,18 +111,17 @@ export const useDeviceStore = (): IDeviceContextStore => {
   // listen to sse events
   const deviceEventSource = useEventSource({
     source: `${process.env.SMARTAPP_BUILDTIME_APIHOST}/events`,
-    options: {enabled: !!locationId}
+    enabled: !!locationId
   });
 
   // when any rules event comes in, just reload data from server
   useEventSourceListener<ISseRuleEvent>({
     source: deviceEventSource,
-    startOnInit: true,
     event: {
       name: 'rule',
       listener: () => _setDeviceData()
     }
-  }, [deviceEventSource, _setDeviceData]);
+  });
 
   const loadDeviceDataFromServer = useCallback(async (): Promise<void> => {
     await _setDeviceData();

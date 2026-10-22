@@ -5,7 +5,6 @@ import {HTML5Backend} from 'react-dnd-html5-backend';
 import {TouchBackend} from 'react-dnd-touch-backend';
 import {Routes, Route} from 'react-router-dom';
 // Components
-import {EventSourceProvider} from 'react-sse-hooks';
 import {SWRConfig} from 'swr';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import BasicTemplates from './components/BasicTemplates';
@@ -19,6 +18,7 @@ import NavMenu from './components/NavMenu';
 import RuleExamples from './components/RuleExamples';
 import SmartApps from './components/SmartApps';
 import global from './constants/global';
+import {EventSourceProvider} from './providers/EventSourceProvider';
 import StyledComponentProvider from './providers/StyledComponentProvider';
 import {useDeviceStore} from './store/DeviceContextStore';
 
