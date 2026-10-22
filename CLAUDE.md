@@ -16,6 +16,7 @@ All scripts run from the repo root. Combined scripts fan out via `concurrently`;
 - `npm run start` — run the full dev environment (`server-tunnel` + `server-start` + `client-start`) in one terminal
 - `npm run build` — build both server (`server-build`: `tsc -p server`) and client (`client-build`: `node tools/bundle.ts`, esbuild-based)
 - `npm run lint` — typecheck + eslint both client and server in parallel, plus `tools-lint:tsc` (typechecks root files like `tools/` against the root `tsconfig.json`); `npm run lint-fix` runs eslint `--fix` on both
+- `npm run deploy` (`tools/deploy.mts`) — update a server checkout to `origin/main`, `npm ci`, build, restart the service, follow its log (reads `DEPLOY_SERVICE` / `DEPLOY_LOG` from `server/.env.local` or `server/.env`; see README)
 - `npm run kill-node-win` / `kill-node-linux` — force-kill stray node processes if a previous run didn't shut down cleanly; `client-kill` / `server-kill` kill just the process on that side's port
 
 Per-side (replace `client` with `server` as applicable):

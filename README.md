@@ -99,6 +99,17 @@ When you make changes to the server/smartapp, and restart you do not need to uni
 4) `npm install --omit=dev` on server to install neccessary runtime libs (client libraries are dev dependencies since they are bundled at build time)
 5) `npm run server-prod` to run the server environment (or put the code in the script in a .service file)
 
+## Updating a server checkout
+
+`npm run deploy` (`tools/deploy.mts`) updates a git checkout on the server to `origin/main` (discarding local changes), does a clean `npm ci` (dev deps included, since it builds in place), runs `npm run build`, restarts the service and follows its log. It only uses node built-ins and finds the repo from its own location; add these to `server/.env.local` (or `server/.env`) on the server:
+
+```
+DEPLOY_SERVICE=YOURSERVICENAME # name passed to `service <name> restart`
+DEPLOY_LOG=/path/to/server.log # file to follow after restart
+```
+
+Then run `sudo npm run deploy` from the checkout (or as whichever user can restart the service). The restart and log-follow steps use `service` and `tail`, so this part expects a Linux host.
+
 # CREDITS
 
 1) [Rule Helper Sample Project](/jodyalbritton/rule-helper) - this is the basis of this repository with some early commits cherry-picked from this repository.  Full credit to him for some of the fundamental bits here!

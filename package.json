@@ -81,6 +81,7 @@
   "scripts": {
     "start": "concurrently -n server:tunnel,server:host,client:start -c blue,cyan,green \"npm:server-tunnel\" \"npm:server-start\" \"npm:client-start\"",
     "build": "concurrently -n server:build,client:build -c red,magenta \"npm:server-build\" \"npm:client-build\"",
+    "deploy": "node tools/deploy.mts",
     "lint": "concurrently -n tools:tsc,client:tsc,client:eslint,server:tsc,server:eslint -c gray,cyan,green,blue,magenta \"npm:tools-lint:tsc\" \"npm:client-lint:tsc\" \"npm:client-lint:eslint -- --cache\" \"npm:server-lint:tsc\" \"npm:server-lint:eslint -- --cache\"",
     "lint-fix": "concurrently -n client,server -c green,magenta \"npm:client-lint-fix\" \"npm:server-lint-fix\"",
     "kill-node-win": "taskkill -F -IM node.exe",
