@@ -95,7 +95,8 @@ export const useDeviceStore = (): IDeviceContextStore => {
 
   const {data: deviceData, mutate: _setDeviceData} = useSWR(
     locationId ? ['locationData', locationId] : null,
-    (_, l) => getDeviceDataFromServer(l),
+    // swr 2 passes the whole key array as a single argument
+    ([, l]: [string, string]) => getDeviceDataFromServer(l),
     {
       revalidateOnMount: true,
       dedupingInterval: 5000,
@@ -129,14 +130,14 @@ export const useDeviceStore = (): IDeviceContextStore => {
 
   useEffect(() => {
     // we need to do deep compare here to avoid infinate render loop
-    useDeviceData.setState(s => deepEqual(s, deviceData) ? s : ({...s, ...(deviceData ?? initialDeviceData)}));
+    useDeviceData.setState(s => deepEqual(s, deviceData) ? s : ({...s, ...deviceData}));
   }, [deviceData]);
 
   useEffect(() => {
-    if (locationId && locationId !== deviceData?.locationId) {
+    if (locationId && locationId !== deviceData.locationId) {
       void loadDeviceDataFromServer();
     }
-  }, [locationId, deviceData?.locationId, loadDeviceDataFromServer]);
+  }, [locationId, deviceData.locationId, loadDeviceDataFromServer]);
 
   return {
     setDeviceData,
