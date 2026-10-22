@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 // .env files live in server/, one level up from the compiled server/build/server.js
 const serverDir = path.resolve(__dirname, '..');
 const envLocalPath = path.join(serverDir, '.env.local');
-dotenv.config({path: fs.existsSync(envLocalPath) ? envLocalPath : path.join(serverDir, '.env')});
+dotenv.config({path: fs.existsSync(envLocalPath) ? envLocalPath : path.join(serverDir, '.env'), quiet: true});
 import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import cors from 'cors';
 import express, {type Request} from 'express';
