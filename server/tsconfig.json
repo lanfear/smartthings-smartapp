@@ -1,20 +1,28 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
     "target": "esnext",
     "strict": true,
     "skipLibCheck": false,
     "noImplicitAny": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "outDir": "build",
     "lib": [
       "esnext"
     ],
     "types": [
       "node"
-    ]
+    ],
+    "moduleResolution": "nodenext",
+    "paths": {
+      "types": [
+        "./types"
+      ],
+      "types/*": [
+        "./types/*"
+      ]
+    }
   },
   "include": [
     "**/*"
