@@ -5,7 +5,7 @@ import path, {dirname} from 'path';
 import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 // load client/.env regardless of the cwd this script is run from
-dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', '.env')});
+dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', 'client', '.env')});
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import replaceInFile from 'replace-in-file';
@@ -17,10 +17,10 @@ import {dotenvRun} from '@dotenv-run/esbuild';
 
 // Get the directory name of the current module
 const localDir = dirname(fileURLToPath(import.meta.url));
-const parentDir = path.join(localDir, '..');
-const srcDir = path.join(parentDir, 'src');
-const staticSrcDir = path.join(parentDir, 'public');
-const buildDir = path.join(parentDir, 'build');
+const clientDir = path.join(localDir, '..', 'client');
+const srcDir = path.join(clientDir, 'src');
+const staticSrcDir = path.join(clientDir, 'public');
+const buildDir = path.join(clientDir, 'build');
 // const buildCssDir = path.join(buildDir, 'static', 'css');
 const buildJsDir = path.join(buildDir, 'static', 'js');
 
@@ -81,8 +81,8 @@ const urlLoader = ({minify, sourceMaps}: {minify: BuildOptions['minify']; source
 
 const dotEnv = dotenvRun({
   prefix: 'SMARTAPP_BUILDTIME_',
-  cwd: parentDir,
-  root: parentDir
+  cwd: clientDir,
+  root: clientDir
 });
 
 // ***** STEPS *****

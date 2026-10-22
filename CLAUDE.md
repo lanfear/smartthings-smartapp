@@ -14,8 +14,8 @@ All scripts run from the repo root. Combined scripts fan out via `concurrently`;
 
 - `npm install` — install all dependencies (client + server)
 - `npm run start` — run the full dev environment (`server-tunnel` + `server-start` + `client-start`) in one terminal
-- `npm run build` — build both server (`server-build`: `tsc -p server`) and client (`client-build`: `node client/tool/bundle.ts`, esbuild-based)
-- `npm run lint` — typecheck + eslint both client and server in parallel; `npm run lint-fix` runs eslint `--fix` on both
+- `npm run build` — build both server (`server-build`: `tsc -p server`) and client (`client-build`: `node tools/bundle.ts`, esbuild-based)
+- `npm run lint` — typecheck + eslint both client and server in parallel, plus `tools-lint:tsc` (typechecks root files like `tools/` against the root `tsconfig.json`); `npm run lint-fix` runs eslint `--fix` on both
 - `npm run kill-node-win` / `kill-node-linux` — force-kill stray node processes if a previous run didn't shut down cleanly; `client-kill` / `server-kill` kill just the process on that side's port
 
 Per-side (replace `client` with `server` as applicable):
@@ -26,7 +26,7 @@ Per-side (replace `client` with `server` as applicable):
 
 There is no test runner for `server/` — it currently has no test suite.
 
-Paths that used to be cwd-relative are now resolved relative to the file: `server/server.ts` loads `server/.env.local` (else `server/.env`) via `__dirname`, and `client/tool/bundle.ts` loads `client/.env` and writes to `client/build` via its own location.
+Paths that used to be cwd-relative are now resolved relative to the file: `server/server.ts` loads `server/.env.local` (else `server/.env`) via `__dirname`, and `tools/bundle.ts` loads `client/.env` and writes to `client/build` via its own location.
 
 ## Architecture
 
@@ -46,7 +46,7 @@ A rule "component" is one of `daylight | nightlight | transition | idle` (`types
 
 ### Client
 
-CRA-style React 17 + TypeScript SPA built with a custom esbuild pipeline (`client/tool/bundle.ts`, invoked by `npm run client-build`/`client-dev`) rather than `react-scripts`. Key structure under `client/src/`:
+CRA-style React 17 + TypeScript SPA built with a custom esbuild pipeline (`tools/bundle.ts`, invoked by `npm run client-build`/`client-dev`) rather than `react-scripts`. Key structure under `client/src/`:
 - `components/` — route/page-level and reusable UI (Dashboard*, Room, Device, Rule, NavMenu, etc.), styled with `styled-components`
 - `providers/` — React context providers for global style/theme and styled-components setup
 - `store/` — device/location context stores (zustand-based state shared across components)
