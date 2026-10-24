@@ -1,3 +1,5 @@
+import path from 'path';
+
 interface ISettings {
   localIps: string[];
   environment: 'dev' | 'prod' | 'test';
@@ -13,6 +15,7 @@ interface ISettings {
   apiToken: string;
   dataDirectory: string;
   dataRuleSet: string;
+  localesDirectory: string;
   debugLogging: boolean;
 }
 
@@ -38,6 +41,8 @@ const settings: ISettings = {
   apiToken: process.env.API_TOKEN,
   dataDirectory: process.env.DATA_DIRECTORY ?? 'data',
   dataRuleSet: process.env.DATA_RULESET ?? 'rules.json',
+  // server/locales, resolved from the compiled server/build/provider/settings.js so it works from any cwd
+  localesDirectory: path.resolve(__dirname, '..', '..', 'locales'),
   debugLogging: process.env.LOGGING_EVENTS_ENABLED?.toLowerCase() === 'true'
 };
 

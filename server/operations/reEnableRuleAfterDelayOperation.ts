@@ -12,7 +12,7 @@ export const reEnableRuleAfterDelay = (locationId: string, installedAppId: strin
   const cacheKey = `${locationId}-${installedAppId}`;
   if (restartDelayTimers[cacheKey]) {
     // node + eslint cant sort out the nullable bits of this, so annoying
-    clearTimeout(restartDelayTimers[cacheKey] as unknown as NodeJS.Timeout);
+    clearTimeout(restartDelayTimers[cacheKey]);
     restartDelayTimers[cacheKey] = null;
   }
 

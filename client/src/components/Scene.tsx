@@ -23,7 +23,9 @@ const Scene: React.FC<ISceneProps> = ({scene, locationId}) => {
 
   return (
     <ControlContainer
-      ref={drag}
+      ref={node => {
+        drag(node);
+      }}
       {...collected}
       rgb={global.palette.control.rgb.scene}
       disabled={executing}

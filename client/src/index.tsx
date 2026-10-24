@@ -1,20 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import {BrowserRouter as Router} from 'react-router-dom';
 import App from './App';
 import initLocale from './operations/initLocale';
+import {EventSourceProvider} from './providers/EventSourceProvider';
 import {GlobalStyles} from './providers/GlobalStyleProvider';
 import reportWebVitals from './reportWebVitals';
 // App component
 
 void initLocale();
 
-ReactDOM.render(
+createRoot(document.getElementById('root')!).render(
   <Router>
     <GlobalStyles />
-    <App />
-  </Router>,
-  document.getElementById('root')
+    {/* above App so App's own hooks (useDeviceStore) can subscribe to server events */}
+    <EventSourceProvider>
+      <App />
+    </EventSourceProvider>
+  </Router>
 );
 
 // If you want to start measuring performance in your app, pass a function

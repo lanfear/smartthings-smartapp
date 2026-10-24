@@ -2,6 +2,18 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "target": "esnext",
+    "module": "esnext",
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "*.ts",
+    "*.mts",
+    "tools"
+  ]
 }

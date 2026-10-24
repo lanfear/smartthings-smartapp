@@ -16,7 +16,8 @@ export const notFound: RequestParamHandler = (req, res, next): void => {
 };
 
 export const errorHandler: ErrorRequestHandler = (err: Error, _, res): void => {
-  const statusCode = res.statusCode !== StatusCodes.OK as number ? res.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
+  const okStatusCode: number = StatusCodes.OK; // widen the enum so it compares cleanly with the numeric res.statusCode
+  const statusCode = res.statusCode !== okStatusCode ? res.statusCode : StatusCodes.INTERNAL_SERVER_ERROR;
   res.status(statusCode);
   res.json({
     message: err.message,

@@ -1,12 +1,12 @@
 import dayjs, {type Dayjs} from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import React, {useEffect, useRef} from 'react';
-import {useEventSource, useEventSourceListener} from 'react-sse-hooks';
 import styled from 'styled-components';
 import {useLocalStorage} from 'usehooks-ts';
 import global from '../constants/global';
 import {createControlGradient, GlassPanel, GlassPill} from '../factories/styleFactory';
 import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransition} from '../operations/getRulesFromSummary';
+import {useEventSource, useEventSourceListener} from '../providers/EventSourceProvider';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
 import type {DeviceContext, IApp, IDevice, ISseEvent} from '../types/sharedContracts';
@@ -238,30 +238,27 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   // TODO: these can probably just go into the store context handler?
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
-    startOnInit: true,
     event: {
       name: 'lock',
       listener: ({data}) => handleLockDeviceEvent(data)
     }
-  }, [deviceEventSource]);
+  });
 
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
-    startOnInit: true,
     event: {
       name: 'motion',
       listener: ({data}) => handleMotionDeviceEvent(data)
     }
-  }, [deviceEventSource]);
+  });
 
   useEventSourceListener<ISseEvent>({
     source: deviceEventSource,
-    startOnInit: true,
     event: {
       name: 'switch',
       listener: ({data}) => handleSwitchDeviceEvent(data)
     }
-  }, [deviceEventSource]);
+  });
 
   return (
     <RoomCard ref={domRef}>

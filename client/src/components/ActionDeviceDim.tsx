@@ -87,7 +87,9 @@ const ActionDeviceDim: React.FC = () => {
   const leftControl = (
     <SliderActionContainer
       rgb={global.palette.control.rgb.inactive}
-      ref={drop}
+      ref={node => {
+        drop(node);
+      }}
       progressPercentage={dimLevelSliderValue}
       {...collectedProps}
     >

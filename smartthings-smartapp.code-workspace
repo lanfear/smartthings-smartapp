@@ -5,10 +5,6 @@
 		}
 	],
 	"settings": {
-		"eslint.workingDirectories": [
-			"./server",
-			"./client"
-		],
 		"typescript.format.enable": true,
 		"eslint.format.enable": true,
 		"editor.codeActionsOnSave": {

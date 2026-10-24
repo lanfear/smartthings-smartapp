@@ -38,7 +38,7 @@ const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequ
 /* Define the SmartApp */
 export default new SmartApp()
   .enableEventLogging()
-  .configureI18n()
+  .configureI18n({directory: settings.localesDirectory})
   .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
   .appId(settings.ruleAppId)
   .clientId(settings.ruleClientId)
@@ -284,8 +284,8 @@ export default new SmartApp()
     const nightNonDimmableSwitches = uniqueNightSwitches.filter(s => !allDimmableSwitches.find(ss => ss.deviceId === s.deviceId));
 
     // the find here better work because all switches needs to map to the valid dimmable switch the user configured
-    const dayDimmableSwitchLevels = dayDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchDayLevel} as IRuleSwitchLevelInfo));
-    const nightDimmableSwitchLevels = nightDimmableSwitches.map(s => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchNightLevel} as IRuleSwitchLevelInfo));
+    const dayDimmableSwitchLevels = dayDimmableSwitches.map((s): IRuleSwitchLevelInfo => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchDayLevel}));
+    const nightDimmableSwitchLevels = nightDimmableSwitches.map((s): IRuleSwitchLevelInfo => ({deviceId: s.deviceId, switchLevel: allConfigSwitchLevels.find(l => l.deviceId === s.deviceId)!.switchNightLevel}));
 
     const newRuleSummary = createRuleSummaryFromConfig(
       newConfig as ISmartAppRuleConfigValues, // above we ensured the conflicting nullable values are not null, so it is this type

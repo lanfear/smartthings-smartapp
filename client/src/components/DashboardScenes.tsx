@@ -95,7 +95,7 @@ const DashboardScenes: React.FC = () => {
                   {t('dashboard.scene.header.createdDate')}
                 </DashboardCardFieldLabel>
                 <DashboardCardFieldValue>
-                  {s.createdDate}
+                  {s.createdDate?.toString()}
                 </DashboardCardFieldValue>
               </DashboardCardField>
               <DashboardCardField>
@@ -103,7 +103,7 @@ const DashboardScenes: React.FC = () => {
                   {t('dashboard.scene.header.lastExecutedDate')}
                 </DashboardCardFieldLabel>
                 <DashboardCardFieldValue>
-                  {s.lastExecutedDate}
+                  {s.lastExecutedDate?.toString()}
                 </DashboardCardFieldValue>
               </DashboardCardField>
               <DashboardCardFieldLabel>
