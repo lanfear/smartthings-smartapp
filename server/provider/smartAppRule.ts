@@ -3,7 +3,7 @@ import {SmartApp, type ContextStore} from '@smartthings/smartapp';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
-import type {ISmartAppRuleConfigValues, Nullable} from 'types';
+import type {ISmartAppRuleConfigValues} from 'types';
 import global from '../constants/global';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from '../operations/createRuleFromSummaryOperation';
@@ -12,7 +12,7 @@ import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperati
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
-import type {IRuleSwitchLevelInfo} from '../types/sharedContracts';
+import type {IRuleSwitchLevelInfo, Nullable} from '../types/sharedContracts';
 import ruleStore from './ruleStore';
 import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';

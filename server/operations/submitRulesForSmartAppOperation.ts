@@ -1,6 +1,5 @@
 import type {RuleRequest, SmartThingsClient} from '@smartthings/core-sdk';
-import type {Nullable} from 'types';
-import type {IRuleSummary} from 'types/sharedContracts';
+import type {IRuleSummary, Nullable} from 'types/sharedContracts';
 
 const submitRules = async (client: SmartThingsClient, locationId: string, smartAppLookupKey: string, combinedRule: Nullable<RuleRequest>, transitionRule: Nullable<RuleRequest>, newRuleSummary: IRuleSummary): Promise<[IRuleSummary, Nullable<string>, Nullable<string>]> => {
   /* eslint-disable no-console */

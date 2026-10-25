@@ -64,4 +64,4 @@ Both `client/` and `server/` load `.env` (server prefers `.env.local` over `.env
 
 Both sides share one root ESLint flat config (`eslint.config.mts`) built on `eslint-config-techsmith`, with 2-space indentation, strict import ordering/alphabetization (`import/order`), and `@typescript-eslint/consistent-type-imports` enforced (`import type {...}` required for type-only imports). Run `npm run lint` before considering a change complete — it's stricter than the TypeScript compiler alone.
 
-Write nullable types as `Nullable<T>`, never `T | null` — including in props, state (`useState<Nullable<T>>`) and return types. It's defined once in `shared/sharedContracts.d.ts`; import it from `types` on the server (`server/types/index.d.ts` re-exports it) and from `../types/interfaces` on the client (`client/src/types/interfaces.d.ts` re-exports it).
+Write nullable types as `Nullable<T>`, never `T | null` — including in props, state (`useState<Nullable<T>>`) and return types. It's a shared contract, defined once in `shared/sharedContracts.d.ts` — import it like the other contract types: from `types/sharedContracts` on the server and `../types/sharedContracts` on the client.

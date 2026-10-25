@@ -1,6 +1,5 @@
 import {createClient} from 'redis';
-import type {Nullable} from 'types';
-import type {IMeasurementHistoryPoint, IMeasurementType} from 'types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementType, Nullable} from 'types/sharedContracts';
 import settings from './settings';
 
 // one sorted set per device component + measurement: score = epoch ms, member = `${epoch}:${value}`.

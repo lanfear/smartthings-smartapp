@@ -1,5 +1,4 @@
-import type {Nullable} from 'types';
-import type {IMeasurementHistoryPoint, IMeasurementType} from 'types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementType, Nullable} from 'types/sharedContracts';
 import measurementSettings, {measurementDefinitions, measurementTypes} from '../constants/measurements';
 import getSmartThingsClient from '../provider/smartThingsClient';
 import listMeasurementDevicesFromApiOperation from './listMeasurementDevicesFromApiOperation';

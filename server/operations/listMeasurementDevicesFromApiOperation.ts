@@ -1,6 +1,5 @@
 import type {AttributeState, Component, Device} from '@smartthings/core-sdk';
-import type {Nullable} from 'types';
-import type {IMeasurementType} from 'types/sharedContracts';
+import type {IMeasurementType, Nullable} from 'types/sharedContracts';
 import {measurementDefinitions} from '../constants/measurements';
 import listDevicesFromApiOperation from './listDevicesFromApiOperation';
 

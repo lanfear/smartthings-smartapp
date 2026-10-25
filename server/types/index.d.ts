@@ -2,7 +2,6 @@ import type {IntervalUnit, RuleRequest} from '@smartthings/core-sdk';
 import type {DeviceContext} from '@smartthings/smartapp';
 import type {IRuleSummary, Nullable} from './sharedContracts';
 
-export type {Nullable};
 export interface ISmartAppRuleMotion {
   valueType: string; // STValueType?
   deviceConfig: {

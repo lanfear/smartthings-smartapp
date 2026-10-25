@@ -4,7 +4,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import global from '../constants/global';
 import getSmartThingsClient from '../provider/smartThingsClient';
-import type {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig, Nullable} from '../types';
+import type {ISmartAppRuleConfigValues, ISmartAppRuleSwitchLevelConfig} from '../types';
+import type {Nullable} from '../types/sharedContracts';
 
 dayjs.extend(customParseFormat);
 dayjs.extend(utc);
