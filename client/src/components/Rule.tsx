@@ -3,7 +3,7 @@ import {useDrag} from 'react-dnd';
 import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import type {IActiveControl} from '../types/interfaces';
+import type {IActiveControl, Nullable} from '../types/interfaces';
 import type {IRuleComponentType} from '../types/sharedContracts';
 
 const getRuleIcon = (ruleType: IRuleComponentType): '🌞' | '🌚' | '🔀' | '⏳' => ruleType === 'daylight' ? '🌞' : ruleType === 'nightlight' ? '🌚' : ruleType === 'transition' ? '🔀' : '⏳';
@@ -52,7 +52,7 @@ export interface IRuleProps {
   isRuleActive: boolean;
   isRuleEnabled: boolean;
   isKeyRule: boolean;
-  setActiveDevice: (value: IActiveControl | null) => void;
+  setActiveDevice: (value: Nullable<IActiveControl>) => void;
   isLinkedActive?: boolean;
   isLockedActive?: boolean;
 }

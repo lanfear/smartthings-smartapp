@@ -1,4 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, type PropsWithChildren} from 'react';
+import type {Nullable} from '../types/interfaces';
 
 // minimal replacement for the unmaintained `react-sse-hooks` package: one shared EventSource per url,
 // created on first use and closed when the provider unmounts
@@ -7,7 +8,7 @@ interface IEventSourceContext {
   getConnection: (url: string) => EventSource;
 }
 
-const EventSourceContext = createContext<IEventSourceContext | null>(null);
+const EventSourceContext = createContext<Nullable<IEventSourceContext>>(null);
 
 export const EventSourceProvider = ({children}: PropsWithChildren<object>): React.ReactElement => {
   const connections = useRef<Record<string, EventSource>>({});
@@ -31,7 +32,7 @@ export const EventSourceProvider = ({children}: PropsWithChildren<object>): Reac
   );
 };
 
-export const useEventSource = ({source, enabled = true}: {source: string; enabled?: boolean}): EventSource | null => {
+export const useEventSource = ({source, enabled = true}: {source: string; enabled?: boolean}): Nullable<EventSource> => {
   const context = useContext(EventSourceContext);
   if (!context) {
     throw new Error('useEventSource must be used inside an EventSourceProvider');
@@ -40,7 +41,7 @@ export const useEventSource = ({source, enabled = true}: {source: string; enable
 };
 
 export const useEventSourceListener = <T, >({source, event}: {
-  source: EventSource | null;
+  source: Nullable<EventSource>;
   event: {
     name: string;
     listener: (message: {data: T}) => void;

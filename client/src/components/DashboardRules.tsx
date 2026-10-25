@@ -21,6 +21,7 @@ import {
   GlassPanel
 } from '../factories/styleFactory';
 import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
+import type {Nullable} from '../types/interfaces';
 import type {IApp, IRule} from '../types/sharedContracts';
 
 const DashboardRuleTitle = styled(DashboardCardTitle)<{matchesInstalledApp: boolean}>`
@@ -80,7 +81,7 @@ const DashboardRules: React.FC = () => {
   useLocationIdParam();
   const deviceData = useDeviceData();
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
-  const [activeRule, setActiveRule] = React.useState<IRule | null>(null);
+  const [activeRule, setActiveRule] = React.useState<Nullable<IRule>>(null);
 
   if (!deviceData.locationId) {
     return null;

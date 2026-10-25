@@ -19,6 +19,7 @@ import {
 import executeScene from '../operations/executeScene';
 import setSceneRooms from '../operations/setSceneRooms';
 import {getSceneRoomIds, revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
+import type {Nullable} from '../types/interfaces';
 import type {IRoom} from '../types/sharedContracts';
 
 const RoomChipRow = styled.div`
@@ -37,7 +38,7 @@ const DashboardScenes: React.FC = () => {
   const {t} = useTranslation();
   useLocationIdParam();
   const deviceData = useDeviceData();
-  const [executingSceneId, setExecutingSceneId] = useState<string | null>(null);
+  const [executingSceneId, setExecutingSceneId] = useState<Nullable<string>>(null);
 
   if (!deviceData.locationId) {
     return null;
