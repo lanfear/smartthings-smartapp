@@ -1,10 +1,21 @@
-import type {IMeasurementHistorySeries, IMeasurementType} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType} from '../types/sharedContracts';
+
+// anything with points - a sensor's history series, or a derived line like the group average
+export interface IPointSeries {
+  points: IMeasurementHistoryPoint[];
+}
 
 // categorical series colors in a fixed order, validated for colorblind separation between neighbours and for
 // normal-vision distinctness on the page's white surface. aqua/yellow/magenta are under 3:1 contrast on white, which is
 // why the comparison chart always ships a legend + table view rather than relying on the line color alone
 export const seriesPalette = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'] as const;
 export const maxComparedSeries = seriesPalette.length;
+
+// the group average is a reference line, not a category - dark neutral and dashed so it never reads as one of the
+// sensor colors above
+const averageDashPx = 6;
+const averageGapPx = 4;
+export const averageLine = {color: '#52514e', dash: [averageDashPx, averageGapPx]} as const;
 
 // chart chrome - text never takes a series color, it uses these inks
 export const chartInk = {
@@ -106,30 +117,20 @@ export interface ISeriesStats {
   avg: number | null;
 }
 
-export const getSeriesStats = (series: IMeasurementHistorySeries | undefined): ISeriesStats => {
-  if (!series?.points.length) {
+export const getValueStats = (values: (number | null)[]): ISeriesStats => {
+  const present = values.filter((v): v is number => v !== null);
+  if (!present.length) {
     return {min: null, max: null, avg: null};
   }
-  const values = series.points.map(p => p.value);
   return {
-    min: Math.min(...values),
-    max: Math.max(...values),
-    avg: values.reduce((a, v) => a + v, 0) / values.length
+    min: Math.min(...present),
+    max: Math.max(...present),
+    avg: present.reduce((a, v) => a + v, 0) / present.length
   };
 };
 
-/**
- * Lines series up on one shared x axis for uPlot: [x seconds, ...one y array per series], null where a series has no
- * point. The server buckets every series on the same boundaries, so the union of bucket times is the shared x axis.
- */
-export const alignSeries = (seriesList: IMeasurementHistorySeries[]): [number[], ...(number | null)[][]] => {
-  const xsMs = [...new Set(seriesList.flatMap(s => s.points.map(p => p.epoch)))].sort((a, b) => a - b);
-  const ys = seriesList.map(s => {
-    const byEpoch = new Map(s.points.map(p => [p.epoch, p.value]));
-    return xsMs.map(x => byEpoch.get(x) ?? null);
-  });
-  return [xsMs.map(x => x / 1000), ...ys];
-};
+// stats from a sensor's real readings in the window (not the held/display values)
+export const getSeriesStats = (series: IPointSeries | undefined): ISeriesStats => getValueStats(series?.points.map(p => p.value) ?? []);
 
 /**
  * Adds a series to the comparison in the lowest free color slot, or removes it if it's already there. A series keeps
@@ -144,4 +145,64 @@ export const toggleSeriesSlot = (slots: Record<string, number>, key: string, val
   const used = new Set(Object.values(kept));
   const free = seriesPalette.findIndex((_, i) => !used.has(i));
   return free < 0 ? slots : {...kept, [key]: free};
+};
+
+const averagePrecision = 10; // round to 0.1
+
+export interface IDisplayGrid {
+  xs: number[]; // epoch ms, shared by every column
+  columns: Map<string, (number | null)[]>; // series key -> value at each x (null = offline / no reading yet)
+  average: (number | null)[]; // mean of every column at each x
+  averageCount: number; // how many series contributed to the average at any point
+}
+
+const isOfflineAt = (series: IMeasurementHistorySeries, x: number): boolean => series.offline.some(o => o.from <= x && (o.to === null || x < o.to));
+
+/**
+ * Lines a group's series up on one shared time axis for drawing. Readings are assumed unchanged until the next one
+ * ("no change"), but only while the device is online: at each x a series holds its last reading, or null while its
+ * device is offline or before its first reading. The lead-in (last reading before the window) seeds the window start.
+ * The average is the mean of every series' held value at each x, so it never jumps just because a warm or cold sensor
+ * happened to report, and sensors drop out of it while offline. Display only - stats should use the real points.
+ */
+export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementHistorySeries}[], since: number, until: number): IDisplayGrid => {
+  const xSet = new Set<number>();
+  seriesList.forEach(({series}) => {
+    series.points.forEach(p => xSet.add(p.epoch));
+    if (series.leadIn) {
+      xSet.add(since);
+    }
+    // offline boundaries are x values too, so a line breaks exactly where its device went offline/came back
+    series.offline.forEach(o => {
+      [o.from, o.to].forEach(x => {
+        if (x !== null && x >= since && x <= until) {
+          xSet.add(x);
+        }
+      });
+    });
+  });
+  // hold the latest readings out to now, so lines run to the right edge instead of stopping at their last report
+  if (xSet.size && until > Math.max(...xSet)) {
+    xSet.add(until);
+  }
+  const xs = [...xSet].sort((a, b) => a - b);
+
+  const columns = new Map(seriesList.map(({key, series}) => {
+    let next = 0;
+    let last = series.leadIn?.value ?? null;
+    return [key, xs.map(x => {
+      while (next < series.points.length && series.points[next].epoch <= x) {
+        last = series.points[next].value;
+        next++;
+      }
+      return isOfflineAt(series, x) ? null : last;
+    })];
+  }));
+
+  const columnList = [...columns.values()];
+  const average = xs.map((_, i) => {
+    const values = columnList.flatMap(c => (c[i] === null ? [] : [c[i]]));
+    return values.length ? Math.round((values.reduce((a, v) => a + v, 0) / values.length) * averagePrecision) / averagePrecision : null;
+  });
+  return {xs: xs, columns: columns, average: average, averageCount: columnList.filter(c => c.some(v => v !== null)).length};
 };

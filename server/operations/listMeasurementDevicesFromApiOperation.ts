@@ -11,10 +11,11 @@ export interface IMeasurementDeviceComponent {
   componentLabel?: string;
   state: Nullable<AttributeState>; // current value/unit/timestamp of the measurement attribute
   healthState: Nullable<string>; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
+  healthUpdatedAt: Nullable<string>; // ISO-8601 time the health state last changed
 }
 
 // includeHealth adds this to each device, but the SDK's Device type doesn't declare it
-type DeviceWithHealth = Device & {healthState?: {state?: string}};
+type DeviceWithHealth = Device & {healthState?: {state?: string; lastUpdatedDate?: string}};
 
 /**
  * Every device component in the location that reports the measurement, with its current value and device health.
@@ -37,7 +38,8 @@ const listMeasurementDevicesFromApiOperation = async (locationId: string, measur
       label: device.label ?? device.name ?? device.deviceId,
       ...(component.id === 'main' ? {} : {componentLabel: component.label ?? component.id}),
       state: capabilityRef.status?.[attribute] ?? null,
-      healthState: device.healthState?.state ?? null
+      healthState: device.healthState?.state ?? null,
+      healthUpdatedAt: device.healthState?.lastUpdatedDate ?? null
     }];
   }));
 };

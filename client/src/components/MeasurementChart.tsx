@@ -2,19 +2,21 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import styled from 'styled-components';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-import {alignSeries, chartInk, formatTooltipTime, formatUnit, formatValue} from '../factories/measurementFactory';
-import type {IMeasurementHistorySeries, IMeasurementType} from '../types/sharedContracts';
+import {chartInk, formatTooltipTime, formatUnit, formatValue} from '../factories/measurementFactory';
+import type {IMeasurementType} from '../types/sharedContracts';
 
 export interface IChartSeries {
   key: string;
   label: string;
   color: string;
-  series: IMeasurementHistorySeries;
+  values: (number | null)[]; // one per x - null breaks the line (device offline, or no reading yet)
+  dash?: readonly number[]; // dashed line, e.g. the group average reference line
 }
 
 interface IMeasurementChartProps {
   measurement: IMeasurementType;
   unit: string | null;
+  xs: number[]; // shared time axis, epoch ms
   series: IChartSeries[];
   ariaLabel: string;
 }
@@ -74,12 +76,14 @@ const TooltipRow = styled.div`
   line-height: 1.5;
 `;
 
-export const LineKey = styled.span<{color: string}>`
+// short stroke of a series' color that keys it in legends/tooltips/tables - dashed to match a dashed line
+export const LineKey = styled.span<{color: string; dashed?: boolean}>`
   display: inline-block;
+  flex: none;
   width: 12px;
   height: 2px;
   border-radius: 1px;
-  background: ${props => props.color};
+  background: ${props => props.dashed ? `repeating-linear-gradient(90deg, ${props.color} 0 4px, transparent 4px 6px)` : props.color};
 `;
 
 const TooltipValue = styled.span`
@@ -100,17 +104,7 @@ const formatTicks = (splits: number[], unit: string | null): string[] => {
   return splits.map(v => `${v.toFixed(digits)}${formatUnit(unit)}`);
 };
 
-// sensors mostly report on change, so between reports the last reported value still holds
-const getValueAtOrBefore = (values: (number | null)[], idx: number): number | null => {
-  for (let i = idx; i >= 0; i--) {
-    if (values[i] !== null) {
-      return values[i];
-    }
-  }
-  return null;
-};
-
-const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, series, ariaLabel}) => {
+const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, xs, series, ariaLabel}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   // uPlot gets its own host element so it never shares a parent with React-managed children (the tooltip)
   const plotHostRef = useRef<HTMLDivElement>(null);
@@ -118,7 +112,8 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
   const [width, setWidth] = useState(0);
   const [hover, setHover] = useState<IHoverState | null>(null);
 
-  const data = useMemo(() => alignSeries(series.map(s => s.series)), [series]);
+  // uPlot's time scale is in seconds
+  const data = useMemo((): uPlot.AlignedData => [xs.map(x => x / 1000), ...series.map(s => s.values)], [xs, series]);
   const colors = useMemo(() => series.map(s => s.color), [series]);
   // the plot can only be built once the container has a size (it may mount hidden or before layout)
   const hasWidth = width > 0;
@@ -182,8 +177,11 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
           label: s.label,
           stroke: s.color,
           width: 2,
-          // sensors report irregularly, so a bucket with no reading shouldn't break the line
-          spanGaps: true
+          ...(s.dash ? {dash: [...s.dash]} : {}),
+          // values are already held forward between readings - a null is a real gap (device offline)
+          spanGaps: false,
+          // every x has a held value, so per-point markers would suggest readings that never happened
+          points: {show: false}
         }))
       ],
       hooks: {
@@ -236,11 +234,14 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
           <TooltipTime>
             {formatTooltipTime(hoverTime * 1000)}
           </TooltipTime>
-          {series.map((s, i) => (
+          {series.map(s => (
             <TooltipRow key={s.key}>
-              <LineKey color={s.color} />
+              <LineKey
+                color={s.color}
+                dashed={!!s.dash}
+              />
               <TooltipValue>
-                {formatValue(getValueAtOrBefore(data[i + 1], hover.idx), measurement, unit)}
+                {formatValue(s.values[hover.idx] ?? null, measurement, unit)}
               </TooltipValue>
               <TooltipLabel>
                 {s.label}

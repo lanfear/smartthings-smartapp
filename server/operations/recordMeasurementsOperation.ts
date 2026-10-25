@@ -10,8 +10,12 @@ import readMeasurementHistoryFromApiOperation from './readMeasurementHistoryFrom
 const msPerMinute = 60 * 1000;
 const msPerHour = 60 * msPerMinute;
 
-/** store the latest reported value of every measurement device in the location (one SmartThings call per measurement) */
+/**
+ * Store the latest reported value of every measurement device in the location (one SmartThings call per measurement),
+ * plus each device's online/offline state whenever it has changed since the last poll.
+ */
 export const recordCurrentMeasurements = async (locationId: string): Promise<void> => {
+  const healthByDevice = new Map<string, {state: string; changedAt: number}>();
   for (const measurement of measurementTypes) {
     const deviceComponents = await listMeasurementDevicesFromApiOperation(locationId, measurement);
     await Promise.all(deviceComponents.map(async ({device, component, state}) => {
@@ -20,7 +24,17 @@ export const recordCurrentMeasurements = async (locationId: string): Promise<voi
         await measurementStore.addPoints(locationId, measurement, device.deviceId, component.id, [{epoch: epoch, value: state.value}]);
       }
     }));
+    // a device can report several measurements/components - its health only needs recording once per poll
+    deviceComponents.forEach(({device, healthState, healthUpdatedAt}) => {
+      if (healthState) {
+        const changedAt = healthUpdatedAt ? Date.parse(healthUpdatedAt) : NaN;
+        healthByDevice.set(device.deviceId, {state: healthState, changedAt: Number.isFinite(changedAt) ? changedAt : Date.now()});
+      }
+    });
   }
+  await Promise.all([...healthByDevice].map(async ([deviceId, {state, changedAt}]) => {
+    await measurementStore.recordHealth(locationId, deviceId, state, changedAt);
+  }));
 };
 
 /** one-time seed of recorded history from the SmartThings history API (capped, see constants/measurements.ts) */

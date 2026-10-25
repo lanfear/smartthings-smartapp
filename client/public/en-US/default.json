@@ -94,7 +94,7 @@
         "range": "Time range"
       },
       "compare": {
-        "empty": "Pick up to {{max}} sensors below to chart them here.",
+        "empty": "Pick up to {{max}} sensors below to chart them alongside the average.",
         "full": "Up to {{max}} sensors can be compared at once",
         "noData": "No readings recorded in this range yet.",
         "loading": "Loading history...",
@@ -122,6 +122,9 @@
         "remove": "Remove {{sensor}}",
         "showTable": "Show table",
         "showChart": "Show chart"
+      },
+      "average": {
+        "label": "Average of {{count}} sensors"
       }
     }
   }

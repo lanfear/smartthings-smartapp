@@ -3,12 +3,15 @@ import {useTranslation} from 'react-i18next';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {
+  averageLine,
+  buildDisplayGrid,
   chartInk,
   formatRelativeTime,
   formatValue,
   getSeriesKey,
   getSeriesLabel,
   getSeriesStats,
+  getValueStats,
   maxComparedSeries,
   seriesPalette,
   statusColor,
@@ -246,20 +249,41 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
     writeStorage(slotStorageKey(group), next);
   }, [slots, readingKeys, group]);
 
-  const chartSeries: IChartSeries[] = useMemo(() => comparedReadings.flatMap(r => {
-    const key = getSeriesKey(r);
-    const series = historyByKey.get(key);
-    return series ? [{key: key, label: getSeriesLabel(r), color: seriesPalette[slots[key]], series: series}] : [];
-  }), [comparedReadings, historyByKey, slots]);
-  const hasChartPoints = chartSeries.some(s => s.series.points.length > 0);
+  // what lines, the average and sparklines draw: every sensor in the group on one time axis, each holding its last
+  // reading while online (see buildDisplayGrid). the average covers the whole group, whether or not a sensor is charted
+  const grid = useMemo(() => buildDisplayGrid(
+    readingKeys.flatMap(k => {
+      const series = historyByKey.get(k);
+      return series ? [{key: k, series: series}] : [];
+    }),
+    history?.since ?? 0,
+    history?.until ?? 0
+  ), [readingKeys, historyByKey, history]);
+  const averageLabel = t('dashboard.climate.average.label', {count: grid.averageCount});
+  const averageStats = getValueStats(grid.average);
+  // offline sensors can hold a months-old value, so the current average only uses sensors that are reporting
+  const currentValues = readings.filter(r => r.healthState !== 'OFFLINE').flatMap(r => (r.value === null ? [] : [r.value]));
+  const currentAverage = currentValues.length ? currentValues.reduce((a, v) => a + v, 0) / currentValues.length : null;
+  const hasAverage = averageStats.avg !== null;
+
+  const chartSeries: IChartSeries[] = useMemo(() => [
+    ...comparedReadings.flatMap(r => {
+      const key = getSeriesKey(r);
+      const values = grid.columns.get(key);
+      return values ? [{key: key, label: getSeriesLabel(r), color: seriesPalette[slots[key]], values: values}] : [];
+    }),
+    // drawn last so the reference line sits on top of the sensor lines
+    ...(hasAverage ? [{key: 'average', label: averageLabel, color: averageLine.color, dash: averageLine.dash, values: grid.average}] : [])
+  ], [comparedReadings, grid, slots, hasAverage, averageLabel]);
+  const hasChartPoints = chartSeries.some(s => s.values.some(v => v !== null));
   const unit = comparedReadings[0]?.unit ?? readings[0]?.unit ?? null;
 
-  // this group's sparklines share one x range: from its oldest recorded point (recording may not cover the whole
+  // sparklines share the group's x range: from where its drawable data starts (recording may not cover the whole
   // requested window yet) to now, so every card's trend lines up in time with the others
   const sparklineSince = useMemo(() => {
-    const epochs = readingKeys.flatMap(k => historyByKey.get(k)?.points.slice(0, 1).map(p => p.epoch) ?? []);
-    return epochs.length ? Math.max(Math.min(...epochs), history?.since ?? 0) : history?.since ?? 0;
-  }, [readingKeys, historyByKey, history]);
+    const firstIdx = grid.xs.findIndex((_, i) => [...grid.columns.values()].some(c => c[i] !== null));
+    return firstIdx >= 0 ? grid.xs[firstIdx] : history?.since ?? 0;
+  }, [grid, history]);
 
   const groupName = t(`dashboard.climate.group.${group.id}`);
 
@@ -273,7 +297,7 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
           <MutedText>
             {t('dashboard.climate.compare.count', {count: comparedReadings.length, total: readings.length})}
           </MutedText>
-          {comparedReadings.length > 0 && (
+          {chartSeries.length > 0 && (
             <PanelHeaderActions>
               <PanelButton
                 onClick={() => {
@@ -286,13 +310,7 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
           )}
         </PanelHeader>
 
-        {comparedReadings.length === 0 && (
-          <EmptyState>
-            {t('dashboard.climate.compare.empty', {max: maxComparedSeries})}
-          </EmptyState>
-        )}
-
-        {comparedReadings.length > 0 && showTable && (
+        {chartSeries.length > 0 && showTable && (
           <StatsTable>
             <thead>
               <tr>
@@ -346,15 +364,44 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
                   </tr>
                 );
               })}
+              {hasAverage && (
+                <tr>
+                  <td>
+                    <SensorName>
+                      <LineKey
+                        color={averageLine.color}
+                        dashed
+                      />
+                      {averageLabel}
+                    </SensorName>
+                  </td>
+                  <td>
+                    {formatValue(currentAverage, measurement, unit)}
+                  </td>
+                  <td>
+                    {formatValue(averageStats.min, measurement, unit)}
+                  </td>
+                  <td>
+                    {formatValue(averageStats.avg, measurement, unit)}
+                  </td>
+                  <td>
+                    {formatValue(averageStats.max, measurement, unit)}
+                  </td>
+                  <td>
+                    —
+                  </td>
+                </tr>
+              )}
             </tbody>
           </StatsTable>
         )}
 
-        {comparedReadings.length > 0 && !showTable && (hasChartPoints
+        {!showTable && (hasChartPoints
           ? (
             <MeasurementChart
               measurement={measurement}
               unit={unit}
+              xs={grid.xs}
               series={chartSeries}
               ariaLabel={t('dashboard.climate.compare.chartLabel', {group: groupName, sensors: chartSeries.map(s => s.label).join(', ')})}
             />
@@ -365,7 +412,7 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
             </EmptyState>
           ))}
 
-        {comparedReadings.length > 0 && (
+        {chartSeries.length > 0 && (
           <Legend aria-label={t('dashboard.climate.compare.legend')}>
             {comparedReadings.map(r => {
               const key = getSeriesKey(r);
@@ -386,6 +433,22 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
                 </LegendItem>
               );
             })}
+            {hasAverage && (
+              <LegendItem>
+                <LineKey
+                  color={averageLine.color}
+                  dashed
+                />
+                {averageLabel}
+              </LegendItem>
+            )}
+            {comparedReadings.length === 0 && (
+              <LegendItem>
+                <MutedText>
+                  {t('dashboard.climate.compare.empty', {max: maxComparedSeries})}
+                </MutedText>
+              </LegendItem>
+            )}
           </Legend>
         )}
       </ChartPanel>
@@ -420,7 +483,8 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
               </TileValueRow>
               {history && (
                 <Sparkline
-                  points={series?.points ?? []}
+                  xs={grid.xs}
+                  values={grid.columns.get(key) ?? []}
                   since={sparklineSince}
                   until={history.until}
                   color={isCompared ? seriesPalette[slot] : chartInk.muted}

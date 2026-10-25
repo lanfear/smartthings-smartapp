@@ -62,6 +62,11 @@ export interface IMeasurementHistoryPoint {
   epoch: number; // unix epoch milliseconds
   value: number;
 }
+// a stretch when the sensor's device was offline (recorded from its SmartThings health state)
+export interface IMeasurementOfflineInterval {
+  from: number; // epoch ms, clamped to the window start
+  to: number | null; // epoch ms it came back online, null if still offline
+}
 // one series per device component, points sorted oldest first - recorded by the server (see server/operations/recordMeasurementsOperation.ts),
 // so a series only goes back as far as recording (plus the one-time startup backfill) does
 export interface IMeasurementHistorySeries {
@@ -71,7 +76,13 @@ export interface IMeasurementHistorySeries {
   componentLabel?: string;
   roomId?: string;
   unit: string | null;
-  points: IMeasurementHistoryPoint[];
+  points: IMeasurementHistoryPoint[]; // only real readings inside the window (bucket averages when bucketed)
+  // the last real reading before `since` (at its true time, never bucketed) - lets the client start a line/average at
+  // the window edge by carrying it forward. kept separate from points so points never contain made-up values, and a
+  // long gap between readings stays visible
+  leadIn: IMeasurementHistoryPoint | null; // null when the device was offline at `since`
+  // offline stretches within the window - a reading only carries forward ("no change") while the device is online
+  offline: IMeasurementOfflineInterval[];
 }
 export interface IResponseMeasurementHistory {
   locationId: string;
