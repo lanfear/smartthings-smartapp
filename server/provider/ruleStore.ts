@@ -1,12 +1,14 @@
 import {createClient} from 'redis';
 import type {RuleStoreInfo} from 'types';
 import type {Nullable} from 'types/sharedContracts';
+import redisErrorListener from './redisErrorListener';
 import settings from './settings';
 
 const ruleInfoPrefix = 'st-ruleinfo-';
 const redisRuleStore = createClient({
   url: settings.redisServer
 });
+redisRuleStore.on('error', redisErrorListener('ruleStore'));
 
 // pre-existing renamed keys (see git history 'align the names of these vars on the server'); kept only so older stored rule
 // summaries can be migrated forward instead of silently losing whatever temp-disable state was set via the web dashboard
