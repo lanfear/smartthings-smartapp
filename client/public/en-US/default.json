@@ -160,5 +160,9 @@
       "body": "This page shows one SmartThings location at a time. Pick it below, or from the Locations menu at the top left.",
       "loading": "Loading location..."
     }
+  },
+  "home": {
+    "sectionName": "Overview",
+    "placeholder": "A summary of this location will live here. For now, jump to one of its pages:"
   }
 }

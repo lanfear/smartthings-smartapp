@@ -41,6 +41,17 @@ const NavMenu: React.FC = () => {
   const debugOptions = (
     <>
       <DropdownOption
+        key="nav-info"
+        isChecked={false}
+      >
+        <Link
+          className="navbar-item flex-column-center"
+          to="/info"
+        >
+          Info
+        </Link>
+      </DropdownOption>
+      <DropdownOption
         key="nav-rule-examples"
         isChecked={false}
       >
@@ -88,7 +99,8 @@ const NavMenu: React.FC = () => {
     </>
   );
 
-  const debugSelected = routeLocation.pathname.endsWith('/rule-examples')
+  const debugSelected = routeLocation.pathname.endsWith('/info')
+    || routeLocation.pathname.endsWith('/rule-examples')
     || routeLocation.pathname.endsWith('/basic-templates')
     || routeLocation.pathname.endsWith('/advanced-templates')
     || routeLocation.pathname.endsWith('/smartapps');

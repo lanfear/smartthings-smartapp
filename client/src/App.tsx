@@ -13,6 +13,7 @@ import DashboardClimate from './components/DashboardClimate';
 import DashboardRooms from './components/DashboardRooms';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
+import DebugInfo from './components/DebugInfo';
 import Home from './components/Home';
 import Locations from './components/Locations';
 import NavMenu from './components/NavMenu';
@@ -53,6 +54,10 @@ const App: React.FC = () => {
               <Route
                 path="/"
                 element={<Home />}
+              />
+              <Route
+                path="info"
+                element={<DebugInfo />}
               />
               <Route
                 path="rule-examples"
