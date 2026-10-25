@@ -18,7 +18,7 @@ import listMeasurementHistoryOperation from './operations/listMeasurementHistory
 import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
 import {startMeasurementRecording} from './operations/recordMeasurementsOperation';
-import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
+import {cancelReEnableRuleTimers, reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import ruleStore from './provider/ruleStore';
 import sceneRoomStore from './provider/sceneRoomStore';
 import settings from './provider/settings';
@@ -152,6 +152,9 @@ server.post('/device/:deviceId', async (req, res) => {
 
 /* Enable/Disable a rule component */
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
+  // any explicit enable/disable supersedes a pending timed re-enable of the same rule component - otherwise an old timer
+  // could later re-enable a rule that was since disabled on purpose
+  cancelReEnableRuleTimers(req.params.locationId, req.params.installedAppId, req.params.ruleComponent);
   try {
     await manageRuleApplicationOperation(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
   } catch (e) {

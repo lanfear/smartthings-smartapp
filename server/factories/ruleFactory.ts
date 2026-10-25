@@ -2,6 +2,11 @@
 import type {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
 import global from '../constants/global';
 
+// every SmartThings rule a rule SmartApp install creates carries this key in its name - it's how an install's rules are
+// found again (to replace them on config changes, or delete them on uninstall), since the rules are owned by the
+// API_TOKEN user rather than by the install
+export const generateRuleAppKey = (installedAppId: string): string => `app-${installedAppId}`;
+
 export const generateConditionTrigger = (noonOffsetTime: number, actions: RuleAction[]): RuleAction => ({
   every: {
     specific: {

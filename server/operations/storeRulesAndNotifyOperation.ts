@@ -1,5 +1,6 @@
 import type {RuleRequest} from '@smartthings/core-sdk';
 import type {IRuleSummary, ISseRuleEvent, Nullable} from 'types/sharedContracts';
+import {generateRuleAppKey} from '../factories/ruleFactory';
 import ruleStore from '../provider/ruleStore';
 import sse from '../provider/sse';
 import type {RuleStoreInfo} from '../types';
@@ -20,7 +21,7 @@ const storeRulesAndNotifyOperation = async (smartAppLookupKey: string, combinedR
   await ruleStore.set(newRuleInfo, smartAppLookupKey);
 
   sendSSEEvent({
-    appId: `app-${smartAppLookupKey}`, // TODO: is this right or does it need 'app-' prefix
+    appId: generateRuleAppKey(smartAppLookupKey),
     ruleSummary: newRuleSummary
   });
 };

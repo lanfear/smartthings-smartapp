@@ -5,9 +5,11 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import utc from 'dayjs/plugin/utc';
 import type {ISmartAppRuleConfigValues} from 'types';
 import global from '../constants/global';
+import {generateRuleAppKey} from '../factories/ruleFactory';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from '../operations/createRuleFromSummaryOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
+import deleteRulesForSmartAppOperation from '../operations/deleteRulesForSmartAppOperation';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
@@ -262,7 +264,7 @@ export default new SmartApp()
       return;
     }
 
-    const appKey = `app-${updateData.installedApp.installedAppId}`;
+    const appKey = generateRuleAppKey(updateData.installedApp.installedAppId);
 
     const newConfig = await readConfigFromContext(context);
 
@@ -339,5 +341,20 @@ export default new SmartApp()
     } else {
       // eslint-disable-next-line no-console
       console.log('Rules not modified, nothing to update');
+    }
+  })
+
+  // the install's rules are owned by the API_TOKEN user, so SmartThings won't remove them with the app - clean them up
+  .uninstalled(async (_context, uninstallData) => {
+    const {installedAppId, locationId} = uninstallData.installedApp;
+    try {
+      const deletedCount = await deleteRulesForSmartAppOperation(locationId, installedAppId);
+      // eslint-disable-next-line no-console
+      console.info('Rule app [', installedAppId, '] uninstalled, deleted [', deletedCount, '] rules');
+    } catch (e) {
+      // never fail the uninstall: SmartThings doesn't retry it, and the SDK only clears the install's stored context
+      // after this handler returns
+      // eslint-disable-next-line no-console
+      console.error('Cleaning up rules for uninstalled rule app [', installedAppId, '] failed', e);
     }
   });

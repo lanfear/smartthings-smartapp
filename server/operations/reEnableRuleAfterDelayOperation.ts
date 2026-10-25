@@ -1,22 +1,42 @@
-import type {Nullable} from 'types/sharedContracts';
+import ReturnResultError from '../exceptions/returnResultError';
 import settings from '../provider/settings';
 import manageRuleApplicationOperation from './manageRuleApplicationOperation';
 
-// global cache of promises
-const restartDelayTimers: Record<string, Nullable<NodeJS.Timeout>> = {};
+/* eslint-disable no-console */
+
+// pending re-enable timers, one per install rule component - a newer delay for the same component replaces the old one
+const restartDelayTimers = new Map<string, NodeJS.Timeout>();
 
 // for dev we use minutes, for live we use hours
 const restartDelayBase = settings.environment !== 'dev' ? 60 * 60 * 1000 : 60 * 1000;
 
-export const reEnableRuleAfterDelay = (locationId: string, installedAppId: string, ruleComponent: string, delayTimeout: number): void => {
-  const cacheKey = `${locationId}-${installedAppId}`;
-  if (restartDelayTimers[cacheKey]) {
-    // node + eslint cant sort out the nullable bits of this, so annoying
-    clearTimeout(restartDelayTimers[cacheKey]);
-    restartDelayTimers[cacheKey] = null;
-  }
+const timerKeyPrefix = (locationId: string, installedAppId: string): string => `${locationId}-${installedAppId}-`;
 
-  setTimeout(() => {
-    void manageRuleApplicationOperation(locationId, installedAppId, ruleComponent, false);
-  }, restartDelayBase * delayTimeout);
+/** cancel pending re-enables for an install - every rule component, or just `ruleComponent` */
+export const cancelReEnableRuleTimers = (locationId: string, installedAppId: string, ruleComponent?: string): void => {
+  const prefix = timerKeyPrefix(locationId, installedAppId);
+  [...restartDelayTimers].forEach(([key, timer]) => {
+    if (ruleComponent ? key === `${prefix}${ruleComponent}` : key.startsWith(prefix)) {
+      clearTimeout(timer);
+      restartDelayTimers.delete(key);
+    }
+  });
+};
+
+export const reEnableRuleAfterDelay = (locationId: string, installedAppId: string, ruleComponent: string, delayTimeout: number): void => {
+  const key = `${timerKeyPrefix(locationId, installedAppId)}${ruleComponent}`;
+  cancelReEnableRuleTimers(locationId, installedAppId, ruleComponent);
+
+  restartDelayTimers.set(key, setTimeout(() => {
+    restartDelayTimers.delete(key);
+    // nothing awaits this, so an error here would be an unhandled rejection - which stops node by default
+    manageRuleApplicationOperation(locationId, installedAppId, ruleComponent, false).catch((e: unknown) => {
+      if (e instanceof ReturnResultError) {
+        // expected outcomes, e.g. the app was uninstalled in the meantime, or the rule is already enabled
+        console.info('Timed re-enable of [', ruleComponent, '] for app [', installedAppId, '] skipped: [', e.statusCode, ']', e.message);
+      } else {
+        console.error('Timed re-enable of [', ruleComponent, '] for app [', installedAppId, '] failed', e);
+      }
+    });
+  }, restartDelayBase * delayTimeout));
 };
