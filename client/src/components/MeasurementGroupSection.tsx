@@ -54,6 +54,8 @@ const dimmedOpacity = 0.55;
 const slotStorageKey = (group: IMeasurementGroup): string => `climate-compare-v2-${group.id}`;
 
 const Section = styled.section`
+  /* a little room above the header when jumped to via #anchor */
+  scroll-margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: ${global.measurements.dashboardGridGap};
@@ -76,11 +78,32 @@ const PanelHeader = styled.div`
   gap: 0.25rem 0.75rem;
 `;
 
-const PanelTitle = styled.h3`
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: ${chartInk.primary};
+// section header between the charts - same divider-line look as the page title (DashboardTitle), one step smaller
+const SectionHeader = styled.h2`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  &::before {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: linear-gradient(to left, currentColor, transparent);
+    opacity: 0.3;
+  }
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, currentColor, transparent);
+    opacity: 0.3;
+  }
 `;
 
 const MutedText = styled.span`
@@ -296,12 +319,15 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
   const groupName = t(`dashboard.climate.group.${group.id}`);
 
   return (
-    <Section aria-label={groupName}>
+    <Section
+      id={group.anchor}
+      aria-label={groupName}
+    >
+      <SectionHeader>
+        {groupName}
+      </SectionHeader>
       <ChartPanel dimmed={dimmed}>
         <PanelHeader>
-          <PanelTitle>
-            {groupName}
-          </PanelTitle>
           <MutedText>
             {t('dashboard.climate.compare.count', {count: comparedReadings.length, total: readings.length})}
           </MutedText>

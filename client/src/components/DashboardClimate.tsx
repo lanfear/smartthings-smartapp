@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import {useLocation} from 'react-router-dom';
 import styled from 'styled-components';
 import global from '../constants/global';
 import {
@@ -66,6 +67,21 @@ const DashboardClimate: React.FC = () => {
   ])), [temperatureReadings, humidityReadings]);
 
   const roomNames = useMemo(() => new Map(deviceData.rooms.map(r => [r.roomId, r.name])), [deviceData.rooms]);
+
+  // jump to the section named in the URL hash (e.g. #freezers from the nav menu). the router doesn't scroll to hashes
+  // itself, and the sections only exist once their data is in - so this runs when the hash is navigated to (each
+  // navigation gets a new location key, so clicking the same section link again re-scrolls) and when that section
+  // first renders, but not on every data refresh
+  const {hash, key: navigationKey} = useLocation();
+  const anchor = hash.slice(1);
+  // wait for history too: charts and sparklines arriving afterwards would grow the sections above and push the target down
+  const historyLoaded = !!temperatureHistory.historyData && !!humidityHistory.historyData;
+  const anchorSectionReady = !!deviceData.locationId && historyLoaded && measurementGroups.some(g => g.anchor === anchor && (readingsByGroup.get(g.id)?.length ?? 0) > 0);
+  useEffect(() => {
+    if (anchorSectionReady) {
+      document.getElementById(anchor)?.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+  }, [anchor, anchorSectionReady, navigationKey]);
 
   if (!deviceData.locationId) {
     return <LocationRequiredHint sectionName={t('dashboard.climate.sectionName')} />;

@@ -54,6 +54,7 @@ export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity';
 
 export interface IMeasurementGroup {
   id: IMeasurementGroupId;
+  anchor: string; // the section's element id, so /dashboard/:locationId/climate#<anchor> jumps to it (see the nav menu)
   measurement: IMeasurementType;
   includes: (seriesLabel: string) => boolean;
 }
@@ -64,10 +65,10 @@ const isFridge = (label: string): boolean => !isFreezer(label) && /fridge|refrig
 
 // display order of the climate page's charts
 export const measurementGroups: IMeasurementGroup[] = [
-  {id: 'fridge', measurement: 'temperature', includes: isFridge},
-  {id: 'freezer', measurement: 'temperature', includes: isFreezer},
-  {id: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
-  {id: 'humidity', measurement: 'humidity', includes: () => true}
+  {id: 'fridge', anchor: 'fridges', measurement: 'temperature', includes: isFridge},
+  {id: 'freezer', anchor: 'freezers', measurement: 'temperature', includes: isFreezer},
+  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
+  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true}
 ];
 
 export const getSeriesKey = (s: {deviceId: string; componentId: string}): string => `${s.deviceId}/${s.componentId}`;

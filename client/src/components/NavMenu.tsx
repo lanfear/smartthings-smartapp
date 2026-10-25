@@ -1,11 +1,15 @@
 import {useState, useEffect, memo} from 'react';
+import {useTranslation} from 'react-i18next';
 import {Link, useLocation, useNavigate} from 'react-router-dom';
 import global from '../constants/global';
+import {measurementGroups} from '../factories/measurementFactory';
 import getLocations, {type IResponseLocations} from '../operations/getLocations';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
 import DropdownButton, {DropdownOption} from './DropdownButton';
+import NavHoverMenu from './NavHoverMenu';
 
 const NavMenu: React.FC = () => {
+  const {t} = useTranslation();
   const navigate = useNavigate();
   const routeLocation = useLocation();
   const locationId = useLocationContextStore(s => s.locationId);
@@ -141,13 +145,16 @@ const NavMenu: React.FC = () => {
       >
         Apps
       </Link>
-      <Link
-        key="location-climate"
-        className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/climate') ? 'selected' : ''}`}
+      <NavHoverMenu
+        label="Climate"
         to={`/${global.routing.dashboardSegment}/${locationId}/climate`}
-      >
-        Climate
-      </Link>
+        isSelected={routeLocation.pathname.endsWith('/climate')}
+        items={measurementGroups.map(g => ({
+          key: g.id,
+          label: t(`dashboard.climate.group.${g.id}`),
+          to: `/${global.routing.dashboardSegment}/${locationId}/climate#${g.anchor}`
+        }))}
+      />
       <DropdownButton
         buttonText="Debug"
         isSelected={debugSelected}
