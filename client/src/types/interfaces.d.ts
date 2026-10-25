@@ -3,4 +3,4 @@ export interface IActiveControl {
   id: string;
 }
 
-export type Nullable<T> = T | null;
+export type {Nullable} from './sharedContracts';
