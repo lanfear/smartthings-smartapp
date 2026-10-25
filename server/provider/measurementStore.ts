@@ -1,4 +1,5 @@
 import {createClient} from 'redis';
+import type {Nullable} from 'types';
 import type {IMeasurementHistoryPoint, IMeasurementType} from 'types/sharedContracts';
 import settings from './settings';
 
@@ -17,7 +18,7 @@ export interface IHealthChange {
 }
 
 export interface IHealthHistory {
-  stateAtSince: string | null; // state in effect at `since` (null when nothing was recorded before it)
+  stateAtSince: Nullable<string>; // state in effect at `since` (null when nothing was recorded before it)
   changes: IHealthChange[]; // changes at or after `since`, oldest first
 }
 
@@ -35,19 +36,19 @@ const getClient = async (): Promise<typeof redisMeasurementStore> => {
 const seriesKey = (locationId: string, measurement: IMeasurementType, deviceId: string, componentId: string): string => `${seriesPrefix}${locationId}-${measurement}-${deviceId}-${componentId}`;
 const healthKey = (locationId: string, deviceId: string): string => `${healthPrefix}${locationId}-${deviceId}`;
 
-const splitMember = (member: string): [number, string] | null => {
+const splitMember = (member: string): Nullable<[number, string]> => {
   const separator = member.indexOf(':');
   const epoch = Number(member.substring(0, separator));
   return separator > 0 && Number.isFinite(epoch) ? [epoch, member.substring(separator + 1)] : null;
 };
 
-const parsePoint = (member: string): IMeasurementHistoryPoint | null => {
+const parsePoint = (member: string): Nullable<IMeasurementHistoryPoint> => {
   const parts = splitMember(member);
   const value = parts ? Number(parts[1]) : NaN;
   return parts && Number.isFinite(value) ? {epoch: parts[0], value: value} : null;
 };
 
-const parseHealth = (member: string): IHealthChange | null => {
+const parseHealth = (member: string): Nullable<IHealthChange> => {
   const parts = splitMember(member);
   return parts ? {epoch: parts[0], state: parts[1]} : null;
 };
@@ -85,7 +86,7 @@ const getPoints = async (locationId: string, measurement: IMeasurementType, devi
 };
 
 /** the most recent point recorded strictly before `before`, or null if there isn't one */
-const getLastPointBefore = async (locationId: string, measurement: IMeasurementType, deviceId: string, componentId: string, before: number): Promise<IMeasurementHistoryPoint | null> => {
+const getLastPointBefore = async (locationId: string, measurement: IMeasurementType, deviceId: string, componentId: string, before: number): Promise<Nullable<IMeasurementHistoryPoint>> => {
   const member = await getLastMemberBefore(seriesKey(locationId, measurement, deviceId, componentId), before);
   return member ? parsePoint(member) : null;
 };

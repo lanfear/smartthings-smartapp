@@ -1,6 +1,7 @@
 // types in this file should be copied to corresponding file in server directory as these
 // contracts are shared from server to client
 import type {Device, InstalledApp, IntervalUnit, Room, Rule, SceneSummary} from '@smartthings/core-sdk';
+import type {Nullable} from './interfaces';
 
 export type IRoom = Room;
 // roomIds is not part of the SmartThings scenes API (it has no concept of rooms) - we maintain our own
@@ -47,10 +48,10 @@ export interface IMeasurementReading {
   label: string;
   componentLabel?: string; // only set for non-main components
   roomId?: string;
-  value: number | null; // null when the device hasn't reported or its status couldn't be read
-  unit: string | null; // 'F' | 'C' for temperature, '%' for humidity, as reported by the device
-  timestamp: string | null; // ISO-8601 time of the last reported value
-  healthState: string | null; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
+  value: Nullable<number>; // null when the device hasn't reported or its status couldn't be read
+  unit: Nullable<string>; // 'F' | 'C' for temperature, '%' for humidity, as reported by the device
+  timestamp: Nullable<string>; // ISO-8601 time of the last reported value
+  healthState: Nullable<string>; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
 }
 export interface IResponseMeasurements {
   locationId: string;
@@ -65,7 +66,7 @@ export interface IMeasurementHistoryPoint {
 // a stretch when the sensor's device was offline (recorded from its SmartThings health state)
 export interface IMeasurementOfflineInterval {
   from: number; // epoch ms, clamped to the window start
-  to: number | null; // epoch ms it came back online, null if still offline
+  to: Nullable<number>; // epoch ms it came back online, null if still offline
 }
 // one series per device component, points sorted oldest first - recorded by the server (see server/operations/recordMeasurementsOperation.ts),
 // so a series only goes back as far as recording (plus the one-time startup backfill) does
@@ -75,12 +76,12 @@ export interface IMeasurementHistorySeries {
   label: string;
   componentLabel?: string;
   roomId?: string;
-  unit: string | null;
+  unit: Nullable<string>;
   points: IMeasurementHistoryPoint[]; // only real readings inside the window (bucket averages when bucketed)
   // the last real reading before `since` (at its true time, never bucketed) - lets the client start a line/average at
   // the window edge by carrying it forward. kept separate from points so points never contain made-up values, and a
   // long gap between readings stays visible
-  leadIn: IMeasurementHistoryPoint | null; // null when the device was offline at `since`
+  leadIn: Nullable<IMeasurementHistoryPoint>; // null when the device was offline at `since`
   // offline stretches within the window - a reading only carries forward ("no change") while the device is online
   offline: IMeasurementOfflineInterval[];
 }

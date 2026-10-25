@@ -1,3 +1,4 @@
+import type {Nullable} from 'types';
 import type {IMeasurementHistoryPoint, IMeasurementType} from 'types/sharedContracts';
 import measurementSettings, {measurementDefinitions, measurementTypes} from '../constants/measurements';
 import getSmartThingsClient from '../provider/smartThingsClient';
@@ -16,7 +17,7 @@ export interface IMeasurementHistoryFromApi {
 }
 
 // history values are typed loosely by the SDK - accept numbers, or numeric strings just in case
-const toNumber = (value: unknown): number | null => {
+const toNumber = (value: unknown): Nullable<number> => {
   const n = typeof value === 'string' ? Number(value) : value;
   return typeof n === 'number' && Number.isFinite(n) ? n : null;
 };

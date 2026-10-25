@@ -32,6 +32,7 @@ import {
   DashboardChipToggle,
   GlassPanel
 } from '../factories/styleFactory';
+import type {Nullable} from '../types/interfaces';
 import type {IMeasurementReading, IResponseMeasurementHistory} from '../types/sharedContracts';
 import MeasurementChart, {LineKey, type IChartSeries} from './MeasurementChart';
 import Sparkline from './Sparkline';
@@ -41,7 +42,7 @@ type SlotMap = Record<string, number>;
 interface IMeasurementGroupSectionProps {
   group: IMeasurementGroup;
   readings: IMeasurementReading[]; // current readings of just this group's sensors
-  history: IResponseMeasurementHistory | null; // history of the group's measurement (any sensor - looked up by key)
+  history: Nullable<IResponseMeasurementHistory>; // history of the group's measurement (any sensor - looked up by key)
   range: IHistoryRange;
   roomNames: Map<string | undefined, string | undefined>;
   dimmed: boolean; // an older range is still on screen while the new one loads
@@ -216,7 +217,7 @@ const getRoomDisplayName = (roomName: string | undefined): string => {
   return roomParts.length > 1 ? roomParts[1] : roomParts[0];
 };
 
-const getStatus = (healthState: string | null): {icon: string; color: string; labelKey: string} => {
+const getStatus = (healthState: Nullable<string>): {icon: string; color: string; labelKey: string} => {
   if (healthState === 'ONLINE') {
     return {icon: '●', color: statusColor.good, labelKey: 'dashboard.climate.status.online'};
   }

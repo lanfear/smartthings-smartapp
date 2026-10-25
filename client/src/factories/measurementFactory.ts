@@ -1,3 +1,4 @@
+import type {Nullable} from '../types/interfaces';
 import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
@@ -75,10 +76,10 @@ export const getSeriesKey = (s: {deviceId: string; componentId: string}): string
 export const getSeriesLabel = (s: {label: string; componentLabel?: string}): string => (s.componentLabel ? `${s.label} (${s.componentLabel})` : s.label);
 
 // devices report 'F'/'C' for temperature and '%' for humidity
-export const formatUnit = (unit: string | null): string => (unit === 'F' || unit === 'C' ? `°${unit}` : unit ?? '');
+export const formatUnit = (unit: Nullable<string>): string => (unit === 'F' || unit === 'C' ? `°${unit}` : unit ?? '');
 
 // unit is optional so a range can show '66.2 – 71.5°F' with the unit only on the end
-export const formatValue = (value: number | null, measurement: IMeasurementType, unit: string | null = null): string => {
+export const formatValue = (value: Nullable<number>, measurement: IMeasurementType, unit: Nullable<string> = null): string => {
   if (value === null) {
     return '—';
   }
@@ -95,7 +96,7 @@ const msPerDay = hoursPerDay * msPerHour;
 const relativeTimeFormat = new Intl.RelativeTimeFormat([], {numeric: 'auto'});
 const relativeSteps: [Intl.RelativeTimeFormatUnit, number][] = [['day', msPerDay], ['hour', msPerHour], ['minute', msPerMinute]];
 
-export const formatRelativeTime = (timestamp: string | number | null, now = Date.now()): string => {
+export const formatRelativeTime = (timestamp: Nullable<string | number>, now = Date.now()): string => {
   if (timestamp === null) {
     return '—';
   }
@@ -112,12 +113,12 @@ const tooltipTimeFormat = new Intl.DateTimeFormat([], {weekday: 'short', hour: '
 export const formatTooltipTime = (epochMs: number): string => tooltipTimeFormat.format(epochMs);
 
 export interface ISeriesStats {
-  min: number | null;
-  max: number | null;
-  avg: number | null;
+  min: Nullable<number>;
+  max: Nullable<number>;
+  avg: Nullable<number>;
 }
 
-export const getValueStats = (values: (number | null)[]): ISeriesStats => {
+export const getValueStats = (values: Nullable<number>[]): ISeriesStats => {
   const present = values.filter((v): v is number => v !== null);
   if (!present.length) {
     return {min: null, max: null, avg: null};
@@ -151,8 +152,8 @@ const averagePrecision = 10; // round to 0.1
 
 export interface IDisplayGrid {
   xs: number[]; // epoch ms, shared by every column
-  columns: Map<string, (number | null)[]>; // series key -> value at each x (null = offline / no reading yet)
-  average: (number | null)[]; // mean of every column at each x
+  columns: Map<string, Nullable<number>[]>; // series key -> value at each x (null = offline / no reading yet)
+  average: Nullable<number>[]; // mean of every column at each x
   averageCount: number; // how many series contributed to the average at any point
 }
 

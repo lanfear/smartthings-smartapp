@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import type {Nullable} from '../types/interfaces';
 
 interface ISparklineProps {
   xs: number[]; // shared time axis (epoch ms) - the group's display grid
-  values: (number | null)[]; // held value at each x, null while offline / before the first reading
+  values: Nullable<number>[]; // held value at each x, null while offline / before the first reading
   since: number; // x range shared by every card in the group, so trends line up in time
   until: number;
   color: string;

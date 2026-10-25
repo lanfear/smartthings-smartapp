@@ -3,19 +3,20 @@ import styled from 'styled-components';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import {chartInk, formatTooltipTime, formatUnit, formatValue} from '../factories/measurementFactory';
+import type {Nullable} from '../types/interfaces';
 import type {IMeasurementType} from '../types/sharedContracts';
 
 export interface IChartSeries {
   key: string;
   label: string;
   color: string;
-  values: (number | null)[]; // one per x - null breaks the line (device offline, or no reading yet)
+  values: Nullable<number>[]; // one per x - null breaks the line (device offline, or no reading yet)
   dash?: readonly number[]; // dashed line, e.g. the group average reference line
 }
 
 interface IMeasurementChartProps {
   measurement: IMeasurementType;
-  unit: string | null;
+  unit: Nullable<string>;
   xs: number[]; // shared time axis, epoch ms
   series: IChartSeries[];
   ariaLabel: string;
@@ -99,7 +100,7 @@ const TooltipLabel = styled.span`
 `;
 
 // ticks land on round numbers - only show a decimal when some tick needs one, and then on every tick so they line up
-const formatTicks = (splits: number[], unit: string | null): string[] => {
+const formatTicks = (splits: number[], unit: Nullable<string>): string[] => {
   const digits = splits.every(v => Number.isInteger(v)) ? 0 : 1;
   return splits.map(v => `${v.toFixed(digits)}${formatUnit(unit)}`);
 };
@@ -108,9 +109,9 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
   const containerRef = useRef<HTMLDivElement>(null);
   // uPlot gets its own host element so it never shares a parent with React-managed children (the tooltip)
   const plotHostRef = useRef<HTMLDivElement>(null);
-  const plotRef = useRef<uPlot | null>(null);
+  const plotRef = useRef<Nullable<uPlot>>(null);
   const [width, setWidth] = useState(0);
-  const [hover, setHover] = useState<IHoverState | null>(null);
+  const [hover, setHover] = useState<Nullable<IHoverState>>(null);
 
   // uPlot's time scale is in seconds
   const data = useMemo((): uPlot.AlignedData => [xs.map(x => x / 1000), ...series.map(s => s.values)], [xs, series]);
