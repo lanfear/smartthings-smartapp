@@ -21,8 +21,7 @@ import {
   GlassPanel
 } from '../factories/styleFactory';
 import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-import type {Nullable} from '../types/interfaces';
-import type {IApp, IRule} from '../types/sharedContracts';
+import type {IApp, IRule, Nullable} from '../types/sharedContracts';
 
 const DashboardRuleTitle = styled(DashboardCardTitle)<{matchesInstalledApp: boolean}>`
   color: ${props => props.matchesInstalledApp ? '#7CE624' : '#E66B24'};

@@ -1,5 +1,4 @@
-import type {Nullable} from '../types/interfaces';
-import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType, Nullable} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
 export interface IPointSeries {

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import type {Nullable} from '../types/interfaces';
+import type {Nullable} from '../types/sharedContracts';
 
 interface ISparklineProps {
   xs: number[]; // shared time axis (epoch ms) - the group's display grid

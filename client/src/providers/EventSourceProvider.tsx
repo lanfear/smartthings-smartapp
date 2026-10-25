@@ -1,5 +1,5 @@
 import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, type PropsWithChildren} from 'react';
-import type {Nullable} from '../types/interfaces';
+import type {Nullable} from '../types/sharedContracts';
 
 // minimal replacement for the unmaintained `react-sse-hooks` package: one shared EventSource per url,
 // created on first use and closed when the provider unmounts

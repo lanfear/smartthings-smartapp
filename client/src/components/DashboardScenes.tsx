@@ -19,8 +19,7 @@ import {
 import executeScene from '../operations/executeScene';
 import setSceneRooms from '../operations/setSceneRooms';
 import {getSceneRoomIds, revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-import type {Nullable} from '../types/interfaces';
-import type {IRoom} from '../types/sharedContracts';
+import type {IRoom, Nullable} from '../types/sharedContracts';
 
 const RoomChipRow = styled.div`
   display: flex;

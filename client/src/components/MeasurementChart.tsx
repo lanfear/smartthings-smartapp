@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import {chartInk, formatTooltipTime, formatUnit, formatValue} from '../factories/measurementFactory';
-import type {Nullable} from '../types/interfaces';
-import type {IMeasurementType} from '../types/sharedContracts';
+import type {IMeasurementType, Nullable} from '../types/sharedContracts';
 
 export interface IChartSeries {
   key: string;

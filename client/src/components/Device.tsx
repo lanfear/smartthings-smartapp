@@ -3,8 +3,8 @@ import {useDrag} from 'react-dnd';
 import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlIcon, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import type {IActiveControl, Nullable} from '../types/interfaces';
-import type {IDevice} from '../types/sharedContracts';
+import type {IActiveControl} from '../types/interfaces';
+import type {IDevice, Nullable} from '../types/sharedContracts';
 
 const Device: React.FC<IDeviceProps> = ({device, deviceType, setActiveDevice, isLocked, isLinkedActive, isLockedActive}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Device, device.deviceId, device.label!)));

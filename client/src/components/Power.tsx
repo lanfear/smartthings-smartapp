@@ -4,7 +4,8 @@ import {useDrag} from 'react-dnd';
 import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
-import type {IActiveControl, Nullable} from '../types/interfaces';
+import type {IActiveControl} from '../types/interfaces';
+import type {Nullable} from '../types/sharedContracts';
 
 const Power: React.FC<IPowerProps> = ({room, isPowerOn, setActiveDevice}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.Power, room.roomId!, room.name!)));

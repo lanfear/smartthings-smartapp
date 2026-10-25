@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import getLocations from '../operations/getLocations';
-import type {Nullable} from '../types/interfaces';
+import type {Nullable} from '../types/sharedContracts';
 
 export interface ILocationContextStore {
   locationId: Nullable<string>;

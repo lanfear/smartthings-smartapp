@@ -32,8 +32,7 @@ import {
   DashboardChipToggle,
   GlassPanel
 } from '../factories/styleFactory';
-import type {Nullable} from '../types/interfaces';
-import type {IMeasurementReading, IResponseMeasurementHistory} from '../types/sharedContracts';
+import type {IMeasurementReading, IResponseMeasurementHistory, Nullable} from '../types/sharedContracts';
 import MeasurementChart, {LineKey, type IChartSeries} from './MeasurementChart';
 import Sparkline from './Sparkline';
 
