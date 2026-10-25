@@ -154,6 +154,11 @@
       "average": {
         "label": "Average of {{count}} sensors"
       }
+    },
+    "locationRequired": {
+      "title": "Choose a location",
+      "body": "This page shows one SmartThings location at a time. Pick it below, or from the Locations menu at the top left.",
+      "loading": "Loading location..."
     }
   }
 }

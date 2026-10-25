@@ -23,6 +23,7 @@ import {
 } from '../factories/styleFactory';
 import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 import type {IApp, IRule, IRuleHealth, IRuleHealthStatus, Nullable} from '../types/sharedContracts';
+import LocationRequiredHint from './LocationRequiredHint';
 
 type RuleFilter = 'all' | 'attention' | 'ok' | 'external';
 
@@ -157,7 +158,7 @@ const DashboardRules: React.FC = () => {
   const [filter, setFilter] = React.useState<RuleFilter>('all');
 
   if (!deviceData.locationId) {
-    return null;
+    return <LocationRequiredHint sectionName={t('dashboard.rule.sectionName')} />;
   }
 
   const findAppMatchingRule = (ruleName: string): IApp | undefined => deviceData.apps.find(a => !!ruleName.match(new RegExp(`.*${a.installedAppId}.*`, 'i')));

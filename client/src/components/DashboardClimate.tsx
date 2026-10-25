@@ -14,6 +14,7 @@ import {DashboardChipToggle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 import {useMeasurementHistoryStore, useMeasurementStore} from '../store/MeasurementContextStore';
 import type {IMeasurementType, IResponseMeasurementHistory} from '../types/sharedContracts';
+import LocationRequiredHint from './LocationRequiredHint';
 import MeasurementGroupSection from './MeasurementGroupSection';
 
 const rangeStorageKey = 'climate-range';
@@ -67,7 +68,7 @@ const DashboardClimate: React.FC = () => {
   const roomNames = useMemo(() => new Map(deviceData.rooms.map(r => [r.roomId, r.name])), [deviceData.rooms]);
 
   if (!deviceData.locationId) {
-    return null;
+    return <LocationRequiredHint sectionName={t('dashboard.climate.sectionName')} />;
   }
 
   return (

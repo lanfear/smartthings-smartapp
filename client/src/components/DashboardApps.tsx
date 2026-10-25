@@ -12,6 +12,7 @@ import {
   DashboardCardFieldValue
 } from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
+import LocationRequiredHint from './LocationRequiredHint';
 
 const DashboardApps: React.FC = () => {
   const {t} = useTranslation();
@@ -19,7 +20,7 @@ const DashboardApps: React.FC = () => {
   const deviceData = useDeviceData();
 
   if (!deviceData.locationId) {
-    return null;
+    return <LocationRequiredHint sectionName={t('dashboard.installedApp.sectionName')} />;
   }
 
   return (
