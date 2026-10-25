@@ -1,5 +1,6 @@
 import {createClient} from 'redis';
-import type {Nullable, RuleStoreInfo} from 'types';
+import type {RuleStoreInfo} from 'types';
+import type {Nullable} from 'types/sharedContracts';
 import settings from './settings';
 
 const ruleInfoPrefix = 'st-ruleinfo-';

@@ -129,6 +129,13 @@ const NavMenu: React.FC = () => {
       >
         Apps
       </Link>
+      <Link
+        key="location-climate"
+        className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/climate') ? 'selected' : ''}`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/climate`}
+      >
+        Climate
+      </Link>
       <DropdownButton
         buttonText="Debug"
         isSelected={debugSelected}

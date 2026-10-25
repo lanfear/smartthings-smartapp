@@ -9,7 +9,7 @@ import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransiti
 import {useEventSource, useEventSourceListener} from '../providers/EventSourceProvider';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
-import type {DeviceContext, IApp, IDevice, ISseEvent} from '../types/sharedContracts';
+import type {DeviceContext, IApp, IDevice, ISseEvent, Nullable} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import Rule from './Rule';
@@ -165,7 +165,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
   const localStorageKey = `smartAppRoom-${roomId}-activeDevice`;
   const room = useDeviceData(d => d.rooms.find(r => r.roomId === roomId))!;
   const deviceData = useDeviceData();
-  const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as IActiveControl | null);
+  const [activeDevice, setActiveDevice] = useLocalStorage(localStorageKey, null as Nullable<IActiveControl>);
   const domRef = useRef<HTMLDivElement>(null);
 
   const roomSwitches = deviceData.switches.filter(d => d.roomId === room.roomId);

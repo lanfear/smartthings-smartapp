@@ -1,5 +1,5 @@
 import type {RuleRequest, RuleAction} from '@smartthings/core-sdk';
-import type {Nullable} from 'types';
+import type {Nullable} from 'types/sharedContracts';
 
 const createCombinedRuleFromConfig = (
   appKey: string,

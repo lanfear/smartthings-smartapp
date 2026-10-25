@@ -9,6 +9,7 @@ import {SWRConfig} from 'swr';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import BasicTemplates from './components/BasicTemplates';
 import DashboardApps from './components/DashboardApps';
+import DashboardClimate from './components/DashboardClimate';
 import DashboardRooms from './components/DashboardRooms';
 import DashboardRules from './components/DashboardRules';
 import DashboardScenes from './components/DashboardScenes';
@@ -34,7 +35,12 @@ const App: React.FC = () => {
         <SWRConfig
           value={{
             onSuccess: (d, k) => {
-              localStorage.setItem(k, JSON.stringify(d));
+              try {
+                localStorage.setItem(k, JSON.stringify(d));
+              } catch {
+                // quota exceeded (e.g. long measurement history ranges) - this cache is only for faster first paint, so skip it
+                localStorage.removeItem(k);
+              }
             },
             onError: (_, k) => {
               localStorage.removeItem(k);
@@ -83,6 +89,10 @@ const App: React.FC = () => {
               <Route
                 path={`${global.routing.dashboardSegment}/:locationId/apps`}
                 element={(<DashboardApps />)}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/climate`}
+                element={(<DashboardClimate />)}
               />
             </Routes>
           </section>

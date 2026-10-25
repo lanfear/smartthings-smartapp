@@ -41,7 +41,8 @@ export default {
         app: 'E68C24',
         scene: '24AAE6',
         locked: 'E65E24',
-        floor: 'F35506'
+        floor: 'F35506',
+        climate: '2A78D6'
       }
     }
   },

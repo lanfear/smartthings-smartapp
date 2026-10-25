@@ -4,7 +4,7 @@ import global, {showControlCaptions} from '../constants/global';
 import {createDragConfig, IDragAndDropType} from '../factories/dragAndDropFactory';
 import {ControlContainer, ControlLogo, ControlStatus} from '../factories/styleFactory';
 import type {IActiveControl} from '../types/interfaces';
-import type {IApp} from '../types/sharedContracts';
+import type {IApp, Nullable} from '../types/sharedContracts';
 
 const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice}) => {
   const [collected, drag] = useDrag(() => (createDragConfig(IDragAndDropType.App, app.installedAppId, app.displayName!)));
@@ -36,7 +36,7 @@ const SmartApp: React.FC<ISmartAppProps> = ({app, isRuleEnabled, setActiveDevice
 export interface ISmartAppProps {
   app: IApp;
   isRuleEnabled: boolean;
-  setActiveDevice: (value: IActiveControl | null) => void;
+  setActiveDevice: (value: Nullable<IActiveControl>) => void;
 }
 
 export default SmartApp;

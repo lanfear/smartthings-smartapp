@@ -10,10 +10,14 @@ import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import cors from 'cors';
 import express, {type Request} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import type {IResponseApps, IResponseLocation, IRule, IRuleComponentType} from 'types/sharedContracts';
+import type {IResponseApps, IResponseLocation, IResponseMeasurements, IRule, IRuleComponentType} from 'types/sharedContracts';
+import {isMeasurementType} from './constants/measurements';
 import ReturnResultError from './exceptions/returnResultError';
 import {localOnlyMiddleware} from './middlewares';
+import listMeasurementHistoryOperation from './operations/listMeasurementHistoryOperation';
+import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
+import {startMeasurementRecording} from './operations/recordMeasurementsOperation';
 import {reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
 import ruleStore from './provider/ruleStore';
 import sceneRoomStore from './provider/sceneRoomStore';
@@ -95,6 +99,39 @@ server.get('/location/:id', async (req, res) => {
   res.json(response);
 });
 
+/* Current readings of a measurement (temperature | humidity) from every device in the location that reports it */
+server.get('/location/:id/measurements/:measurement', async (req, res) => {
+  const {id, measurement} = req.params;
+  if (!isMeasurementType(measurement)) {
+    res.status(StatusCodes.BAD_REQUEST).send(`Unknown measurement [${measurement}]`);
+    return;
+  }
+  const response: IResponseMeasurements = {
+    locationId: id,
+    measurement: measurement,
+    readings: await listMeasurementReadingsFromApiOperation(id, measurement)
+  };
+  res.json(response);
+});
+
+/**
+ * Recorded history of a measurement, one series per device component (see operations/recordMeasurementsOperation.ts)
+ * query: hours (default 24, max MEASUREMENT_RETENTION_DAYS), deviceIds (optional comma-separated list to restrict to),
+ *        bucketMinutes (optional, average points into buckets of this size - keeps long ranges small)
+ */
+server.get('/location/:id/measurements/:measurement/history', async (req, res) => {
+  const {id, measurement} = req.params;
+  if (!isMeasurementType(measurement)) {
+    res.status(StatusCodes.BAD_REQUEST).send(`Unknown measurement [${measurement}]`);
+    return;
+  }
+  res.json(await listMeasurementHistoryOperation(id, measurement, {
+    hours: Number(req.query.hours),
+    deviceIds: typeof req.query.deviceIds === 'string' ? req.query.deviceIds.split(',').filter(Boolean) : [],
+    bucketMinutes: Number(req.query.bucketMinutes)
+  }));
+});
+
 /* Execute a scene */
 server.post('/location/:id/scenes/:sceneId', async (req, res) => {
   const result = await getSmartThingsClient().scenes.execute(req.params.sceneId);
@@ -165,6 +202,7 @@ server.get('/events', sse.init);
 server.listen(settings.hostPort, settings.hostName, () => {
   // eslint-disable-next-line no-console
   console.log(`Server is up and running at http://${settings.hostName}:${settings.hostPort}`);
+  startMeasurementRecording();
 });
 
 export type DeviceState = Device & {value: string};
