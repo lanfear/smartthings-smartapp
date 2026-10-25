@@ -1,4 +1,4 @@
-import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType, Nullable} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, Nullable} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
 export interface IPointSeries {
@@ -54,6 +54,7 @@ export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity';
 
 export interface IMeasurementGroup {
   id: IMeasurementGroupId;
+  anchor: string; // the section's element id, so /dashboard/:locationId/climate#<anchor> jumps to it (see the nav menu)
   measurement: IMeasurementType;
   includes: (seriesLabel: string) => boolean;
 }
@@ -64,10 +65,10 @@ const isFridge = (label: string): boolean => !isFreezer(label) && /fridge|refrig
 
 // display order of the climate page's charts
 export const measurementGroups: IMeasurementGroup[] = [
-  {id: 'fridge', measurement: 'temperature', includes: isFridge},
-  {id: 'freezer', measurement: 'temperature', includes: isFreezer},
-  {id: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
-  {id: 'humidity', measurement: 'humidity', includes: () => true}
+  {id: 'fridge', anchor: 'fridges', measurement: 'temperature', includes: isFridge},
+  {id: 'freezer', anchor: 'freezers', measurement: 'temperature', includes: isFreezer},
+  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
+  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true}
 ];
 
 export const getSeriesKey = (s: {deviceId: string; componentId: string}): string => `${s.deviceId}/${s.componentId}`;
@@ -131,6 +132,27 @@ export const getValueStats = (values: Nullable<number>[]): ISeriesStats => {
 
 // stats from a sensor's real readings in the window (not the held/display values)
 export const getSeriesStats = (series: IPointSeries | undefined): ISeriesStats => getValueStats(series?.points.map(p => p.value) ?? []);
+
+// default chart selection: this many highest + this many lowest current readings, then this many random others
+const defaultOutlierCount = 2;
+const defaultRandomCount = 2;
+
+/**
+ * Series keys to chart by default: the highest and lowest current readings (the outliers worth seeing first, especially
+ * when a group has more sensors than fit), plus a couple of random others. Sensors that are offline or have no reading
+ * are left out - an offline sensor can hold a months-old value that would look like an outlier.
+ */
+export const pickDefaultComparedKeys = (readings: IMeasurementReading[], random: () => number = Math.random): string[] => {
+  const candidates = readings
+    .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  const picked = new Set([...candidates.slice(0, defaultOutlierCount), ...candidates.slice(-defaultOutlierCount)]);
+  const others = candidates.filter(r => !picked.has(r));
+  for (let i = 0; i < defaultRandomCount && others.length; i++) {
+    picked.add(others.splice(Math.floor(random() * others.length), 1)[0]);
+  }
+  return [...picked].slice(0, maxComparedSeries).map(getSeriesKey);
+};
 
 /**
  * Adds a series to the comparison in the lowest free color slot, or removes it if it's already there. A series keeps

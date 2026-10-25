@@ -29,7 +29,7 @@ const init = (): Promise<TFunction> => i18n
       backendOptions: [
         {
           versions: {
-            'en-US': '0.0.7'
+            'en-US': '0.0.9'
           }
         },
         {

@@ -13,6 +13,7 @@ import {
   getSeriesStats,
   getValueStats,
   maxComparedSeries,
+  pickDefaultComparedKeys,
   seriesPalette,
   statusColor,
   toggleSeriesSlot,
@@ -45,12 +46,16 @@ interface IMeasurementGroupSectionProps {
   range: IHistoryRange;
   roomNames: Map<string | undefined, string | undefined>;
   dimmed: boolean; // an older range is still on screen while the new one loads
+  readingsSettled: boolean; // false while fresh readings are still loading (cached ones may be showing)
 }
 
 const dimmedOpacity = 0.55;
-const slotStorageKey = (group: IMeasurementGroup): string => `climate-compare-${group.id}`;
+// v2: selections saved before the outlier-first defaults are ignored once, so everyone starts from the new defaults
+const slotStorageKey = (group: IMeasurementGroup): string => `climate-compare-v2-${group.id}`;
 
 const Section = styled.section`
+  /* a little room above the header when jumped to via #anchor */
+  scroll-margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: ${global.measurements.dashboardGridGap};
@@ -73,11 +78,32 @@ const PanelHeader = styled.div`
   gap: 0.25rem 0.75rem;
 `;
 
-const PanelTitle = styled.h3`
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: ${chartInk.primary};
+// section header between the charts - same divider-line look as the page title (DashboardTitle), one step smaller
+const SectionHeader = styled.h2`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+
+  &::before {
+    content: '';
+    flex: 1;
+    max-width: 60px;
+    height: 1px;
+    background: linear-gradient(to left, currentColor, transparent);
+    opacity: 0.3;
+  }
+
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, currentColor, transparent);
+    opacity: 0.3;
+  }
 `;
 
 const MutedText = styled.span`
@@ -226,13 +252,10 @@ const getStatus = (healthState: Nullable<string>): {icon: string; color: string;
   return {icon: '?', color: statusColor.unknown, labelKey: 'dashboard.climate.status.unknown'};
 };
 
-// until the viewer picks, chart every reporting sensor (up to the cap) - offline ones have no recent history to draw
-const getDefaultSlots = (readings: IMeasurementReading[]): SlotMap => Object.fromEntries(readings
-  .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
-  .slice(0, maxComparedSeries)
-  .map((r, i) => [getSeriesKey(r), i]));
+// until the viewer picks, chart the current outliers plus a couple of random others (see pickDefaultComparedKeys)
+const getDefaultSlots = (readings: IMeasurementReading[]): SlotMap => Object.fromEntries(pickDefaultComparedKeys(readings).map((key, i) => [key, i]));
 
-const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, range, roomNames, dimmed}) => {
+const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, range, roomNames, dimmed, readingsSettled}) => {
   const {t} = useTranslation();
   const {measurement} = group;
   const [storedSlots, setStoredSlots] = useState(() => readStorage<SlotMap>(slotStorageKey(group)));
@@ -240,7 +263,15 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
 
   const readingKeys = useMemo(() => readings.map(getSeriesKey), [readings]);
   const historyByKey = useMemo(() => new Map((history?.series ?? []).map(s => [getSeriesKey(s), s])), [history]);
-  const slots = useMemo(() => storedSlots ?? getDefaultSlots(readings), [storedSlots, readings]);
+  // the default is picked once per page load, from fresh readings: until they arrive it follows whatever is showing
+  // (cached readings), then it's locked so the lines don't reshuffle on every one-minute refresh. not saved - the next
+  // visit picks the outliers of that moment. once the viewer changes the selection, theirs is saved and used instead
+  const liveDefaultSlots = useMemo(() => getDefaultSlots(readings), [readings]);
+  const [lockedDefaultSlots, setLockedDefaultSlots] = useState<Nullable<SlotMap>>(null);
+  if (lockedDefaultSlots === null && readingsSettled && readings.length > 0) {
+    setLockedDefaultSlots(liveDefaultSlots);
+  }
+  const slots = storedSlots ?? lockedDefaultSlots ?? liveDefaultSlots;
   const comparedReadings = useMemo(() => readings.filter(r => getSeriesKey(r) in slots), [readings, slots]);
 
   const toggleCompared = useCallback((key: string) => {
@@ -288,12 +319,15 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
   const groupName = t(`dashboard.climate.group.${group.id}`);
 
   return (
-    <Section aria-label={groupName}>
+    <Section
+      id={group.anchor}
+      aria-label={groupName}
+    >
+      <SectionHeader>
+        {groupName}
+      </SectionHeader>
       <ChartPanel dimmed={dimmed}>
         <PanelHeader>
-          <PanelTitle>
-            {groupName}
-          </PanelTitle>
           <MutedText>
             {t('dashboard.climate.compare.count', {count: comparedReadings.length, total: readings.length})}
           </MutedText>

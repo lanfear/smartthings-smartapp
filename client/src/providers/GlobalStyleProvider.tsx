@@ -183,6 +183,8 @@ export const GlobalStyles = createGlobalStyle`
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
       transition: .5s;
+      /* decorative sweep - it's positioned above the nav links while it animates, so let clicks pass through to them */
+      pointer-events: none;
     }
 
     &:hover::before {

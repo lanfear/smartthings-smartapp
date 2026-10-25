@@ -7,6 +7,7 @@ import {DashboardSubTitle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 import {useLocationContextStore} from '../store/LocationContextStore';
 import DeviceControls from './DeviceControls';
+import LocationRequiredHint from './LocationRequiredHint';
 import Room from './Room';
 
 const DashboardRoomSplit = styled.div`
@@ -47,7 +48,7 @@ const DashboardRooms: React.FC = () => {
   const locationName = useLocationContextStore(s => s.locationName);
 
   if (!deviceData.locationId) {
-    return null;
+    return <LocationRequiredHint sectionName={t('dashboard.room.sectionName')} />;
   }
 
   return (

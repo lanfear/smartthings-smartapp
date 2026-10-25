@@ -20,6 +20,7 @@ import executeScene from '../operations/executeScene';
 import setSceneRooms from '../operations/setSceneRooms';
 import {getSceneRoomIds, revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
 import type {IRoom, Nullable} from '../types/sharedContracts';
+import LocationRequiredHint from './LocationRequiredHint';
 
 const RoomChipRow = styled.div`
   display: flex;
@@ -40,7 +41,7 @@ const DashboardScenes: React.FC = () => {
   const [executingSceneId, setExecutingSceneId] = useState<Nullable<string>>(null);
 
   if (!deviceData.locationId) {
-    return null;
+    return <LocationRequiredHint sectionName={t('dashboard.scene.sectionName')} />;
   }
 
   const handleExecuteScene = async (sceneId: string): Promise<void> => {

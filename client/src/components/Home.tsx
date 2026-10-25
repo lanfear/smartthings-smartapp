@@ -1,110 +1,111 @@
 import React from 'react';
+import {useTranslation} from 'react-i18next';
+import {Link} from 'react-router-dom';
+import styled from 'styled-components';
+import global from '../constants/global';
+import {DashboardTitle, GlassPanel} from '../factories/styleFactory';
+import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
+import LocationRequiredHint from './LocationRequiredHint';
 
-const Home: React.FC = () => (
-  <div>
-    <div className="text">
-      <p>
-        {' '}
-        Rules are lightweight automations that run on the
-        <em>
-          SmartThings
-          Cloud
-        </em>
-        .
-        <br />
-        <br />
+// the location tabs, in nav order - [route segment, title translation key]
+const locationTabs: [string, string][] = [
+  ['rooms', 'dashboard.room.sectionName'],
+  ['scenes', 'dashboard.scene.sectionName'],
+  ['rules', 'dashboard.rule.sectionName'],
+  ['apps', 'dashboard.installedApp.sectionName'],
+  ['climate', 'dashboard.climate.sectionName']
+];
 
-        A rule is defined in JSON format and contains a name, install source, and a list of actions.
-        A single rule can be used to contain multiple actions within it. These actions represent a
-        tree that is evaluated when the rule is triggered. This
-        {' '}
-        <strong>
-          <em>
-            Rule Helper
-            {' '}
-          </em>
-        </strong>
-        is a lightweight, local React application to demonstrate the structure and syntax of Rules so
-        that you can begin creating your own.
+const OverviewPanel = styled(GlassPanel)`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  max-width: 40rem;
+`;
 
-        <br />
-        <br />
-        This tool is targeted at developers and is designed to be a jumping off point to start creating your own rule builder app or
-        create a tool that will allow the installation of a rule into an endusers account. By adding addtional SmartThings APIs, one could
-        easily extend this app to allow the selection of devices for templated rules and beyond.
-        <br />
-        <br />
-        <strong>
-          Benefits of Rules:
-        </strong>
-        <li>
-          Based on the JSON format, which is easy to understand and dynamically create.
-        </li>
-        <li>
-          Control flow statements and context managers are very intuitive.
-        </li>
-        <li>
-          Rules can be as complex as your creativity will allow.
-        </li>
-        <br />
-        <strong>
-          About the Rule Helper:
-        </strong>
-        <br />
-        This demonstration is divided in 3 components.
+const OverviewTitle = styled.h3`
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+`;
 
-        <li>
-          <strong>
-            <em>
-              Rule Examples
-            </em>
-          </strong>
-          {' '}
-          - Templates of the most popular legacy Groovy SmartApps
-          converted to the new Rules JSON format.
-        </li>
-        <li>
-          <strong>
-            <em>
-              Basic Templates
-            </em>
-          </strong>
-          {' '}
-          - Sample for different Actions using the various
-          Conditions, Operations, and Operands you can use in a Rule.
-        </li>
-        <li>
-          <strong>
-            <em>
-              Advanced Templates
-            </em>
-          </strong>
-          {' '}
-          - Combines elements presented by
-          {' '}
-          <em>
-            Basic
-            Templates
-          </em>
-          {' '}
-          to demonstrate the flexibility of nested Conditions and concatenated Actions.
-        </li>
-        <br />
-        <em>
-          <strong>
-            Note
-          </strong>
-          : For further information about installing and managing Rules,
-          visit the
-          {' '}
-          <a href="https://smartthings.developer.samsung.com/docs/api-ref/st-api.html#operation/createRule">
-            Rules API.
-          </a>
-        </em>
-      </p>
-      <br />
-    </div>
-  </div>
-);
+const OverviewText = styled.p`
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+`;
+
+const TabLinks = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`;
+
+// light-surface pill link - same look as the location buttons in LocationRequiredHint
+const TabLink = styled(Link)`
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0b0b0b;
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #c3c2b7;
+  border-radius: 999px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    background: #f5f5f3;
+    border-color: #${global.palette.control.rgb.scene};
+  }
+`;
+
+/**
+ * Landing page. With no location selected it's the choose-a-location hint (choosing one stays here); with one selected
+ * it's a placeholder overview linking to that location's tabs - the spot for a future location summary.
+ * (The Rules API background that used to live here is now Debug > Info, see DebugInfo.tsx.)
+ */
+const Home: React.FC = () => {
+  const {t} = useTranslation();
+  const locationId = useLocationContextStore(s => s.locationId);
+  const locationName = useLocationContextStore(s => s.locationName);
+
+  if (!locationId) {
+    return (
+      <LocationRequiredHint
+        sectionName={t('home.sectionName')}
+        onChooseLocation={(id, name) => {
+          setLocation(id, name);
+        }}
+      />
+    );
+  }
+
+  return (
+    <>
+      <DashboardTitle>
+        {t('home.sectionName')}
+      </DashboardTitle>
+      <OverviewPanel>
+        <OverviewTitle>
+          {locationName ?? locationId}
+        </OverviewTitle>
+        <OverviewText>
+          {t('home.placeholder')}
+        </OverviewText>
+        <TabLinks>
+          {locationTabs.map(([segment, titleKey]) => (
+            <TabLink
+              key={segment}
+              to={`/${global.routing.dashboardSegment}/${locationId}/${segment}`}
+            >
+              {t(titleKey)}
+            </TabLink>
+          ))}
+        </TabLinks>
+      </OverviewPanel>
+    </>
+  );
+};
 
 export default Home;
