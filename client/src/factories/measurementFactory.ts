@@ -1,4 +1,4 @@
-import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementType, Nullable} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, Nullable} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
 export interface IPointSeries {
@@ -131,6 +131,27 @@ export const getValueStats = (values: Nullable<number>[]): ISeriesStats => {
 
 // stats from a sensor's real readings in the window (not the held/display values)
 export const getSeriesStats = (series: IPointSeries | undefined): ISeriesStats => getValueStats(series?.points.map(p => p.value) ?? []);
+
+// default chart selection: this many highest + this many lowest current readings, then this many random others
+const defaultOutlierCount = 2;
+const defaultRandomCount = 2;
+
+/**
+ * Series keys to chart by default: the highest and lowest current readings (the outliers worth seeing first, especially
+ * when a group has more sensors than fit), plus a couple of random others. Sensors that are offline or have no reading
+ * are left out - an offline sensor can hold a months-old value that would look like an outlier.
+ */
+export const pickDefaultComparedKeys = (readings: IMeasurementReading[], random: () => number = Math.random): string[] => {
+  const candidates = readings
+    .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  const picked = new Set([...candidates.slice(0, defaultOutlierCount), ...candidates.slice(-defaultOutlierCount)]);
+  const others = candidates.filter(r => !picked.has(r));
+  for (let i = 0; i < defaultRandomCount && others.length; i++) {
+    picked.add(others.splice(Math.floor(random() * others.length), 1)[0]);
+  }
+  return [...picked].slice(0, maxComparedSeries).map(getSeriesKey);
+};
 
 /**
  * Adds a series to the comparison in the lowest free color slot, or removes it if it's already there. A series keeps

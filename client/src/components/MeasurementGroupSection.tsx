@@ -13,6 +13,7 @@ import {
   getSeriesStats,
   getValueStats,
   maxComparedSeries,
+  pickDefaultComparedKeys,
   seriesPalette,
   statusColor,
   toggleSeriesSlot,
@@ -45,10 +46,12 @@ interface IMeasurementGroupSectionProps {
   range: IHistoryRange;
   roomNames: Map<string | undefined, string | undefined>;
   dimmed: boolean; // an older range is still on screen while the new one loads
+  readingsSettled: boolean; // false while fresh readings are still loading (cached ones may be showing)
 }
 
 const dimmedOpacity = 0.55;
-const slotStorageKey = (group: IMeasurementGroup): string => `climate-compare-${group.id}`;
+// v2: selections saved before the outlier-first defaults are ignored once, so everyone starts from the new defaults
+const slotStorageKey = (group: IMeasurementGroup): string => `climate-compare-v2-${group.id}`;
 
 const Section = styled.section`
   display: flex;
@@ -226,13 +229,10 @@ const getStatus = (healthState: Nullable<string>): {icon: string; color: string;
   return {icon: '?', color: statusColor.unknown, labelKey: 'dashboard.climate.status.unknown'};
 };
 
-// until the viewer picks, chart every reporting sensor (up to the cap) - offline ones have no recent history to draw
-const getDefaultSlots = (readings: IMeasurementReading[]): SlotMap => Object.fromEntries(readings
-  .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
-  .slice(0, maxComparedSeries)
-  .map((r, i) => [getSeriesKey(r), i]));
+// until the viewer picks, chart the current outliers plus a couple of random others (see pickDefaultComparedKeys)
+const getDefaultSlots = (readings: IMeasurementReading[]): SlotMap => Object.fromEntries(pickDefaultComparedKeys(readings).map((key, i) => [key, i]));
 
-const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, range, roomNames, dimmed}) => {
+const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, range, roomNames, dimmed, readingsSettled}) => {
   const {t} = useTranslation();
   const {measurement} = group;
   const [storedSlots, setStoredSlots] = useState(() => readStorage<SlotMap>(slotStorageKey(group)));
@@ -240,7 +240,15 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
 
   const readingKeys = useMemo(() => readings.map(getSeriesKey), [readings]);
   const historyByKey = useMemo(() => new Map((history?.series ?? []).map(s => [getSeriesKey(s), s])), [history]);
-  const slots = useMemo(() => storedSlots ?? getDefaultSlots(readings), [storedSlots, readings]);
+  // the default is picked once per page load, from fresh readings: until they arrive it follows whatever is showing
+  // (cached readings), then it's locked so the lines don't reshuffle on every one-minute refresh. not saved - the next
+  // visit picks the outliers of that moment. once the viewer changes the selection, theirs is saved and used instead
+  const liveDefaultSlots = useMemo(() => getDefaultSlots(readings), [readings]);
+  const [lockedDefaultSlots, setLockedDefaultSlots] = useState<Nullable<SlotMap>>(null);
+  if (lockedDefaultSlots === null && readingsSettled && readings.length > 0) {
+    setLockedDefaultSlots(liveDefaultSlots);
+  }
+  const slots = storedSlots ?? lockedDefaultSlots ?? liveDefaultSlots;
   const comparedReadings = useMemo(() => readings.filter(r => getSeriesKey(r) in slots), [readings, slots]);
 
   const toggleCompared = useCallback((key: string) => {

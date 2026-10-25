@@ -7,6 +7,8 @@ import {useLocationContextStore} from './LocationContextStore';
 export interface IMeasurementStore {
   measurementData: IResponseMeasurements;
   isLoading: boolean;
+  // true while a fetch is in flight - on page load the cached (possibly hours old) readings show until this settles
+  isValidating: boolean;
   reloadMeasurementData: () => Promise<void>;
 }
 
@@ -52,7 +54,7 @@ const getFallbackData = (locationId: string, measurement: IMeasurementType): IRe
 export const useMeasurementStore = (measurement: IMeasurementType): IMeasurementStore => {
   const locationId = useLocationContextStore(s => s.locationId);
 
-  const {data, isLoading, mutate} = useSWR(
+  const {data, isLoading, isValidating, mutate} = useSWR(
     locationId ? ['measurementData', locationId, measurement] : null,
     // swr 2 passes the whole key array as a single argument
     ([, l, m]: [string, string, IMeasurementType]) => getMeasurementDataFromServer(l, m),
@@ -67,6 +69,7 @@ export const useMeasurementStore = (measurement: IMeasurementType): IMeasurement
   return {
     measurementData: data,
     isLoading: isLoading,
+    isValidating: isValidating,
     reloadMeasurementData: async () => {
       await mutate();
     }

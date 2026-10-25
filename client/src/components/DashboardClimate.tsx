@@ -110,6 +110,7 @@ const DashboardClimate: React.FC = () => {
               range={range}
               roomNames={roomNames}
               dimmed={isShowingStaleRange(data.historyData, data.isValidating, range)}
+              readingsSettled={!(group.measurement === 'temperature' ? temperature : humidity).isValidating}
             />
           );
         })}
