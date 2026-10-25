@@ -55,7 +55,7 @@
       "sectionName": "Rules",
       "header": {
         "name": "Name",
-        "ruleId": "Device ID",
+        "ruleId": "Rule ID",
         "status": "Status",
         "ownerId": "Owner",
         "devices": "Devices",
@@ -65,6 +65,34 @@
         "show": "Show Rule",
         "delete": "Delete",
         "close": "Close"
+      },
+      "health": {
+        "status": {
+          "ok": "Linked",
+          "staleDuplicate": "Stale duplicate",
+          "orphaned": "Orphaned",
+          "untracked": "Untracked",
+          "external": "Not ours"
+        },
+        "reason": {
+          "staleDuplicate": "Not one of {{app}}'s current rules (it keeps {{kept}}) - likely left over from overlapping updates. Safe to delete.",
+          "orphaned": "Its app was uninstalled - nothing manages this rule anymore.",
+          "untracked": "{{app}} has no saved rule data, so this rule can't be checked.",
+          "external": "Not created by a rule SmartApp install."
+        },
+        "owner": {
+          "uninstalled": "(uninstalled app)",
+          "external": "(not a rule app)"
+        },
+        "filter": {
+          "label": "Filter rules",
+          "all": "All ({{count}})",
+          "attention": "Needs attention ({{count}})",
+          "ok": "Linked ({{count}})",
+          "external": "Not ours ({{count}})"
+        },
+        "missing_one": "{{app}}'s saved rule data still lists {{count}} rule that no longer exists in SmartThings ({{ids}}) - usually a rule deleted outside the app. Its live rules are shown below.",
+        "missing_other": "{{app}}'s saved rule data still lists {{count}} rules that no longer exist in SmartThings ({{ids}}) - usually rules deleted outside the app. Its live rules are shown below."
       }
     },
     "installedApp": {

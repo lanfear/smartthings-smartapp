@@ -1,5 +1,6 @@
 import type {ContextRecord, ContextStore} from '@smartthings/smartapp';
 import {createClient} from 'redis';
+import redisErrorListener from './redisErrorListener';
 import settings from './settings';
 
 // this is the full interface of context store, the type is incorrect
@@ -11,6 +12,7 @@ export interface ContextStoreExtended extends ContextStore {
 const redisContextStore = createClient({
   url: settings.redisServer
 });
+redisContextStore.on('error', redisErrorListener('smartAppContextStore'));
 
 export const listInstalledApps = async (): Promise<string[]> => {
   if (!redisContextStore.isOpen) {

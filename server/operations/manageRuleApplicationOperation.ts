@@ -1,6 +1,7 @@
 import {StatusCodes} from 'http-status-codes';
 import {diff} from 'json-diff-ts';
 import ReturnResultError from '../exceptions/returnResultError';
+import {generateRuleAppKey} from '../factories/ruleFactory';
 import ruleStore from '../provider/ruleStore';
 import getSmartThingsClient from '../provider/smartThingsClient';
 import {type RuleStoreInfo} from '../types';
@@ -12,7 +13,7 @@ const determineTempDisableValue = (matchingRuleComponent: string, targetRuleComp
   ((targetRuleComponent !== matchingRuleComponent && targetRuleComponent !== 'all') || !coreRuleIsEnabled) ? existingValue : newValue;
 
 const configureRule = async (locationId: string, installedAppId: string, ruleComponent: string, ruleDisabled: boolean): Promise<void> => {
-  const appKey = `app-${installedAppId}`;
+  const appKey = generateRuleAppKey(installedAppId);
 
   const ruleStoreInfo = await ruleStore.get(installedAppId);
   const ruleStoreInfoOrig = JSON.parse(JSON.stringify(ruleStoreInfo)) as RuleStoreInfo;

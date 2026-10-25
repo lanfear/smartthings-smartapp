@@ -2,6 +2,7 @@ import type {RuleRequest} from '@smartthings/core-sdk';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import type {IRuleSummary, Nullable} from 'types/sharedContracts';
+import {generateRuleAppKey} from '../factories/ruleFactory';
 import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import createCombinedRuleFromConfig from './createCombinedRuleFromConfigOperation';
 import createIdleRuleFromConfig from './createIdleRuleFromConfigOperation';
@@ -53,7 +54,7 @@ export const createCombinedRuleFromSummary = (ruleSummary: IRuleSummary): Nullab
     !ruleSummary.motionMultipleAll // you invert this setting for the idle case
   ) : null;
 
-  const appKey = `app-${ruleSummary.installedAppId}`;
+  const appKey = generateRuleAppKey(ruleSummary.installedAppId);
   return createCombinedRuleFromConfig(
     appKey,
     newDayRule,
@@ -70,7 +71,7 @@ export const createTransitionRuleFromSummary = (ruleSummary: IRuleSummary): Null
   // eslint-disable-next-line @typescript-eslint/no-magic-numbers
   const dayNightTime = dayjs(ruleSummary.dayNightTime).utc().diff(dayjs(ruleSummary.dayNightTime).utc().hour(12).minute(0).second(0).millisecond(0), 'minute');
 
-  const appKey = `app-${ruleSummary.installedAppId}`;
+  const appKey = generateRuleAppKey(ruleSummary.installedAppId);
   return (ruleSummary.enableTransitionRule && !ruleSummary.tempDisableTransitionRule) ? createTransitionRuleFromConfig(
     appKey,
     dayNightTime,

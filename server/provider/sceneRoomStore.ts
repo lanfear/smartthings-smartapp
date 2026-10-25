@@ -1,10 +1,12 @@
 import {createClient} from 'redis';
+import redisErrorListener from './redisErrorListener';
 import settings from './settings';
 
 const sceneRoomMapPrefix = 'st-sceneroommap-';
 const redisSceneRoomStore = createClient({
   url: settings.redisServer
 });
+redisSceneRoomStore.on('error', redisErrorListener('sceneRoomStore'));
 
 const get = async (locationId: string): Promise<Record<string, string[]>> => {
   if (!redisSceneRoomStore.isOpen) {

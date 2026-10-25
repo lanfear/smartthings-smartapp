@@ -1,5 +1,6 @@
 import {createClient} from 'redis';
 import type {IMeasurementHistoryPoint, IMeasurementType, Nullable} from 'types/sharedContracts';
+import redisErrorListener from './redisErrorListener';
 import settings from './settings';
 
 // one sorted set per device component + measurement: score = epoch ms, member = `${epoch}:${value}`.
@@ -24,6 +25,7 @@ export interface IHealthHistory {
 const redisMeasurementStore = createClient({
   url: settings.redisServer
 });
+redisMeasurementStore.on('error', redisErrorListener('measurementStore'));
 
 const getClient = async (): Promise<typeof redisMeasurementStore> => {
   if (!redisMeasurementStore.isOpen) {
