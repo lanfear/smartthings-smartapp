@@ -1,11 +1,19 @@
 /* eslint-disable id-denylist */
 import type {IntervalUnit, RuleAction, RuleCondition} from '@smartthings/core-sdk';
+import type {Nullable} from 'types/sharedContracts';
 import global from '../constants/global';
 
 // every SmartThings rule a rule SmartApp install creates carries this key in its name - it's how an install's rules are
 // found again (to replace them on config changes, or delete them on uninstall), since the rules are owned by the
 // API_TOKEN user rather than by the install
 export const generateRuleAppKey = (installedAppId: string): string => `app-${installedAppId}`;
+
+// the full rule names a rule SmartApp install creates: `${appKey}-rule` (combined day/night/idle) and
+// `${appKey}-transition-rule` (see create*RuleFromConfigOperation) - keep in sync if those names change
+const ruleAppNamePattern = /^app-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})-(?:transition-)?rule$/i;
+
+/** the installedAppId a rule belongs to, when its name follows our naming - null for rules we didn't create */
+export const parseRuleAppKey = (ruleName: string): Nullable<string> => ruleAppNamePattern.exec(ruleName)?.[1] ?? null;
 
 export const generateConditionTrigger = (noonOffsetTime: number, actions: RuleAction[]): RuleAction => ({
   every: {

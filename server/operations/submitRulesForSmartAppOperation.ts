@@ -9,8 +9,13 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
   /* eslint-enable no-console */
 
   try {
+    const existingRules = await client.rules.list(locationId);
+    // drop saved ids of rules that no longer exist (deleted outside this app, e.g. in the SmartThings app) - nothing
+    // else ever removes them, so they'd otherwise pile up in the rule store forever
+    const existingRuleIds = new Set(existingRules.map(r => r.id));
+    newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => existingRuleIds.has(rid));
     await Promise.allSettled(
-      (await client.rules.list(locationId))
+      existingRules
         .filter(r => r.name.includes(smartAppLookupKey))
         .map(async r => {
           await client.rules.delete(r.id, locationId);

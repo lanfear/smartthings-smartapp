@@ -14,6 +14,8 @@ import type {IResponseApps, IResponseLocation, IResponseMeasurements, IRule, IRu
 import {isMeasurementType} from './constants/measurements';
 import ReturnResultError from './exceptions/returnResultError';
 import {localOnlyMiddleware} from './middlewares';
+import classifyRulesOperation from './operations/classifyRulesOperation';
+import deleteRuleOperation from './operations/deleteRuleOperation';
 import listMeasurementHistoryOperation from './operations/listMeasurementHistoryOperation';
 import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
@@ -76,13 +78,19 @@ server.get('/location/:id', async (req, res) => {
     (it as DeviceState).value = state.motion.value as string;
     return it as DeviceState;
   }));
-  const apps = (await Promise.all((await client.installedApps.list({locationId: [req.params.id]})).map(async a => {
-    const ruleStoreInfo = await ruleStore.get(a.installedAppId);
-    return {...a, ruleSummary: ruleStoreInfo?.newRuleSummary};
-  }))).filter(a => !!a.ruleSummary) as IResponseApps; // filter out apps that dont have mapped rule ids?  this _should_ be app ids that arent rule-apps (.env settings for RULE_APP_ID, but you may have multiple)
-  const rules = (await client.rules.list(req.params.id)).map(r => {
+  const installedApps = await client.installedApps.list({locationId: [req.params.id]});
+  const storedRulesByApp = new Map(await Promise.all(installedApps.map(async a => [a.installedAppId, await ruleStore.get(a.installedAppId)] as const)));
+  const smartThingsRules = await client.rules.list(req.params.id);
+  // cross-reference rules against the installs, to spot stale duplicates / orphans (see IRuleHealthStatus)
+  const {healthByRuleId, missingRuleIdsByApp} = classifyRulesOperation(smartThingsRules, installedApps, storedRulesByApp);
+  // only installs with saved rule data are rule SmartApp installs - the control app and anything else is left out
+  const apps: IResponseApps = installedApps.flatMap(a => {
+    const stored = storedRulesByApp.get(a.installedAppId);
+    return stored ? [{...a, ruleSummary: stored.newRuleSummary, missingRuleIds: missingRuleIdsByApp.get(a.installedAppId) ?? []}] : [];
+  });
+  const rules = smartThingsRules.map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary.ruleIds.find(rid => rid === r.id));
-    return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary} as IRule;
+    return {...r, dateCreated: new Date(r.dateCreated), dateUpdated: new Date(r.dateUpdated), ruleSummary: linkedInstalledApp?.ruleSummary, health: healthByRuleId.get(r.id)} as IRule;
   });
 
   const response: IResponseLocation = {
@@ -191,7 +199,7 @@ server.post('/location/:id/rule', async (req, res) => {
 });
 
 server.delete('/location/:id/rule/:ruleId', async (req, res) => {
-  await getSmartThingsClient().rules.delete(req.params.ruleId, req.params.id);
+  await deleteRuleOperation(req.params.id, req.params.ruleId);
   res.statusCode = StatusCodes.NO_CONTENT;
   res.send();
 });

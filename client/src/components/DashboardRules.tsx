@@ -18,13 +18,66 @@ import {
   DashboardCardFieldValue,
   DashboardCardActions,
   DashboardActionButton,
+  DashboardChipToggle,
   GlassPanel
 } from '../factories/styleFactory';
 import {revalidateDeviceDataForLocation, useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-import type {IApp, IRule, Nullable} from '../types/sharedContracts';
+import type {IApp, IRule, IRuleHealth, IRuleHealthStatus, Nullable} from '../types/sharedContracts';
+
+type RuleFilter = 'all' | 'attention' | 'ok' | 'external';
+
+const attentionStatuses: IRuleHealthStatus[] = ['staleDuplicate', 'orphaned', 'untracked'];
+const ruleFilters: RuleFilter[] = ['all', 'attention', 'ok', 'external'];
+const shortIdLength = 8;
+
+// status pills always pair the color with an icon + label, so the state never relies on color alone
+const healthStyle: Record<IRuleHealthStatus, {icon: string; background: string; color: string}> = {
+  ok: {icon: '✓', background: '#0ca30c', color: '#ffffff'},
+  staleDuplicate: {icon: '⚠', background: '#fab219', color: '#0b0b0b'},
+  orphaned: {icon: '✕', background: '#d03b3b', color: '#ffffff'},
+  untracked: {icon: '?', background: '#898781', color: '#ffffff'},
+  external: {icon: '•', background: 'transparent', color: '#52514e'}
+};
 
 const DashboardRuleTitle = styled(DashboardCardTitle)<{matchesInstalledApp: boolean}>`
   color: ${props => props.matchesInstalledApp ? '#7CE624' : '#E66B24'};
+`;
+
+const FilterRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+`;
+
+const HealthRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+`;
+
+const HealthPill = styled.span<{status: IRuleHealthStatus}>`
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: ${props => healthStyle[props.status].background};
+  color: ${props => healthStyle[props.status].color};
+  border: 1px solid ${props => props.status === 'external' ? '#c3c2b7' : 'transparent'};
+`;
+
+const HealthReason = styled.span`
+  font-size: 0.8rem;
+  opacity: 0.8;
+`;
+
+const MissingRulesNotice = styled(GlassPanel)`
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  border-left: 4px solid #fab219;
 `;
 
 const RuleModalOverlay = styled.div`
@@ -75,12 +128,33 @@ const findRuleDevices = (ruleData: object, keyToFind: string): string[] => recur
 // exactly the part that gets cut off once the name is truncated to fit the card title
 const getRuleType = (name: string): 'Transition' | 'Main' => name.endsWith('-transition-rule') ? 'Transition' : 'Main';
 
+// location data cached in localStorage from before rule health existed won't have these yet - treat it as unknown
+// (no pill) rather than crashing, until the next real fetch replaces the stale cache entry
+const getRuleHealth = (rule: IRule): Nullable<IRuleHealth> => (rule as Partial<IRule>).health ?? null;
+const getMissingRuleIds = (app: IApp): string[] => (app as Partial<IApp>).missingRuleIds ?? [];
+
+const shortId = (id: string): string => `${id.slice(0, shortIdLength)}…`;
+
+const matchesFilter = (health: Nullable<IRuleHealth>, filter: RuleFilter): boolean => {
+  switch (filter) {
+    case 'attention':
+      return !!health && attentionStatuses.includes(health.status);
+    case 'ok':
+      return health?.status === 'ok';
+    case 'external':
+      return health?.status === 'external';
+    default:
+      return true;
+  }
+};
+
 const DashboardRules: React.FC = () => {
   const {t} = useTranslation();
   useLocationIdParam();
   const deviceData = useDeviceData();
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const [activeRule, setActiveRule] = React.useState<Nullable<IRule>>(null);
+  const [filter, setFilter] = React.useState<RuleFilter>('all');
 
   if (!deviceData.locationId) {
     return null;
@@ -109,6 +183,42 @@ const DashboardRules: React.FC = () => {
     setModalOpen(true);
   };
 
+  const getOwnerName = (rule: IRule, health: Nullable<IRuleHealth>): string => {
+    if (health?.installedAppName) {
+      return health.installedAppName;
+    }
+    if (health?.status === 'orphaned') {
+      return t('dashboard.rule.health.owner.uninstalled');
+    }
+    if (health?.status === 'external') {
+      return t('dashboard.rule.health.owner.external');
+    }
+    return findAppMatchingRule(rule.name)?.displayName ?? '(rogue rule)';
+  };
+
+  const getHealthReason = (health: IRuleHealth): Nullable<string> => {
+    switch (health.status) {
+      case 'staleDuplicate':
+        return t('dashboard.rule.health.reason.staleDuplicate', {app: health.installedAppName, kept: health.currentRuleIds.map(shortId).join(', ') || '—'});
+      case 'orphaned':
+        return t('dashboard.rule.health.reason.orphaned');
+      case 'untracked':
+        return t('dashboard.rule.health.reason.untracked', {app: health.installedAppName});
+      case 'external':
+        return t('dashboard.rule.health.reason.external');
+      default:
+        return null;
+    }
+  };
+
+  const rulesWithHealth = deviceData.rules.map(r => ({rule: r, health: getRuleHealth(r)}));
+  const filterCounts = Object.fromEntries(ruleFilters.map(f => [f, rulesWithHealth.filter(({health}) => matchesFilter(health, f)).length])) as Record<RuleFilter, number>;
+  // rules that need attention first, then by name
+  const visibleRules = rulesWithHealth
+    .filter(({health}) => matchesFilter(health, filter))
+    .sort((a, b) => Number(matchesFilter(b.health, 'attention')) - Number(matchesFilter(a.health, 'attention')) || a.rule.name.localeCompare(b.rule.name));
+  const appsWithMissingRules = deviceData.apps.filter(a => getMissingRuleIds(a).length > 0);
+
   /* eslint-disable no-undefined */
   return (
     <>
@@ -118,18 +228,56 @@ const DashboardRules: React.FC = () => {
       <DashboardSubTitle>
         {deviceData.locationId}
       </DashboardSubTitle>
+      <FilterRow
+        role="group"
+        aria-label={t('dashboard.rule.health.filter.label')}
+      >
+        {ruleFilters.map(f => (
+          <DashboardChipToggle
+            key={f}
+            selected={f === filter}
+            aria-pressed={f === filter}
+            rgb={f === 'attention' && filterCounts.attention > 0 ? global.palette.control.rgb.rule : global.palette.control.rgb.scene}
+            onClick={() => {
+              setFilter(f);
+            }}
+          >
+            {t(`dashboard.rule.health.filter.${f}`, {count: filterCounts[f]})}
+          </DashboardChipToggle>
+        ))}
+      </FilterRow>
+      {appsWithMissingRules.map(a => (
+        <MissingRulesNotice key={`missing-${a.installedAppId}`}>
+          {t('dashboard.rule.health.missing', {app: a.displayName, count: getMissingRuleIds(a).length, ids: getMissingRuleIds(a).map(shortId).join(', ')})}
+        </MissingRulesNotice>
+      ))}
       <DashboardCardGrid>
-        {deviceData.rules.sort((a, b) => a.name.localeCompare(b.name)).map(r => {
-          const matchingApp = findAppMatchingRule(r.name);
+        {visibleRules.map(({rule: r, health}) => {
           const ruleType = getRuleType(r.name);
+          const reason = health ? getHealthReason(health) : null;
           return (
             <DashboardCard key={`rules-${r.id}`}>
               <DashboardCardBadge rgb={ruleType === 'Transition' ? global.palette.control.rgb.scene : global.palette.control.rgb.inactive}>
                 {ruleType}
               </DashboardCardBadge>
-              <DashboardRuleTitle matchesInstalledApp={!!matchingApp}>
+              <DashboardRuleTitle matchesInstalledApp={health ? health.status === 'ok' : !!findAppMatchingRule(r.name)}>
                 {r.name}
               </DashboardRuleTitle>
+              {health && (
+                <HealthRow>
+                  <HealthPill status={health.status}>
+                    <span aria-hidden="true">
+                      {healthStyle[health.status].icon}
+                    </span>
+                    {t(`dashboard.rule.health.status.${health.status}`)}
+                  </HealthPill>
+                  {reason && (
+                    <HealthReason>
+                      {reason}
+                    </HealthReason>
+                  )}
+                </HealthRow>
+              )}
               <DashboardCardBody>
                 <DashboardCardField>
                   <DashboardCardFieldLabel>
@@ -152,7 +300,7 @@ const DashboardRules: React.FC = () => {
                     {t('dashboard.rule.header.ownerId')}
                   </DashboardCardFieldLabel>
                   <DashboardCardFieldValue>
-                    {matchingApp?.displayName ?? '(rogue rule)'}
+                    {getOwnerName(r, health)}
                   </DashboardCardFieldValue>
                 </DashboardCardField>
               </DashboardCardBody>

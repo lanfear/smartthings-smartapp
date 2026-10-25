@@ -19,7 +19,11 @@ export type IRoom = Room;
 // scene-to-room association (see server/provider/sceneRoomStore.ts) and merge it in here
 export type IScene = (SceneSummary & {roomIds: string[]});
 export type IDevice = (Device & {value: string});
-export type IApp = (InstalledApp & {ruleSummary: IRuleSummary});
+export type IApp = (InstalledApp & {
+  ruleSummary: IRuleSummary;
+  // rule ids this install's saved rule data says it owns that no longer exist in SmartThings
+  missingRuleIds: string[];
+});
 export type IRule = (Rule & {
   executionLocation?: string;
   ownerType?: string;
@@ -28,7 +32,26 @@ export type IRule = (Rule & {
   dateCreated?: Date;
   dateUpdated?: Date;
   ruleSummary?: IRuleSummary; // undefined for rules not created by one of our rule SmartApp installs
+  health: IRuleHealth;
 });
+
+/**
+ * How a rule relates to the rule SmartApp installs, judged from its name (`app-<installedAppId>-rule` /
+ * `-transition-rule`) and the rule ids each install saved as its current rules:
+ * - ok: named for an install that still exists, and is one of the rules it saved as current
+ * - staleDuplicate: named for an existing install, but not one of its current rules - a leftover copy (e.g. from two
+ *   overlapping rule updates), safe to delete
+ * - orphaned: named for an install that no longer exists (uninstalled while the server couldn't clean up)
+ * - untracked: named for an existing install that has no saved rule data, so it can't be checked
+ * - external: doesn't follow our naming - created some other way (the rule templates, another app...)
+ */
+export type IRuleHealthStatus = 'ok' | 'staleDuplicate' | 'orphaned' | 'untracked' | 'external';
+export interface IRuleHealth {
+  status: IRuleHealthStatus;
+  installedAppId: Nullable<string>; // from the rule name - null for external rules
+  installedAppName: Nullable<string>; // display name of that install, when it still exists
+  currentRuleIds: string[]; // the install's current rule ids (for staleDuplicate: the copies that are kept)
+}
 
 export type IRuleComponentType = 'daylight' | 'nightlight' | 'transition' | 'idle';
 
