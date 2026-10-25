@@ -40,6 +40,8 @@ RULE_CLIENT_SECRET=SEENEXTSTEP
 LOCALIPS=192.168.1.1/24,127.0.0.1,::ffff:127.0.0.1,::1 # (your local nets)
 LOGGING_EVENTS_ENABLED=false # or true
 REDIS_SERVER=LOCALREDISPORT # TODO: document redis setup
+MEASUREMENT_POLL_MINUTES=5 # optional, how often temperature/humidity readings are recorded for history graphs (0 disables)
+MEASUREMENT_RETENTION_DAYS=30 # optional, how many days of recorded readings to keep in redis
 ```
 
 > Replace in `SETLOCALPORTNUMBER` with a local port of your choosing (suggest anything 5000-64000).

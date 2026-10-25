@@ -38,6 +38,49 @@ export interface IResponseLocation {
   apps: IResponseApps;
 }
 
+export type IMeasurementType = 'temperature' | 'humidity';
+
+// one reading per device *component* that reports the measurement (multi-sensors may report on a non-main component)
+export interface IMeasurementReading {
+  deviceId: string;
+  componentId: string;
+  label: string;
+  componentLabel?: string; // only set for non-main components
+  roomId?: string;
+  value: number | null; // null when the device hasn't reported or its status couldn't be read
+  unit: string | null; // 'F' | 'C' for temperature, '%' for humidity, as reported by the device
+  timestamp: string | null; // ISO-8601 time of the last reported value
+  healthState: string | null; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
+}
+export interface IResponseMeasurements {
+  locationId: string;
+  measurement: IMeasurementType;
+  readings: IMeasurementReading[];
+}
+
+export interface IMeasurementHistoryPoint {
+  epoch: number; // unix epoch milliseconds
+  value: number;
+}
+// one series per device component, points sorted oldest first - recorded by the server (see server/operations/recordMeasurementsOperation.ts),
+// so a series only goes back as far as recording (plus the one-time startup backfill) does
+export interface IMeasurementHistorySeries {
+  deviceId: string;
+  componentId: string;
+  label: string;
+  componentLabel?: string;
+  roomId?: string;
+  unit: string | null;
+  points: IMeasurementHistoryPoint[];
+}
+export interface IResponseMeasurementHistory {
+  locationId: string;
+  measurement: IMeasurementType;
+  since: number; // epoch ms - start of the requested window
+  until: number; // epoch ms - when the history was read
+  series: IMeasurementHistorySeries[];
+}
+
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';
 export interface ISseEvent {
   deviceId: string;

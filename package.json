@@ -74,6 +74,7 @@
     "styled-components": "^6.6.0",
     "swr": "^2.5.1",
     "typescript": "~6.0.3",
+    "uplot": "^1.6.32",
     "usehooks-ts": "^3.1.1",
     "web-vitals": "^6.2.3",
     "zustand": "^5.0.16"

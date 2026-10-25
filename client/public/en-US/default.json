@@ -75,6 +75,54 @@
         "installedAppId": "Installed App ID",
         "lastUpdatedDate": "Last Updated"
       }
+    },
+    "climate": {
+      "sectionName": "Climate",
+      "measurement": {
+        "temperature": "Temperature",
+        "humidity": "Humidity"
+      },
+      "range": {
+        "6h": "6h",
+        "24h": "24h",
+        "7d": "7d",
+        "30d": "30d"
+      },
+      "filter": {
+        "measurement": "Measurement",
+        "range": "Time range"
+      },
+      "compare": {
+        "title": "Compare {{measurement}}",
+        "selectedCount": "{{count}} of {{max}} selected",
+        "empty": "Pick up to {{max}} sensors below to compare them here.",
+        "full": "Up to {{max}} sensors can be compared at once",
+        "noData": "No readings recorded in this range yet.",
+        "loading": "Loading history...",
+        "legend": "Compared sensors",
+        "chartLabel": "{{measurement}} over time for {{sensors}}"
+      },
+      "header": {
+        "sensor": "Sensor",
+        "current": "Current",
+        "min": "Min",
+        "avg": "Avg",
+        "max": "Max",
+        "updated": "Updated",
+        "room": "Room",
+        "range": "Range ({{range}})"
+      },
+      "status": {
+        "online": "Online",
+        "offline": "Offline",
+        "unknown": "Unknown"
+      },
+      "action": {
+        "compare": "Compare",
+        "remove": "Remove {{sensor}}",
+        "showTable": "Show table",
+        "showChart": "Show chart"
+      }
     }
   }
 }
