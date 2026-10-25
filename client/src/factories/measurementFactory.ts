@@ -39,6 +39,26 @@ export const historyRanges: IHistoryRange[] = [
 
 export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity'];
 
+export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity';
+
+export interface IMeasurementGroup {
+  id: IMeasurementGroupId;
+  measurement: IMeasurementType;
+  includes: (seriesLabel: string) => boolean;
+}
+
+// sensors are grouped by name - fridge/freezer temps sit far from room temps, so they each get their own chart and scale
+const isFreezer = (label: string): boolean => /freezer/i.test(label);
+const isFridge = (label: string): boolean => !isFreezer(label) && /fridge|refrigerator|kegerator/i.test(label);
+
+// display order of the climate page's charts
+export const measurementGroups: IMeasurementGroup[] = [
+  {id: 'fridge', measurement: 'temperature', includes: isFridge},
+  {id: 'freezer', measurement: 'temperature', includes: isFreezer},
+  {id: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
+  {id: 'humidity', measurement: 'humidity', includes: () => true}
+];
+
 export const getSeriesKey = (s: {deviceId: string; componentId: string}): string => `${s.deviceId}/${s.componentId}`;
 
 export const getSeriesLabel = (s: {label: string; componentLabel?: string}): string => (s.componentLabel ? `${s.label} (${s.componentLabel})` : s.label);
