@@ -6,6 +6,7 @@ import {fileURLToPath} from 'url';
 import dotenv from 'dotenv';
 // load client/.env regardless of the cwd this script is run from
 dotenv.config({path: path.join(dirname(fileURLToPath(import.meta.url)), '..', 'client', '.env')});
+import {createHash} from 'crypto';
 import fs from 'fs/promises';
 import {build, type Plugin as EsBuildPlugin, type BuildOptions} from 'esbuild';
 import {replaceInFile} from 'replace-in-file';
@@ -85,11 +86,30 @@ const dotEnv = dotenvRun({
   root: clientDir
 });
 
+// the client caches translations in localStorage and only refetches them when their version changes (see
+// client/src/operations/initLocale.ts) - so derive the version from the translation files themselves: any edit gives a
+// new version on the next build, with no manual bump to forget
+const translationVersionLength = 12;
+const getTranslationVersion = async (): Promise<string> => {
+  const hash = createHash('sha256');
+  const locales = (await fs.readdir(staticSrcDir, {withFileTypes: true})).filter(d => d.isDirectory()).map(d => d.name).sort();
+  for (const locale of locales) {
+    const files = (await fs.readdir(path.join(staticSrcDir, locale))).filter(f => f.endsWith('.json')).sort();
+    for (const file of files) {
+      hash.update(`${locale}/${file}\n`);
+      hash.update(await fs.readFile(path.join(staticSrcDir, locale, file)));
+    }
+  }
+  return hash.digest('hex').slice(0, translationVersionLength);
+};
+
 // ***** STEPS *****
 
 const bundleIndex = async (isLocal: boolean): Promise<void> => {
   const entryPoint = path.join(srcDir, 'index.tsx');
   const output = path.join(buildJsDir, 'index.js');
+  const translationVersion = await getTranslationVersion();
+  console.info('translation version', translationVersion);
 
   await build({
     entryPoints: [entryPoint],
@@ -98,6 +118,10 @@ const bundleIndex = async (isLocal: boolean): Promise<void> => {
     sourcemap: isLocal ? 'inline' : true,
     target: 'chrome106',
     outfile: output,
+    // the dotenv plugin merges its SMARTAPP_BUILDTIME_ values into this
+    define: {
+      'process.env.SMARTAPP_BUILDTIME_TRANSLATION_VERSION': JSON.stringify(translationVersion)
+    },
     plugins: [
       dotEnv,
       svgrPlugin,
