@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // standalone replacement for the `kill-port` npm package - run directly via `node tools/killPort.ts <port>`
 // (this repo already runs plain .ts files with `node` elsewhere, eg. tools/bundle.ts, relying on Node's
 // built-in TypeScript support rather than a separate ts-node/tsx dependency)

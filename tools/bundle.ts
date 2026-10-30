@@ -150,7 +150,7 @@ const doReplacesInBundleDir = async (): Promise<void> => {
       /__PROCESSENV__\w+__/g
     ],
     to: [
-      match => {
+      (match: string) => {
         const matchIndex = `${match.replace('__PROCESSENV__', 'SMARTAPP_RUNTIME_').replace(/__$/, '').toUpperCase()}`;
         if (!(matchIndex in process.env)) {
           console.info('  ', matchIndex, 'not defined in .env, skipping replace', match, 'in .html');
