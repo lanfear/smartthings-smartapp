@@ -59,14 +59,19 @@ Run all of these from the single top-level `package.json` (there are no per-fold
    1) `npm install` (installs dependencies for both client and server)
    2) `npm run start` will start entire dev environment in a single console session (using concurrently)
       1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually (`npm run server-tunnel`, `npm run server-start`, `npm run client-start`)
+      2) `npm run lint` typechecks and lints everything (nothing lints automatically); `npm run lint:fix` applies eslint's auto-fixes
    3) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
       - **You must do this every time you start/restart `npm run server-tunnel` task which includes every time you run the main `npm run start` command**
 
 ## Runtime Development
 
-Finally! You are ready to develop!  Once you make changes, you need to **stop and start ONLY the `npm run server-start` task**  
+Finally! You are ready to develop!  Server and client changes are picked up automatically: the watchers rebuild and restart the server host / rebuild the client on file changes.
 
-You **do not want or need to restart the `npm run server-tunnel` task**.  If you do so, you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
+To force a restart (eg. after a crash), type into the `npm run start` console and press enter:
+- `rs` — restart the server host (the default target)
+- `<name>:rs` or `<index>:rs` — restart another process, eg. `server|build:rs` or `3:rs` (names and indexes are `0 server|tunnel`, `1 server|build`, `2 server|host`, `3 client|build`, `4 client|host`)
+
+You **do not want or need to restart the `server|tunnel` process**, and nothing above restarts it.  If you do restart it (including stopping `npm run start` with Ctrl-C), you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
 
 When you make changes to the server/smartapp, and restart you do not need to uninstall or re-install a working development app.
 
@@ -99,7 +104,7 @@ When you make changes to the server/smartapp, and restart you do not need to uni
 2) check-in or otherwise copy that output to build server hosting directory
 3) be sure to configure the `server/.env` (or `server/.env.local`) file on the server checkout directory
 4) `npm install --omit=dev` on server to install neccessary runtime libs (client libraries are dev dependencies since they are bundled at build time)
-5) `npm run server-prod` to run the server environment (or put the code in the script in a .service file)
+5) `npm run server-host` to run the server environment (or put the code in the script in a .service file; `npm run server-prod` still works as an alias for existing setups)
 
 ## Updating a server checkout
 

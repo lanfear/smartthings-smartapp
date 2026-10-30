@@ -1,6 +1,6 @@
 # (Re)Verify The App Registration
 
-## Copy the value output in `npm run tunnel` task output for the 'https' url
+## Copy the value output in `server|tunnel` process output (from `npm run start`, or `npm run server-tunnel` on its own) for the 'https' url
 
 ![NGrok Out](ngrok.png)
 
