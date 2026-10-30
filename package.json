@@ -80,21 +80,22 @@
     "zustand": "^5.0.16"
   },
   "scripts": {
-    "start": "concurrently -i --default-input-target 2 -n \"server|tunnel,server|build,server|host,client|build,client|host\" -c blue,gray,cyan,magenta,green \"npm:server-tunnel\" \"npm:server-build:watch\" \"npm:server-host:watch\" \"npm:client-build:watch\" \"npm:client-host:watch\"",
+    "start": "concurrently -i --default-input-target 2 -n \"server|tunnel,server|build,server|host,client|build,client|host,all|lint\" -c blue,gray,cyan,magenta,green,yellow \"npm:server-tunnel\" \"npm:server-build:watch\" \"npm:server-host:watch\" \"npm:client-build:watch\" \"npm:client-host:watch\" \"npm:lint:watch\"",
     "build": "concurrently -n \"server|build,client|build\" -c red,magenta \"npm:server-build\" \"npm:client-build\"",
     "deploy": "node tools/deploy.mts",
     "lint": "concurrently -n \"tools|tsc,client|tsc,server|tsc,all|eslint\" -c gray,cyan,blue,yellow \"npm:tools-lint:tsc\" \"npm:client-lint:tsc\" \"npm:server-lint:tsc\" \"npm:lint:eslint\"",
     "lint:eslint": "eslint --color --cache --cache-location node_modules/.cache/eslint/ .",
     "lint:fix": "npm run lint:eslint -- --fix",
+    "lint:watch": "npm-watch lint",
     "kill-node-win": "taskkill -F -IM node.exe",
     "kill-node-linux": "killall .node.bin",
-    "tools-lint:tsc": "tsc -p . --noEmit",
+    "tools-lint:tsc": "tsc -p . --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/tools.tsbuildinfo",
     "client-start": "concurrently -n \"client|build,client|host\" -c magenta,green \"npm:client-build:watch\" \"npm:client-host:watch\"",
     "client-build": "node tools/bundle.ts",
     "client-build:watch": "npm-watch client-build",
     "client-host": "dotenv run -q -f client/.env -- cross-replace ws --directory client/build --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html",
     "client-host:watch": "npm-watch client-host",
-    "client-lint:tsc": "tsc -p client --noEmit",
+    "client-lint:tsc": "tsc -p client --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/client.tsbuildinfo",
     "client-kill": "dotenv run -q -f client/.env -- cross-replace node tools/killPort.ts %SMARTAPP_WEBHARNESS_PORT%",
     "server-start": "concurrently -n \"server|build,server|host\" -c gray,cyan \"npm:server-build:watch\" \"npm:server-host:watch\"",
     "server-build": "tsc -p server",
@@ -103,7 +104,7 @@
     "server-host:watch": "npm-watch server-host",
     "server-prod": "npm run server-host",
     "server-tunnel": "dotenv run -q -f server/.env -- cross-replace ngrok http %STPORT% --log=stdout",
-    "server-lint:tsc": "tsc -p server --noEmit",
+    "server-lint:tsc": "tsc -p server --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/server.tsbuildinfo",
     "server-kill": "dotenv run -q -f server/.env -- cross-replace node tools/killPort.ts %STPORT%"
   },
   "browserslist": {
@@ -123,6 +124,26 @@
     "esbuild": "$esbuild"
   },
   "watch": {
+    "lint": {
+      "patterns": [
+        "client/src",
+        "server",
+        "shared",
+        "tools",
+        "eslint.config.mts",
+        "tsconfig.json",
+        "client/tsconfig.json",
+        "server/tsconfig.json"
+      ],
+      "ignore": [
+        "server/build",
+        "server/data"
+      ],
+      "extensions": "ts,tsx,mts,json",
+      "delay": 1000,
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
     "client-host": {
       "patterns": [
         "client/.env",

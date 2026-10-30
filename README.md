@@ -59,7 +59,7 @@ Run all of these from the single top-level `package.json` (there are no per-fold
    1) `npm install` (installs dependencies for both client and server)
    2) `npm run start` will start entire dev environment in a single console session (using concurrently)
       1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually (`npm run server-tunnel`, `npm run server-start`, `npm run client-start`)
-      2) `npm run lint` typechecks and lints everything (nothing lints automatically); `npm run lint:fix` applies eslint's auto-fixes
+      2) `npm run start` also re-runs lint on every source change (the `all|lint` process) — it only reports problems, it never blocks the build or host; `npm run lint` runs it once by hand, and `npm run lint:fix` applies eslint's auto-fixes
    3) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)
       - **You must do this every time you start/restart `npm run server-tunnel` task which includes every time you run the main `npm run start` command**
 
@@ -69,7 +69,7 @@ Finally! You are ready to develop!  Server and client changes are picked up auto
 
 To force a restart (eg. after a crash), type into the `npm run start` console and press enter:
 - `rs` — restart the server host (the default target)
-- `<name>:rs` or `<index>:rs` — restart another process, eg. `server|build:rs` or `3:rs` (names and indexes are `0 server|tunnel`, `1 server|build`, `2 server|host`, `3 client|build`, `4 client|host`)
+- `<name>:rs` or `<index>:rs` — restart another process, eg. `server|build:rs` or `3:rs` (names and indexes are `0 server|tunnel`, `1 server|build`, `2 server|host`, `3 client|build`, `4 client|host`, `5 all|lint`)
 
 You **do not want or need to restart the `server|tunnel` process**, and nothing above restarts it.  If you do restart it (including stopping `npm run start` with Ctrl-C), you will need to follow steps above to re-verify your App Registration with the new URL after NGrok restarts.
 
