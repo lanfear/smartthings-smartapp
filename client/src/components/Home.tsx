@@ -13,7 +13,8 @@ const locationTabs: [string, string][] = [
   ['scenes', 'dashboard.scene.sectionName'],
   ['rules', 'dashboard.rule.sectionName'],
   ['apps', 'dashboard.installedApp.sectionName'],
-  ['climate', 'dashboard.climate.sectionName']
+  ['climate', 'dashboard.climate.sectionName'],
+  ['activity', 'dashboard.activity.sectionName']
 ];
 
 const OverviewPanel = styled(GlassPanel)`

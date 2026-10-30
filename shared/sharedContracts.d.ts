@@ -73,7 +73,7 @@ export interface IResponseLocation {
   apps: IResponseApps;
 }
 
-export type IMeasurementType = 'temperature' | 'humidity';
+export type IMeasurementType = 'temperature' | 'humidity' | 'battery' | 'heatingSetpoint' | 'coolingSetpoint';
 
 // one reading per device *component* that reports the measurement (multi-sensors may report on a non-main component)
 export interface IMeasurementReading {
@@ -83,7 +83,7 @@ export interface IMeasurementReading {
   componentLabel?: string; // only set for non-main components
   roomId?: string;
   value: Nullable<number>; // null when the device hasn't reported or its status couldn't be read
-  unit: Nullable<string>; // 'F' | 'C' for temperature, '%' for humidity, as reported by the device
+  unit: Nullable<string>; // 'F' | 'C' for temperature and setpoints, '%' for humidity and battery, as reported by the device
   timestamp: Nullable<string>; // ISO-8601 time of the last reported value
   healthState: Nullable<string>; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
 }
@@ -125,6 +125,31 @@ export interface IResponseMeasurementHistory {
   since: number; // epoch ms - start of the requested window
   until: number; // epoch ms - when the history was read
   series: IMeasurementHistorySeries[];
+}
+
+// motion = a motion sensor; light = any other switch (lights, plugs, fans - SmartThings doesn't say which)
+export type IActivityKind = 'motion' | 'light';
+
+// [start, end) epoch ms of one active/on stretch, clipped to the window - end equals `until` while still active/on
+export type IActivityPeriod = [number, number];
+
+export interface IActivityDevice {
+  deviceId: string;
+  label: string;
+  roomId?: string;
+  kind: IActivityKind;
+  periods: IActivityPeriod[]; // oldest first
+}
+
+// motion/switch activity recorded from the control SmartApp's event subscriptions (see server/provider/activityStore.ts)
+export interface IResponseActivity {
+  locationId: string;
+  since: number; // epoch ms - start of the requested window
+  until: number; // epoch ms - when the activity was read
+  // when recording started for this location (null = nothing recorded yet) - there's no data before it, so a window
+  // starting earlier is only partly covered
+  recordingSince: Nullable<number>;
+  devices: IActivityDevice[];
 }
 
 export type ISseEventType = 'switch' | 'lock' | 'motion' | 'rule';

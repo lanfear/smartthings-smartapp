@@ -80,38 +80,31 @@
     "zustand": "^5.0.16"
   },
   "scripts": {
-    "start": "concurrently -n server:tunnel,server:host,client:start -c blue,cyan,green \"npm:server-tunnel\" \"npm:server-start\" \"npm:client-start\"",
-    "build": "concurrently -n server:build,client:build -c red,magenta \"npm:server-build\" \"npm:client-build\"",
+    "start": "concurrently -i --default-input-target 2 -n \"server|tunnel,server|build,server|host,client|build,client|host,all|lint\" -c blue,gray,cyan,magenta,green,yellow \"npm:server-tunnel\" \"npm:server-build:watch\" \"npm:server-host:watch\" \"npm:client-build:watch\" \"npm:client-host:watch\" \"npm:lint:watch\"",
+    "build": "concurrently -n \"server|build,client|build\" -c red,magenta \"npm:server-build\" \"npm:client-build\"",
     "deploy": "node tools/deploy.mts",
-    "lint": "concurrently -n tools:tsc,client:tsc,client:eslint,server:tsc,server:eslint,shared:eslint -c gray,cyan,green,blue,magenta,yellow \"npm:tools-lint:tsc\" \"npm:client-lint:tsc\" \"npm:client-lint:eslint -- --cache\" \"npm:server-lint:tsc\" \"npm:server-lint:eslint -- --cache\" \"npm:shared-lint:eslint -- --cache\"",
-    "lint-fix": "concurrently -n client,server,shared -c green,magenta,yellow \"npm:client-lint-fix\" \"npm:server-lint-fix\" \"npm:shared-lint-fix\"",
+    "lint": "concurrently -n \"tools|tsc,client|tsc,server|tsc,all|eslint\" -c gray,cyan,blue,yellow \"npm:tools-lint:tsc\" \"npm:client-lint:tsc\" \"npm:server-lint:tsc\" \"npm:lint:eslint\"",
+    "lint:eslint": "eslint --color --cache --cache-location node_modules/.cache/eslint/ .",
+    "lint:fix": "npm run lint:eslint -- --fix",
+    "lint:watch": "npm-watch lint",
     "kill-node-win": "taskkill -F -IM node.exe",
     "kill-node-linux": "killall .node.bin",
-    "tools-lint:tsc": "tsc -p . --noEmit",
-    "client-start": "npm-watch client-dev",
-    "client-dev": "concurrently -c gray,white \"npm:client-dev:server\" \"npm:client-build:watch\"",
-    "client-dev:server": "dotenv run -q -f client/.env -- cross-replace ws --directory client/build --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html",
+    "tools-lint:tsc": "tsc -p . --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/tools.tsbuildinfo",
+    "client-start": "concurrently -n \"client|build,client|host\" -c magenta,green \"npm:client-build:watch\" \"npm:client-host:watch\"",
     "client-build": "node tools/bundle.ts",
     "client-build:watch": "npm-watch client-build",
-    "client-lint": "concurrently -n tsc,lint -c cyan,green \"npm:client-lint:tsc\" \"npm:client-lint:eslint -- --cache\"",
-    "client-lint:tsc": "tsc -p client --noEmit",
-    "client-lint:eslint": "eslint --color --cache-location node_modules/.cache/eslint/client \"client/src/**/*.{js,jsx,mjs,ts,tsx,mts}\"",
-    "client-lint:watch": "npm-watch client-lint",
-    "client-lint-fix": "npm run client-lint:eslint -- --cache --fix",
-    "client-test": "react-app-rewired test",
+    "client-host": "dotenv run -q -f client/.env -- cross-replace ws --directory client/build --port %SMARTAPP_WEBHARNESS_PORT% --spa index.html",
+    "client-host:watch": "npm-watch client-host",
+    "client-lint:tsc": "tsc -p client --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/client.tsbuildinfo",
     "client-kill": "dotenv run -q -f client/.env -- cross-replace node tools/killPort.ts %SMARTAPP_WEBHARNESS_PORT%",
-    "server-start": "concurrently -c gray,white \"npm:server-build:watch\" \"npm:server-prod:watch\"",
+    "server-start": "concurrently -n \"server|build,server|host\" -c gray,cyan \"npm:server-build:watch\" \"npm:server-host:watch\"",
     "server-build": "tsc -p server",
     "server-build:watch": "npm-watch server-build",
-    "server-prod": "node server/build/server.js",
-    "server-prod:watch": "npm-watch server-prod",
+    "server-host": "node server/build/server.js",
+    "server-host:watch": "npm-watch server-host",
+    "server-prod": "npm run server-host",
     "server-tunnel": "dotenv run -q -f server/.env -- cross-replace ngrok http %STPORT% --log=stdout",
-    "server-lint": "concurrently -n tsc,lint -c cyan,green \"npm:server-lint:tsc\" \"npm:server-lint:eslint -- --cache\"",
-    "server-lint:tsc": "tsc -p server --noEmit",
-    "server-lint:eslint": "eslint --color --cache-location node_modules/.cache/eslint/server server",
-    "server-lint-fix": "npm run server-lint:eslint -- --cache --fix",
-    "shared-lint:eslint": "eslint --color --cache-location node_modules/.cache/eslint/shared shared",
-    "shared-lint-fix": "npm run shared-lint:eslint -- --cache --fix",
+    "server-lint:tsc": "tsc -p server --noEmit --incremental --tsBuildInfoFile node_modules/.cache/tsc/server.tsbuildinfo",
     "server-kill": "dotenv run -q -f server/.env -- cross-replace node tools/killPort.ts %STPORT%"
   },
   "browserslist": {
@@ -131,7 +124,27 @@
     "esbuild": "$esbuild"
   },
   "watch": {
-    "client-dev": {
+    "lint": {
+      "patterns": [
+        "client/src",
+        "server",
+        "shared",
+        "tools",
+        "eslint.config.mts",
+        "tsconfig.json",
+        "client/tsconfig.json",
+        "server/tsconfig.json"
+      ],
+      "ignore": [
+        "server/build",
+        "server/data"
+      ],
+      "extensions": "ts,tsx,mts,json",
+      "delay": 1000,
+      "runOnChangeOnly": false,
+      "quiet": true
+    },
+    "client-host": {
       "patterns": [
         "client/.env",
         "package.json"
@@ -141,21 +154,14 @@
     },
     "client-build": {
       "patterns": [
+        "client/.env",
+        "package.json",
         "client/public/index.html",
         "client/public/**/*.json",
         "client/src/**/*.ts",
         "client/src/**/*.tsx"
       ],
       "extensions": "html,json,ts,tsx",
-      "runOnChangeOnly": false,
-      "quiet": true
-    },
-    "client-lint": {
-      "patterns": [
-        "client/src/**/*.ts",
-        "client/src/**/*.tsx"
-      ],
-      "extensions": "ts,tsx",
       "runOnChangeOnly": false,
       "quiet": true
     },
@@ -168,7 +174,7 @@
       "runOnChangeOnly": false,
       "quiet": true
     },
-    "server-prod": {
+    "server-host": {
       "patterns": [
         "server/build/server.js",
         "package.json",

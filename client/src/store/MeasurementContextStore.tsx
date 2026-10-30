@@ -21,7 +21,7 @@ export interface IMeasurementHistoryStore {
   reloadHistoryData: () => Promise<void>;
 }
 
-// the control SmartApp doesn't subscribe to temperature/humidity events, so there's no SSE push - poll instead.
+// the control SmartApp doesn't subscribe to measurement events, so there's no SSE push - poll instead.
 // most sensors only report every few minutes (or on a change threshold), so a minute is plenty fresh
 const readingsRefreshIntervalMs = 60_000;
 // history only gains a point per sensor every MEASUREMENT_POLL_MINUTES (default 5), so refresh it less often

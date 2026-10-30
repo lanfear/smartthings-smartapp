@@ -28,8 +28,10 @@ const init = (): Promise<TFunction> => i18n
       ],
       backendOptions: [
         {
+          // cached translations are only refetched when this changes - tools/bundle.ts sets it to a hash of the
+          // translation files, so every translation edit refreshes the cache on the next build
           versions: {
-            'en-US': '0.0.9'
+            'en-US': process.env.SMARTAPP_BUILDTIME_TRANSLATION_VERSION ?? 'dev'
           }
         },
         {

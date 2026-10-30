@@ -13,19 +13,20 @@ Local development requires an ngrok tunnel (OAuth callbacks from Samsung Cloud m
 All scripts run from the repo root. Combined scripts fan out via `concurrently`; per-side scripts are prefixed `client-` / `server-`.
 
 - `npm install` — install all dependencies (client + server)
-- `npm run start` — run the full dev environment (`server-tunnel` + `server-start` + `client-start`) in one terminal
+- `npm run start` — run the full dev environment in one flat `concurrently` (tunnel, server build/host watchers, client build/host watchers). It handles input: typing `rs` restarts the server host (default target), `<name>:rs` or `<index>:rs` restarts another process (e.g. `client|build:rs`), and the tunnel is never restarted. Each leaf `npm-watch` watches its own triggers (e.g. both client watchers watch `client/.env`), so there's no nesting
 - `npm run build` — build both server (`server-build`: `tsc -p server`) and client (`client-build`: `node tools/bundle.ts`, esbuild-based)
-- `npm run lint` — typecheck + eslint both client and server in parallel, plus `tools-lint:tsc` (typechecks root files like `tools/` and `shared/` against the root `tsconfig.json`) and `shared-lint:eslint`; `npm run lint-fix` runs eslint `--fix` on client, server and shared
+- `npm run lint` — in parallel: three typechecks (`client-lint:tsc`, `server-lint:tsc`, and `tools-lint:tsc` for root files like `tools/` and `shared/` against the root `tsconfig.json`) plus one repo-wide eslint run (`lint:eslint`, `eslint .` with the single root config; build output and `node_modules` are ignored by the config); `npm run lint:fix` runs that eslint with `--fix`. The typechecks are `--incremental` (build info in `node_modules/.cache/tsc/`) and eslint uses `--cache`, so repeat runs are fast. `start` includes an `all|lint` process (`lint:watch`) that re-runs `lint` on source changes — report-only, its failures never stop the other processes. `build` doesn't lint
 - `npm run deploy` (`tools/deploy.mts`) — update a server checkout to `origin/main`, `npm ci`, build, restart the service, follow its log (reads `DEPLOY_SERVICE` / `DEPLOY_LOG` from `server/.env.local` or `server/.env`; see README)
 - `npm run kill-node-win` / `kill-node-linux` — force-kill stray node processes if a previous run didn't shut down cleanly; `client-kill` / `server-kill` kill just the process on that side's port
 
-Per-side (replace `client` with `server` as applicable):
-- `npm run client-lint` / `client-lint:tsc` / `client-lint:eslint` / `client-lint-fix`
-- `npm run client-build` / `client-build:watch` — build once / incremental rebuild on file change (uses `npm-watch`; watch config keys in `package.json` match the script names)
-- `server`: `npm run server-tunnel` (ngrok only), `npm run server-prod` (run built `server/build/server.js` directly)
-- `client`: `npm run client-test` (react-app-rewired/CRA test runner) — note `react-app-rewired`/jest are not currently installed, so this script does not work
+Per-side (replace `client` with `server` as applicable). Naming pattern is `<side>-<task>[:<variant>]`, and concurrently process names use `side|task`:
+- `npm run client-start` — that side's build + host watchers only
+- `npm run client-build` / `client-build:watch` — build once / rebuild on file change (uses `npm-watch`; watch config keys in `package.json` match the script names)
+- `npm run client-host` / `client-host:watch` — serve it once / restart on change (client: static `ws` server for `client/build`; server: `node server/build/server.js`)
+- `npm run client-lint:tsc` — that side's typecheck
+- `server`: `npm run server-tunnel` (ngrok only); `server-prod` is an alias for `server-host`, kept because production `.service` files may call it
 
-There is no test runner for `server/` — it currently has no test suite.
+There is no test runner — neither side has a test suite.
 
 Paths that used to be cwd-relative are now resolved relative to the file: `server/server.ts` loads `server/.env.local` (else `server/.env`) via `__dirname`, and `tools/bundle.ts` loads `client/.env` and writes to `client/build` via its own location.
 
@@ -34,7 +35,7 @@ Paths that used to be cwd-relative are now resolved relative to the file: `serve
 ### Two cooperating SmartApps, one server
 
 `server/server.ts` is a single Express app exposing two SmartThings webhook endpoints plus a REST API consumed by the client:
-- `POST /smartapp/control` → `server/provider/smartAppControl.ts` — the "control" SmartApp. Installed by the end user against a location; subscribes to switch/lock/motionSensor capability events and republishes them over SSE (`/events`) so the dashboard updates live.
+- `POST /smartapp/control` → `server/provider/smartAppControl.ts` — the "control" SmartApp. Installed by the end user against a location; subscribes to switch/lock/motionSensor capability events and republishes them over SSE (`/events`) so the dashboard updates live. Switch and motion value changes are also recorded to Redis (`provider/activityStore.ts`, sharing `MEASUREMENT_RETENTION_DAYS`) for the Activity page; `GET /location/:id/activity` (`operations/listActivityOperation.ts`) turns them into per-device on/active periods. Nothing is recorded while the control app isn't connected (eg. the tunnel URL changed and the app wasn't re-verified), and the response's `recordingSince` marks where data starts.
 - `POST /smartapp/rule` → `server/provider/smartAppRule.ts` — the "rule" SmartApp. Its config pages (day/night control switches, motion sensors, time offsets, per-rule enable/disable toggles) drive the actual Rules API automations. On config submit it reads the config (`operations/readConfigFromContext.ts`), builds rule payloads (`operations/create*RuleFromConfigOperation.ts`, `factories/ruleFactory.ts`), submits them to the Rules API (`operations/submitRulesForSmartAppOperation.ts`), and persists the resulting `RuleSummary` (`operations/storeRulesAndNotifyOperation.ts` → `provider/ruleStore.ts`, backed by Redis). Rules are created with `API_TOKEN`, so they're owned by the user, not the install, and SmartThings won't remove them with the app: the rule app's `uninstalled` handler deletes them itself (`operations/deleteRulesForSmartAppOperation.ts`), matching rule names on `factories/ruleFactory.ts#generateRuleAppKey` — always build that key with the helper so lookups stay in sync. It only runs if the server is reachable when the app is uninstalled; SmartThings doesn't retry.
 - The remaining REST routes (`/app`, `/locations`, `/location/:id`, device/scene execution, rule create/delete, and the enable/disable-with-optional-re-enable-delay route at `PUT /location/:locationId/rule/:installedAppId/:ruleComponent/:enabled`) are plain SmartThings API pass-throughs used by the client dashboard, guarded by `middlewares.ts#localOnlyMiddleware` (an IP allowlist — the only access control in front of the API; see README caveats).
 - `provider/smartAppContextStore.ts` persists SmartApp installation tokens/config (per-installedApp) separately from `ruleStore.ts`, which persists the last-generated `RuleSummary` per installed app (used to map Rules API rule IDs back to the owning app, detect no-op rule regeneration, and support enable/disable/re-enable operations).
@@ -47,7 +48,7 @@ A rule "component" is one of `daylight | nightlight | transition | idle` (`share
 
 ### Client
 
-CRA-style React 17 + TypeScript SPA built with a custom esbuild pipeline (`tools/bundle.ts`, invoked by `npm run client-build`/`client-dev`) rather than `react-scripts`. Key structure under `client/src/`:
+CRA-style React 17 + TypeScript SPA built with a custom esbuild pipeline (`tools/bundle.ts`, invoked by `npm run client-build`/`client-build:watch`) rather than `react-scripts`. Key structure under `client/src/`:
 - `components/` — route/page-level and reusable UI (Dashboard*, Room, Device, Rule, NavMenu, etc.), styled with `styled-components`
 - `providers/` — React context providers for global style/theme and styled-components setup
 - `store/` — device/location context stores (zustand-based state shared across components)

@@ -75,7 +75,7 @@ const recordAllLocations = async (): Promise<void> => {
   }
 };
 
-/** start recording temperature/humidity readings for every location every MEASUREMENT_POLL_MINUTES minutes */
+/** start recording measurement readings (temperature/humidity/battery) for every location every MEASUREMENT_POLL_MINUTES minutes */
 export const startMeasurementRecording = (): void => {
   if (settings.measurementPollMinutes <= 0) {
     console.info('Measurement recording disabled (MEASUREMENT_POLL_MINUTES is 0)');

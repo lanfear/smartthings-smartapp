@@ -13,8 +13,8 @@ import {
 import {readStorage, writeStorage} from '../factories/storageFactory';
 import {DashboardChipToggle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-import {useMeasurementHistoryStore, useMeasurementStore} from '../store/MeasurementContextStore';
-import type {IMeasurementType, IResponseMeasurementHistory} from '../types/sharedContracts';
+import {useMeasurementHistoryStore, useMeasurementStore, type IMeasurementHistoryStore, type IMeasurementStore} from '../store/MeasurementContextStore';
+import type {IMeasurementReading, IMeasurementType, IResponseMeasurementHistory} from '../types/sharedContracts';
 import LocationRequiredHint from './LocationRequiredHint';
 import MeasurementGroupSection from './MeasurementGroupSection';
 
@@ -52,19 +52,51 @@ const DashboardClimate: React.FC = () => {
   }, [range]);
 
   const historyOptions = {hours: range.hours, bucketMinutes: range.bucketMinutes};
-  const temperature = useMeasurementStore('temperature');
-  const humidity = useMeasurementStore('humidity');
-  const temperatureHistory = useMeasurementHistoryStore('temperature', historyOptions);
-  const humidityHistory = useMeasurementHistoryStore('humidity', historyOptions);
+  // one explicit call per measurement (hooks can't run in a loop) - `satisfies` fails the build if a new measurement type is missing here
+  const currentByMeasurement = {
+    temperature: useMeasurementStore('temperature'),
+    humidity: useMeasurementStore('humidity'),
+    battery: useMeasurementStore('battery'),
+    heatingSetpoint: useMeasurementStore('heatingSetpoint'),
+    coolingSetpoint: useMeasurementStore('coolingSetpoint')
+  } satisfies Record<IMeasurementType, IMeasurementStore>;
+  const historyByMeasurement = {
+    temperature: useMeasurementHistoryStore('temperature', historyOptions),
+    humidity: useMeasurementHistoryStore('humidity', historyOptions),
+    battery: useMeasurementHistoryStore('battery', historyOptions),
+    heatingSetpoint: useMeasurementHistoryStore('heatingSetpoint', historyOptions),
+    coolingSetpoint: useMeasurementHistoryStore('coolingSetpoint', historyOptions)
+  } satisfies Record<IMeasurementType, IMeasurementHistoryStore>;
 
-  const historyByMeasurement = {temperature: temperatureHistory, humidity: humidityHistory} satisfies Record<IMeasurementType, unknown>;
-  const temperatureReadings = temperature.measurementData.readings;
-  const humidityReadings = humidity.measurementData.readings;
-  // memoized so a section only rebuilds its chart when its own data changes
+  // memoized on the stores' own (stable) data so a section only rebuilds its chart when its own data changes
+  const temperatureReadings = currentByMeasurement.temperature.measurementData.readings;
+  const humidityReadings = currentByMeasurement.humidity.measurementData.readings;
+  const batteryReadings = currentByMeasurement.battery.measurementData.readings;
+  const heatingSetpointReadings = currentByMeasurement.heatingSetpoint.measurementData.readings;
+  const coolingSetpointReadings = currentByMeasurement.coolingSetpoint.measurementData.readings;
+  const readingsByMeasurement = useMemo(() => ({
+    temperature: temperatureReadings,
+    humidity: humidityReadings,
+    battery: batteryReadings,
+    heatingSetpoint: heatingSetpointReadings,
+    coolingSetpoint: coolingSetpointReadings
+  } satisfies Record<IMeasurementType, IMeasurementReading[]>), [temperatureReadings, humidityReadings, batteryReadings, heatingSetpointReadings, coolingSetpointReadings]);
+
   const readingsByGroup = useMemo(() => new Map(measurementGroups.map(group => [
     group.id,
-    (group.measurement === 'temperature' ? temperatureReadings : humidityReadings).filter(r => group.includes(getSeriesLabel(r)))
-  ])), [temperatureReadings, humidityReadings]);
+    readingsByMeasurement[group.measurement].filter(r => group.includes(getSeriesLabel(r)))
+  ])), [readingsByMeasurement]);
+
+  // reference lines (setpoints) only need their history - the groups' own measurements get theirs per section below
+  const heatingSetpointHistory = historyByMeasurement.heatingSetpoint.historyData;
+  const coolingSetpointHistory = historyByMeasurement.coolingSetpoint.historyData;
+  const referencesByGroup = useMemo(() => {
+    const referenceHistory: Partial<Record<IMeasurementType, IResponseMeasurementHistory>> = {heatingSetpoint: heatingSetpointHistory, coolingSetpoint: coolingSetpointHistory};
+    return new Map(measurementGroups.map(group => [
+      group.id,
+      (group.references ?? []).map(ref => ({...ref, readings: readingsByMeasurement[ref.measurement], history: referenceHistory[ref.measurement] ?? null}))
+    ]));
+  }, [readingsByMeasurement, heatingSetpointHistory, coolingSetpointHistory]);
 
   const roomNames = useMemo(() => new Map(deviceData.rooms.map(r => [r.roomId, r.name])), [deviceData.rooms]);
 
@@ -75,7 +107,7 @@ const DashboardClimate: React.FC = () => {
   const {hash, key: navigationKey} = useLocation();
   const anchor = hash.slice(1);
   // wait for history too: charts and sparklines arriving afterwards would grow the sections above and push the target down
-  const historyLoaded = !!temperatureHistory.historyData && !!humidityHistory.historyData;
+  const historyLoaded = Object.values(historyByMeasurement).every(h => !!h.historyData);
   const anchorSectionReady = !!deviceData.locationId && historyLoaded && measurementGroups.some(g => g.anchor === anchor && (readingsByGroup.get(g.id)?.length ?? 0) > 0);
   useEffect(() => {
     if (anchorSectionReady) {
@@ -124,10 +156,11 @@ const DashboardClimate: React.FC = () => {
               group={group}
               readings={readings}
               history={data.historyData ?? null}
+              references={referencesByGroup.get(group.id) ?? []}
               range={range}
               roomNames={roomNames}
               dimmed={isShowingStaleRange(data.historyData, data.isValidating, range)}
-              readingsSettled={!(group.measurement === 'temperature' ? temperature : humidity).isValidating}
+              readingsSettled={!currentByMeasurement[group.measurement].isValidating}
             />
           );
         })}

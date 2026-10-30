@@ -1,4 +1,4 @@
-import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, Nullable} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, IResponseMeasurementHistory, Nullable} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
 export interface IPointSeries {
@@ -48,16 +48,41 @@ export const historyRanges: IHistoryRange[] = [
   {id: '30d', hours: 720, bucketMinutes: 240}
 ];
 
-export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity'];
+export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity', 'battery', 'heatingSetpoint', 'coolingSetpoint'];
 
-export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity';
+export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity' | 'battery';
+
+// a measurement drawn over a group's sensors as context (e.g. thermostat setpoints over room temps). it must share the
+// group's unit. it isn't a sensor, so it's never in the average or the compare picker, and it's always on the chart
+export interface IMeasurementReference {
+  measurement: IMeasurementType;
+  color: string;
+}
+
+// dotted to set references apart from the solid sensor lines and the dashed average
+const referenceDotPx = 2;
+const referenceGapPx = 4;
+export const referenceLineDash = [referenceDotPx, referenceGapPx] as const;
+
+// a reference's data for one page render - its current readings (one per device) and history
+export interface IMeasurementReferenceData extends IMeasurementReference {
+  readings: IMeasurementReading[];
+  history: Nullable<IResponseMeasurementHistory>;
+}
 
 export interface IMeasurementGroup {
   id: IMeasurementGroupId;
   anchor: string; // the section's element id, so /dashboard/:locationId/climate#<anchor> jumps to it (see the nav menu)
   measurement: IMeasurementType;
   includes: (seriesLabel: string) => boolean;
+  references?: IMeasurementReference[];
 }
+
+// heat/cool keep their conventional warm/cool hues, darker than the sensor palette's orange and blue so they don't read as sensors
+const thermostatReferences: IMeasurementReference[] = [
+  {measurement: 'heatingSetpoint', color: '#b4380f'},
+  {measurement: 'coolingSetpoint', color: '#1f4fb8'}
+];
 
 // sensors are grouped by name - fridge/freezer temps sit far from room temps, so they each get their own chart and scale
 const isFreezer = (label: string): boolean => /freezer/i.test(label);
@@ -67,15 +92,16 @@ const isFridge = (label: string): boolean => !isFreezer(label) && /fridge|refrig
 export const measurementGroups: IMeasurementGroup[] = [
   {id: 'fridge', anchor: 'fridges', measurement: 'temperature', includes: isFridge},
   {id: 'freezer', anchor: 'freezers', measurement: 'temperature', includes: isFreezer},
-  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
-  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true}
+  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label), references: thermostatReferences},
+  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true},
+  {id: 'battery', anchor: 'battery', measurement: 'battery', includes: () => true}
 ];
 
 export const getSeriesKey = (s: {deviceId: string; componentId: string}): string => `${s.deviceId}/${s.componentId}`;
 
 export const getSeriesLabel = (s: {label: string; componentLabel?: string}): string => (s.componentLabel ? `${s.label} (${s.componentLabel})` : s.label);
 
-// devices report 'F'/'C' for temperature and '%' for humidity
+// devices report 'F'/'C' for temperature and '%' for humidity and battery
 export const formatUnit = (unit: Nullable<string>): string => (unit === 'F' || unit === 'C' ? `°${unit}` : unit ?? '');
 
 // unit is optional so a range can show '66.2 – 71.5°F' with the unit only on the end
@@ -137,15 +163,35 @@ export const getSeriesStats = (series: IPointSeries | undefined): ISeriesStats =
 const defaultOutlierCount = 2;
 const defaultRandomCount = 2;
 
+// readings that can be outliers, highest first - offline sensors and ones with no reading are left out, since an
+// offline sensor can hold a months-old value that would look like an outlier
+const getRankedReadings = (readings: IMeasurementReading[]): IMeasurementReading[] => readings
+  .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
+  .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+export interface IOutlierKeys {
+  high: Set<string>;
+  low: Set<string>;
+}
+
+/**
+ * Series key of the group's single highest and single lowest current reading (needs at least 2 candidates, so one
+ * sensor is never marked both high and low).
+ */
+export const getOutlierKeys = (readings: IMeasurementReading[]): IOutlierKeys => {
+  const ranked = getRankedReadings(readings);
+  return ranked.length < 2
+    ? {high: new Set(), low: new Set()}
+    : {high: new Set([getSeriesKey(ranked[0])]), low: new Set([getSeriesKey(ranked[ranked.length - 1])])};
+};
+
 /**
  * Series keys to chart by default: the highest and lowest current readings (the outliers worth seeing first, especially
  * when a group has more sensors than fit), plus a couple of random others. Sensors that are offline or have no reading
  * are left out - an offline sensor can hold a months-old value that would look like an outlier.
  */
 export const pickDefaultComparedKeys = (readings: IMeasurementReading[], random: () => number = Math.random): string[] => {
-  const candidates = readings
-    .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
-    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  const candidates = getRankedReadings(readings);
   const picked = new Set([...candidates.slice(0, defaultOutlierCount), ...candidates.slice(-defaultOutlierCount)]);
   const others = candidates.filter(r => !picked.has(r));
   for (let i = 0; i < defaultRandomCount && others.length; i++) {
@@ -176,6 +222,12 @@ export interface IDisplayGrid {
   columns: Map<string, Nullable<number>[]>; // series key -> value at each x (null = offline / no reading yet)
   average: Nullable<number>[]; // mean of every column at each x
   averageCount: number; // how many series contributed to the average at any point
+  references: Map<string, Nullable<number>[]>; // reference key -> value at each x, on the same axis but left out of the average
+}
+
+interface IKeyedSeries {
+  key: string;
+  series: IMeasurementHistorySeries;
 }
 
 const isOfflineAt = (series: IMeasurementHistorySeries, x: number): boolean => series.offline.some(o => o.from <= x && (o.to === null || x < o.to));
@@ -186,10 +238,11 @@ const isOfflineAt = (series: IMeasurementHistorySeries, x: number): boolean => s
  * device is offline or before its first reading. The lead-in (last reading before the window) seeds the window start.
  * The average is the mean of every series' held value at each x, so it never jumps just because a warm or cold sensor
  * happened to report, and sensors drop out of it while offline. Display only - stats should use the real points.
+ * References (e.g. setpoints) are held the same way on the same axis, but never count toward the average.
  */
-export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementHistorySeries}[], since: number, until: number): IDisplayGrid => {
+export const buildDisplayGrid = (seriesList: IKeyedSeries[], since: number, until: number, referenceList: IKeyedSeries[] = []): IDisplayGrid => {
   const xSet = new Set<number>();
-  seriesList.forEach(({series}) => {
+  [...seriesList, ...referenceList].forEach(({series}) => {
     series.points.forEach(p => xSet.add(p.epoch));
     if (series.leadIn) {
       xSet.add(since);
@@ -209,7 +262,7 @@ export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementH
   }
   const xs = [...xSet].sort((a, b) => a - b);
 
-  const columns = new Map(seriesList.map(({key, series}) => {
+  const holdOnAxis = ({key, series}: IKeyedSeries): [string, Nullable<number>[]] => {
     let next = 0;
     let last = series.leadIn?.value ?? null;
     return [key, xs.map(x => {
@@ -219,12 +272,19 @@ export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementH
       }
       return isOfflineAt(series, x) ? null : last;
     })];
-  }));
+  };
+  const columns = new Map(seriesList.map(holdOnAxis));
 
   const columnList = [...columns.values()];
   const average = xs.map((_, i) => {
     const values = columnList.flatMap(c => (c[i] === null ? [] : [c[i]]));
     return values.length ? Math.round((values.reduce((a, v) => a + v, 0) / values.length) * averagePrecision) / averagePrecision : null;
   });
-  return {xs: xs, columns: columns, average: average, averageCount: columnList.filter(c => c.some(v => v !== null)).length};
+  return {
+    xs: xs,
+    columns: columns,
+    average: average,
+    averageCount: columnList.filter(c => c.some(v => v !== null)).length,
+    references: new Map(referenceList.map(holdOnAxis))
+  };
 };

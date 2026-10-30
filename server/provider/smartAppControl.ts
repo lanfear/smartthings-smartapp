@@ -1,5 +1,6 @@
 import {SmartApp, type ContextStore} from '@smartthings/smartapp';
 import type {ISseEventType, ISseEvent} from 'types/sharedContracts';
+import activityStore from './activityStore';
 import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';
 import sse from './sse';
@@ -12,6 +13,17 @@ const contextStore: ContextStore = smartAppContextStore(settings.controlAppId);
 
 const sendSSEEvent = (type: ISseEventType, data: ISseEvent): void => {
   sse.send(JSON.stringify(data), type);
+};
+
+// keep motion/switch history for the activity page. stamped on arrival - SmartThings delivers these within a second or
+// two. a storage failure is logged, never thrown, so the live SSE update still goes out
+const recordActivity = async (locationId: string, deviceId: string, value: string): Promise<void> => {
+  try {
+    await activityStore.recordEvent(locationId, deviceId, Date.now(), value);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Recording activity for device [', deviceId, '] failed', e);
+  }
 };
 
 /* Define the SmartApp */
@@ -52,12 +64,13 @@ export default new SmartApp()
   })
 
 // Handler called when the status of a switch changes
-  .subscribedEventHandler('switchHandler', (__context, event) => {
+  .subscribedEventHandler('switchHandler', async (__context, event) => {
     if (event.componentId === 'main') {
       sendSSEEvent('switch', {
         deviceId: event.deviceId,
         value: event.value as string
       });
+      await recordActivity(event.locationId, event.deviceId, event.value as string);
     }
   })
 
@@ -71,12 +84,13 @@ export default new SmartApp()
     }
   })
 
-// Handler called when the status of a lock changes
-  .subscribedEventHandler('motionSensorHandler', (__context, event) => {
+// Handler called when the status of a motion sensor changes
+  .subscribedEventHandler('motionSensorHandler', async (__context, event) => {
     if (event.componentId === 'main') {
       sendSSEEvent('motion', {
         deviceId: event.deviceId,
         value: event.value as string
       });
+      await recordActivity(event.locationId, event.deviceId, event.value as string);
     }
   });
