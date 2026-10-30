@@ -155,6 +155,13 @@ const NavMenu: React.FC = () => {
           to: `/${global.routing.dashboardSegment}/${locationId}/climate#${g.anchor}`
         }))}
       />
+      <Link
+        key="location-activity"
+        className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/activity') ? 'selected' : ''}`}
+        to={`/${global.routing.dashboardSegment}/${locationId}/activity`}
+      >
+        Activity
+      </Link>
       <DropdownButton
         buttonText="Debug"
         isSelected={debugSelected}

@@ -16,6 +16,7 @@ import ReturnResultError from './exceptions/returnResultError';
 import {localOnlyMiddleware} from './middlewares';
 import classifyRulesOperation from './operations/classifyRulesOperation';
 import deleteRuleOperation from './operations/deleteRuleOperation';
+import listActivityOperation from './operations/listActivityOperation';
 import listMeasurementHistoryOperation from './operations/listMeasurementHistoryOperation';
 import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
@@ -138,6 +139,14 @@ server.get('/location/:id/measurements/:measurement/history', async (req, res) =
     deviceIds: typeof req.query.deviceIds === 'string' ? req.query.deviceIds.split(',').filter(Boolean) : [],
     bucketMinutes: Number(req.query.bucketMinutes)
   }));
+});
+
+/**
+ * Motion sensor and switch activity recorded from the control SmartApp's subscriptions, as on/active periods per device
+ * query: hours (default 24, max MEASUREMENT_RETENTION_DAYS - activity shares the measurement retention)
+ */
+server.get('/location/:id/activity', async (req, res) => {
+  res.json(await listActivityOperation(req.params.id, Number(req.query.hours)));
 });
 
 /* Execute a scene */

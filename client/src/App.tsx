@@ -8,6 +8,7 @@ import {Routes, Route} from 'react-router-dom';
 import {SWRConfig} from 'swr';
 import AdvancedTemplates from './components/AdvancedTemplates';
 import BasicTemplates from './components/BasicTemplates';
+import DashboardActivity from './components/DashboardActivity';
 import DashboardApps from './components/DashboardApps';
 import DashboardClimate from './components/DashboardClimate';
 import DashboardRooms from './components/DashboardRooms';
@@ -98,6 +99,10 @@ const App: React.FC = () => {
               <Route
                 path={`${global.routing.dashboardSegment}/:locationId/climate`}
                 element={(<DashboardClimate />)}
+              />
+              <Route
+                path={`${global.routing.dashboardSegment}/:locationId/activity`}
+                element={(<DashboardActivity />)}
               />
             </Routes>
           </section>

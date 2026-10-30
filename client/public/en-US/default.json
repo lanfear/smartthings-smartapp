@@ -160,6 +160,49 @@
         "label": "Average of {{count}} sensors"
       }
     },
+    "activity": {
+      "sectionName": "Activity",
+      "range": {
+        "6h": "6h",
+        "24h": "24h",
+        "7d": "7d"
+      },
+      "filter": {
+        "range": "Time range",
+        "idle": "Idle after"
+      },
+      "idleOption": "{{minutes}} min",
+      "legend": {
+        "motion": "Motion",
+        "light": "Lights on",
+        "idle": "Lights on, no motion for {{minutes}}+ min",
+        "unrecorded": "Not recorded (recording started {{time}})"
+      },
+      "header": {
+        "room": "Room",
+        "totals": "Totals"
+      },
+      "floor": {
+        "basement": "Basement",
+        "level": "Floor {{level}}",
+        "other": "Other"
+      },
+      "stats": {
+        "motion": "motion",
+        "lights": "lights",
+        "idle": "idle {{duration}}"
+      },
+      "tooltip": {
+        "idle": "Lights on, no recent motion",
+        "now": "now"
+      },
+      "roomDetail": "{{motion}} motion sensor(s), {{lights}} light(s)",
+      "empty": {
+        "loading": "Loading activity...",
+        "notRecorded": "No activity recorded yet. It's recorded from the control SmartApp's switch and motion events, so make sure both are turned on in its settings.",
+        "noRooms": "No rooms with motion sensors."
+      }
+    },
     "locationRequired": {
       "title": "Choose a location",
       "body": "This page shows one SmartThings location at a time. Pick it below, or from the Locations menu at the top left.",
