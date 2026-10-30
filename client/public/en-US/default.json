@@ -113,6 +113,10 @@
         "humidity": "Humidity",
         "battery": "Battery"
       },
+      "reference": {
+        "heatingSetpoint": "Heat setpoint",
+        "coolingSetpoint": "Cool setpoint"
+      },
       "range": {
         "6h": "6h",
         "24h": "24h",

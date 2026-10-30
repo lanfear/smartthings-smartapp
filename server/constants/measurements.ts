@@ -9,7 +9,9 @@ export interface IMeasurementDefinition {
 export const measurementDefinitions: Record<IMeasurementType, IMeasurementDefinition> = {
   temperature: {capability: 'temperatureMeasurement', attribute: 'temperature'},
   humidity: {capability: 'relativeHumidityMeasurement', attribute: 'humidity'},
-  battery: {capability: 'battery', attribute: 'battery'}
+  battery: {capability: 'battery', attribute: 'battery'},
+  heatingSetpoint: {capability: 'thermostatHeatingSetpoint', attribute: 'heatingSetpoint'},
+  coolingSetpoint: {capability: 'thermostatCoolingSetpoint', attribute: 'coolingSetpoint'}
 };
 
 export const measurementTypes = Object.keys(measurementDefinitions) as IMeasurementType[];

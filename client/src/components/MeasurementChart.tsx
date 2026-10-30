@@ -11,7 +11,11 @@ export interface IChartSeries {
   color: string;
   values: Nullable<number>[]; // one per x - null breaks the line (device offline, or no reading yet)
   dash?: readonly number[]; // dashed line, e.g. the group average reference line
+  stepped?: boolean; // hold each value until the next, then jump - for settings like setpoints that change in steps
 }
+
+// uPlot ships the stepped path builder as optional in its types, but it's always in the bundled build
+const steppedPath = uPlot.paths.stepped!({align: 1});
 
 interface IMeasurementChartProps {
   measurement: IMeasurementType;
@@ -76,14 +80,16 @@ const TooltipRow = styled.div`
   line-height: 1.5;
 `;
 
-// short stroke of a series' color that keys it in legends/tooltips/tables - dashed to match a dashed line
-export const LineKey = styled.span<{color: string; dashed?: boolean}>`
+// short stroke of a series' color that keys it in legends/tooltips/tables - dashed/dotted to match the line
+export const LineKey = styled.span<{color: string; dashed?: boolean; dotted?: boolean}>`
   display: inline-block;
   flex: none;
   width: 12px;
   height: 2px;
   border-radius: 1px;
-  background: ${props => props.dashed ? `repeating-linear-gradient(90deg, ${props.color} 0 4px, transparent 4px 6px)` : props.color};
+  background: ${props => props.dotted
+    ? `repeating-linear-gradient(90deg, ${props.color} 0 2px, transparent 2px 4px)`
+    : props.dashed ? `repeating-linear-gradient(90deg, ${props.color} 0 4px, transparent 4px 6px)` : props.color};
 `;
 
 const TooltipValue = styled.span`
@@ -178,6 +184,7 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
           stroke: s.color,
           width: 2,
           ...(s.dash ? {dash: [...s.dash]} : {}),
+          ...(s.stepped ? {paths: steppedPath} : {}),
           // values are already held forward between readings - a null is a real gap (device offline)
           spanGaps: false,
           // every x has a held value, so per-point markers would suggest readings that never happened
@@ -239,6 +246,7 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
               <LineKey
                 color={s.color}
                 dashed={!!s.dash}
+                dotted={!!s.stepped}
               />
               <TooltipValue>
                 {formatValue(s.values[hover.idx] ?? null, measurement, unit)}

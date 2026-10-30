@@ -1,4 +1,4 @@
-import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, Nullable} from '../types/sharedContracts';
+import type {IMeasurementHistoryPoint, IMeasurementHistorySeries, IMeasurementReading, IMeasurementType, IResponseMeasurementHistory, Nullable} from '../types/sharedContracts';
 
 // anything with points - a sensor's history series, or a derived line like the group average
 export interface IPointSeries {
@@ -48,16 +48,41 @@ export const historyRanges: IHistoryRange[] = [
   {id: '30d', hours: 720, bucketMinutes: 240}
 ];
 
-export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity', 'battery'];
+export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity', 'battery', 'heatingSetpoint', 'coolingSetpoint'];
 
 export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity' | 'battery';
+
+// a measurement drawn over a group's sensors as context (e.g. thermostat setpoints over room temps). it must share the
+// group's unit. it isn't a sensor, so it's never in the average or the compare picker, and it's always on the chart
+export interface IMeasurementReference {
+  measurement: IMeasurementType;
+  color: string;
+}
+
+// dotted to set references apart from the solid sensor lines and the dashed average
+const referenceDotPx = 2;
+const referenceGapPx = 4;
+export const referenceLineDash = [referenceDotPx, referenceGapPx] as const;
+
+// a reference's data for one page render - its current readings (one per device) and history
+export interface IMeasurementReferenceData extends IMeasurementReference {
+  readings: IMeasurementReading[];
+  history: Nullable<IResponseMeasurementHistory>;
+}
 
 export interface IMeasurementGroup {
   id: IMeasurementGroupId;
   anchor: string; // the section's element id, so /dashboard/:locationId/climate#<anchor> jumps to it (see the nav menu)
   measurement: IMeasurementType;
   includes: (seriesLabel: string) => boolean;
+  references?: IMeasurementReference[];
 }
+
+// heat/cool keep their conventional warm/cool hues, darker than the sensor palette's orange and blue so they don't read as sensors
+const thermostatReferences: IMeasurementReference[] = [
+  {measurement: 'heatingSetpoint', color: '#b4380f'},
+  {measurement: 'coolingSetpoint', color: '#1f4fb8'}
+];
 
 // sensors are grouped by name - fridge/freezer temps sit far from room temps, so they each get their own chart and scale
 const isFreezer = (label: string): boolean => /freezer/i.test(label);
@@ -67,7 +92,7 @@ const isFridge = (label: string): boolean => !isFreezer(label) && /fridge|refrig
 export const measurementGroups: IMeasurementGroup[] = [
   {id: 'fridge', anchor: 'fridges', measurement: 'temperature', includes: isFridge},
   {id: 'freezer', anchor: 'freezers', measurement: 'temperature', includes: isFreezer},
-  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
+  {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label), references: thermostatReferences},
   {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true},
   {id: 'battery', anchor: 'battery', measurement: 'battery', includes: () => true}
 ];
@@ -177,6 +202,12 @@ export interface IDisplayGrid {
   columns: Map<string, Nullable<number>[]>; // series key -> value at each x (null = offline / no reading yet)
   average: Nullable<number>[]; // mean of every column at each x
   averageCount: number; // how many series contributed to the average at any point
+  references: Map<string, Nullable<number>[]>; // reference key -> value at each x, on the same axis but left out of the average
+}
+
+interface IKeyedSeries {
+  key: string;
+  series: IMeasurementHistorySeries;
 }
 
 const isOfflineAt = (series: IMeasurementHistorySeries, x: number): boolean => series.offline.some(o => o.from <= x && (o.to === null || x < o.to));
@@ -187,10 +218,11 @@ const isOfflineAt = (series: IMeasurementHistorySeries, x: number): boolean => s
  * device is offline or before its first reading. The lead-in (last reading before the window) seeds the window start.
  * The average is the mean of every series' held value at each x, so it never jumps just because a warm or cold sensor
  * happened to report, and sensors drop out of it while offline. Display only - stats should use the real points.
+ * References (e.g. setpoints) are held the same way on the same axis, but never count toward the average.
  */
-export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementHistorySeries}[], since: number, until: number): IDisplayGrid => {
+export const buildDisplayGrid = (seriesList: IKeyedSeries[], since: number, until: number, referenceList: IKeyedSeries[] = []): IDisplayGrid => {
   const xSet = new Set<number>();
-  seriesList.forEach(({series}) => {
+  [...seriesList, ...referenceList].forEach(({series}) => {
     series.points.forEach(p => xSet.add(p.epoch));
     if (series.leadIn) {
       xSet.add(since);
@@ -210,7 +242,7 @@ export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementH
   }
   const xs = [...xSet].sort((a, b) => a - b);
 
-  const columns = new Map(seriesList.map(({key, series}) => {
+  const holdOnAxis = ({key, series}: IKeyedSeries): [string, Nullable<number>[]] => {
     let next = 0;
     let last = series.leadIn?.value ?? null;
     return [key, xs.map(x => {
@@ -220,12 +252,19 @@ export const buildDisplayGrid = (seriesList: {key: string; series: IMeasurementH
       }
       return isOfflineAt(series, x) ? null : last;
     })];
-  }));
+  };
+  const columns = new Map(seriesList.map(holdOnAxis));
 
   const columnList = [...columns.values()];
   const average = xs.map((_, i) => {
     const values = columnList.flatMap(c => (c[i] === null ? [] : [c[i]]));
     return values.length ? Math.round((values.reduce((a, v) => a + v, 0) / values.length) * averagePrecision) / averagePrecision : null;
   });
-  return {xs: xs, columns: columns, average: average, averageCount: columnList.filter(c => c.some(v => v !== null)).length};
+  return {
+    xs: xs,
+    columns: columns,
+    average: average,
+    averageCount: columnList.filter(c => c.some(v => v !== null)).length,
+    references: new Map(referenceList.map(holdOnAxis))
+  };
 };

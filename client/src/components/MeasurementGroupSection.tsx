@@ -14,11 +14,13 @@ import {
   getValueStats,
   maxComparedSeries,
   pickDefaultComparedKeys,
+  referenceLineDash,
   seriesPalette,
   statusColor,
   toggleSeriesSlot,
   type IHistoryRange,
-  type IMeasurementGroup
+  type IMeasurementGroup,
+  type IMeasurementReferenceData
 } from '../factories/measurementFactory';
 import {readStorage, writeStorage} from '../factories/storageFactory';
 import {
@@ -43,6 +45,7 @@ interface IMeasurementGroupSectionProps {
   group: IMeasurementGroup;
   readings: IMeasurementReading[]; // current readings of just this group's sensors
   history: Nullable<IResponseMeasurementHistory>; // history of the group's measurement (any sensor - looked up by key)
+  references: IMeasurementReferenceData[]; // context lines drawn over the sensors, e.g. thermostat setpoints (see group.references)
   range: IHistoryRange;
   roomNames: Map<string | undefined, string | undefined>;
   dimmed: boolean; // an older range is still on screen while the new one loads
@@ -255,7 +258,7 @@ const getStatus = (healthState: Nullable<string>): {icon: string; color: string;
 // until the viewer picks, chart the current outliers plus a couple of random others (see pickDefaultComparedKeys)
 const getDefaultSlots = (readings: IMeasurementReading[]): SlotMap => Object.fromEntries(pickDefaultComparedKeys(readings).map((key, i) => [key, i]));
 
-const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, range, roomNames, dimmed, readingsSettled}) => {
+const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group, readings, history, references, range, roomNames, dimmed, readingsSettled}) => {
   const {t} = useTranslation();
   const {measurement} = group;
   const [storedSlots, setStoredSlots] = useState(() => readStorage<SlotMap>(slotStorageKey(group)));
@@ -282,14 +285,24 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
 
   // what lines, the average and sparklines draw: every sensor in the group on one time axis, each holding its last
   // reading while online (see buildDisplayGrid). the average covers the whole group, whether or not a sensor is charted
+  // one reference line per device reporting it (normally a single thermostat), keyed apart from the sensors
+  const referenceLines = useMemo(() => references.flatMap(ref => ref.readings.flatMap(r => {
+    const key = getSeriesKey(r);
+    const series = ref.history?.series.find(s => getSeriesKey(s) === key);
+    return series
+      ? [{key: `${ref.measurement}:${key}`, label: `${t(`dashboard.climate.reference.${ref.measurement}`)} (${getSeriesLabel(r)})`, color: ref.color, reading: r, series: series}]
+      : [];
+  })), [references, t]);
+
   const grid = useMemo(() => buildDisplayGrid(
     readingKeys.flatMap(k => {
       const series = historyByKey.get(k);
       return series ? [{key: k, series: series}] : [];
     }),
     history?.since ?? 0,
-    history?.until ?? 0
-  ), [readingKeys, historyByKey, history]);
+    history?.until ?? 0,
+    referenceLines
+  ), [readingKeys, historyByKey, history, referenceLines]);
   const averageLabel = t('dashboard.climate.average.label', {count: grid.averageCount});
   const averageStats = getValueStats(grid.average);
   // offline sensors can hold a months-old value, so the current average only uses sensors that are reporting
@@ -303,9 +316,13 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
       const values = grid.columns.get(key);
       return values ? [{key: key, label: getSeriesLabel(r), color: seriesPalette[slots[key]], values: values}] : [];
     }),
+    ...referenceLines.flatMap(({key, label, color}) => {
+      const values = grid.references.get(key);
+      return values ? [{key: key, label: label, color: color, dash: referenceLineDash, stepped: true, values: values}] : [];
+    }),
     // drawn last so the reference line sits on top of the sensor lines
     ...(hasAverage ? [{key: 'average', label: averageLabel, color: averageLine.color, dash: averageLine.dash, values: grid.average}] : [])
-  ], [comparedReadings, grid, slots, hasAverage, averageLabel]);
+  ], [comparedReadings, referenceLines, grid, slots, hasAverage, averageLabel]);
   const hasChartPoints = chartSeries.some(s => s.values.some(v => v !== null));
   const unit = comparedReadings[0]?.unit ?? readings[0]?.unit ?? null;
 
@@ -394,6 +411,37 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
                     </td>
                     <td>
                       {formatRelativeTime(r.timestamp)}
+                    </td>
+                  </tr>
+                );
+              })}
+              {referenceLines.map(({key, label, color, reading, series}) => {
+                const stats = getSeriesStats(series);
+                return (
+                  <tr key={key}>
+                    <td>
+                      <SensorName>
+                        <LineKey
+                          color={color}
+                          dotted
+                        />
+                        {label}
+                      </SensorName>
+                    </td>
+                    <td>
+                      {formatValue(reading.value, measurement, reading.unit)}
+                    </td>
+                    <td>
+                      {formatValue(stats.min, measurement, reading.unit)}
+                    </td>
+                    <td>
+                      {formatValue(stats.avg, measurement, reading.unit)}
+                    </td>
+                    <td>
+                      {formatValue(stats.max, measurement, reading.unit)}
+                    </td>
+                    <td>
+                      {formatRelativeTime(reading.timestamp)}
                     </td>
                   </tr>
                 );
