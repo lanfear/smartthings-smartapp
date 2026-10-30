@@ -48,9 +48,9 @@ export const historyRanges: IHistoryRange[] = [
   {id: '30d', hours: 720, bucketMinutes: 240}
 ];
 
-export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity'];
+export const measurementTypes: IMeasurementType[] = ['temperature', 'humidity', 'battery'];
 
-export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity';
+export type IMeasurementGroupId = 'fridge' | 'freezer' | 'rooms' | 'humidity' | 'battery';
 
 export interface IMeasurementGroup {
   id: IMeasurementGroupId;
@@ -68,14 +68,15 @@ export const measurementGroups: IMeasurementGroup[] = [
   {id: 'fridge', anchor: 'fridges', measurement: 'temperature', includes: isFridge},
   {id: 'freezer', anchor: 'freezers', measurement: 'temperature', includes: isFreezer},
   {id: 'rooms', anchor: 'rooms', measurement: 'temperature', includes: label => !isFridge(label) && !isFreezer(label)},
-  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true}
+  {id: 'humidity', anchor: 'humidity', measurement: 'humidity', includes: () => true},
+  {id: 'battery', anchor: 'battery', measurement: 'battery', includes: () => true}
 ];
 
 export const getSeriesKey = (s: {deviceId: string; componentId: string}): string => `${s.deviceId}/${s.componentId}`;
 
 export const getSeriesLabel = (s: {label: string; componentLabel?: string}): string => (s.componentLabel ? `${s.label} (${s.componentLabel})` : s.label);
 
-// devices report 'F'/'C' for temperature and '%' for humidity
+// devices report 'F'/'C' for temperature and '%' for humidity and battery
 export const formatUnit = (unit: Nullable<string>): string => (unit === 'F' || unit === 'C' ? `°${unit}` : unit ?? '');
 
 // unit is optional so a range can show '66.2 – 71.5°F' with the unit only on the end

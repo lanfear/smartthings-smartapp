@@ -73,7 +73,7 @@ export interface IResponseLocation {
   apps: IResponseApps;
 }
 
-export type IMeasurementType = 'temperature' | 'humidity';
+export type IMeasurementType = 'temperature' | 'humidity' | 'battery';
 
 // one reading per device *component* that reports the measurement (multi-sensors may report on a non-main component)
 export interface IMeasurementReading {
@@ -83,7 +83,7 @@ export interface IMeasurementReading {
   componentLabel?: string; // only set for non-main components
   roomId?: string;
   value: Nullable<number>; // null when the device hasn't reported or its status couldn't be read
-  unit: Nullable<string>; // 'F' | 'C' for temperature, '%' for humidity, as reported by the device
+  unit: Nullable<string>; // 'F' | 'C' for temperature, '%' for humidity and battery, as reported by the device
   timestamp: Nullable<string>; // ISO-8601 time of the last reported value
   healthState: Nullable<string>; // 'ONLINE' | 'OFFLINE' | 'UNKNOWN'
 }

@@ -46,7 +46,7 @@ const settings: ISettings = {
   // server/locales, resolved from the compiled server/build/provider/settings.js so it works from any cwd
   localesDirectory: path.resolve(__dirname, '..', '..', 'locales'),
   debugLogging: process.env.LOGGING_EVENTS_ENABLED?.toLowerCase() === 'true',
-  // how often the server records temperature/humidity readings into redis for the history graphs (0 disables recording)
+  // how often the server records measurement readings (temperature/humidity/battery) into redis for the history graphs (0 disables recording)
   measurementPollMinutes: Math.max(0, parseFloat(process.env.MEASUREMENT_POLL_MINUTES ?? '5') || 0),
   // how many days of recorded readings to keep
   measurementRetentionDays: Math.max(1, parseFloat(process.env.MEASUREMENT_RETENTION_DAYS ?? '30') || 30) // eslint-disable-line @typescript-eslint/no-magic-numbers

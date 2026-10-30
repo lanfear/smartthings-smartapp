@@ -13,7 +13,7 @@ import {
 import {readStorage, writeStorage} from '../factories/storageFactory';
 import {DashboardChipToggle, DashboardTitle} from '../factories/styleFactory';
 import {useDeviceData, useLocationIdParam} from '../store/DeviceContextStore';
-import {useMeasurementHistoryStore, useMeasurementStore} from '../store/MeasurementContextStore';
+import {useMeasurementHistoryStore, useMeasurementStore, type IMeasurementHistoryStore, type IMeasurementStore} from '../store/MeasurementContextStore';
 import type {IMeasurementType, IResponseMeasurementHistory} from '../types/sharedContracts';
 import LocationRequiredHint from './LocationRequiredHint';
 import MeasurementGroupSection from './MeasurementGroupSection';
@@ -52,19 +52,29 @@ const DashboardClimate: React.FC = () => {
   }, [range]);
 
   const historyOptions = {hours: range.hours, bucketMinutes: range.bucketMinutes};
-  const temperature = useMeasurementStore('temperature');
-  const humidity = useMeasurementStore('humidity');
-  const temperatureHistory = useMeasurementHistoryStore('temperature', historyOptions);
-  const humidityHistory = useMeasurementHistoryStore('humidity', historyOptions);
+  // one explicit call per measurement (hooks can't run in a loop) - `satisfies` fails the build if a new measurement type is missing here
+  const currentByMeasurement = {
+    temperature: useMeasurementStore('temperature'),
+    humidity: useMeasurementStore('humidity'),
+    battery: useMeasurementStore('battery')
+  } satisfies Record<IMeasurementType, IMeasurementStore>;
+  const historyByMeasurement = {
+    temperature: useMeasurementHistoryStore('temperature', historyOptions),
+    humidity: useMeasurementHistoryStore('humidity', historyOptions),
+    battery: useMeasurementHistoryStore('battery', historyOptions)
+  } satisfies Record<IMeasurementType, IMeasurementHistoryStore>;
 
-  const historyByMeasurement = {temperature: temperatureHistory, humidity: humidityHistory} satisfies Record<IMeasurementType, unknown>;
-  const temperatureReadings = temperature.measurementData.readings;
-  const humidityReadings = humidity.measurementData.readings;
+  const temperatureReadings = currentByMeasurement.temperature.measurementData.readings;
+  const humidityReadings = currentByMeasurement.humidity.measurementData.readings;
+  const batteryReadings = currentByMeasurement.battery.measurementData.readings;
   // memoized so a section only rebuilds its chart when its own data changes
-  const readingsByGroup = useMemo(() => new Map(measurementGroups.map(group => [
-    group.id,
-    (group.measurement === 'temperature' ? temperatureReadings : humidityReadings).filter(r => group.includes(getSeriesLabel(r)))
-  ])), [temperatureReadings, humidityReadings]);
+  const readingsByGroup = useMemo(() => {
+    const readingsByMeasurement = {temperature: temperatureReadings, humidity: humidityReadings, battery: batteryReadings} satisfies Record<IMeasurementType, unknown>;
+    return new Map(measurementGroups.map(group => [
+      group.id,
+      readingsByMeasurement[group.measurement].filter(r => group.includes(getSeriesLabel(r)))
+    ]));
+  }, [temperatureReadings, humidityReadings, batteryReadings]);
 
   const roomNames = useMemo(() => new Map(deviceData.rooms.map(r => [r.roomId, r.name])), [deviceData.rooms]);
 
@@ -75,7 +85,7 @@ const DashboardClimate: React.FC = () => {
   const {hash, key: navigationKey} = useLocation();
   const anchor = hash.slice(1);
   // wait for history too: charts and sparklines arriving afterwards would grow the sections above and push the target down
-  const historyLoaded = !!temperatureHistory.historyData && !!humidityHistory.historyData;
+  const historyLoaded = Object.values(historyByMeasurement).every(h => !!h.historyData);
   const anchorSectionReady = !!deviceData.locationId && historyLoaded && measurementGroups.some(g => g.anchor === anchor && (readingsByGroup.get(g.id)?.length ?? 0) > 0);
   useEffect(() => {
     if (anchorSectionReady) {
@@ -127,7 +137,7 @@ const DashboardClimate: React.FC = () => {
               range={range}
               roomNames={roomNames}
               dimmed={isShowingStaleRange(data.historyData, data.isValidating, range)}
-              readingsSettled={!(group.measurement === 'temperature' ? temperature : humidity).isValidating}
+              readingsSettled={!currentByMeasurement[group.measurement].isValidating}
             />
           );
         })}

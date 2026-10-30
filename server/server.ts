@@ -107,7 +107,7 @@ server.get('/location/:id', async (req, res) => {
   res.json(response);
 });
 
-/* Current readings of a measurement (temperature | humidity) from every device in the location that reports it */
+/* Current readings of a measurement (temperature | humidity | battery) from every device in the location that reports it */
 server.get('/location/:id/measurements/:measurement', async (req, res) => {
   const {id, measurement} = req.params;
   if (!isMeasurementType(measurement)) {

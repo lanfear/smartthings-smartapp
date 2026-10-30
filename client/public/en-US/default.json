@@ -110,7 +110,8 @@
         "fridge": "Temps - Fridge",
         "freezer": "Temps - Freezer",
         "rooms": "Temps - Rooms",
-        "humidity": "Humidity"
+        "humidity": "Humidity",
+        "battery": "Battery"
       },
       "range": {
         "6h": "6h",
