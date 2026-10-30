@@ -163,15 +163,35 @@ export const getSeriesStats = (series: IPointSeries | undefined): ISeriesStats =
 const defaultOutlierCount = 2;
 const defaultRandomCount = 2;
 
+// readings that can be outliers, highest first - offline sensors and ones with no reading are left out, since an
+// offline sensor can hold a months-old value that would look like an outlier
+const getRankedReadings = (readings: IMeasurementReading[]): IMeasurementReading[] => readings
+  .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
+  .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+export interface IOutlierKeys {
+  high: Set<string>;
+  low: Set<string>;
+}
+
+/**
+ * Series key of the group's single highest and single lowest current reading (needs at least 2 candidates, so one
+ * sensor is never marked both high and low).
+ */
+export const getOutlierKeys = (readings: IMeasurementReading[]): IOutlierKeys => {
+  const ranked = getRankedReadings(readings);
+  return ranked.length < 2
+    ? {high: new Set(), low: new Set()}
+    : {high: new Set([getSeriesKey(ranked[0])]), low: new Set([getSeriesKey(ranked[ranked.length - 1])])};
+};
+
 /**
  * Series keys to chart by default: the highest and lowest current readings (the outliers worth seeing first, especially
  * when a group has more sensors than fit), plus a couple of random others. Sensors that are offline or have no reading
  * are left out - an offline sensor can hold a months-old value that would look like an outlier.
  */
 export const pickDefaultComparedKeys = (readings: IMeasurementReading[], random: () => number = Math.random): string[] => {
-  const candidates = readings
-    .filter(r => r.value !== null && r.healthState !== 'OFFLINE')
-    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  const candidates = getRankedReadings(readings);
   const picked = new Set([...candidates.slice(0, defaultOutlierCount), ...candidates.slice(-defaultOutlierCount)]);
   const others = candidates.filter(r => !picked.has(r));
   for (let i = 0; i < defaultRandomCount && others.length; i++) {

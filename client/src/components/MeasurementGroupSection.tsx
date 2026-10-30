@@ -8,6 +8,7 @@ import {
   chartInk,
   formatRelativeTime,
   formatValue,
+  getOutlierKeys,
   getSeriesKey,
   getSeriesLabel,
   getSeriesStats,
@@ -26,6 +27,7 @@ import {readStorage, writeStorage} from '../factories/storageFactory';
 import {
   DashboardCard,
   DashboardCardActions,
+  DashboardCardBadge,
   DashboardCardBody,
   DashboardCardField,
   DashboardCardFieldLabel,
@@ -265,6 +267,8 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
   const [showTable, setShowTable] = useState(false);
 
   const readingKeys = useMemo(() => readings.map(getSeriesKey), [readings]);
+  // the group's highest/lowest current readings get a badge on their tile
+  const outlierKeys = useMemo(() => getOutlierKeys(readings), [readings]);
   const historyByKey = useMemo(() => new Map((history?.series ?? []).map(s => [getSeriesKey(s), s])), [history]);
   // the default is picked once per page load, from fresh readings: until they arrive it follows whatever is showing
   // (cached readings), then it's locked so the lines don't reshuffle on every one-minute refresh. not saved - the next
@@ -544,8 +548,17 @@ const MeasurementGroupSection: React.FC<IMeasurementGroupSectionProps> = ({group
           const series = historyByKey.get(key);
           const stats = getSeriesStats(series);
           const status = getStatus(r.healthState);
+          const outlier = outlierKeys.high.has(key) ? 'high' : outlierKeys.low.has(key) ? 'low' : null;
           return (
             <DashboardCard key={key}>
+              {outlier && (
+                <DashboardCardBadge
+                  rgb={outlier === 'high' ? global.palette.control.rgb.rule : global.palette.control.rgb.scene}
+                  title={t(`dashboard.climate.outlier.${outlier}Detail`)}
+                >
+                  {outlier === 'high' ? `▲ ${t('dashboard.climate.outlier.high')}` : `▼ ${t('dashboard.climate.outlier.low')}`}
+                </DashboardCardBadge>
+              )}
               <DashboardCardTitle title={getSeriesLabel(r)}>
                 {getSeriesLabel(r)}
               </DashboardCardTitle>

@@ -158,6 +158,12 @@
       },
       "average": {
         "label": "Average of {{count}} sensors"
+      },
+      "outlier": {
+        "high": "High",
+        "low": "Low",
+        "highDetail": "Highest current reading in this group",
+        "lowDetail": "Lowest current reading in this group"
       }
     },
     "activity": {
