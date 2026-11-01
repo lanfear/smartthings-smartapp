@@ -10,11 +10,12 @@ import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from '../operations/createRuleFromSummaryOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import deleteRulesForSmartAppOperation from '../operations/deleteRulesForSmartAppOperation';
+import describeRulePausesOperation from '../operations/describeRulePausesOperation';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
-import type {IRuleSwitchLevelInfo, Nullable} from '../types/sharedContracts';
+import type {IRuleComponentType, IRuleSwitchLevelInfo, Nullable} from '../types/sharedContracts';
 import ruleStore from './ruleStore';
 import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';
@@ -53,13 +54,30 @@ export default new SmartApp()
 
     // each section opens with a plain-language summary of what its settings currently do. These strings aren't
     // localized because the built-in I18n can't interpolate config-driven values
-    const rulesEnabled = {
+    const rulesEnabled: Record<IRuleComponentType, boolean> = {
       daylight: config.enableAllRules && config.enableDaylightRule,
       nightlight: config.enableAllRules && config.enableNightlightRule,
       idle: config.enableAllRules && config.enableIdleRule,
       transition: config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule
     };
-    const ruleTitle = (name: string, enabled: boolean): string => `${name}${enabled ? '' : ' (disabled)'}`;
+
+    // pauses are set from the web dashboard and live only in the rule store - shown here, but not editable
+    const {installedAppId, locationId} = context as unknown as {installedAppId: string; locationId: string}; // set at runtime, missing from the SDK typings
+    const pauses = await describeRulePausesOperation(locationId, installedAppId).catch((e: unknown) => {
+      // eslint-disable-next-line no-console
+      console.warn('Reading rule pauses failed, config page shows none', e);
+      return null;
+    });
+    const isPaused = (component: IRuleComponentType): boolean => Boolean(pauses && (pauses.pausedAll || pauses.paused[component]));
+
+    // "Name", "Name (paused)" or "Name (disabled)" for the rules that title covers
+    const ruleTitle = (name: string, components: IRuleComponentType[]): string => {
+      const running = components.filter(c => rulesEnabled[c]);
+      if (running.length === 0) {
+        return `${name} (disabled)`;
+      }
+      return running.every(isPaused) ? `${name} (paused)` : name;
+    };
     const plural = (count: number, word: string): string => `${count} ${word.toLowerCase()}${count === 1 ? '' : 's'}`;
     const labels = (devices: {label?: string}[]): string => devices.map(d => d.label).join(', ');
     const formatOffset = (offset: number): string => dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(offset, 'minutes').format('h:mm A');
@@ -80,16 +98,22 @@ export default new SmartApp()
     page.section('types', section => {
       section.hideable(true);
 
-      const activeRules = [
-        rulesEnabled.daylight ? 'Daylight' : null,
-        rulesEnabled.nightlight ? 'Nightlight' : null,
-        rulesEnabled.transition ? 'Transition' : null,
-        rulesEnabled.idle ? 'Idle' : null
-      ].filter(Boolean);
+      const ruleNames: [IRuleComponentType, string][] = [['daylight', 'Daylight'], ['nightlight', 'Nightlight'], ['transition', 'Transition'], ['idle', 'Idle']];
+      const enabledRules = ruleNames.filter(([c]) => rulesEnabled[c]);
+      const activeRules = enabledRules.filter(([c]) => !isPaused(c)).map(([, name]) => name);
       section
         .paragraphSetting('activeRulesSummary')
         .name('Active rules')
-        .description(activeRules.length > 0 ? activeRules.join(', ') : 'None, all rules are disabled');
+        .description(activeRules.length > 0
+          ? activeRules.join(', ')
+          : `None, all rules are ${enabledRules.length > 0 ? 'paused' : 'disabled'}`);
+
+      if (pauses?.summary) {
+        section
+          .paragraphSetting('pausedRulesSummary')
+          .name('Paused from the web dashboard')
+          .description(pauses.summary);
+      }
 
       section.booleanSetting('enableAllRules').defaultValue('true');
       section.booleanSetting('enableDaylightRule').defaultValue('true');
@@ -113,12 +137,12 @@ export default new SmartApp()
       if (config.motionSensors.length > 0) {
         section
           .paragraphSetting('motionOnSummary')
-          .name(ruleTitle('Lights on (Daylight & Nightlight Rules)', rulesEnabled.daylight || rulesEnabled.nightlight))
+          .name(ruleTitle('Lights on (Daylight & Nightlight Rules)', ['daylight', 'nightlight']))
           .description(`When ${sensorPhrase(config.motionMultipleAll, 'active')} for ${plural(config.motionDurationDelay, 'second')}`);
 
         section
           .paragraphSetting('motionOffSummary')
-          .name(ruleTitle('Lights off (Idle Rule)', rulesEnabled.idle))
+          .name(ruleTitle('Lights off (Idle Rule)', ['idle']))
           .description(`When ${sensorPhrase(!config.motionMultipleAll, 'inactive')} for ${plural(config.motionIdleTimeout, config.motionIdleTimeoutUnit)}`);
       }
 
@@ -151,14 +175,14 @@ export default new SmartApp()
       if (uniqueDaySwitches.length > 0) {
         section
           .paragraphSetting('daySwitchesSummary')
-          .name(ruleTitle('Daylight Rule', rulesEnabled.daylight))
+          .name(ruleTitle('Daylight Rule', ['daylight']))
           .description(`Motion turns on ${labels(uniqueDaySwitches)}`);
       }
 
       if (uniqueNightSwitches.length > 0) {
         section
           .paragraphSetting('nightSwitchesSummary')
-          .name(ruleTitle('Nightlight Rule', rulesEnabled.nightlight))
+          .name(ruleTitle('Nightlight Rule', ['nightlight']))
           .description(`Motion turns on ${labels(uniqueNightSwitches)}`);
       }
 
@@ -211,7 +235,7 @@ export default new SmartApp()
 
         section
           .paragraphSetting('transitionSummary')
-          .name(ruleTitle('Transition Rule', rulesEnabled.transition))
+          .name(ruleTitle('Transition Rule', ['transition']))
           .description(`At ${dayNightTime}, if any Daylight lights are on, ${changes.join(' and ')}`);
       }
 

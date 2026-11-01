@@ -53,6 +53,7 @@
     },
     "rule": {
       "sectionName": "Rules",
+      "pausedUntil": "Paused until {{time}}",
       "header": {
         "name": "Name",
         "ruleId": "Rule ID",

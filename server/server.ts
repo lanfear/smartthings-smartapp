@@ -10,9 +10,10 @@ import type {Device, Command, RuleRequest} from '@smartthings/core-sdk';
 import cors from 'cors';
 import express, {type Request} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import type {IResponseApps, IResponseLocation, IResponseMeasurements, IRule, IRuleComponentType} from 'types/sharedContracts';
+import type {IResponseApps, IResponseLocation, IResponseMeasurements, IRule, IRuleComponentType, ISseRuleEvent} from 'types/sharedContracts';
 import {isMeasurementType} from './constants/measurements';
 import ReturnResultError from './exceptions/returnResultError';
+import {generateRuleAppKey} from './factories/ruleFactory';
 import {localOnlyMiddleware} from './middlewares';
 import classifyRulesOperation from './operations/classifyRulesOperation';
 import deleteRuleOperation from './operations/deleteRuleOperation';
@@ -21,7 +22,8 @@ import listMeasurementHistoryOperation from './operations/listMeasurementHistory
 import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
 import manageRuleApplicationOperation from './operations/manageRuleApplicationOperation';
 import {startMeasurementRecording} from './operations/recordMeasurementsOperation';
-import {cancelReEnableRuleTimers, reEnableRuleAfterDelay} from './operations/reEnableRuleAfterDelayOperation';
+import {cancelReEnableRuleTimers, reEnableRuleAfterDelay, restoreReEnableRuleTimers} from './operations/reEnableRuleAfterDelayOperation';
+import reEnableStore from './provider/reEnableStore';
 import ruleStore from './provider/ruleStore';
 import sceneRoomStore from './provider/sceneRoomStore';
 import settings from './provider/settings';
@@ -85,9 +87,11 @@ server.get('/location/:id', async (req, res) => {
   // cross-reference rules against the installs, to spot stale duplicates / orphans (see IRuleHealthStatus)
   const {healthByRuleId, missingRuleIdsByApp} = classifyRulesOperation(smartThingsRules, installedApps, storedRulesByApp);
   // only installs with saved rule data are rule SmartApp installs - the control app and anything else is left out
+  const reEnables = await reEnableStore.list();
   const apps: IResponseApps = installedApps.flatMap(a => {
     const stored = storedRulesByApp.get(a.installedAppId);
-    return stored ? [{...a, ruleSummary: stored.newRuleSummary, missingRuleIds: missingRuleIdsByApp.get(a.installedAppId) ?? []}] : [];
+    const reEnableAt = Object.fromEntries(reEnables.filter(r => r.installedAppId === a.installedAppId).map(r => [r.ruleComponent, r.reEnableAt]));
+    return stored ? [{...a, ruleSummary: stored.newRuleSummary, missingRuleIds: missingRuleIdsByApp.get(a.installedAppId) ?? [], reEnableAt: reEnableAt}] : [];
   });
   const rules = smartThingsRules.map(r => {
     const linkedInstalledApp = apps.find(a => a.ruleSummary.ruleIds.find(rid => rid === r.id));
@@ -171,31 +175,44 @@ server.post('/device/:deviceId', async (req, res) => {
 server.put('/location/:locationId/rule/:installedAppId/:ruleComponent/:enabled', async (req: Request<{locationId: string; installedAppId: string; ruleComponent: IRuleComponentType | 'all'; enabled: string}>, res) => {
   // any explicit enable/disable supersedes a pending timed re-enable of the same rule component - otherwise an old timer
   // could later re-enable a rule that was since disabled on purpose
-  cancelReEnableRuleTimers(req.params.locationId, req.params.installedAppId, req.params.ruleComponent);
+  const {locationId, installedAppId, ruleComponent} = req.params;
+  await cancelReEnableRuleTimers(locationId, installedAppId, ruleComponent);
+
+  // saved before the rules change, so the dashboards reloading on the resulting 'rule' event already see the resume time
+  const reEnableDelay = (req.body as {reEnable?: number}).reEnable ?? 0;
+  const hasReEnable = req.params.enabled === 'false' && reEnableDelay > 0;
+  if (hasReEnable) {
+    // eslint-disable-next-line no-console
+    console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
+    await reEnableRuleAfterDelay(locationId, installedAppId, ruleComponent, reEnableDelay);
+  }
+
   try {
-    await manageRuleApplicationOperation(req.params.locationId, req.params.installedAppId, req.params.ruleComponent, req.params.enabled === 'false');
+    await manageRuleApplicationOperation(locationId, installedAppId, ruleComponent, req.params.enabled === 'false');
   } catch (e) {
     if (e instanceof ReturnResultError) {
       // eslint-disable-next-line no-console
       console.info('Early return from manageRuleApplicationOperation with status [', e.statusCode, '] message [', e.message, ']');
+      if (hasReEnable && e.statusCode === Number(StatusCodes.NOT_MODIFIED)) {
+        // already paused: keep the new resume time, and tell dashboards since no rule change will
+        const stored = await ruleStore.get(installedAppId);
+        if (stored) {
+          const event: ISseRuleEvent = {appId: generateRuleAppKey(installedAppId), ruleSummary: stored.newRuleSummary};
+          sse.send(JSON.stringify(event), 'rule');
+        }
+      } else if (hasReEnable) {
+        // nothing was paused, so there's nothing to resume
+        await cancelReEnableRuleTimers(locationId, installedAppId, ruleComponent);
+      }
       res.statusCode = e.statusCode;
       res.statusMessage = e.message;
       res.send();
       return;
     }
+    if (hasReEnable) {
+      await cancelReEnableRuleTimers(locationId, installedAppId, ruleComponent);
+    }
     throw e;
-  }
-
-  const reEnableDelay = (req.body as {reEnable?: number}).reEnable ?? 0;
-  if (req.params.enabled === 'false' && reEnableDelay > 0) {
-    // eslint-disable-next-line no-console
-    console.info('Starting re-enable timer from delay value of [', reEnableDelay, ']');
-    reEnableRuleAfterDelay(
-      req.params.locationId,
-      req.params.installedAppId,
-      req.params.ruleComponent,
-      reEnableDelay
-    );
   }
 
   res.send();
@@ -223,6 +240,10 @@ server.listen(settings.hostPort, settings.hostName, () => {
   // eslint-disable-next-line no-console
   console.log(`Server is up and running at http://${settings.hostName}:${settings.hostPort}`);
   startMeasurementRecording();
+  restoreReEnableRuleTimers().catch((e: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error('Restoring pending timed re-enables failed', e);
+  });
 });
 
 export type DeviceState = Device & {value: string};

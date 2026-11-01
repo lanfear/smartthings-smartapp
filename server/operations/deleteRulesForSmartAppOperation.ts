@@ -16,7 +16,10 @@ import {cancelReEnableRuleTimers} from './reEnableRuleAfterDelayOperation';
  */
 const deleteRulesForSmartAppOperation = async (locationId: string, installedAppId: string): Promise<number> => {
   // a timer firing after this would try to re-enable rules for an install that no longer exists
-  cancelReEnableRuleTimers(locationId, installedAppId);
+  // (logged, not thrown: deleting the SmartThings rules below matters more than tidying the stored re-enable times)
+  await cancelReEnableRuleTimers(locationId, installedAppId).catch((e: unknown) => {
+    console.warn('Failed to clear pending re-enables for uninstalled app [', installedAppId, ']', e);
+  });
 
   const client = getSmartThingsClient();
   const appKey = generateRuleAppKey(installedAppId);

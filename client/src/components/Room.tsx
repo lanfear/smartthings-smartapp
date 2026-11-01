@@ -9,7 +9,7 @@ import getRulesFromSummary, {type IRuleIdle, type IRuleRange, type IRuleTransiti
 import {useEventSource, useEventSourceListener} from '../providers/EventSourceProvider';
 import {getSceneRoomIds, setDeviceDataForLocation, useDeviceData} from '../store/DeviceContextStore';
 import type {IActiveControl} from '../types/interfaces';
-import type {DeviceContext, IApp, IDevice, ISseEvent, Nullable} from '../types/sharedContracts';
+import type {DeviceContext, IApp, IDevice, IRuleComponentType, ISseEvent, Nullable} from '../types/sharedContracts';
 import Device from './Device';
 import Power from './Power';
 import Rule from './Rule';
@@ -19,6 +19,12 @@ import SmartApp from './SmartApp';
 dayjs.extend(isBetween);
 
 const isRuleActive = (startTime: Dayjs, endTime: Dayjs): boolean => dayjs().isBetween(startTime, endTime);
+
+// when a timed pause of this rule ends - pausing 'all' also pauses each rule, so whichever timer runs first resumes it
+const getPausedUntil = (app: IApp, ruleComponent: IRuleComponentType): Nullable<number> => {
+  const times = [app.reEnableAt[ruleComponent], app.reEnableAt.all].filter((t): t is number => typeof t === 'number');
+  return times.length > 0 ? Math.min(...times) : null;
+};
 
 const isLinkedRuleSetActive = (ruleSetId: string, activeDeviceId?: string): boolean => !!activeDeviceId && activeDeviceId === ruleSetId;
 
@@ -343,6 +349,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     time={`${ruleParts.dayRule.startTime.format('hA')} - ${ruleParts.dayRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableDaylightRule && !a.ruleSummary.tempDisableDaylightRule}
+                    pausedUntil={getPausedUntil(a, 'daylight')}
                     isKeyRule={isRuleActive(ruleParts.dayRule.startTime, ruleParts.dayRule.endTime) && lockedDevices.length > 0}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleActive(ruleParts.dayRule, 'daylight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -357,6 +364,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     time={ruleParts.transitionRule.time.format('hA')}
                     isRuleActive={true}
                     isRuleEnabled={a.ruleSummary.enableTransitionRule && !a.ruleSummary.tempDisableTransitionRule}
+                    pausedUntil={getPausedUntil(a, 'transition')}
                     isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -370,6 +378,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     time={`${ruleParts.nightRule.startTime.format('hA')} - ${ruleParts.nightRule.endTime.format('hA')}`}
                     isRuleActive={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime)}
                     isRuleEnabled={a.ruleSummary.enableNightlightRule && !a.ruleSummary.tempDisableNightlightRule}
+                    pausedUntil={getPausedUntil(a, 'nightlight')}
                     isKeyRule={isRuleActive(ruleParts.nightRule.startTime, ruleParts.nightRule.endTime) && lockedDevices.length > 0}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleActive(ruleParts.nightRule, 'nightlight', a.installedAppId, activeDevice?.id) || isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}
@@ -384,6 +393,7 @@ const Room: React.FC<IRoomProps> = ({roomId, isFavoriteRoom, setFavoriteRoom}) =
                     time={ruleParts.idleRule.motionTimeout}
                     isRuleActive={true}
                     isRuleEnabled={a.ruleSummary.enableIdleRule && !a.ruleSummary.tempDisableIdleRule}
+                    pausedUntil={getPausedUntil(a, 'idle')}
                     isKeyRule={false}
                     setActiveDevice={setActiveDevice}
                     isLinkedActive={isLinkedRuleSetActive(a.installedAppId, activeDevice?.id)}

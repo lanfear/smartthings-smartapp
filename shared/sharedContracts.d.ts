@@ -23,6 +23,8 @@ export type IApp = (InstalledApp & {
   ruleSummary: IRuleSummary;
   // rule ids this install's saved rule data says it owns that no longer exist in SmartThings
   missingRuleIds: string[];
+  // epoch ms when each pending timed pause from the dashboard ends, by rule component ('all' = the whole install)
+  reEnableAt: Partial<Record<IRuleComponentType | 'all', number>>;
 });
 export type IRule = (Rule & {
   executionLocation?: string;
