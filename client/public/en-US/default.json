@@ -218,7 +218,6 @@
   },
   "home": {
     "sectionName": "Home",
-    "placeholder": "A summary of this location will live here. For now, jump to one of its pages:",
     "house": {
       "sectionName": "House summary",
       "loading": "Loading…",

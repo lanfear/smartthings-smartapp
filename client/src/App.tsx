@@ -81,6 +81,10 @@ const App: React.FC = () => {
                 element={<Locations />}
               />
               <Route
+                path={`${global.routing.dashboardSegment}/:locationId/home`}
+                element={<Home />}
+              />
+              <Route
                 path={`${global.routing.dashboardSegment}/:locationId/rooms`}
                 element={<DashboardRooms />}
               />
