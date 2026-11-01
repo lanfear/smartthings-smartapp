@@ -42,7 +42,10 @@ const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequ
 export default new SmartApp()
   .enableEventLogging()
   .configureI18n({directory: settings.localesDirectory})
-  .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
+  // no location-wide scopes: rules and device lookups use API_TOKEN, and reading the chosen devices is granted by the
+  // device settings themselves. (Was r/x:devices:* + r/w:rules:* - trying whether dropping them stops the Allow prompt
+  // on every save)
+  .permissions([])
   .appId(settings.ruleAppId)
   .clientId(settings.ruleClientId)
   .clientSecret(settings.ruleClientSecret)
