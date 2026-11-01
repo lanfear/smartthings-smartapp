@@ -118,6 +118,13 @@ const NavMenu: React.FC = () => {
         {locationOptions}
       </DropdownButton>
       <Link
+        key="location-home"
+        className={`navbar-item flex-column-center ${routeLocation.pathname === '/' ? 'selected' : ''}`}
+        to="/"
+      >
+        {t('home.sectionName')}
+      </Link>
+      <Link
         key="location-rooms"
         className={`navbar-item flex-column-center ${routeLocation.pathname.endsWith('/rooms') ? 'selected' : ''}`}
         to={`/${global.routing.dashboardSegment}/${locationId}/rooms`}
