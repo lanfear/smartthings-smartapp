@@ -46,11 +46,12 @@ const createRuleSummaryFromConfig = (
     enableNightlightRule: config.enableNightlightRule,
     enableIdleRule: config.enableIdleRule,
     enableTransitionRule: config.enableDaylightRule && config.enableNightlightRule,
-    tempDisableAllRules: config.tempDisableAllRules,
-    tempDisableDaylightRule: config.tempDisableDaylightRule,
-    tempDisableNightlightRule: config.tempDisableNightlightRule,
-    tempDisableIdleRule: config.tempDisableIdleRule,
-    tempDisableTransitionRule: config.tempDisableTransitionRule,
+    // pauses aren't app settings - only the web dashboard sets them, and the rule app's update carries the stored ones over
+    tempDisableAllRules: false,
+    tempDisableDaylightRule: false,
+    tempDisableNightlightRule: false,
+    tempDisableIdleRule: false,
+    tempDisableTransitionRule: false,
     installedAppId: installedAppId,
     ruleIds: ruleIds
   };

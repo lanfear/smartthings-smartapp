@@ -37,11 +37,6 @@ export interface ISmartAppRuleConfigValues {
   enableDaylightRule: boolean;
   enableNightlightRule: boolean;
   enableIdleRule: boolean;
-  tempDisableAllRules: boolean;
-  tempDisableDaylightRule: boolean;
-  tempDisableNightlightRule: boolean;
-  tempDisableIdleRule: boolean;
-  tempDisableTransitionRule: boolean;
   motionSensors: DeviceContext[];
   motionMultipleAll: boolean;
   motionIdleTimeout: number;

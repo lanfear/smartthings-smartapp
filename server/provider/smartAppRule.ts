@@ -121,16 +121,6 @@ export default new SmartApp()
       section.booleanSetting('enableIdleRule').defaultValue('true');
     });
 
-    page.section('tempDisable', section => {
-      section.hideable(true);
-      section.hidden(true);
-      section.booleanSetting('tempDisableAllRules').defaultValue('false');
-      section.booleanSetting('tempDisableDaylightRule').defaultValue('false');
-      section.booleanSetting('tempDisableNightlightRule').defaultValue('false');
-      section.booleanSetting('tempDisableIdleRule').defaultValue('false');
-      section.booleanSetting('tempDisableTransitionRule').defaultValue('false');
-    });
-
     page.section('sensors', section => {
       section.hideable(true);
 
@@ -354,9 +344,8 @@ export default new SmartApp()
       [] // will be filled in
     );
 
-    // the smartapp's own tempDisable* config fields are hidden/unused (see the 'tempDisable' page section above) - the
-    // web dashboard is the only real writer of this state, so preserve whatever it last set instead of letting an
-    // ordinary config resave (e.g. just opening/closing the settings screen) silently reset it back to false
+    // pauses (tempDisable*) aren't app settings - the web dashboard is their only writer, so carry over whatever it last
+    // set instead of letting an ordinary config resave (e.g. just opening/closing the settings screen) clear them
     const existingRuleStoreInfo = await ruleStore.get(updateData.installedApp.installedAppId);
     if (existingRuleStoreInfo) {
       newRuleSummary.tempDisableAllRules = existingRuleStoreInfo.newRuleSummary.tempDisableAllRules;
