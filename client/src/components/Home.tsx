@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import global from '../constants/global';
 import {DashboardTitle, GlassPanel} from '../factories/styleFactory';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
+import HomeWeather from './HomeWeather';
 import LocationRequiredHint from './LocationRequiredHint';
 
 // the location tabs, in nav order - [route segment, title translation key]
@@ -16,6 +17,17 @@ const locationTabs: [string, string][] = [
   ['climate', 'dashboard.climate.sectionName'],
   ['activity', 'dashboard.activity.sectionName']
 ];
+
+// same scrolling column as the Climate page, so the weather chart and the links below it scroll together
+const PageScroll = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: 1rem;
+`;
 
 const OverviewPanel = styled(GlassPanel)`
   display: flex;
@@ -87,24 +99,27 @@ const Home: React.FC = () => {
       <DashboardTitle>
         {t('home.sectionName')}
       </DashboardTitle>
-      <OverviewPanel>
-        <OverviewTitle>
-          {locationName ?? locationId}
-        </OverviewTitle>
-        <OverviewText>
-          {t('home.placeholder')}
-        </OverviewText>
-        <TabLinks>
-          {locationTabs.map(([segment, titleKey]) => (
-            <TabLink
-              key={segment}
-              to={`/${global.routing.dashboardSegment}/${locationId}/${segment}`}
-            >
-              {t(titleKey)}
-            </TabLink>
-          ))}
-        </TabLinks>
-      </OverviewPanel>
+      <PageScroll>
+        <HomeWeather />
+        <OverviewPanel>
+          <OverviewTitle>
+            {locationName ?? locationId}
+          </OverviewTitle>
+          <OverviewText>
+            {t('home.placeholder')}
+          </OverviewText>
+          <TabLinks>
+            {locationTabs.map(([segment, titleKey]) => (
+              <TabLink
+                key={segment}
+                to={`/${global.routing.dashboardSegment}/${locationId}/${segment}`}
+              >
+                {t(titleKey)}
+              </TabLink>
+            ))}
+          </TabLinks>
+        </OverviewPanel>
+      </PageScroll>
     </>
   );
 };

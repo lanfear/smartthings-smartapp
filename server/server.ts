@@ -17,6 +17,7 @@ import {generateRuleAppKey} from './factories/ruleFactory';
 import {localOnlyMiddleware} from './middlewares';
 import classifyRulesOperation from './operations/classifyRulesOperation';
 import deleteRuleOperation from './operations/deleteRuleOperation';
+import getWeatherOperation from './operations/getWeatherOperation';
 import listActivityOperation from './operations/listActivityOperation';
 import listMeasurementHistoryOperation from './operations/listMeasurementHistoryOperation';
 import listMeasurementReadingsFromApiOperation from './operations/listMeasurementReadingsFromApiOperation';
@@ -143,6 +144,15 @@ server.get('/location/:id/measurements/:measurement/history', async (req, res) =
     deviceIds: typeof req.query.deviceIds === 'string' ? req.query.deviceIds.split(',').filter(Boolean) : [],
     bucketMinutes: Number(req.query.bucketMinutes)
   }));
+});
+
+/**
+ * Outdoor weather from the SmartThings location service (current conditions + hourly forecast) and the outdoor
+ * temperature the server has recorded from it (see operations/recordWeatherOperation.ts)
+ * query: hours of recorded history (default 24, max MEASUREMENT_RETENTION_DAYS)
+ */
+server.get('/location/:id/weather', async (req, res) => {
+  res.json(await getWeatherOperation(req.params.id, Number(req.query.hours)));
 });
 
 /**

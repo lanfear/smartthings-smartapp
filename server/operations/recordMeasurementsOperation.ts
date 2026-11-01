@@ -4,6 +4,7 @@ import settings from '../provider/settings';
 import getSmartThingsClient from '../provider/smartThingsClient';
 import listMeasurementDevicesFromApiOperation from './listMeasurementDevicesFromApiOperation';
 import readMeasurementHistoryFromApiOperation from './readMeasurementHistoryFromApiOperation';
+import recordWeatherOperation from './recordWeatherOperation';
 
 /* eslint-disable no-console */
 
@@ -67,6 +68,12 @@ const recordAllLocations = async (): Promise<void> => {
         }
       }
       await recordCurrentMeasurements(locationId);
+      try {
+        await recordWeatherOperation(locationId);
+      } catch (e) {
+        // separate from the sensors so a weather service hiccup never costs a round of sensor readings
+        console.warn('Recording weather for location [', locationId, '] failed, will retry next interval', e);
+      }
     }
   } catch (e) {
     console.warn('Recording measurements failed, will retry next interval', e);
@@ -75,7 +82,7 @@ const recordAllLocations = async (): Promise<void> => {
   }
 };
 
-/** start recording measurement readings (temperature/humidity/battery) for every location every MEASUREMENT_POLL_MINUTES minutes */
+/** start recording measurement readings (temperature/humidity/battery) and outdoor weather for every location every MEASUREMENT_POLL_MINUTES minutes */
 export const startMeasurementRecording = (): void => {
   if (settings.measurementPollMinutes <= 0) {
     console.info('Measurement recording disabled (MEASUREMENT_POLL_MINUTES is 0)');

@@ -218,6 +218,46 @@
   },
   "home": {
     "sectionName": "Overview",
-    "placeholder": "A summary of this location will live here. For now, jump to one of its pages:"
+    "placeholder": "A summary of this location will live here. For now, jump to one of its pages:",
+    "weather": {
+      "sectionName": "Outside",
+      "loading": "Loading weather…",
+      "unavailable": "No weather for this location - SmartThings needs the location's geo-coordinates set (SmartThings app > location settings).",
+      "unknownCondition": "Unknown conditions",
+      "field": {
+        "feelsLike": "Feels like",
+        "highLow": "High / Low",
+        "humidity": "Humidity",
+        "wind": "Wind",
+        "gusts": "gusts {{speed}}",
+        "precipitation": "Precip (next 24h)",
+        "snow": "{{amount}} snow",
+        "uv": "UV index",
+        "airQuality": "Air quality",
+        "sun": "Sunrise / Sunset",
+        "updated": "Updated"
+      },
+      "airQuality": {
+        "good": "Good",
+        "moderate": "Moderate",
+        "sensitive": "Unhealthy for sensitive groups",
+        "unhealthy": "Unhealthy",
+        "veryUnhealthy": "Very unhealthy",
+        "hazardous": "Hazardous"
+      },
+      "action": {
+        "details": "Weather Underground ↗"
+      },
+      "chart": {
+        "title": "Outdoor temperature",
+        "window": "Last {{hours}}h recorded, plus the forecast",
+        "recordingSince": "Recorded since {{time}} - history fills in as the server records it",
+        "noData": "No outdoor temperature recorded yet",
+        "recorded": "Recorded",
+        "forecast": "Forecast",
+        "legend": "Chart lines",
+        "label": "Outdoor temperature, recorded and forecast"
+      }
+    }
   }
 }
