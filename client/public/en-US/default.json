@@ -219,6 +219,43 @@
   "home": {
     "sectionName": "Overview",
     "placeholder": "A summary of this location will live here. For now, jump to one of its pages:",
+    "house": {
+      "sectionName": "House summary",
+      "loading": "Loading…",
+      "header": {
+        "floor": "Floor"
+      },
+      "switches": {
+        "title": "Lights & fans",
+        "lightsOn": "lights on of {{total}}",
+        "fansOn": "fans on of {{total}}",
+        "lights": "Lights",
+        "fans": "Fans",
+        "link": "Rooms"
+      },
+      "indoor": {
+        "title": "Indoor",
+        "range": "Range",
+        "average": "Avg",
+        "sensors_one": "{{count}} sensor",
+        "sensors_other": "{{count}} sensors",
+        "thermostat": "Thermostat",
+        "setpoints": "heat {{heat}} · cool {{cool}}",
+        "humidity": "Humidity (avg)",
+        "link": "Climate"
+      },
+      "appliances": {
+        "title": "Fridges & freezers",
+        "offline": "offline",
+        "updated": "updated {{time}}",
+        "status": {
+          "ok": "OK",
+          "warm": "Too warm",
+          "offline": "Offline"
+        },
+        "link": "Climate"
+      }
+    },
     "weather": {
       "sectionName": "Outside",
       "loading": "Loading weather…",

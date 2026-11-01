@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import global from '../constants/global';
 import {DashboardTitle, GlassPanel} from '../factories/styleFactory';
 import {setLocation, useLocationContextStore} from '../store/LocationContextStore';
+import HomeHouse from './HomeHouse';
 import HomeWeather from './HomeWeather';
 import LocationRequiredHint from './LocationRequiredHint';
 
@@ -101,6 +102,7 @@ const Home: React.FC = () => {
       </DashboardTitle>
       <PageScroll>
         <HomeWeather />
+        <HomeHouse />
         <OverviewPanel>
           <OverviewTitle>
             {locationName ?? locationId}
