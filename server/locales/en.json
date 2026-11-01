@@ -14,9 +14,6 @@
 
 	"pages.rulesMainPage.name": "Single Room Daylight/Nightlight Controller",
 
-	"pages.rulesMainPage.sections.description.name": "Current Rule Descriptions (Updated On Save)",
-	"pages.rulesMainPage.sections.description.description": "",
-
 	"pages.rulesMainPage.sections.types.name": "Control Options",
 	"pages.rulesMainPage.sections.types.description": "Enable/Disable All Or Part Of Rules",
 	"pages.rulesMainPage.settings.enableAllRules.name": "Disable ⇔ Enable — All Rules",
@@ -59,11 +56,11 @@
 	"pages.rulesMainPage.settings.dayControlSwitch.name": "Daylight Control Switch",
 	"pages.rulesMainPage.settings.dayControlSwitch.description": "If this switch is off, trigger Daylight switches to on",
 	"pages.rulesMainPage.settings.dayActiveSwitches.name": "Daylight Active Switches",
-	"pages.rulesMainPage.settings.dayActiveSwitches.description": "When Daylight trigger activates, all these switches (plus control switch) wll be affected",
-	"pages.rulesMainPage.settings.nightControlSwitch.name": "Nigthlight Control Switch",
-	"pages.rulesMainPage.settings.nightControlSwitch.description": "If this switch is off, trigger Nigthlight switches to on",
-	"pages.rulesMainPage.settings.nightActiveSwitches.name": "Nigthlight Active Switches",
-	"pages.rulesMainPage.settings.nightActiveSwitches.description": "When Nigthlight trigger activates, all these switches (plus control switch) wll be affected",
+	"pages.rulesMainPage.settings.dayActiveSwitches.description": "When Daylight trigger activates, all these switches (plus control switch) will be affected",
+	"pages.rulesMainPage.settings.nightControlSwitch.name": "Nightlight Control Switch",
+	"pages.rulesMainPage.settings.nightControlSwitch.description": "If this switch is off, trigger Nightlight switches to on",
+	"pages.rulesMainPage.settings.nightActiveSwitches.name": "Nightlight Active Switches",
+	"pages.rulesMainPage.settings.nightActiveSwitches.description": "When Nightlight trigger activates, all these switches (plus control switch) will be affected",
 
 	"pages.rulesMainPage.sections.levels.name": "Levels",
 	"pages.rulesMainPage.sections.levels.description": "Adjust the Daylight and Nightlight levels",
