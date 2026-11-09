@@ -11,8 +11,10 @@ import ActionRuleEnable from './ActionRuleEnable';
 import ActionSceneExecute from './ActionSceneExecute';
 
 // buttons stack in one column with the sliders (dimmer, timed disable) sharing a full-height column beside them
+// fills the sidebar, which runs to the bottom of the screen (was 75vh, which ignored the nav/title height and the
+// mobile address bar, so on phones it could run past the bottom)
 const ControlsContainer = styled.div`
-  height: 75vh;
+  height: 100%;
   display: flex;
   flex-direction: row;
   width: 100%;

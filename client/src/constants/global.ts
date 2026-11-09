@@ -80,5 +80,10 @@ export default {
   },
   routing: {
     dashboardSegment: 'dashboard'
+  },
+  weather: {
+    // the Home weather card's details link. a city page needs the state too (/weather/us/<state>/<city>), which
+    // SmartThings doesn't give us - only the city - so it's set here rather than built from the location
+    detailUrl: 'https://www.wunderground.com/weather/us/mi/okemos'
   }
 } as const;

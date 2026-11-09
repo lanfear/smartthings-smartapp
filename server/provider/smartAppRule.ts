@@ -10,11 +10,12 @@ import uniqueDeviceFactory from '../factories/uniqueDeviceFactory';
 import {createCombinedRuleFromSummary, createTransitionRuleFromSummary} from '../operations/createRuleFromSummaryOperation';
 import createRuleSummaryFromConfig from '../operations/createRuleSummaryFromConfigOperation';
 import deleteRulesForSmartAppOperation from '../operations/deleteRulesForSmartAppOperation';
+import describeRulePausesOperation from '../operations/describeRulePausesOperation';
 import listDevicesFromApiOperation from '../operations/listDevicesFromApiOperation';
 import readConfigFromContext, {readDeviceLevelConfigFromContext} from '../operations/readConfigFromContext';
 import storeRulesAndNotifyOperation from '../operations/storeRulesAndNotifyOperation';
 import submitRulesForSmartAppOperation from '../operations/submitRulesForSmartAppOperation';
-import type {IRuleSwitchLevelInfo, Nullable} from '../types/sharedContracts';
+import type {IRuleComponentType, IRuleSwitchLevelInfo, Nullable} from '../types/sharedContracts';
 import ruleStore from './ruleStore';
 import settings from './settings';
 import smartAppContextStore from './smartAppContextStore';
@@ -41,7 +42,10 @@ const rulesAreModified = async (ruleStoreKey: string, newRule: Nullable<RuleRequ
 export default new SmartApp()
   .enableEventLogging()
   .configureI18n({directory: settings.localesDirectory})
-  .permissions(['r:devices:*', 'x:devices:*', 'r:rules:*', 'w:rules:*'])
+  // no location-wide scopes: rules and device lookups use API_TOKEN, and reading the chosen devices is granted by the
+  // device settings themselves. (Was r/x:devices:* + r/w:rules:* - trying whether dropping them stops the Allow prompt
+  // on every save)
+  .permissions([])
   .appId(settings.ruleAppId)
   .clientId(settings.ruleClientId)
   .clientSecret(settings.ruleClientSecret)
@@ -51,87 +55,90 @@ export default new SmartApp()
   .page('rulesMainPage', async (context, page /* , configData */) => {
     const config = await readConfigFromContext(context);
 
-    page.section('description', section => {
-      if (!config.dayControlSwitch || !config.nightControlSwitch) {
+    // each section opens with a plain-language summary of what its settings currently do. These strings aren't
+    // localized because the built-in I18n can't interpolate config-driven values
+    const rulesEnabled: Record<IRuleComponentType, boolean> = {
+      daylight: config.enableAllRules && config.enableDaylightRule,
+      nightlight: config.enableAllRules && config.enableNightlightRule,
+      idle: config.enableAllRules && config.enableIdleRule,
+      transition: config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule
+    };
+
+    // pauses are set from the web dashboard and live only in the rule store - shown here, but not editable
+    const {installedAppId, locationId} = context as unknown as {installedAppId: string; locationId: string}; // set at runtime, missing from the SDK typings
+    const pauses = await describeRulePausesOperation(locationId, installedAppId).catch((e: unknown) => {
       // eslint-disable-next-line no-console
-        console.warn('Day or Night control switch not configured in main page, cannot create rules');
-        return;
-      }
-
-      const uniqueDaySwitches = uniqueDeviceFactory([config.dayControlSwitch].concat(config.dayActiveSwitches));
-      const uniqueNightSwitches = uniqueDeviceFactory([config.nightControlSwitch].concat(config.nightActiveSwitches));
-      const uniqueSwitches = uniqueDeviceFactory(uniqueDaySwitches.concat(uniqueNightSwitches));
-      const motionSensorNames = config.motionSensors.map(s => s.label).join(config.motionMultipleAll ? ' AND ' : ' OR ');
-      const idleMotionSensorNames = config.motionSensors.map(s => s.label).join(!config.motionMultipleAll ? ' AND ' : ' OR ');
-
-      const dayStartTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.dayStartOffset, 'minutes').format('hh:mm A');
-      const dayNightTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.dayNightOffset, 'minutes').format('hh:mm A');
-      const nightEndTime = dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(config.nightEndOffset, 'minutes').format('hh:mm A');
-
-      // these strings are not localized because i'm unsure how to use the built-in I18n mechanics with dynamic config-driven values interpolated
-      const daylightRuleDescription = `DAYLIGHT RULE: Between [${dayStartTime}] and [${dayNightTime}] `
-        + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
-        + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] `
-        + 'will turn ON.';
-      const daylightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule ? 'ENABLED' : 'DISABLED'}`;
-
-      const nightlightRuleDescription = `NIGHTLIGHT RULE: Between [${dayNightTime}] and [${nightEndTime}] `
-        + `When [${motionSensorNames}] are ACTIVE for [${config.motionDurationDelay} second(s)] `
-        + `these devices [${uniqueNightSwitches.map(s => s.label).join(', ')}] `
-        + 'will turn ON.';
-      const nightlightRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
-
-      const idleRuleDescription = `IDLE RULE: When [${idleMotionSensorNames}] are INACTIVE for [${config.motionIdleTimeout} ${config.motionIdleTimeoutUnit}(s)] `
-        + `these devices [${uniqueSwitches.map(s => s.label).join(', ')}] `
-        + 'will turn OFF.';
-      const idleRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableIdleRule ? 'ENABLED' : 'DISABLED'}`;
-
-      const transitionRuleDescription = `TRANSITION RULE: At [${dayNightTime}] `
-        + `these devices [${uniqueDaySwitches.map(s => s.label).join(', ')}] will turn OFF (or be modified to their Night levels) `
-        + `and [${uniqueNightSwitches.map(s => s.label).join(', ')}] will turn ON (or be modified to their Night levels).`;
-      const transitionRuleEnabledDesc = `This rule is ${config.enableAllRules && config.enableDaylightRule && config.enableNightlightRule ? 'ENABLED' : 'DISABLED'}`;
-
-      section
-        .paragraphSetting('daylightRuleSummary')
-        .name(daylightRuleDescription)
-        .description(daylightRuleEnabledDesc);
-
-      section
-        .paragraphSetting('nightlightRuleSummary')
-        .name(nightlightRuleDescription)
-        .description(nightlightRuleEnabledDesc);
-
-      section
-        .paragraphSetting('idleRuleSummary')
-        .name(idleRuleDescription)
-        .description(idleRuleEnabledDesc);
-
-      section
-        .paragraphSetting('transitionRuleSummary')
-        .name(transitionRuleDescription)
-        .description(transitionRuleEnabledDesc);
+      console.warn('Reading rule pauses failed, config page shows none', e);
+      return null;
     });
+    const isPaused = (component: IRuleComponentType): boolean => Boolean(pauses && (pauses.pausedAll || pauses.paused[component]));
+
+    // "Name", "Name (paused)" or "Name (disabled)" for the rules that title covers
+    const ruleTitle = (name: string, components: IRuleComponentType[]): string => {
+      const running = components.filter(c => rulesEnabled[c]);
+      if (running.length === 0) {
+        return `${name} (disabled)`;
+      }
+      return running.every(isPaused) ? `${name} (paused)` : name;
+    };
+    const plural = (count: number, word: string): string => `${count} ${word.toLowerCase()}${count === 1 ? '' : 's'}`;
+    const labels = (devices: {label?: string}[]): string => devices.map(d => d.label).join(', ');
+    const formatOffset = (offset: number): string => dayjs().utc().hour(noonHour).minute(0).second(0).millisecond(0).add(offset, 'minutes').format('h:mm A');
+
+    // "A or B is active" / "A and B are active"
+    const sensorPhrase = (joinWithAnd: boolean, state: string): string => {
+      const names = config.motionSensors.map(s => s.label).join(joinWithAnd ? ' and ' : ' or ');
+      return `${names} ${joinWithAnd && config.motionSensors.length > 1 ? 'are' : 'is'} ${state}`;
+    };
+
+    const switchesConfigured = Boolean(config.dayControlSwitch && config.nightControlSwitch);
+    const uniqueDaySwitches = uniqueDeviceFactory((config.dayControlSwitch ? [config.dayControlSwitch] : []).concat(config.dayActiveSwitches));
+    const uniqueNightSwitches = uniqueDeviceFactory((config.nightControlSwitch ? [config.nightControlSwitch] : []).concat(config.nightActiveSwitches));
+    const dayStartTime = formatOffset(config.dayStartOffset);
+    const dayNightTime = formatOffset(config.dayNightOffset);
+    const nightEndTime = formatOffset(config.nightEndOffset);
 
     page.section('types', section => {
       section.hideable(true);
+
+      const ruleNames: [IRuleComponentType, string][] = [['daylight', 'Daylight'], ['nightlight', 'Nightlight'], ['transition', 'Transition'], ['idle', 'Idle']];
+      const enabledRules = ruleNames.filter(([c]) => rulesEnabled[c]);
+      const activeRules = enabledRules.filter(([c]) => !isPaused(c)).map(([, name]) => name);
+      section
+        .paragraphSetting('activeRulesSummary')
+        .name('Active rules')
+        .description(activeRules.length > 0
+          ? activeRules.join(', ')
+          : `None, all rules are ${enabledRules.length > 0 ? 'paused' : 'disabled'}`);
+
+      if (pauses?.summary) {
+        section
+          .paragraphSetting('pausedRulesSummary')
+          .name('Paused from the web dashboard')
+          .description(pauses.summary);
+      }
+
       section.booleanSetting('enableAllRules').defaultValue('true');
       section.booleanSetting('enableDaylightRule').defaultValue('true');
       section.booleanSetting('enableNightlightRule').defaultValue('true');
       section.booleanSetting('enableIdleRule').defaultValue('true');
     });
 
-    page.section('tempDisable', section => {
-      section.hideable(true);
-      section.hidden(true);
-      section.booleanSetting('tempDisableAllRules').defaultValue('false');
-      section.booleanSetting('tempDisableDaylightRule').defaultValue('false');
-      section.booleanSetting('tempDisableNightlightRule').defaultValue('false');
-      section.booleanSetting('tempDisableIdleRule').defaultValue('false');
-      section.booleanSetting('tempDisableTransitionRule').defaultValue('false');
-    });
-
     page.section('sensors', section => {
       section.hideable(true);
+
+      if (config.motionSensors.length > 0) {
+        section
+          .paragraphSetting('motionOnSummary')
+          .name(ruleTitle('Lights on (Daylight & Nightlight Rules)', ['daylight', 'nightlight']))
+          .description(`When ${sensorPhrase(config.motionMultipleAll, 'active')} for ${plural(config.motionDurationDelay, 'second')}`);
+
+        section
+          .paragraphSetting('motionOffSummary')
+          .name(ruleTitle('Lights off (Idle Rule)', ['idle']))
+          .description(`When ${sensorPhrase(!config.motionMultipleAll, 'inactive')} for ${plural(config.motionIdleTimeout, config.motionIdleTimeoutUnit)}`);
+      }
+
       section
         .deviceSetting('motionSensor')
         .capabilities(['motionSensor'])
@@ -157,6 +164,21 @@ export default new SmartApp()
 
     page.section('switches', section => {
       section.hideable(true);
+
+      if (uniqueDaySwitches.length > 0) {
+        section
+          .paragraphSetting('daySwitchesSummary')
+          .name(ruleTitle('Daylight Rule', ['daylight']))
+          .description(`Motion turns on ${labels(uniqueDaySwitches)}`);
+      }
+
+      if (uniqueNightSwitches.length > 0) {
+        section
+          .paragraphSetting('nightSwitchesSummary')
+          .name(ruleTitle('Nightlight Rule', ['nightlight']))
+          .description(`Motion turns on ${labels(uniqueNightSwitches)}`);
+      }
+
       section
         .deviceSetting('dayControlSwitch')
         .capabilities(['switch'])
@@ -188,6 +210,28 @@ export default new SmartApp()
 
     page.section('timings', section => {
       section.hideable(true);
+
+      section
+        .paragraphSetting('scheduleSummary')
+        .name('Schedule')
+        .description(`Daylight ${dayStartTime} – ${dayNightTime}, Nightlight ${dayNightTime} – ${nightEndTime}`);
+
+      if (switchesConfigured) {
+        // mirrors createTransitionRuleFromConfig: runs only if a daylight switch is on; daylight-only switches turn off,
+        // every nightlight switch (including ones shared with daylight) moves to its night level / turns on
+        const dayOnlySwitches = uniqueDaySwitches.filter(d => !uniqueNightSwitches.some(n => n.deviceId === d.deviceId));
+        const verb = (devices: unknown[], singular: string, multiple: string): string => (devices.length === 1 ? singular : multiple);
+        const changes = [
+          dayOnlySwitches.length > 0 ? `${labels(dayOnlySwitches)} ${verb(dayOnlySwitches, 'turns', 'turn')} off` : null,
+          `${labels(uniqueNightSwitches)} ${verb(uniqueNightSwitches, 'switches', 'switch')} to Nightlight`
+        ].filter(Boolean);
+
+        section
+          .paragraphSetting('transitionSummary')
+          .name(ruleTitle('Transition Rule', ['transition']))
+          .description(`At ${dayNightTime}, if any Daylight lights are on, ${changes.join(' and ')}`);
+      }
+
       // from 8AM
       section.timeSetting('dayStartOffsetTime')
 
@@ -303,9 +347,8 @@ export default new SmartApp()
       [] // will be filled in
     );
 
-    // the smartapp's own tempDisable* config fields are hidden/unused (see the 'tempDisable' page section above) - the
-    // web dashboard is the only real writer of this state, so preserve whatever it last set instead of letting an
-    // ordinary config resave (e.g. just opening/closing the settings screen) silently reset it back to false
+    // pauses (tempDisable*) aren't app settings - the web dashboard is their only writer, so carry over whatever it last
+    // set instead of letting an ordinary config resave (e.g. just opening/closing the settings screen) clear them
     const existingRuleStoreInfo = await ruleStore.get(updateData.installedApp.installedAppId);
     if (existingRuleStoreInfo) {
       newRuleSummary.tempDisableAllRules = existingRuleStoreInfo.newRuleSummary.tempDisableAllRules;

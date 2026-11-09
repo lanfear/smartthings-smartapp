@@ -57,7 +57,7 @@ MEASUREMENT_RETENTION_DAYS=30 # optional, how many days of recorded readings to 
 
 Run all of these from the single top-level `package.json` (there are no per-folder `package.json` files; client scripts are prefixed `client-` and server scripts `server-`)
    1) `npm install` (installs dependencies for both client and server)
-   2) `npm run start` will start entire dev environment in a single console session (using concurrently)
+   2) `npm run start` will start entire dev environment in a single console session (using concurrently); it first kills anything still listening on the server/client ports (`npm run kill`), so a host left running by a previous session won't block startup
       1) alternatively, you can run individual parts of the `npm run start` command above to control each part individually (`npm run server-tunnel`, `npm run server-start`, `npm run client-start`)
       2) `npm run start` also re-runs lint on every source change (the `all|lint` process) — it only reports problems, it never blocks the build or host; `npm run lint` runs it once by hand, and `npm run lint:fix` applies eslint's auto-fixes
    3) [(Re)Verify The App In Samsung Developer Workspace](doc/APPVERIFY.md)

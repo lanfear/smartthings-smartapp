@@ -53,6 +53,7 @@
     },
     "rule": {
       "sectionName": "Rules",
+      "pausedUntil": "Paused until {{time}}",
       "header": {
         "name": "Name",
         "ruleId": "Rule ID",
@@ -216,7 +217,83 @@
     }
   },
   "home": {
-    "sectionName": "Overview",
-    "placeholder": "A summary of this location will live here. For now, jump to one of its pages:"
+    "sectionName": "Home",
+    "house": {
+      "sectionName": "House summary",
+      "loading": "Loading…",
+      "header": {
+        "floor": "Floor"
+      },
+      "switches": {
+        "title": "Lights & fans",
+        "lightsOn": "lights on of {{total}}",
+        "fansOn": "fans on of {{total}}",
+        "lights": "Lights",
+        "fans": "Fans",
+        "link": "Rooms"
+      },
+      "indoor": {
+        "title": "Indoor",
+        "range": "Range",
+        "average": "Avg",
+        "sensors_one": "{{count}} sensor",
+        "sensors_other": "{{count}} sensors",
+        "thermostat": "Thermostat",
+        "setpoints": "heat {{heat}} · cool {{cool}}",
+        "humidity": "Humidity (avg)",
+        "link": "Climate"
+      },
+      "appliances": {
+        "title": "Fridges & freezers",
+        "offline": "offline",
+        "updated": "updated {{time}}",
+        "status": {
+          "ok": "OK",
+          "warm": "Too warm",
+          "offline": "Offline"
+        },
+        "link": "Climate"
+      }
+    },
+    "weather": {
+      "sectionName": "Outside",
+      "loading": "Loading weather…",
+      "unavailable": "No weather for this location - SmartThings needs the location's geo-coordinates set (SmartThings app > location settings).",
+      "unknownCondition": "Unknown conditions",
+      "field": {
+        "feelsLike": "Feels like",
+        "highLow": "High / Low",
+        "humidity": "Humidity",
+        "wind": "Wind",
+        "gusts": "gusts {{speed}}",
+        "precipitation": "Precip (next 24h)",
+        "snow": "{{amount}} snow",
+        "uv": "UV index",
+        "airQuality": "Air quality",
+        "sun": "Sunrise / Sunset",
+        "updated": "Updated"
+      },
+      "airQuality": {
+        "good": "Good",
+        "moderate": "Moderate",
+        "sensitive": "Unhealthy for sensitive groups",
+        "unhealthy": "Unhealthy",
+        "veryUnhealthy": "Very unhealthy",
+        "hazardous": "Hazardous"
+      },
+      "action": {
+        "details": "Weather Underground ↗"
+      },
+      "chart": {
+        "title": "Outdoor temperature",
+        "window": "Last {{hours}}h recorded, plus the forecast",
+        "recordingSince": "Recorded since {{time}} - history fills in as the server records it",
+        "noData": "No outdoor temperature recorded yet",
+        "recorded": "Recorded",
+        "forecast": "Forecast",
+        "legend": "Chart lines",
+        "label": "Outdoor temperature, recorded and forecast"
+      }
+    }
   }
 }

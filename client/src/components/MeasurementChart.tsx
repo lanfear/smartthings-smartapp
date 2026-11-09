@@ -12,6 +12,7 @@ export interface IChartSeries {
   values: Nullable<number>[]; // one per x - null breaks the line (device offline, or no reading yet)
   dash?: readonly number[]; // dashed line, e.g. the group average reference line
   stepped?: boolean; // hold each value until the next, then jump - for settings like setpoints that change in steps
+  tooltipSkipsEmpty?: boolean; // leave the series out of the tooltip where it has no value (eg. a forecast before now), instead of showing '—'
 }
 
 // uPlot ships the stepped path builder as optional in its types, but it's always in the bundled build
@@ -241,7 +242,7 @@ const MeasurementChart: React.FC<IMeasurementChartProps> = ({measurement, unit, 
           <TooltipTime>
             {formatTooltipTime(hoverTime * 1000)}
           </TooltipTime>
-          {series.map(s => (
+          {series.filter(s => !s.tooltipSkipsEmpty || typeof s.values[hover.idx] === 'number').map(s => (
             <TooltipRow key={s.key}>
               <LineKey
                 color={s.color}

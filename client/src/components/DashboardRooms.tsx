@@ -15,29 +15,40 @@ const DashboardRoomSplit = styled.div`
   grid-template-areas:
     "header header subheader"
     "controls rooms rooms";
-  grid-template-columns: auto 1fr;
+  /* the split fills .main-content and its second row takes the rest of the height, so the controls column and the room
+     grid both reach the bottom of the screen and only the room grid scrolls. minmax(0, ...) lets that row and the rooms
+     column shrink below their content instead of pushing the page taller or wider */
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: ${global.measurements.dashboardGridGap};
-  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  /* clip, not hidden - a favorite room's scrollIntoView can still scroll a hidden container, which slid the controls off screen */
+  overflow: clip;
 `;
 
-// sticky left sidebar, always - not worth the complexity of collapsing to a bottom bar for narrow phones
+// left sidebar, always - not worth the complexity of collapsing to a bottom bar for narrow phones. it stays in view
+// because only the room grid beside it scrolls
 const DeviceControlsGridContainer = styled.div`
   grid-area: controls;
-  position: sticky;
-  top: 0;
+  min-height: 0;
 `;
 
 const DashboardRoomGrid = styled.div<{roomCount: number}>`
   grid-area: rooms;
   display: grid;
   gap: ${global.measurements.dashboardGridGap};
-  /* cards never shrink below the width that fits a full row of devicesPerRow tiles, see global.measurements.minRoomSize */
-  grid-template-columns: repeat(auto-fill, minmax(${global.measurements.minRoomSize}, 1fr));
+  /* cards never shrink below the width that fits a full row of devicesPerRow tiles (see global.measurements.minRoomSize),
+     unless the screen is too narrow for even one such card beside the controls - then a card takes the full width and
+     its tiles wrap to fewer per row */
+  grid-template-columns: repeat(auto-fill, minmax(min(${global.measurements.minRoomSize}, 100%), 1fr));
   /* cards stretch (the grid default) to match the tallest card in their row, so every row reads as a clean,
      uniform strip - RoomCard is a flex column with no justify-content override, so its own content still packs
      to the top, and any leftover height just becomes empty space at the bottom of the shorter cards */
-  flex-grow: 1;
+  min-height: 0;
   overflow: auto;
+  /* the last row's cards otherwise sit flush against the bottom edge of the screen */
+  padding-bottom: ${global.measurements.dashboardGridGap};
 `;
 
 const DashboardRooms: React.FC = () => {

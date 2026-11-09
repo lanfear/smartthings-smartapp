@@ -7,11 +7,11 @@ const DropdownContainer = styled.div`
   position: relative;
 `;
 
-const DropdownMenu = styled.div<{$isOpen: boolean}>`
+const DropdownMenu = styled.div<{$isOpen: boolean; $alignRight?: boolean}>`
   display: ${props => props.$isOpen ? 'block' : 'none'};
   position: absolute;
   top: 100%;
-  left: 0;
+  ${props => props.$alignRight ? 'right: 0;' : 'left: 0;'}
   background-color: white;
   min-width: 200px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -56,9 +56,12 @@ interface IPublicProps {
   buttonText: string;
   children: React.ReactNode;
   isSelected?: boolean;
+  // open the menu leftward from the button's right edge - for a button near the right side of the screen, whose menu
+  // would otherwise run off it
+  alignRight?: boolean;
 }
 
-export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children, isSelected}) => {
+export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children, isSelected, alignRight}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -84,7 +87,10 @@ export const DropdownButton: React.FC<IPublicProps> = ({buttonText, children, is
       >
         {`${buttonText} ▾`}
       </StyledButton>
-      <DropdownMenu $isOpen={isOpen}>
+      <DropdownMenu
+        $isOpen={isOpen}
+        $alignRight={alignRight}
+      >
         {children}
       </DropdownMenu>
     </DropdownContainer>

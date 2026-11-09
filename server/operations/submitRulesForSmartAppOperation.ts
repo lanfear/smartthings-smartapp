@@ -9,26 +9,24 @@ const submitRules = async (client: SmartThingsClient, locationId: string, smartA
   /* eslint-enable no-console */
 
   try {
-    const existingRules = await client.rules.list(locationId);
-    // drop saved ids of rules that no longer exist (deleted outside this app, e.g. in the SmartThings app) - nothing
-    // else ever removes them, so they'd otherwise pile up in the rule store forever
-    const existingRuleIds = new Set(existingRules.map(r => r.id));
-    newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => existingRuleIds.has(rid));
-    await Promise.allSettled(
-      existingRules
-        .filter(r => r.name.includes(smartAppLookupKey))
-        .map(async r => {
-          await client.rules.delete(r.id, locationId);
-          newRuleSummary.ruleIds = newRuleSummary.ruleIds.filter(rid => rid !== r.id);
-        }));
+    const appRules = (await client.rules.list(locationId)).filter(r => r.name.includes(smartAppLookupKey));
+    const results = await Promise.allSettled(appRules.map(async r => await client.rules.delete(r.id, locationId)));
+    results.forEach((result, i) => {
+      if (result.status === 'rejected') {
+        // the rule may still exist - if so the Rules page flags it as a stale duplicate (matched by name)
+        // eslint-disable-next-line no-console
+        console.warn('Failed to delete existing rule [', appRules[i].id, '] for [', smartAppLookupKey, ']', result.reason);
+      }
+    });
   } catch (e) {
     throw new Error(`Failed to delete existing rules, aborting submitRules operation: [${e as Error}]`);
   }
 
   const newCombinedRuleResponse = combinedRule ? await client.rules.create(combinedRule, locationId) : null;
   const newTransitionRuleResponse = transitionRule ? await client.rules.create(transitionRule, locationId) : null;
-  const newRuleIds = [newCombinedRuleResponse?.id, newTransitionRuleResponse?.id].filter(id => !!id);
-  newRuleSummary.ruleIds.push(...newRuleIds.filter(id => id) as string[]);
+  // the install's current rules are exactly the ones just created - replace rather than append, so ids of old rules
+  // (whose delete failed or raced another rebuild) can't linger in the rule store
+  newRuleSummary.ruleIds = [newCombinedRuleResponse?.id, newTransitionRuleResponse?.id].filter((id): id is string => !!id);
 
   // console.log('Applied Rules', newCombinedRuleResponse?.actions, newTransitionRuleResponse?.actions);
 

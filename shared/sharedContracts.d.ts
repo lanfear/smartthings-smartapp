@@ -23,6 +23,8 @@ export type IApp = (InstalledApp & {
   ruleSummary: IRuleSummary;
   // rule ids this install's saved rule data says it owns that no longer exist in SmartThings
   missingRuleIds: string[];
+  // epoch ms when each pending timed pause from the dashboard ends, by rule component ('all' = the whole install)
+  reEnableAt: Partial<Record<IRuleComponentType | 'all', number>>;
 });
 export type IRule = (Rule & {
   executionLocation?: string;
@@ -125,6 +127,43 @@ export interface IResponseMeasurementHistory {
   since: number; // epoch ms - start of the requested window
   until: number; // epoch ms - when the history was read
   series: IMeasurementHistorySeries[];
+}
+
+// current outdoor conditions from the SmartThings location weather service (The Weather Channel data, for the location's
+// geo-coordinates). values are converted to the location's temperature scale (see IResponseWeather's units); null = not reported
+export interface IWeatherConditions {
+  phrase: Nullable<string>; // e.g. 'Partly Cloudy' - English text from the weather vendor
+  temperature: Nullable<number>;
+  feelsLike: Nullable<number>;
+  low: Nullable<number>; // today's (or the last 24h's) low/high
+  high: Nullable<number>;
+  humidity: Nullable<number>; // %
+  windSpeed: Nullable<number>;
+  windGust: Nullable<number>;
+  windDirection: Nullable<string>; // cardinal, e.g. 'SSW'
+  uvIndex: Nullable<number>;
+  uvDescription: Nullable<string>;
+  airQualityIndex: Nullable<number>; // EPA AQI
+  sunrise: Nullable<string>; // ISO-8601
+  sunset: Nullable<string>;
+  updatedAt: number; // epoch ms the vendor last updated these values
+}
+export interface IResponseWeather {
+  locationId: string;
+  temperatureUnit: 'F' | 'C'; // the location's temperature scale
+  speedUnit: 'mph' | 'km/h';
+  precipUnit: 'in' | 'mm';
+  // null when SmartThings has no weather for the location (eg. no geo-coordinates set) or the service didn't answer
+  current: Nullable<IWeatherConditions>;
+  forecast: IMeasurementHistoryPoint[]; // hourly temperature for the next ~12 hours, oldest first
+  precipNext24h: Nullable<number>;
+  snowNext24h: Nullable<number>;
+  since: number; // epoch ms - start of the requested history window
+  until: number; // epoch ms - when the response was built
+  // recorded outdoor temperature at or after `since`, oldest first - the service has no history, so the server records
+  // it on every measurement poll (see server/operations/recordWeatherOperation.ts)
+  history: IMeasurementHistoryPoint[];
+  recordingSince: Nullable<number>; // epoch ms of the first recorded reading (null = nothing recorded yet)
 }
 
 // motion = a motion sensor; light = any other switch (lights, plugs, fans - SmartThings doesn't say which)
