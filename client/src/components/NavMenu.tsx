@@ -172,6 +172,7 @@ const NavMenu: React.FC = () => {
       <DropdownButton
         buttonText="Debug"
         isSelected={debugSelected}
+        alignRight
       >
         {debugOptions}
       </DropdownButton>

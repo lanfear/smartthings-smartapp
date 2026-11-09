@@ -44,16 +44,22 @@ export const GlobalStyles = createGlobalStyle`
 
   // Style
 
-  body {
+  /* app shell: the page itself never scrolls - the nav stays put and .main-content (or a page's own scroll area) scrolls
+     instead. dvh rather than vh because on mobile 100vh includes the space behind the browser's address bar, which pushes
+     the bottom of the page off screen. overflow: clip (not hidden) so scrollIntoView can't scroll the shell sideways either */
+  html,
+  body,
+  #root {
+    height: 100vh;
+    height: 100dvh;
     max-width: 100vw;
-    max-height: 100vh;
-    display: flex;
-    flex-direction: column;
+  }
+
+  body {
+    overflow: clip;
   }
 
   #root {
-    max-width: 100vw;
-    max-height: 100vh;
     display: flex;
     flex-direction: column;
   }
@@ -63,8 +69,12 @@ export const GlobalStyles = createGlobalStyle`
       align-content: center;
   }
 
+  /* fills whatever height the nav leaves (the nav wraps to more rows on narrow screens, so it has no fixed height). pages
+     with their own scroll area fill it, anything taller scrolls here */
   .main-content {
-      max-height: calc(100vh - var(--navbar-height));
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
       display: flex;
       flex-direction: column;
       gap: 0.625rem;
@@ -164,31 +174,45 @@ export const GlobalStyles = createGlobalStyle`
   }
 
   nav.navbar {
-    height: var(--navbar-height);
-    padding: 0 100px;
+    position: relative;
+    flex: none;
+    min-height: var(--navbar-height);
+    padding: 0 clamp(8px, 5vw, 100px);
     background: rgba(255, 255, 255, .1);
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     backdrop-filter: blur(10px);
     background-color: rgba(110, 255, 185, 0.25);
     border-bottom: 2px solid rgba(255, 255, 255, .2);
 
+    /* decorative sweep. it slides the gradient across a fixed overlay rather than moving the overlay itself, which used to
+       end up parked off the right edge after a hover (or a tap on mobile) and widen the page */
     &::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
-      transition: .5s;
-      /* decorative sweep - it's positioned above the nav links while it animates, so let clicks pass through to them */
+      inset: 0;
+      background: linear-gradient(90deg, transparent 33%, rgba(255, 255, 255, .4) 50%, transparent 67%);
+      background-size: 300% 100%;
+      background-position: 100% 0;
+      transition: background-position .5s;
+      /* it sits above the nav links, so let clicks pass through to them */
       pointer-events: none;
     }
 
     &:hover::before {
-      left: 100%;
+      background-position: 0 0;
+    }
+
+    @media (max-width: 640px) {
+      justify-content: center;
+      padding: 4px 8px;
+
+      .navbar-item {
+        font-size: 15px;
+        padding: 6px 8px;
+      }
     }
   }
 

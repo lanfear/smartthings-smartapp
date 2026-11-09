@@ -416,6 +416,12 @@ export const DashboardTitle = styled.h2`
     position: relative;
     box-shadow: 0 15px 25px -15px rgba(0, 0, 0, 0.15);
 
+    /* leave more of a phone screen for the page itself */
+    @media (max-width: 640px) {
+        font-size: 1.5rem;
+        padding: 0.5rem 0;
+    }
+
     &::before {
         content: '';
         flex: 1;
